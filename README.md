@@ -28,7 +28,7 @@ The resulting channel package is intended for development sideloading. Roku Chan
 
 ## Feedback and contributions
 
-Bug reports and product feedback are welcome through [GitHub Issues](https://github.com/PorticoMediaServer/portico-roku/issues). Portico is not accepting external code contributions or pull requests at this stage. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports and product feedback are welcome through [GitHub Issues](https://github.com/PorticoMediaServer/portico-roku/issues). Portico does not accept external code contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Please report security issues privately as described in [SECURITY.md](SECURITY.md).
 
