@@ -23,7 +23,11 @@ function files(directory, base = directory) {
 
 function packageZip(target, entries) {
   try { unlinkSync(target); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-  const result = spawnSync('zip', ['-0', '-X', '-q', target, ...entries], {cwd: staging, encoding: 'utf8'});
+  const result = spawnSync('zip', ['-0', '-X', '-q', target, ...entries], {
+    cwd: staging,
+    encoding: 'utf8',
+    env: {...process.env, TZ: 'UTC'}
+  });
   assert.equal(result.status, 0, result.stderr || result.stdout || 'zip failed');
 }
 
