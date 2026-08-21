@@ -1,0 +1,183 @@
+{
+  "canvas": {"width": 1920, "height": 1080},
+  "layout": {
+    "version": 1,
+    "designCanvas": {"width": 1920, "height": 1080},
+    "minimumMode": "hd",
+    "displayModes": {
+      "hd": {"width": 1280, "height": 720, "safeZone": {"left": 72, "top": 54, "right": 72, "bottom": 54}},
+      "fhd": {"width": 1920, "height": 1080, "safeZone": {"left": 72, "top": 54, "right": 72, "bottom": 54}}
+    }
+  },
+  "colors": {
+    "projector": "#070B10",
+    "recess": "#0A1017",
+    "slate": "#101820",
+    "raisedSlate": "#151F29",
+    "brightSlate": "#1A2632",
+    "screenBlue": "#378EC3",
+    "screenBlueStrong": "#70BCE8",
+    "screenBlueDeep": "#286F9D",
+    "silver": "#F4F7FA",
+    "softSilver": "#C7D0D8",
+    "dimSilver": "#8F9BA6",
+    "mutedSilver": "#687581",
+    "focus": "#EAF6FF",
+    "tunerAmber": "#D7A34D",
+    "healthy": "#62C9A7",
+    "record": "#ED5B67"
+  },
+  "rokuCompensation": {
+    "homeTitleY": -22,
+    "sectionHeadingY": -5,
+    "cardCopyY": -5
+  },
+  "rail": {
+    "x": 24,
+    "y": 24,
+    "height": 1032,
+    "collapsedWidth": 80,
+    "expandedWidth": 280,
+    "contentX": 136,
+    "expandedContentTranslation": 200,
+    "itemHeight": 64,
+    "itemGap": 4,
+    "brandHeight": 58,
+    "labelSize": 21,
+    "indicatorWidth": 3
+  },
+  "hero": {
+    "homeHeight": 430,
+    "detailHeight": 570,
+    "copyWidth": 910,
+    "titleSize": 66,
+    "titleBoxHeight": 69,
+    "metaSize": 22,
+    "metaBoxHeight": 29,
+    "summarySize": 23,
+    "summaryLineHeight": 32,
+    "bottomPadding": 50
+  },
+  "controls": {
+    "height": 64,
+    "primaryWidth": 166,
+    "iconSize": 64,
+    "iconGlyphSize": 29,
+    "gap": 12,
+    "labelSize": 21,
+    "focusBorder": 3
+  },
+  "player": {
+    "identityX": 72,
+    "identityY": 58,
+    "identityWidth": 850,
+    "titleSize": 28,
+    "titleLineHeight": 35,
+    "metaSize": 19,
+    "metaLineHeight": 26,
+    "bottomY": 881,
+    "horizontalInset": 72,
+    "timeSize": 18,
+    "timeLineHeight": 23,
+    "progressY": 934,
+    "progressWidth": 1776,
+    "progressHeight": 6,
+    "transportX": 817,
+    "transportY": 956,
+    "transportWidth": 286,
+    "transportHeight": 88,
+    "transportButtonSize": 60,
+    "transportMainSize": 78,
+    "transportGap": 6,
+    "spinnerSize": 56
+  },
+  "shelf": {
+    "headingSize": 30,
+    "headingHeight": 36,
+    "headingToCards": 16,
+    "cardWidth": 214,
+    "artworkX": 6,
+    "artworkWidth": 202,
+    "artworkHeight": 321,
+    "cardHeight": 395,
+    "landscapeCardWidth": 320,
+    "landscapeArtworkWidth": 308,
+    "landscapeArtworkHeight": 180,
+    "landscapeCardHeight": 248,
+    "artworkCornerRadius": 8,
+    "cardGap": 18,
+    "rowGap": 42,
+    "titleSize": 21,
+    "titleHeight": 26,
+    "metaSize": 18,
+    "metaHeight": 23
+  },
+  "home": {
+    "hero": {
+      "id": "fargo",
+      "title": "Fargo",
+      "meta": "TV Show  ·  2015  ·  TV-MA  ·  48m",
+      "summary": "An unexpected crime fractures a quiet Midwestern town and draws a patient state trooper into its orbit.",
+      "watchlisted": true,
+      "backdrop": "pkg:/images/backdrops/fargo.jpg"
+    },
+    "continueWatching": [
+      {"id": "fargo", "title": "Fargo", "meta": "2015", "poster": "pkg:/images/posters/fargo.png", "progress": 64},
+      {
+        "id": "rookie",
+        "title": "The Rookie",
+        "meta": "2018",
+        "poster": "pkg:/images/posters/rookie.png",
+        "progress": 37,
+        "hero": {
+          "id": "rookie",
+          "title": "The Rookie",
+          "meta": "TV Show  ·  2018  ·  TV-14  ·  43m",
+          "summary": "A late-career police recruit learns that experience can be as valuable as speed.",
+          "watchlisted": false,
+          "backdrop": "pkg:/images/backdrops/rookie.jpg"
+        }
+      },
+      {"id": "project-hail-mary", "title": "Project Hail Mary", "meta": "2021", "poster": "pkg:/images/posters/project-hail-mary.png", "progress": 21}
+    ],
+    "recentlyAdded": [
+      {"id": "hurt-locker", "title": "The Hurt Locker", "meta": "2008", "poster": "pkg:/images/posters/hurt-locker.png"},
+      {"id": "dolphin-reef", "title": "Dolphin Reef", "meta": "2020", "poster": "pkg:/images/posters/dolphin-reef.png"},
+      {"id": "earth-stood-still", "title": "The Day the Earth Stood Still", "meta": "1951", "poster": "pkg:/images/posters/earth-stood-still.png"},
+      {"id": "martian", "title": "The Martian", "meta": "2015", "poster": "pkg:/images/posters/martian.png"},
+      {"id": "blade-runner-2049", "title": "Blade Runner 2049", "meta": "2017", "poster": "pkg:/images/posters/blade-runner.png"},
+      {"id": "life-aquatic", "title": "The Life Aquatic", "meta": "2004", "poster": "pkg:/images/posters/life-aquatic.png"}
+    ]
+  },
+  "detail": {
+    "id": "rookie-s06e04",
+    "parent": "The Rookie",
+    "title": "The Hammer",
+    "meta": "S06 E04  ·  43 min  ·  TV-14",
+    "summary": "The team must help Tim and Lucy navigate a difficult day while a case puts the station under pressure.",
+    "backdrop": "pkg:/images/backdrops/rookie.jpg",
+    "progress": 37,
+    "episodes": [
+      {"id": "rookie-s06e03", "title": "Training Day", "meta": "S06 E03  ·  43 min", "artwork": "pkg:/images/backdrops/rookie-episode-1.png", "progress": 100},
+      {"id": "rookie-s06e04", "title": "The Hammer", "meta": "S06 E04  ·  43 min", "artwork": "pkg:/images/backdrops/rookie-episode-2.png", "progress": 37},
+      {"id": "rookie-s06e05", "title": "The Vow", "meta": "S06 E05  ·  43 min", "artwork": "pkg:/images/backdrops/rookie-episode-3.png", "progress": 0}
+    ]
+  },
+  "railPrimaryItems": [
+    {"id": "home", "route": "home", "label": "Home", "iconId": "navigation.home", "selected": true},
+    {"id": "search", "route": "search", "label": "Search", "iconId": "navigation.search"},
+    {"id": "library", "route": "library", "label": "Library", "iconId": "navigation.library"},
+    {"id": "channels", "route": "channels", "label": "Channels", "iconId": "navigation.channels"},
+    {"id": "saved", "route": "saved", "label": "Saved", "iconId": "navigation.saved"}
+  ],
+  "railLibraryItems": [
+    {"id": "movies", "route": "library/movies", "label": "Movies", "iconId": "media.movie"},
+    {"id": "tv-shows", "route": "library/tv-shows", "label": "TV Shows", "iconId": "media.live-tv"},
+    {"id": "music", "route": "library/music", "label": "Music", "iconId": "media.music"},
+    {"id": "audiobooks", "route": "library/audiobooks", "label": "Audiobooks", "iconId": "media.audiobook"}
+  ],
+  "railBottomItems": [
+    {"id": "profile", "route": "profile", "label": "Profile", "iconId": "account.profile"},
+    {"id": "settings", "route": "settings", "label": "Settings", "iconId": "navigation.settings"}
+  ]
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoProfilePinOverlay" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <function name="consumePin" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoProfilePinOverlay.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#070B10" opacity="0.92" />
+        <Rectangle translation="[650,150]" width="620" height="780" color="#101820" />
+        <Label id="title" translation="[700,202]" width="520" height="56" maxLines="1" horizAlign="center" />
+        <Label id="dots" translation="[700,276]" width="520" height="62" maxLines="1" horizAlign="center" />
+        <Group id="keys" translation="[778,370]">
+            <PorticoSearchKey id="key0" /><PorticoSearchKey id="key1" translation="[120,0]" /><PorticoSearchKey id="key2" translation="[240,0]" />
+            <PorticoSearchKey id="key3" translation="[0,72]" /><PorticoSearchKey id="key4" translation="[120,72]" /><PorticoSearchKey id="key5" translation="[240,72]" />
+            <PorticoSearchKey id="key6" translation="[0,144]" /><PorticoSearchKey id="key7" translation="[120,144]" /><PorticoSearchKey id="key8" translation="[240,144]" />
+            <PorticoSearchKey id="key9" translation="[0,216]" /><PorticoSearchKey id="key10" translation="[120,216]" /><PorticoSearchKey id="key11" translation="[240,216]" />
+        </Group>
+        <Label id="error" translation="[700,702]" width="520" height="60" maxLines="2" horizAlign="center" />
+    </children>
+</component>

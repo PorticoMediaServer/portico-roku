@@ -1,0 +1,4416 @@
+{
+  "generatorRevision": 1,
+  "operations": [
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "authorizeLocalServerLogin",
+      "path": "/api/account/servers/{serverId}/local-login/authorize",
+      "permission": "hosted_account",
+      "ratePolicy": "auth",
+      "responseSchemas": [
+        "LocalLoginAuthorizeResponse"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "createDeviceAuthorizationSession",
+      "path": "/api/device-authorization/sessions",
+      "permission": "public",
+      "ratePolicy": "device_authorization",
+      "responseSchemas": [
+        "DeviceAuthorizationSessionCreateResponse"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "createHostedProfileSelectionEnvelope",
+      "path": "/api/account/profiles/{profileId}/selection-assertions",
+      "permission": "hosted_account",
+      "ratePolicy": "auth",
+      "responseSchemas": [
+        "HostedProfileSelectionEnvelope"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "createPorticoSession",
+      "path": "/api/account/servers/{serverId}/sessions",
+      "permission": "hosted_account",
+      "ratePolicy": "auth",
+      "responseSchemas": [
+        "PorticoSessionBootstrap"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountProfile",
+      "path": "/api/account/profiles/{profileId}",
+      "permission": "hosted_account",
+      "ratePolicy": "account_read",
+      "responseSchemas": [
+        "PorticoProfile"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountServer",
+      "path": "/api/account/servers/{serverId}",
+      "permission": "hosted_account",
+      "ratePolicy": "server",
+      "responseSchemas": [
+        "Server"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDocumentSigningKeys",
+      "path": "/api/signing-keys",
+      "permission": "public",
+      "ratePolicy": "public_read",
+      "responseSchemas": [
+        "DocumentSigningKeySet"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "mixed_scoped_dispatcher",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getHostedAuthState",
+      "path": "/api/auth/me",
+      "permission": "mixed_scoped_dispatcher",
+      "ratePolicy": "account_read",
+      "responseSchemas": [
+        "HostedAuthState"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getHostedSystem",
+      "path": "/api/system",
+      "permission": "public",
+      "ratePolicy": "public_read",
+      "responseSchemas": [
+        "HostedSystemInfo"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getServerRoutes",
+      "path": "/api/account/servers/{serverId}/routes",
+      "permission": "hosted_account",
+      "ratePolicy": "routes",
+      "responseSchemas": [
+        "RouteDocument"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "listAccountProfiles",
+      "path": "/api/account/profiles",
+      "permission": "hosted_account",
+      "ratePolicy": "account_read",
+      "responseSchemas": [
+        "AccountProfileDirectory"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "listAccountServers",
+      "path": "/api/account/servers",
+      "permission": "hosted_account",
+      "ratePolicy": "account_read",
+      "responseSchemas": [
+        "ServerList"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "scoped_secret",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "pollDeviceAuthorizationSession",
+      "path": "/api/device-authorization/sessions/{authorizationSessionId}",
+      "permission": "scoped_secret",
+      "ratePolicy": "device_authorization",
+      "responseSchemas": [
+        "DeviceAuthorizationSessionStatusResponse"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "scoped_secret",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "redeemDeviceAuthorizationSession",
+      "path": "/api/device-authorization/sessions/{authorizationSessionId}/redeem",
+      "permission": "scoped_secret",
+      "ratePolicy": "device_authorization",
+      "responseSchemas": [
+        "DeviceAuthorizationRedeemResponse"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "scoped_secret",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "refreshNativeSession",
+      "path": "/api/auth/sessions/refresh",
+      "permission": "scoped_secret",
+      "ratePolicy": "auth",
+      "responseSchemas": [
+        "NativeSessionCredentials"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "hosted_account",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "reportServerRouteFailure",
+      "path": "/api/account/servers/{serverId}/route-failures",
+      "permission": "hosted_account",
+      "ratePolicy": "routes",
+      "responseSchemas": [
+        "OKResponse"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "television-client",
+      "auth": "scoped_secret",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "revokeNativeSession",
+      "path": "/api/auth/sessions/revoke",
+      "permission": "scoped_secret",
+      "ratePolicy": "auth",
+      "responseSchemas": [
+        "OKResponse"
+      ],
+      "service": "hosted",
+      "surfaces": [
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "attachPorticoSession",
+      "path": "/auth/portico/sessions",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "PorticoAttachmentEncryptedResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "authenticateLocalProfileAccount",
+      "path": "/auth/profile-authentications/local",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "ProfileAccountAuthenticationResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "browseLibrary",
+      "path": "/libraries/{libraryId}/browse",
+      "permission": "view-library",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "BrowseLibraryResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "createAutomaticProfileTrust",
+      "path": "/account/profile-trusts",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "AutomaticProfileTrust"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "createNativeProfileSession",
+      "path": "/auth/profile-sessions/native",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "NativeSessionCredentials"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "createNativeSession",
+      "path": "/auth/sessions",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "NativeSessionCredentials"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteAccountSessionsId",
+      "path": "/account/sessions/{id}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DeleteAccountSessionsIdResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteAccountWatchHistory",
+      "path": "/account/watch-history",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DeleteAccountWatchHistoryResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteCollectionsCollectionId",
+      "path": "/collections/{collectionId}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "SuccessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteDvrRecordingsId",
+      "path": "/dvr/recordings/{id}",
+      "permission": "schedule-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DeleteDvrRecordingsIdResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteDvrRulesId",
+      "path": "/dvr/rules/{id}",
+      "permission": "schedule-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DeleteDvrRulesIdResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deletePlaybackSessionsSessionId",
+      "path": "/playback-sessions/{sessionId}",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "SuccessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteSavedViewsSavedViewId",
+      "path": "/saved-views/{savedViewId}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "SuccessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteSearchHistory",
+      "path": "/search/history",
+      "permission": "browse",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "query",
+        "required": true
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteWatchWithFriendsGroupsGroupId",
+      "path": "/watch-with-friends/groups/{groupId}",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "query",
+        "required": true
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "deleteWatchWithFriendsGroupsGroupIdQueueMediaId",
+      "path": "/watch-with-friends/groups/{groupId}/queue/{mediaId}",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountImage",
+      "path": "/account/image",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetAccountImageResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountLibraryNavigation",
+      "path": "/account/library-navigation",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryNavigationPreferences"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountPreferences",
+      "path": "/account/preferences",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "UserPreferences"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountProfile",
+      "path": "/account/profile",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "User"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAccountSessions",
+      "path": "/account/sessions",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetAccountSessionsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getArtworkIdKind",
+      "path": "/artwork/{id}/{kind}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAuthCapabilities",
+      "path": "/auth/capabilities",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "AuthCapabilities"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAuthMe",
+      "path": "/auth/me",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "AuthMe"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getAuthTvSetupSessionsSetupSessionId",
+      "path": "/auth/tv-setup/sessions/{setupSessionId}",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "TVSetupSession"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getBranding",
+      "path": "/branding",
+      "permission": "public",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "BrandingInfo"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getCollections",
+      "path": "/collections",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "CollectionPage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getCollectionsCollectionId",
+      "path": "/collections/{collectionId}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "Collection"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getCollectionsCollectionIdItems",
+      "path": "/collections/{collectionId}/items",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SavedMediaPage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDisplayPreferencesClientView",
+      "path": "/display-preferences/{client}/{view}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "DisplayPreference"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRecordingGroups",
+      "path": "/dvr/recording-groups",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetDvrRecordingGroupsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRecordings",
+      "path": "/dvr/recordings",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetDvrRecordingsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRecordingsId",
+      "path": "/dvr/recordings/{id}",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "DVRRecording"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRecordingsIdHlsResource",
+      "path": "/dvr/recordings/{id}/hls/{resource}",
+      "permission": "view-dvr",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRecordingsIdStream",
+      "path": "/dvr/recordings/{id}/stream",
+      "permission": "view-dvr",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "GetDvrRecordingsIdStreamResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRules",
+      "path": "/dvr/rules",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetDvrRulesResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrRulesId",
+      "path": "/dvr/rules/{id}",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "DVRRecordingRule"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDvrSchedule",
+      "path": "/dvr/schedule",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetDvrScheduleResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getDVRStatus",
+      "path": "/dvr/status",
+      "permission": "view-dvr",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "DVRConsumerStatus"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getEvents",
+      "path": "/events",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "AppEvent"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getFavorites",
+      "path": "/favorites",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetFavoritesResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getHome",
+      "path": "/home",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "HomeResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getHomeRowsId",
+      "path": "/home/rows/{id}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "HomeRow"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getInstantMixId",
+      "path": "/instant-mix/{id}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetInstantMixIdResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraries",
+      "path": "/libraries",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibrariesId",
+      "path": "/libraries/{id}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "Library"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibrariesIdAuthors",
+      "path": "/libraries/{id}/authors",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryFacetValueListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibrariesIdCategories",
+      "path": "/libraries/{id}/categories",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryCategoryListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibrariesIdSeries",
+      "path": "/libraries/{id}/series",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryFacetValueListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraryBrowseCapabilities",
+      "path": "/libraries/{libraryId}/browse-capabilities",
+      "permission": "view-library",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryBrowseCapabilities"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraryChannelGuide",
+      "path": "/library-channels/{channelId}/guide",
+      "permission": "view-live-tv",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryChannelGuide"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraryChannelHLSResource",
+      "path": "/library-channels/{channelId}/hls/{resource}",
+      "permission": "play-live-tv",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "GetLibraryChannelHLSResourceResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraryChannelLogo",
+      "path": "/library-channels/logos/{assetId}",
+      "permission": "view-live-tv",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetLibraryChannelLogoResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraryChannelsGuide",
+      "path": "/library-channels/guide",
+      "permission": "view-live-tv",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryChannelsGuide"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLibraryDiscover",
+      "path": "/libraries/{id}/discover",
+      "permission": "authenticated",
+      "ratePolicy": "search",
+      "responseSchemas": [
+        "SuggestionsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTv",
+      "path": "/live-tv",
+      "permission": "view-live-tv",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "LiveTVSourceSummaryListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvChannelsChannelId",
+      "path": "/live-tv/channels/{channelId}",
+      "permission": "view-live-tv",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "LiveTVChannel"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvHlsChannelIdItem",
+      "path": "/live-tv/hls/{channelId}/item",
+      "permission": "play-media",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload",
+        "TextPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvHlsChannelIdPlaylistM3u8",
+      "path": "/live-tv/hls/{channelId}/playlist.m3u8",
+      "permission": "play-media",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "TextPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvHlsChannelIdSegment",
+      "path": "/live-tv/hls/{channelId}/segment",
+      "permission": "play-media",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvLogosChannelId",
+      "path": "/live-tv/logos/{channelId}",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvSourcesSourceIdChannels",
+      "path": "/live-tv/sources/{sourceId}/channels",
+      "permission": "view-live-tv",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "LiveTVChannelListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvSourcesSourceIdGuide",
+      "path": "/live-tv/sources/{sourceId}/guide",
+      "permission": "view-live-tv",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "LiveTVGuide"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLiveTvStreamsChannelId",
+      "path": "/live-tv/streams/{channelId}",
+      "permission": "view-live-tv",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getLocalization",
+      "path": "/localization",
+      "permission": "public",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LocalizationInfo"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaChildren",
+      "path": "/media/{id}/children",
+      "permission": "browse",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "MediaChildrenResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaId",
+      "path": "/media/{id}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "MediaItem"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdAttachmentsAttachmentId",
+      "path": "/media/{id}/attachments/{attachmentId}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetMediaIdAttachmentsAttachmentIdResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdHlsResource",
+      "path": "/media/{id}/hls/{resource}",
+      "permission": "authenticated",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdRecommendations",
+      "path": "/media/{id}/recommendations",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "HomeRowListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdStream",
+      "path": "/media/{id}/stream",
+      "permission": "authenticated",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdTrickplay",
+      "path": "/media/{id}/trickplay",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetMediaIdTrickplayResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdTrickplaySetIdTilesM3u8",
+      "path": "/media/{id}/trickplay/{setId}/tiles.m3u8",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetMediaIdTrickplaySetIdTilesM3u8Response"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getMediaIdTrickplaySetIdTilesTileIndexJpg",
+      "path": "/media/{id}/trickplay/{setId}/tiles/{tileIndex}.jpg",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetMediaIdTrickplaySetIdTilesTileIndexJpgResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getNetworkConnectionInfo",
+      "path": "/network/connection-info",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "NetworkConnectionInfo"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPeopleMedia",
+      "path": "/people/media",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "MediaItemListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPersonDetail",
+      "path": "/people/{personId}",
+      "permission": "browse",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "PersonDetailResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackHistory",
+      "path": "/playback/history",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "GetPlaybackHistoryResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackReceivers",
+      "path": "/playback/receivers",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "GetPlaybackReceiversResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackReceiversReceiverIdEvents",
+      "path": "/playback/receivers/{receiverId}/events",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "GetPlaybackReceiversReceiverIdEventsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackSessionsSessionIdCommand",
+      "path": "/playback-sessions/{sessionId}/command",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackCommand"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackSessionsSessionIdCommandEvents",
+      "path": "/playback-sessions/{sessionId}/command/events",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "GetPlaybackSessionsSessionIdCommandEventsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackSessionsSessionIdQueue",
+      "path": "/playback-sessions/{sessionId}/queue",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackSessionQueueResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaybackTargets",
+      "path": "/playback/targets",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "GetPlaybackTargetsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaylists",
+      "path": "/playlists",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "PlaylistPage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaylistsPlaylistId",
+      "path": "/playlists/{playlistId}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SavedPlaylist"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getPlaylistsPlaylistIdItems",
+      "path": "/playlists/{playlistId}/items",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "PlaylistEntryPage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getProductContract",
+      "path": "/product-contract",
+      "permission": "browse",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "ProductContract"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getProductLanguage",
+      "path": "/product-language/{locale}",
+      "permission": "public",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "ProductLanguageCatalog"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getReadiness",
+      "path": "/readiness",
+      "permission": "public",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetReadinessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getRemoteAccessHealth",
+      "path": "/remote-access/health",
+      "permission": "public",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetRemoteAccessHealthResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getSavedShareCandidates",
+      "path": "/saved/share-candidates",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SavedShareCandidatePage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getSavedViews",
+      "path": "/saved-views",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SavedViewPage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getSavedViewsSavedViewId",
+      "path": "/saved-views/{savedViewId}",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SavedView"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getSearchHistory",
+      "path": "/search/history",
+      "permission": "browse",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SearchHistoryResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getSuggestions",
+      "path": "/suggestions",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SuggestionsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getSystem",
+      "path": "/system",
+      "permission": "public",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "SystemStatus"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getViewerFeedbackCapabilities",
+      "path": "/feedback/capabilities",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "ViewerFeedbackCapabilities"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getViewerPreferenceBundle",
+      "path": "/preferences",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "ViewerPreferenceBundle"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getWatchlist",
+      "path": "/watchlist",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetWatchlistResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getWatchWithFriendsGroups",
+      "path": "/watch-with-friends/groups",
+      "permission": "play-media",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetWatchWithFriendsGroupsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getWatchWithFriendsGroupsGroupId",
+      "path": "/watch-with-friends/groups/{groupId}",
+      "permission": "play-media",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "getWatchWithFriendsGroupsGroupIdEvents",
+      "path": "/watch-with-friends/groups/{groupId}/events",
+      "permission": "play-media",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "GetWatchWithFriendsGroupsGroupIdEventsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "HEAD",
+      "mutation": false,
+      "operationId": "headMediaIdHlsResource",
+      "path": "/media/{id}/hls/{resource}",
+      "permission": "authenticated",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "HEAD",
+      "mutation": false,
+      "operationId": "headMediaIdStream",
+      "path": "/media/{id}/stream",
+      "permission": "authenticated",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "media-grant-or-session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "HEAD",
+      "mutation": false,
+      "operationId": "inspectLibraryChannelHLSResource",
+      "path": "/library-channels/{channelId}/hls/{resource}",
+      "permission": "play-live-tv",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "BinaryPayload"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "listAccountProfiles",
+      "path": "/account/profiles",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "ManagedProfileDirectory"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "listLibraryChannels",
+      "path": "/library-channels",
+      "permission": "view-live-tv",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "LibraryChannelListResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "listViewerNotifications",
+      "path": "/notifications",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "ViewerNotificationPage"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "markAllViewerNotificationsRead",
+      "path": "/notifications/read-all",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "NotificationReceipt"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchAccountLibraryNavigation",
+      "path": "/account/library-navigation",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "LibraryNavigationPreferences"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchAccountProfile",
+      "path": "/account/profile",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "User"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchCollectionsCollectionId",
+      "path": "/collections/{collectionId}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "Collection"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchDisplayPreferencesClientView",
+      "path": "/display-preferences/{client}/{view}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DisplayPreference"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchDvrRecordingsId",
+      "path": "/dvr/recordings/{id}",
+      "permission": "schedule-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DVRRecording"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchDvrRulesId",
+      "path": "/dvr/rules/{id}",
+      "permission": "schedule-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DVRRecordingRule"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchPlaybackReceiversReceiverId",
+      "path": "/playback/receivers/{receiverId}",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackReceiver"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchPlaybackSessionsSessionId",
+      "path": "/playback-sessions/{sessionId}",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackProgressAcknowledgement"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchPlaybackSessionsSessionIdQueue",
+      "path": "/playback-sessions/{sessionId}/queue",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackSessionQueueResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchSavedViewsSavedViewId",
+      "path": "/saved-views/{savedViewId}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "SavedView"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchViewerPreferenceDocument",
+      "path": "/preferences/{scopeType}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "PatchViewerPreferenceDocumentResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchWatchWithFriendsGroupsGroupIdMemberState",
+      "path": "/watch-with-friends/groups/{groupId}/member/state",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchWatchWithFriendsGroupsGroupIdQueue",
+      "path": "/watch-with-friends/groups/{groupId}/queue",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchWatchWithFriendsGroupsGroupIdSettings",
+      "path": "/watch-with-friends/groups/{groupId}/settings",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "patchWatchWithFriendsGroupsGroupIdState",
+      "path": "/watch-with-friends/groups/{groupId}/state",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "pollApplicationEvents",
+      "path": "/events/poll",
+      "permission": "authenticated",
+      "ratePolicy": "long-poll",
+      "responseSchemas": [
+        "ApplicationEventLongPollEnvelope"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "pollPlaybackReceiverEvents",
+      "path": "/playback/receivers/{receiverId}/events/poll",
+      "permission": "play-media",
+      "ratePolicy": "long-poll",
+      "responseSchemas": [
+        "PlaybackReceiverLongPollEnvelope"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "pollPlaybackSessionCommands",
+      "path": "/playback-sessions/{sessionId}/command/events/poll",
+      "permission": "play-media",
+      "ratePolicy": "long-poll",
+      "responseSchemas": [
+        "PlaybackCommandLongPollEnvelope"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "pollViewerNotificationInvalidations",
+      "path": "/notifications/events/poll",
+      "permission": "authenticated",
+      "ratePolicy": "long-poll",
+      "responseSchemas": [
+        "NotificationInvalidationLongPollEnvelope"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "pollWatchWithFriendsGroupEvents",
+      "path": "/watch-with-friends/groups/{groupId}/events/poll",
+      "permission": "play-media",
+      "ratePolicy": "long-poll",
+      "responseSchemas": [
+        "WatchWithFriendsLongPollEnvelope"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postAuthLogout",
+      "path": "/auth/logout",
+      "permission": "authenticated",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "SuccessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postAuthTvSetupRedeem",
+      "path": "/auth/tv-setup/redeem",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "NativeSessionCredentials"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postAuthTvSetupSessions",
+      "path": "/auth/tv-setup/sessions",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "TVSetupSession"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postCollections",
+      "path": "/collections",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "Collection"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postCollectionsCollectionIdMembershipsBatch",
+      "path": "/collections/{collectionId}/memberships:batch",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "CollectionMembershipBatchResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postDvrRecordings",
+      "path": "/dvr/recordings",
+      "permission": "schedule-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DVRRecording"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postDvrRecordingsIdPlayback",
+      "path": "/dvr/recordings/{id}/playback",
+      "permission": "view-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "PlaybackResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postDvrRules",
+      "path": "/dvr/rules",
+      "permission": "schedule-dvr",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "DVRRecordingRule"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postLiveTvPlay",
+      "path": "/live-tv/play",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postLiveTvStreamsChannelIdClose",
+      "path": "/live-tv/streams/{channelId}/close",
+      "permission": "play-media",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "SuccessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postLiveTvStreamsChannelIdOpen",
+      "path": "/live-tv/streams/{channelId}/open",
+      "permission": "play-media",
+      "ratePolicy": "media-delivery",
+      "responseSchemas": [
+        "PlaybackResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postMediaIdFavorite",
+      "path": "/media/{id}/favorite",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "MediaItem"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postMediaIdRating",
+      "path": "/media/{id}/rating",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "MediaItem"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postMediaIdReaction",
+      "path": "/media/{id}/reaction",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "MediaItem"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postMediaIdWatched",
+      "path": "/media/{id}/watched",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "MediaItem"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postMediaIdWatchlist",
+      "path": "/media/{id}/watchlist",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "MediaItem"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackActive",
+      "path": "/playback/active",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackRestoreResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackNext",
+      "path": "/playback/next",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackNextResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackQueue",
+      "path": "/playback/queue",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackQueueResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackReceivers",
+      "path": "/playback/receivers",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackReceiver"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackReceiversReceiverIdCommand",
+      "path": "/playback/receivers/{receiverId}/command",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackCommand"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackSessions",
+      "path": "/playback-sessions",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackSessionsSessionIdCommand",
+      "path": "/playback-sessions/{sessionId}/command",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackCommand"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackSessionsSessionIdHandoff",
+      "path": "/playback-sessions/{sessionId}/handoff",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackSessionsSessionIdMediaGrant",
+      "path": "/playback-sessions/{sessionId}/media-grant",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "MediaGrant"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaybackSessionsSessionIdPrepareNext",
+      "path": "/playback-sessions/{sessionId}/prepare-next",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackPreparedResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postPlaylistsPlaylistIdItemsBatch",
+      "path": "/playlists/{playlistId}/items:batch",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "PlaylistItemsBatchResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postSavedViews",
+      "path": "/saved-views",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "SavedView"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postSavedViewsSavedViewIdBrowse",
+      "path": "/saved-views/{savedViewId}/browse",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "BrowseLibraryResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postSearch",
+      "path": "/search",
+      "permission": "authenticated",
+      "ratePolicy": "search",
+      "responseSchemas": [
+        "SearchResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postWatchWithFriendsGroups",
+      "path": "/watch-with-friends/groups",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postWatchWithFriendsGroupsGroupIdJoin",
+      "path": "/watch-with-friends/groups/{groupId}/join",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postWatchWithFriendsGroupsGroupIdLeave",
+      "path": "/watch-with-friends/groups/{groupId}/leave",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "postWatchWithFriendsGroupsGroupIdQueue",
+      "path": "/watch-with-friends/groups/{groupId}/queue",
+      "permission": "play-media",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "WatchWithFriendsGroup"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "recordViewerProfileActivation",
+      "path": "/preferences/profile-activation",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "AccountServerInstallationPreferenceDocument"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "redeemAutomaticProfileTrust",
+      "path": "/account/profile-trusts/redeem",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "refreshNativeSession",
+      "path": "/auth/sessions/refresh",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "NativeSessionCredentials"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "renegotiatePlaybackSession",
+      "path": "/playback-sessions/{sessionId}/renegotiate",
+      "permission": "play-media",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "PlaybackResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "DELETE",
+      "mutation": true,
+      "operationId": "revokeAutomaticProfileTrusts",
+      "path": "/account/profile-trusts",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "revokeNativeSession",
+      "path": "/auth/sessions/revoke",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "SuccessResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "public",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "selectLocalProfile",
+      "path": "/auth/profile-selections/local",
+      "permission": "public",
+      "ratePolicy": "auth-sensitive",
+      "responseSchemas": [
+        "ProfileSelectionResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "GET",
+      "mutation": false,
+      "operationId": "streamViewerNotificationInvalidations",
+      "path": "/notifications/events",
+      "permission": "authenticated",
+      "ratePolicy": "interactive-read",
+      "responseSchemas": [
+        "StreamViewerNotificationInvalidationsResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "submitViewerFeedback",
+      "path": "/feedback",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "ViewerFeedbackReceipt"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "tuneLibraryChannel",
+      "path": "/library-channels/{channelId}/tune",
+      "permission": "play-live-tv",
+      "ratePolicy": "playback-control",
+      "responseSchemas": [
+        "LibraryChannelTuneResponse"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "PATCH",
+      "mutation": true,
+      "operationId": "updateViewerNotificationReceipt",
+      "path": "/notifications/{notificationId}",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "ViewerNotification"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    },
+    {
+      "audience": "viewer",
+      "auth": "session",
+      "idempotency": {
+        "location": "none",
+        "required": false
+      },
+      "method": "POST",
+      "mutation": true,
+      "operationId": "updateViewerNotificationReceipts",
+      "path": "/notifications/receipts",
+      "permission": "authenticated",
+      "ratePolicy": "state-mutation",
+      "responseSchemas": [
+        "NotificationReceiptResult"
+      ],
+      "service": "server",
+      "surfaces": [
+        "web",
+        "mobile",
+        "television"
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "sources": {
+    "hostedOpenApi": {
+      "name": "portico-hosted.openapi.json",
+      "sha256": "1b7482129b83a982e9d4243dc338f8bc627295a265b5f078eeece2a11cc06230"
+    },
+    "serverOpenApi": {
+      "name": "portico-server.openapi.json",
+      "sha256": "01aec71b9afba7accf3df904dd4608584c94593b762c809a8aff3fdd74e74819"
+    }
+  }
+}

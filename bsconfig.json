@@ -1,0 +1,26 @@
+{
+  "rootDir": "channel",
+  "files": [
+    "manifest",
+    "source/**/*",
+    "components/**/*",
+    "fonts/**/*",
+    "images/brand/**/*",
+    "images/icons/**/*",
+    "images/ui/**/*",
+    "data/runtime-ui-contract.json",
+    "data/release-identity.v1.json",
+    "data/parity/**/*",
+    "data/generated/**/*"
+  ],
+  "manifest": {
+    "bs_const": {
+      "visual_fixture": false
+    }
+  },
+  "stagingFolderPath": "artifacts/staging-release",
+  "createPackage": true,
+  "outFile": "artifacts/portico-roku-release.zip",
+  "sourceMap": false,
+  "retainStagingFolder": true
+}

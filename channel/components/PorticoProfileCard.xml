@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoProfileCard" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoProfileCard.brs" />
+    <children>
+        <Rectangle id="surface" width="214" height="288" color="#121921" />
+        <Poster id="focusSurface" width="214" height="288" loadWidth="214" loadHeight="288" visible="false" />
+        <Poster id="avatar" translation="[31,24]" width="152" height="152" loadWidth="152" loadHeight="152" loadDisplayMode="scaleToFill" />
+        <Poster id="fallback" translation="[66,59]" width="82" height="82" loadWidth="82" loadHeight="82" loadDisplayMode="scaleToFit" />
+        <Label id="name" translation="[12,194]" width="190" height="34" maxLines="1" horizAlign="center" />
+        <Label id="detail" translation="[12,232]" width="190" height="28" maxLines="1" horizAlign="center" />
+    </children>
+</component>

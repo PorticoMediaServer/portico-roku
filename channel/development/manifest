@@ -1,0 +1,14 @@
+title=Portico Visual Fixture
+subtitle=Development visual-parity package
+major_version=0
+minor_version=1
+build_version=0
+ui_resolutions=fhd
+rsg_version=1.3
+bs_const=visual_fixture=true
+supports_input_launch=1
+network_not_required=1
+mm_icon_focus_fhd=pkg:/images/ui/channel-poster-fhd.png
+splash_screen_fhd=pkg:/images/ui/splash-fhd.jpg
+splash_color=#070B10
+splash_min_time=0

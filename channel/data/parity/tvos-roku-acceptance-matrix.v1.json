@@ -1,0 +1,417 @@
+{
+  "authority": {
+    "accountFixture": "parity-account-v1",
+    "artifactDigestPolicy": "exact-sha256-required-at-runtime",
+    "devicePolicy": "low-power-hd-mainstream-fhd-current-high-end",
+    "faultCorpus": "parity-fault-corpus-v1",
+    "hostedBuild": {
+      "status": "pending-runtime",
+      "value": "same-hosted-build"
+    },
+    "mediaCorpus": "parity-media-corpus-v1",
+    "profileFixture": "parity-primary-profile-v1",
+    "serverBuild": {
+      "status": "pending-runtime",
+      "value": "same-server-build"
+    }
+  },
+  "cases": [
+    {
+      "evidence": "awaiting-device-and-provider-run",
+      "exceptionIds": [],
+      "expectedEvents": [
+        "credentials-accepted",
+        "server-selected",
+        "profile-authorized",
+        "viewer-published"
+      ],
+      "id": "auth-viewer-publication",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": null,
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/remote-accessibility.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "setup"
+    },
+    {
+      "evidence": "awaiting-device-and-provider-run",
+      "exceptionIds": [],
+      "expectedEvents": [
+        "home-loaded",
+        "route-fault-injected",
+        "route-recovered",
+        "home-reconciled"
+      ],
+      "id": "browse-route-recovery",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-media-home-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/error-recovery.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "browse"
+    },
+    {
+      "evidence": "awaiting-device-decoder-run",
+      "exceptionIds": [],
+      "expectedEvents": [
+        "playback-preparing",
+        "first-frame",
+        "playing",
+        "progress"
+      ],
+      "id": "direct-playback-first-frame",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-vod-h264-aac-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/error-recovery.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "playback"
+    },
+    {
+      "evidence": "awaiting-device-decoder-run",
+      "exceptionIds": [
+        "hdr-capability"
+      ],
+      "expectedEvents": [
+        "source-selected",
+        "live-window-published",
+        "seek-clamped",
+        "progress"
+      ],
+      "id": "hls-live-dvr-seek",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-hls-live-dvr-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/roku-hardware-instrumentation.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "playback"
+    },
+    {
+      "evidence": "awaiting-device-decoder-run",
+      "exceptionIds": [
+        "caption-styling",
+        "playback-speed"
+      ],
+      "expectedEvents": [
+        "resume-position-applied",
+        "audio-selected",
+        "subtitle-selected",
+        "completion-threshold",
+        "stopped"
+      ],
+      "id": "resume-track-selection-completion",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-vod-multitrack-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/remote-accessibility.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "playback"
+    },
+    {
+      "evidence": "awaiting-device-and-provider-run",
+      "exceptionIds": [],
+      "expectedEvents": [
+        "fault-classified",
+        "retry-budget-consumed",
+        "recovery-action",
+        "terminal-or-recovered"
+      ],
+      "id": "bounded-error-retry-recovery",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-vod-h264-aac-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/error-recovery.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "recovery"
+    },
+    {
+      "evidence": "awaiting-remote-hardware-run",
+      "exceptionIds": [],
+      "expectedEvents": [
+        "overlay-dismissed",
+        "panel-dismissed",
+        "player-exited",
+        "focus-restored"
+      ],
+      "id": "remote-back-focus-restoration",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-vod-h264-aac-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "Client Prototypes/roku-visual-parity/channel/data/parity/remote-accessibility.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "remote"
+    },
+    {
+      "evidence": "awaiting-voiceover-audio-guide-run",
+      "exceptionIds": [
+        "reduced-motion"
+      ],
+      "expectedEvents": [
+        "label-read",
+        "selected-state-read",
+        "disabled-state-read",
+        "loading-state-read",
+        "error-action-read"
+      ],
+      "id": "accessibility-state-announcements",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-vod-multitrack-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "Client Prototypes/roku-visual-parity/channel/data/parity/remote-accessibility.v1.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/roku-diagnostics.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "accessibility"
+    },
+    {
+      "evidence": "awaiting-server-and-device-run",
+      "exceptionIds": [
+        "downloads",
+        "airplay",
+        "cast",
+        "pip"
+      ],
+      "expectedEvents": [
+        "capabilities-negotiated",
+        "unsupported-actions-hidden",
+        "unknown-optional-capability-ignored",
+        "unknown-required-action-rejected"
+      ],
+      "id": "capability-exception-projection",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": null,
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "apps/portico-react-native/scripts/acceptance/native-acceptance-matrix.json",
+        "Client Prototypes/roku-visual-parity/channel/data/parity/parity-exceptions.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "capabilities"
+    },
+    {
+      "evidence": "awaiting-device-and-provider-run",
+      "exceptionIds": [
+        "deep-link-unknown-route"
+      ],
+      "expectedEvents": [
+        "link-validated",
+        "auth-or-server-gate",
+        "route-opened-or-deferred-once",
+        "unsupported-route-safe-fallback"
+      ],
+      "id": "deep-link-version-fallback",
+      "key": {
+        "accountFixture": "parity-account-v1",
+        "clientArtifactSha256": null,
+        "deviceModel": "platform-matrix",
+        "hostedBuild": "same-hosted-build",
+        "mediaItem": "parity-vod-h264-aac-v1",
+        "osVersion": "platform-matrix",
+        "profileFixture": "parity-primary-profile-v1",
+        "serverBuild": "same-server-build"
+      },
+      "platforms": [
+        "tvos",
+        "roku"
+      ],
+      "sourceRefs": [
+        "Client Prototypes/roku-visual-parity/channel/data/parity/parity-exceptions.v1.json"
+      ],
+      "status": "pending-runtime",
+      "surface": "deep-link"
+    }
+  ],
+  "identityKeys": [
+    "serverBuild",
+    "hostedBuild",
+    "accountFixture",
+    "profileFixture",
+    "mediaItem",
+    "clientArtifactSha256",
+    "deviceModel",
+    "osVersion"
+  ],
+  "kind": "portico.tvos-roku-acceptance-matrix",
+  "pendingRuntimeCases": [
+    {
+      "id": "runtime-artifact-sha",
+      "requires": [
+        "signed-or-sideloaded-artifact",
+        "exact-sha256"
+      ],
+      "status": "awaiting-runtime"
+    },
+    {
+      "id": "device-and-os",
+      "requires": [
+        "low-power-hd",
+        "mainstream-fhd",
+        "current-high-end"
+      ],
+      "status": "awaiting-runtime"
+    },
+    {
+      "id": "server-account-media-corpus",
+      "requires": [
+        "same-server-build",
+        "seeded-account-profile",
+        "media-and-fault-corpus"
+      ],
+      "status": "awaiting-runtime"
+    },
+    {
+      "id": "accessibility-and-remote",
+      "requires": [
+        "VoiceOver",
+        "Audio Guide",
+        "remote-input"
+      ],
+      "status": "awaiting-runtime"
+    }
+  ],
+  "platforms": [
+    {
+      "artifactSha256": null,
+      "deviceModel": "pending-runtime-device",
+      "family": "apple",
+      "formFactor": "television",
+      "id": "tvos",
+      "osVersion": "pending-runtime-os",
+      "playerAuthority": "avkit",
+      "runtimeStatus": "pending-runtime"
+    },
+    {
+      "artifactSha256": null,
+      "deviceModel": "pending-runtime-device",
+      "family": "roku",
+      "formFactor": "television",
+      "id": "roku",
+      "osVersion": "pending-runtime-os",
+      "playerAuthority": "roku-video",
+      "runtimeStatus": "pending-runtime"
+    }
+  ],
+  "program": "P08",
+  "status": "source-only",
+  "version": 1
+}

@@ -1,0 +1,70 @@
+{
+  "name": "portico-roku-client",
+  "private": true,
+  "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
+  "description": "Native SceneGraph client for Portico on Roku.",
+  "scripts": {
+    "assets": "node scripts/generate-assets.mjs",
+    "assets:check": "node scripts/check-assets.mjs",
+    "icons:sync": "node scripts/sync-semantic-icons.mjs",
+    "icons:check": "node scripts/sync-semantic-icons.mjs --check",
+    "contracts:generate": "node scripts/generate-portico-contracts.mjs && node scripts/parity/generate-parity-contracts.mjs",
+    "contracts:check": "node scripts/check-portico-contracts.mjs && node scripts/parity/check-parity-contracts.mjs",
+    "compile": "bsc --project bsconfig.json",
+    "compile:visual-fixture": "bsc --project bsconfig.visual-fixture.json",
+    "release:identity:check": "node scripts/verify-release-identity.mjs",
+    "package:release": "npm run release:identity:check && npm run assets:check && npm run compile && node scripts/package-release.mjs && npm run release:verify",
+    "package:visual-fixture": "npm run compile:visual-fixture",
+    "release:verify": "node scripts/verify-release-package.mjs",
+    "release:inventory:update": "node scripts/verify-release-package.mjs --write-inventory",
+    "release:conformance": "npm run test:behavior && npm run test:package-f && npm run contracts:check && npm run assets:check && npm run package:release",
+    "render": "node scripts/render-goldens.mjs",
+    "compare": "node scripts/compare-references.mjs",
+    "verify": "node scripts/verify.mjs",
+    "test:http": "node scripts/tests/http-foundation.test.mjs",
+    "test:auth": "node scripts/tests/device-authorization.test.mjs",
+    "test:servers": "node scripts/tests/server-catalog.test.mjs",
+    "test:connection": "node scripts/tests/server-connection.test.mjs",
+    "test:playback": "node scripts/tests/playback.test.mjs",
+    "test:package-f": "node scripts/tests/package-f-release.test.mjs",
+    "test:parity": "node scripts/tests/p08-parity-contracts.test.mjs",
+    "test:player": "node scripts/tests/player-surface.test.mjs",
+    "test:player-icons": "node scripts/tests/player-icon-contract.test.mjs",
+    "test:content": "node scripts/tests/content-data.test.mjs",
+    "test:browse": "node scripts/tests/search-library-data.test.mjs",
+    "test:presentation": "node scripts/tests/search-library-presentation.test.mjs",
+    "test:auth-gate": "node scripts/tests/auth-gate-presentation.test.mjs",
+    "test:shell": "node scripts/tests/offline-shell.test.mjs",
+    "test:saved": "node scripts/tests/saved-mutations.test.mjs",
+    "test:channels": "node scripts/tests/channels-dvr.test.mjs",
+    "test:settings-auth": "node scripts/tests/settings-local-auth.test.mjs",
+    "test:lan-session": "node scripts/tests/lan-session-projection.test.mjs",
+    "test:viewer-fencing": "node scripts/tests/viewer-fencing.test.mjs",
+    "test:navigation-focus": "node scripts/tests/navigation-focus-foundation.test.mjs",
+    "test:screen-focus": "node scripts/tests/screen-focus-conformance.test.mjs",
+    "test:tv-interaction-outcomes": "node scripts/tests/tv-interaction-outcomes.test.mjs",
+    "test:lifecycle": "node scripts/tests/lifecycle-deep-links.test.mjs",
+    "test:detail-more": "node scripts/tests/detail-more-actions.test.mjs",
+    "test:event-transport": "node scripts/tests/event-transport-security.test.mjs && node scripts/tests/event-capability-propagation.test.mjs && node scripts/tests/event-transport.test.mjs",
+    "test:application-events": "node scripts/tests/application-events.test.mjs",
+    "test:accessibility-performance": "node scripts/tests/accessibility-performance.test.mjs",
+    "test:playback-events": "node scripts/tests/playback-events-security.test.mjs && node scripts/tests/playback-events-lifecycle.test.mjs && node scripts/tests/constrained-event-main-integration.test.mjs",
+    "test:behavior": "npm run test:http && npm run test:auth && npm run test:servers && npm run test:connection && npm run test:lan-session && npm run test:viewer-fencing && npm run test:navigation-focus && npm run test:screen-focus && npm run test:tv-interaction-outcomes && npm run test:playback && npm run test:player && npm run test:player-icons && npm run test:content && npm run test:browse && npm run test:presentation && npm run test:auth-gate && npm run test:shell && npm run test:saved && npm run test:channels && npm run test:settings-auth && npm run test:lifecycle && npm run test:detail-more && npm run test:event-transport && npm run test:application-events && npm run test:accessibility-performance && npm run test:playback-events && npm run test:parity",
+    "device": "node scripts/device/roku-device.mjs",
+    "test": "npm run test:behavior && npm run assets && npm run compile && npm run render && npm run compare && npm run verify"
+  },
+  "devDependencies": {
+    "brighterscript": "0.73.0"
+  },
+  "overrides": {
+    "postman-request": {
+      "form-data": "4.0.4",
+      "qs": "6.14.1",
+      "tough-cookie": "4.1.4"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

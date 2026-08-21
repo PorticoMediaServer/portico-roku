@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoStateScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoStateScreen.brs" />
+    <children>
+        <Rectangle id="canvas" width="1784" height="1080" color="#070B10" />
+        <Rectangle id="horizon" width="1784" height="430" color="#0A1017" />
+        <Poster id="horizonScrim" width="1784" height="430" loadWidth="1784" loadHeight="430" loadDisplayMode="scaleToFill" />
+        <Poster id="wordmark" translation="[0,48]" width="154" height="34" loadWidth="154" loadHeight="34" loadDisplayMode="scaleToFit" />
+        <Label id="status" translation="[0,151]" width="1200" height="29" maxLines="1" />
+        <Label id="title0" translation="[0,191]" width="1100" height="62" maxLines="1" />
+        <Label id="title1" translation="[0,253]" width="1100" height="62" maxLines="1" />
+        <Label id="body0" width="1020" height="32" maxLines="1" />
+        <Label id="body1" width="1020" height="32" maxLines="1" />
+        <Label id="body2" width="1020" height="32" maxLines="1" />
+        <PorticoButton id="action0" />
+        <PorticoButton id="action1" />
+        <PorticoButton id="action2" />
+        <Rectangle id="detailDivider" width="1180" height="1" color="#C7D0D8" opacity="0.12" />
+        <Label id="detail0" width="1180" height="28" maxLines="1" />
+        <Label id="detail1" width="1180" height="28" maxLines="1" />
+        <Label id="detail2" width="1180" height="28" maxLines="1" />
+    </children>
+</component>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoDetail" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="compensation" type="assocarray" onChange="render" />
+        <field id="focusedAction" type="integer" value="0" onChange="updateFocus" />
+        <field id="focusedEpisode" type="integer" value="-1" onChange="updateFocus" />
+        <field id="focusedPerson" type="integer" value="-1" onChange="updateFocus" />
+        <field id="focusedPersonResult" type="integer" value="-1" onChange="updateFocus" />
+        <field id="focusedRelationshipRow" type="integer" value="-1" onChange="updateFocus" />
+        <field id="focusedRelationshipItem" type="integer" value="-1" onChange="updateFocus" />
+        <field id="factsOpen" type="boolean" value="false" onChange="render" />
+        <field id="focusArea" type="string" value="detailActions" onChange="updateFocus" />
+        <field id="focusSemanticId" type="string" value="detail.unavailable" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoDetail.brs" />
+    <children>
+        <Group id="composition" />
+    </children>
+</component>

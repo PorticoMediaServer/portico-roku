@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoBrowseAction" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoBrowseAction.brs" />
+    <children>
+        <Poster id="surface" height="64" loadHeight="64" loadDisplayMode="scaleToFill" />
+        <Poster id="icon" translation="[18,19]" width="26" height="26" loadWidth="26" loadHeight="26" loadDisplayMode="scaleToFit" />
+        <Label id="label" translation="[56,0]" height="64" maxLines="1" vertAlign="center" />
+    </children>
+</component>

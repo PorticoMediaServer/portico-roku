@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoHomeCustomizeOverlay" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoHomeCustomizeOverlay.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#000000" opacity="0.72" />
+        <Poster id="panel" translation="[390,116]" width="1140" height="848" loadWidth="1140" loadHeight="848" loadDisplayMode="scaleToFill" />
+        <Label id="title" translation="[462,176]" width="900" height="54" maxLines="1" />
+        <Label id="body" translation="[462,238]" width="900" height="60" maxLines="2" />
+        <Group id="rows" translation="[462,326]" />
+        <PorticoButton id="moveUp" translation="[462,790]" />
+        <PorticoButton id="moveDown" translation="[672,790]" />
+        <PorticoButton id="visibility" translation="[902,790]" />
+        <PorticoButton id="reset" translation="[1162,790]" />
+        <PorticoButton id="save" translation="[462,874]" />
+        <PorticoButton id="cancel" translation="[682,874]" />
+    </children>
+</component>

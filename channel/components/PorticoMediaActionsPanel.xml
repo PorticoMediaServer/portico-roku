@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoMediaActionsPanel" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focusedAction" type="integer" value="0" onChange="render" />
+        <field id="focusSemanticId" type="string" value="media-action.unavailable" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoMediaActionsPanel.brs" />
+    <children>
+        <Rectangle id="shadow" translation="[-10,-10]" width="424" height="238" color="#000000" opacity="0.42" />
+        <Rectangle id="surface" width="404" height="218" color="#111A23" />
+        <Rectangle id="rule" translation="[22,66]" width="360" height="1" color="#C5DAEB" opacity="0.10" />
+        <Label id="title" translation="[22,16]" width="360" height="40" maxLines="1" />
+        <PorticoBrowseAction id="action0" translation="[22,82]" visible="false" />
+        <PorticoBrowseAction id="action1" translation="[22,150]" visible="false" />
+        <PorticoBrowseAction id="action2" translation="[22,218]" visible="false" />
+    </children>
+</component>

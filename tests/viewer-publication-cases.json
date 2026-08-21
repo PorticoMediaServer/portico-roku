@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "foundation": {
+    "navigationContractRevision": "v1",
+    "semanticRevisions": {
+      "externalAction": 1,
+      "viewerProfileAuthority": 1
+    }
+  },
+  "lifecycle": {
+    "gates": ["account", "server", "profile"],
+    "publicationRequires": [
+      "durableCredentials",
+      "routeGeneration",
+      "authorizationRevision",
+      "viewerGeneration"
+    ],
+    "deepLinkDelivery": "exactly-once-after-ack",
+    "pendingTtlSeconds": 600,
+    "corruption": "fail-closed"
+  },
+  "integrationHooks": [
+    {
+      "file": "channel/source/main.brs",
+      "field": "externalRequest",
+      "action": "PorticoLifecycleAcknowledgeDispatch",
+      "status": "source-only",
+      "owner": "SceneGraph integration lane"
+    }
+  ],
+  "vectors": [
+    {
+      "id": "signed-out",
+      "state": {"accountStatus": "signed-out"},
+      "expected": {"kind": "defer", "gate": "account"}
+    },
+    {
+      "id": "server-not-ready",
+      "state": {
+        "accountStatus": "signed-in",
+        "credentialsDurable": true,
+        "serverStatus": "connecting",
+        "selectedServerId": "server-a"
+      },
+      "expected": {"kind": "defer", "gate": "server"}
+    },
+    {
+      "id": "profile-not-ready",
+      "state": {
+        "accountStatus": "signed-in",
+        "credentialsDurable": true,
+        "serverStatus": "online",
+        "selectedServerId": "server-a",
+        "routeGeneration": "17"
+      },
+      "expected": {"kind": "defer", "gate": "profile"}
+    },
+    {
+      "id": "active-current-first-viewer",
+      "state": {
+        "accountStatus": "signed-in",
+        "credentialsDurable": true,
+        "serverStatus": "online",
+        "selectedServerId": "server-a",
+        "selectedProfileId": "profile-a",
+        "viewerStatus": "active",
+        "viewerAcceptingWrites": true,
+        "viewerGeneration": 12,
+        "routeGeneration": "17",
+        "authorizationRevision": "policy-9",
+        "viewerScope": {
+          "authority": "hosted",
+          "accountId": "account-a",
+          "serverId": "server-a",
+          "profileId": "profile-a",
+          "authorizationRevision": "policy-9",
+          "viewerGeneration": 12
+        }
+      },
+      "expected": {"kind": "ready"}
+    },
+    {
+      "id": "authorization-revision-mismatch",
+      "state": {
+        "accountStatus": "signed-in",
+        "credentialsDurable": true,
+        "serverStatus": "online",
+        "selectedServerId": "server-a",
+        "selectedProfileId": "profile-a",
+        "viewerStatus": "active",
+        "viewerAcceptingWrites": true,
+        "viewerGeneration": 12,
+        "routeGeneration": "17",
+        "authorizationRevision": "policy-9",
+        "viewerScope": {
+          "authority": "hosted",
+          "accountId": "account-a",
+          "serverId": "server-a",
+          "profileId": "profile-a",
+          "authorizationRevision": "policy-8",
+          "viewerGeneration": 12
+        }
+      },
+      "expected": {"kind": "defer", "gate": "profile"}
+    },
+    {
+      "id": "route-generation-missing",
+      "state": {
+        "accountStatus": "signed-in",
+        "credentialsDurable": true,
+        "serverStatus": "online",
+        "selectedServerId": "server-a",
+        "selectedProfileId": "profile-a",
+        "viewerStatus": "active",
+        "viewerAcceptingWrites": true,
+        "viewerGeneration": 12,
+        "viewerScope": {
+          "authority": "hosted",
+          "accountId": "account-a",
+          "serverId": "server-a",
+          "profileId": "profile-a",
+          "authorizationRevision": "policy-9",
+          "viewerGeneration": 12
+        }
+      },
+      "expected": {"kind": "defer", "gate": "server"}
+    },
+    {
+      "id": "corrupted-registry",
+      "state": {"registryCorrupt": true},
+      "expected": {"kind": "fail-closed", "gate": "registry"}
+    }
+  ]
+}

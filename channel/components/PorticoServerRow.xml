@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoServerRow" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoServerRow.brs" />
+    <children>
+        <Poster id="surface" width="700" height="82" loadWidth="700" loadHeight="82" loadDisplayMode="scaleToFill" />
+        <Poster id="selectionIndicator" translation="[16,27]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" />
+        <Poster id="actionIcon" translation="[16,27]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" visible="false" />
+        <Label id="name" translation="[62,11]" width="420" height="29" maxLines="1" />
+        <Label id="detail" translation="[62,43]" width="420" height="24" maxLines="1" />
+        <Label id="availability" translation="[500,0]" width="166" height="82" maxLines="1" horizAlign="right" vertAlign="center" />
+        <Poster id="trailingIcon" translation="[656,27]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" visible="false" />
+    </children>
+</component>

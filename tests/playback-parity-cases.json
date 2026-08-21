@@ -1,0 +1,110 @@
+{
+  "back": [
+    {
+      "name": "hidden playing chrome reveals once, then exits",
+      "initial": {"chromeVisible": false, "focusArea": "transport", "overlayKind": "", "positionSeconds": 84, "durationSeconds": 600, "stopEventEmitted": false},
+      "presses": 2,
+      "expectedActions": ["reveal-chrome", "exit"],
+      "expectedStopEvents": 1
+    },
+    {
+      "name": "visible paused playback exits immediately",
+      "initial": {"chromeVisible": true, "focusArea": "transport", "overlayKind": "", "positionSeconds": 84, "durationSeconds": 600, "stopEventEmitted": false},
+      "presses": 1,
+      "expectedActions": ["exit"],
+      "expectedStopEvents": 1
+    },
+    {
+      "name": "panel closes before dock and player",
+      "initial": {"chromeVisible": true, "focusArea": "panel", "overlayKind": "", "positionSeconds": 84, "durationSeconds": 600, "stopEventEmitted": false},
+      "presses": 3,
+      "expectedActions": ["close-panel", "close-dock", "exit"],
+      "expectedStopEvents": 1
+    },
+    {
+      "name": "overlay closes before player",
+      "initial": {"chromeVisible": true, "focusArea": "transport", "overlayKind": "still-watching", "positionSeconds": 84, "durationSeconds": 600, "stopEventEmitted": false},
+      "presses": 2,
+      "expectedActions": ["close-overlay", "exit"],
+      "expectedStopEvents": 1
+    },
+    {
+      "name": "repeated back cannot duplicate exit",
+      "initial": {"chromeVisible": true, "focusArea": "transport", "overlayKind": "", "positionSeconds": 84, "durationSeconds": 600, "stopEventEmitted": false},
+      "presses": 3,
+      "expectedActions": ["exit", "consume-exit", "consume-exit"],
+      "expectedStopEvents": 1
+    }
+  ],
+  "playback": [
+    {
+      "name": "direct VOD resume, tracks, renewal, and completion",
+      "source": {
+        "format": "mp4",
+        "isLive": false,
+        "durationSeconds": 600,
+        "seekableStartSeconds": 0,
+        "seekableEndSeconds": 600,
+        "resumePositionSeconds": 42,
+        "selectedAudioStreamId": "main",
+        "selectedSubtitleStreamId": "",
+        "audioStreams": [{"id": "main"}, {"id": "commentary"}],
+        "subtitleStreams": [{"id": "fr"}],
+        "grantToken": "ptc_mg_direct"
+      },
+      "events": [
+        {"type": "player-state", "playbackGeneration": 1, "sourceGeneration": 1, "status": "playing", "positionSeconds": 60, "durationSeconds": 600},
+        {"type": "seek", "playbackGeneration": 1, "sourceGeneration": 1, "positionSeconds": -10},
+        {"type": "select-audio", "playbackGeneration": 1, "sourceGeneration": 1, "streamId": "commentary"},
+        {"type": "select-subtitle", "playbackGeneration": 1, "sourceGeneration": 1, "streamId": "fr"},
+        {"type": "grant-renewed", "playbackGeneration": 1, "sourceGeneration": 1, "newSourceGeneration": 2, "grantToken": "ptc_mg_rotated"},
+        {"type": "player-state", "playbackGeneration": 1, "sourceGeneration": 1, "status": "playing", "positionSeconds": 20, "durationSeconds": 600},
+        {"type": "player-state", "playbackGeneration": 1, "sourceGeneration": 2, "status": "playing", "positionSeconds": 70, "durationSeconds": 600},
+        {"type": "complete", "playbackGeneration": 1, "sourceGeneration": 2, "positionSeconds": 999, "durationSeconds": 600}
+      ],
+      "expected": {"format": "mp4", "positionAfterSeek": 0, "selectedAudioStreamId": "commentary", "selectedSubtitleStreamId": "fr", "sourceGeneration": 2, "finalPosition": 600, "finalStatus": "ended", "completedProgress": 1}
+    },
+    {
+      "name": "HLS source recovery is bounded",
+      "source": {
+        "format": "hls",
+        "isLive": false,
+        "durationSeconds": 1800,
+        "seekableStartSeconds": 0,
+        "seekableEndSeconds": 1800,
+        "resumePositionSeconds": 0,
+        "audioStreams": [{"id": "main"}],
+        "subtitleStreams": [],
+        "grantToken": "ptc_mg_hls"
+      },
+      "events": [
+        {"type": "source-error", "playbackGeneration": 1, "sourceGeneration": 1, "retryable": true},
+        {"type": "source-error", "playbackGeneration": 1, "sourceGeneration": 1, "retryable": true},
+        {"type": "source-error", "playbackGeneration": 1, "sourceGeneration": 1, "retryable": true},
+        {"type": "source-error", "playbackGeneration": 1, "sourceGeneration": 1, "retryable": true}
+      ],
+      "expected": {"format": "hls", "recoveryActions": ["recover", "recover", "recover", "terminal-error"], "finalStatus": "error"}
+    },
+    {
+      "name": "live DVR seek stays inside the advertised window",
+      "source": {
+        "format": "hls",
+        "isLive": true,
+        "durationSeconds": 0,
+        "seekableStartSeconds": 3600,
+        "seekableEndSeconds": 4200,
+        "liveEdgeSeconds": 4200,
+        "resumePositionSeconds": 0,
+        "audioStreams": [],
+        "subtitleStreams": [],
+        "grantToken": "ptc_mg_live"
+      },
+      "events": [
+        {"type": "seek", "playbackGeneration": 1, "sourceGeneration": 1, "positionSeconds": -100},
+        {"type": "seek", "playbackGeneration": 1, "sourceGeneration": 1, "positionSeconds": 99999},
+        {"type": "player-state", "playbackGeneration": 0, "sourceGeneration": 1, "status": "playing", "positionSeconds": 1, "durationSeconds": 999}
+      ],
+      "expected": {"format": "hls", "positions": [3600, 4200], "stalePlaybackIgnored": true, "finalStatus": "ready"}
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoPersonScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoPersonScreen.brs" />
+    <children>
+        <Group id="identity" translation="[0,38]">
+            <Group id="portraitFrame" translation="[0,0]" />
+            <Label id="personName" translation="[188,22]" width="1200" height="62" maxLines="1" />
+            <Label id="personRoles" translation="[188,88]" width="1200" height="34" maxLines="1" />
+        </Group>
+        <Label id="creditsTitle" translation="[0,226]" width="1200" height="42" maxLines="1" />
+        <Group id="credits" translation="[0,286]" />
+        <Group id="state" translation="[0,310]" visible="false">
+            <Label id="stateTitle" translation="[0,0]" width="1200" height="44" maxLines="1" />
+            <Label id="stateBody" translation="[0,54]" width="1000" height="92" maxLines="3" />
+            <PorticoButton id="retry" translation="[0,170]" visible="false" />
+        </Group>
+        <PorticoButton id="loadMore" translation="[0,714]" visible="false" />
+    </children>
+</component>

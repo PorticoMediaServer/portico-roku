@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoLibraryFilterOverlay" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoLibraryFilterOverlay.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#000000" opacity="0.72" />
+        <Poster id="panel" translation="[420,170]" width="1080" height="740" loadWidth="1080" loadHeight="740" loadDisplayMode="scaleToFill" />
+        <Label id="title" translation="[492,230]" width="900" height="54" maxLines="1" />
+        <Label id="body" translation="[492,292]" width="900" height="68" maxLines="2" />
+        <PorticoButton id="field" translation="[492,400]" />
+        <PorticoButton id="operator" translation="[492,486]" />
+        <PorticoButton id="value" translation="[492,572]" />
+        <Label id="summary" translation="[492,658]" width="900" height="42" maxLines="1" />
+        <PorticoButton id="apply" translation="[492,748]" />
+        <PorticoButton id="cancel" translation="[712,748]" />
+    </children>
+</component>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoEngagementTask" extends="Task">
+    <interface>
+        <field id="commandEnvelope" type="assocarray" alwaysNotify="true" />
+        <field id="projectionEnvelope" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSecureRegistry.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSignedDocuments.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerScope.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerRuntime.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoServerSession.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoOperationContract.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductContract.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoEventTransport.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoEngagementRuntime.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoEngagementTask.brs" />
+</component>

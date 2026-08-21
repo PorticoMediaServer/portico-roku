@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoRailItem" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="expanded" type="boolean" value="false" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoRailItem.brs" />
+    <children>
+        <Poster id="surface" height="64" loadHeight="64" loadDisplayMode="scaleToFill" />
+        <Rectangle id="selection" translation="[0,8]" width="3" height="48" color="#378EC3" />
+        <Poster id="icon" translation="[18,18]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" />
+        <Label id="label" translation="[64,0]" width="174" height="64" vertAlign="center" />
+    </children>
+</component>

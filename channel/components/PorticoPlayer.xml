@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoPlayer" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="privateContent" type="node" onChange="applyPrivateContent" />
+        <field id="watchSyncDirective" type="assocarray" onChange="applyWatchSyncDirective" />
+        <field id="remotePlaybackDirective" type="assocarray" onChange="applyRemotePlaybackDirective" />
+        <field id="watchGroupState" type="assocarray" onChange="applyWatchGroupState" />
+        <field id="playerEvent" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerScope.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerRuntime.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoViewerRuntimeController.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoPlaybackPreferences.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoPlayback.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/source/player/PorticoPlayerController.brs" />
+    <script type="text/brightscript" uri="pkg:/source/player/PorticoPlayerPresenter.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoPlayer.brs" />
+    <children>
+        <Rectangle id="canvas" width="1920" height="1080" color="#070B10" />
+        <Video id="video" width="1920" height="1080" enableUI="false" enableTrickPlay="false" notificationInterval="1" />
+        <Poster id="scrim" width="1920" height="1080" loadWidth="1920" loadHeight="1080" loadDisplayMode="scaleToFill" />
+
+        <Group id="identity" translation="[72,58]">
+            <Label id="title" width="850" height="35" maxLines="1" />
+            <Label id="meta" translation="[0,38]" width="850" height="26" maxLines="1" />
+        </Group>
+
+        <Group id="watchGroupBanner" translation="[1160,54]" visible="false">
+            <Rectangle width="688" height="92" color="#0A1017" opacity="0.92" />
+            <Rectangle width="3" height="92" color="#378EC3" />
+            <Label id="watchGroupTitle" translation="[22,16]" width="640" height="30" maxLines="1" />
+            <Label id="watchGroupMeta" translation="[22,50]" width="640" height="25" maxLines="1" />
+        </Group>
+
+        <Group id="centerStatus">
+            <Poster id="spinner" translation="[932,454]" width="56" height="56" loadWidth="56" loadHeight="56" loadDisplayMode="scaleToFit" scaleRotateCenter="[28,28]" />
+            <Label id="centerStatusLabel" translation="[560,530]" width="800" height="34" horizAlign="center" maxLines="1" />
+        </Group>
+
+        <Group id="trickplayPreview" translation="[760,565]" visible="false">
+            <Rectangle id="trickplaySurface" width="400" height="270" color="#070B10" opacity="0.96" />
+            <Poster id="trickplayImage" translation="[10,10]" width="380" height="214" loadWidth="380" loadHeight="214" loadDisplayMode="scaleToFit" />
+            <Label id="trickplayTime" translation="[18,232]" width="364" height="28" horizAlign="center" maxLines="1" />
+        </Group>
+
+        <Group id="transportContainer" translation="[0,881]">
+            <Rectangle id="bottomBed" width="1920" height="199" color="#070B10" opacity="0.52" />
+            <Label id="elapsed" translation="[72,20]" width="300" height="23" maxLines="1" />
+            <Label id="duration" translation="[1548,20]" width="300" height="23" horizAlign="right" maxLines="1" />
+            <Rectangle id="progressTrack" translation="[72,53]" width="1776" height="6" color="#F4F7FA" opacity="0.28" />
+            <Rectangle id="progressFill" translation="[72,53]" width="0" height="6" color="#70BCE8" />
+            <Group id="chapterMarkers" translation="[72,50]" />
+            <Poster id="transportDock" translation="[807,75]" width="368" height="88" loadWidth="368" loadHeight="88" loadDisplayMode="scaleToFill" />
+            <PorticoPlayerTransportButton id="previous" translation="[822,89]" />
+            <PorticoPlayerTransportButton id="back" translation="[888,89]" />
+            <PorticoPlayerTransportButton id="playPause" translation="[954,80]" />
+            <PorticoPlayerTransportButton id="forward" translation="[1038,89]" />
+            <PorticoPlayerTransportButton id="next" translation="[1104,89]" />
+        </Group>
+
+        <Group id="utilityContainer" translation="[1568,974]" visible="false">
+            <PorticoIconButton id="volumeDock" />
+            <PorticoIconButton id="subtitlesDock" translation="[72,0]" />
+            <PorticoIconButton id="qualityDock" translation="[144,0]" />
+            <PorticoIconButton id="speedDock" translation="[216,0]" />
+            <PorticoIconButton id="sleepDock" translation="[288,0]" />
+            <PorticoIconButton id="queueDock" translation="[360,0]" />
+        </Group>
+
+        <Group id="panelContainer" translation="[1428,314]" visible="false">
+            <Rectangle id="utilityPanelSurface" width="420" height="660" color="#0A1017" opacity="0.96" />
+            <Rectangle id="utilityPanelAccent" width="2" height="660" color="#378EC3" opacity="0.72" />
+            <Label id="utilityTitle" translation="[18,18]" width="384" height="34" maxLines="1" />
+            <Label id="utilityStatus" translation="[18,48]" width="384" height="24" maxLines="1" />
+            <PorticoButton id="utilityRow0" translation="[18,82]" visible="false" />
+            <PorticoButton id="utilityRow1" translation="[18,152]" visible="false" />
+            <PorticoButton id="utilityRow2" translation="[18,222]" visible="false" />
+            <PorticoButton id="utilityRow3" translation="[18,292]" visible="false" />
+            <PorticoButton id="utilityRow4" translation="[18,362]" visible="false" />
+            <PorticoButton id="utilityRow5" translation="[18,432]" visible="false" />
+            <PorticoButton id="utilityRow6" translation="[18,502]" visible="false" />
+            <PorticoButton id="utilityRow7" translation="[18,572]" visible="false" />
+        </Group>
+
+        <Group id="endedPanel" translation="[700,405]">
+            <Poster id="endedPanelBed" width="520" height="230" loadWidth="520" loadHeight="230" loadDisplayMode="scaleToFill" />
+            <Label id="endedTitle" translation="[34,39]" width="452" height="46" horizAlign="center" maxLines="1" />
+            <Label id="endedBody" translation="[34,94]" width="452" height="32" horizAlign="center" maxLines="1" />
+            <PorticoButton id="endedAction" translation="[24,145]" />
+            <PorticoButton id="overlaySecondaryAction" translation="[274,145]" visible="false" />
+        </Group>
+
+        <Group id="errorPanel" translation="[610,385]">
+            <Poster id="errorPanelBed" width="700" height="280" loadWidth="700" loadHeight="280" loadDisplayMode="scaleToFill" />
+            <Label id="errorTitle" translation="[38,34]" width="624" height="46" maxLines="1" />
+            <Label id="errorBody0" translation="[38,91]" width="624" height="32" maxLines="1" />
+            <Label id="errorBody1" translation="[38,123]" width="624" height="32" maxLines="1" />
+            <PorticoButton id="errorAction" translation="[38,188]" />
+        </Group>
+
+        <Animation id="spinnerAnimation" duration="1" repeat="true" easeFunction="linear">
+            <FloatFieldInterpolator fieldToInterp="spinner.rotation" key="[0.0,1.0]" keyValue="[0.0,6.283185]" />
+        </Animation>
+        <Timer id="rateResetTimer" duration="4" repeat="false" />
+        <Timer id="trickplayHideTimer" duration="2.5" repeat="false" />
+        <Timer id="chromeHideTimer" duration="5" repeat="false" />
+    </children>
+</component>

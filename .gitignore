@@ -1,0 +1,8 @@
+node_modules/
+/Project Architecture
+out/
+.DS_Store
+artifacts/staging/
+artifacts/*.zip
+artifacts/*.brs
+artifacts/golden/*.svg

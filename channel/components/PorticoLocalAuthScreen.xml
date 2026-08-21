@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoLocalAuthScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoLocalAuthScreen.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#070B10" />
+        <Poster id="wordmark" translation="[883,130]" width="154" height="34" loadWidth="154" loadHeight="34" loadDisplayMode="scaleToFit" />
+        <Label id="title" translation="[400,210]" width="1120" height="62" maxLines="1" horizAlign="center" />
+        <Label id="message0" translation="[400,284]" width="1120" height="34" maxLines="1" horizAlign="center" />
+        <Label id="message1" translation="[400,318]" width="1120" height="34" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="identity" translation="[400,372]" width="1120" height="32" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="fingerprint" translation="[400,416]" width="1120" height="36" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="loading" translation="[400,430]" width="1120" height="56" maxLines="1" horizAlign="center" visible="false" />
+        <Group id="actions" translation="[700,492]">
+            <PorticoAuthAction id="action0" visible="false" />
+            <PorticoAuthAction id="action1" translation="[0,72]" visible="false" />
+            <PorticoAuthAction id="action2" translation="[0,144]" visible="false" />
+            <PorticoAuthAction id="action3" translation="[0,216]" visible="false" />
+            <PorticoAuthAction id="action4" translation="[0,288]" visible="false" />
+            <PorticoAuthAction id="action5" translation="[0,360]" visible="false" />
+            <PorticoAuthAction id="action6" translation="[0,432]" visible="false" />
+        </Group>
+    </children>
+</component>

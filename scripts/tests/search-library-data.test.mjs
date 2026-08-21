@@ -1,0 +1,126 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
+const read = path => readFileSync(resolve(root, path), 'utf8');
+const api = read('channel/source/lib/PorticoBrowseApi.brs');
+const models = read('channel/source/lib/PorticoBrowseModels.brs');
+const searchTask = read('channel/components/PorticoSearchTask.brs');
+const searchXml = read('channel/components/PorticoSearchTask.xml');
+const searchBridge = read('channel/source/lib/PorticoSearch.brs');
+const libraryTask = read('channel/components/PorticoLibraryTask.brs');
+const libraryXml = read('channel/components/PorticoLibraryTask.xml');
+const libraryBridge = read('channel/source/lib/PorticoLibrary.brs');
+const registry = read('channel/source/lib/PorticoSecureRegistry.brs');
+const httpHelpers = read('channel/source/lib/PorticoHttpHelpers.brs');
+const client = read('../../apps/portico-server/packages/portico-client-core/src/client.ts');
+const rnSearch = read('../../apps/portico-react-native/packages/app/src/data/search.ts');
+const rnLibrary = read('../../apps/portico-react-native/packages/app/src/data/library.ts');
+const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+
+for (const path of ['/search', '/libraries', '/libraries/{libraryId}/browse-capabilities', '/libraries/{libraryId}/browse', '/libraries/{id}/discover', '/libraries/{id}/categories', '/libraries/{id}/authors', '/libraries/{id}/series']) {
+  assert.ok(openapi.paths[path], `${path} disappeared from the Server OpenAPI`);
+}
+assert.equal(openapi.paths['/search'].post['x-portico-auth'], 'session');
+assert.equal(openapi.paths['/libraries'].get['x-portico-auth'], 'session');
+assert.equal(openapi.paths['/libraries/{libraryId}/browse'].post['x-portico-auth'], 'session');
+assert.equal(openapi.components.schemas.SearchRequest.properties.limit.maximum, 50);
+assert.equal(openapi.components.schemas.SearchRequest.properties.query.maxLength, 120);
+assert.equal(openapi.components.schemas.BrowseLibraryRequest.properties.cursor.maxLength, 4096);
+assert.equal(openapi.components.schemas.BrowseLibraryRequest.properties.limit.maximum, 200);
+assert.match(client, /search: .*request<SearchResponse>\("\/api\/search".*method: "POST"/);
+assert.match(client, /libraries: .*request<ListResponse<Library>>\("\/api\/libraries"/);
+assert.match(client, /libraryBrowseCapabilities:.*browse-capabilities/s);
+assert.match(client, /browseLibrary:.*method: "POST"/s);
+assert.match(rnSearch, /searchGroupViewModels/);
+for (const marker of ['libraryDiscover', 'libraryCategories', 'libraryAuthors', 'librarySeries', 'browseLibrary']) assert.match(rnLibrary, new RegExp(marker));
+
+for (const [xml, name] of [[searchXml, 'PorticoSearchTask'], [libraryXml, 'PorticoLibraryTask']]) {
+  assert.match(xml, new RegExp(`component name="${name}" extends="Task"`));
+  assert.match(xml, /<field id="command" type="assocarray"/);
+  assert.match(xml, /<field id="projection" type="assocarray"/);
+  assert.doesNotMatch(xml, /field id="(?:accessToken|refreshToken|apiBaseUrl|headers|serverSession)"/i);
+  assert.match(xml, /PorticoBrowseModels\.brs/);
+  assert.match(xml, /PorticoBrowseApi\.brs/);
+}
+
+assert.equal((api.match(/PorticoSecureRegistryRead\("server-session"\)/g) ?? []).length, 1);
+const sessionReader = api.match(/function PorticoBrowseSessionForServer[\s\S]*?end function/)?.[0] ?? '';
+assert.match(sessionReader, /session\.version <> 1/);
+assert.match(sessionReader, /PorticoBrowseSafeId\(session\.serverId\) <> serverId/);
+assert.match(sessionReader, /not PorticoHttpServerAccessTokenValid\(accessToken\)/);
+assert.match(httpHelpers, /function PorticoHttpServerAccessTokenValid[\s\S]*prefix = "ptc_clt_" or prefix = "ptc_loc_"/);
+for (const binding of ['accountUserId', 'accountDeviceId', 'membershipId']) assert.match(sessionReader, new RegExp(`PorticoBrowseSafeId\\(session\\.${binding}\\)`));
+assert.match(sessionReader, /cacheBinding: accountUserId \+ "\|" \+ accountDeviceId \+ "\|" \+ membershipId/);
+assert.match(sessionReader, /PorticoSignedDocumentSecondsUntil\(session\.accessExpiresAt\)/);
+assert.match(api, /PorticoHttpValidatePrivateRequest\(request\)/);
+assert.match(api, /SetCertificatesFile\("common:\/certs\/ca-bundle\.crt"\)/);
+assert.match(api, /EnablePeerVerification\(true\)/);
+assert.match(api, /EnableHostVerification\(true\)/);
+assert.match(api, /AsyncPostFromString\(request\.body\)/);
+assert.match(api, /PorticoBrowseInterrupted\(controller\)/);
+assert.match(api, /AsyncCancel\(\)/);
+assert.match(api, /AsyncGetToFile\(tempPath\)/);
+assert.match(api, /for each extension in \["jpg", "png", "gif"\][\s\S]*PorticoBrowseTouchArtwork\(controller, cachedPath\)[\s\S]*return cachedPath/);
+assert.match(api, /while candidates\.Count\(\) > 192 or totalBytes > 134217728/);
+assert.equal((searchTask.match(/PorticoBrowseClearArtworkDirectory\("search"\)/g) ?? []).length, 0);
+assert.equal((libraryTask.match(/PorticoBrowseClearArtworkDirectory\("library"\)/g) ?? []).length, 0);
+assert.match(api, /contentType, 10\) = "image\/jpeg"/);
+assert.match(api, /contentType, 9\) = "image\/png"/);
+assert.match(api, /contentType, 9\) = "image\/gif"/);
+assert.doesNotMatch(api, /(?:access_token|accessToken|token)=/i);
+assert.match(api, /Left\(path, 5\) <> "\/api\/"/);
+assert.match(api, /Instr\(1, route, "\.\."\) > 0/);
+assert.match(api, /Instr\(1, lowerRoute, "%2e"\) > 0/);
+
+assert.match(searchTask, /PorticoDiscoveryRequest\(controller, session, "POST", "\/api\/search"/);
+assert.match(searchTask, /function PorticoSearchRequestBody[\s\S]*body = \{query: query, limit: 12, sort: controller\.selectedSortId, direction: controller\.selectedDirection\}/);
+assert.match(searchTask, /if groupId <> "" then body\.group = groupId/);
+assert.match(searchTask, /if cursor <> "" then body\.cursor = cursor/);
+assert.match(searchTask, /TotalMilliseconds\(\) >= 300/);
+assert.match(searchTask, /queryRevision/);
+assert.match(models, /if projected\.count\(\) >= 4/);
+assert.match(models, /lastIndex = offset \+ 3/);
+assert.doesNotMatch(searchTask + searchBridge, /PorticoSecureRegistryCommit\(/);
+assert.doesNotMatch(searchBridge, /findNode\(/);
+assert.match(searchBridge, /CreateObject\("roSGNode", "PorticoSearchTask"\)/);
+assert.doesNotMatch(searchBridge, /accessToken|refreshToken|apiBaseUrl/);
+
+for (const route of ['/api/libraries', '/browse-capabilities', '/browse', '/discover?limit=200', '/categories']) assert.ok(libraryTask.includes(route), `Library Task missing ${route}`);
+assert.match(libraryTask, /pivot\.id = "authors" or pivot\.id = "series"/);
+assert.match(libraryTask, /PorticoDiscoveryRequest\(controller, session, "POST".*\/browse/s);
+assert.match(libraryTask, /body = \{ pivot: pivot\.id, limit: 50 \}/);
+assert.match(libraryTask, /body\.cursor = cursor/);
+assert.match(libraryTask, /PorticoBrowseUrlEncode\(cursor\)/);
+assert.match(libraryTask, /PorticoLibraryMergePage/);
+assert.match(libraryTask, /PorticoLibraryPageWindow/);
+assert.match(libraryTask, /availabilityStatus = "refresh-failed"/);
+assert.match(libraryTask, /availabilityStatus = "offline"/);
+assert.match(registry, /recordType <> "library-cache"/);
+assert.match(libraryTask, /PorticoDiscoveryCacheRead\("library-cache", controller, "library", parameters\)/);
+assert.match(libraryTask, /PorticoDiscoveryCacheCommit\("library-cache", controller, "library", parameters/);
+assert.match(libraryTask, /payload\.cacheBinding <> controller\.cacheBinding/);
+const cacheCode = models.slice(models.indexOf('function PorticoBrowseLibraryCacheView'), models.indexOf('function PorticoBrowseClone'));
+for (const field of ['poster', 'artwork', 'backdrop']) assert.match(cacheCode, new RegExp(`Delete\\("${field}"\\)`));
+assert.doesNotMatch(libraryBridge, /findNode\(/);
+assert.match(libraryBridge, /CreateObject\("roSGNode", "PorticoLibraryTask"\)/);
+assert.doesNotMatch(libraryBridge, /accessToken|refreshToken|apiBaseUrl/);
+assert.match(libraryTask, /actions = \[\{ id: "clear-selection".*iconId: "navigation\.back"/);
+assert.doesNotMatch(libraryTask, /open-filter|open-sort|open-view/);
+assert.match(libraryTask, /controller\.windowOffset = controller\.windowOffset \+ visibleCount/);
+assert.match(libraryTask, /if row\.shape = "landscape" then maximum = 5/);
+assert.match(libraryTask, /visibleCount >= 21/);
+assert.match(libraryTask, /if presentation = "facets" then return 12/);
+assert.match(libraryTask, /if controller\.requestedLibraryId = ""[\s\S]*controller\.status = "ready"[\s\S]*PorticoLibraryPublish/);
+assert.match(libraryTask, /viewState\.libraryHub = true/);
+assert.match(libraryBridge, /"select-library": true/);
+assert.match(searchTask, /controller\.status = "error"[\s\S]*PorticoSearchPublish\(controller, result\.status = 401\)/);
+assert.doesNotMatch(searchTask.match(/sub PorticoSearchRequestMore[\s\S]*?end sub/)?.[0] ?? '', /status = "loading"/);
+assert.match(models, /width: 200, height: 300/);
+assert.match(models, /PorticoBrowseSearchMeta/);
+assert.match(models, /parentTitle/);
+assert.match(models, /if hasLandscape then presentation = "list"/);
+
+console.log('Verified credential-private Search and Library Tasks, bounded pagination windows, cancellation, authenticated artwork, and scoped Library stale cache.');

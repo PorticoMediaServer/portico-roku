@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoAccountSecurityOverlay" extends="Group">
+    <interface>
+        <field id="open" type="boolean" value="false" onChange="render" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoAccountSecurityOverlay.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#000000" opacity="0.74" />
+        <Rectangle translation="[480,205]" width="960" height="670" color="#111923" />
+        <Rectangle translation="[480,205]" width="960" height="2" color="#4B5966" />
+        <Label id="title" translation="[528,252]" width="840" height="56" maxLines="1" />
+        <Label id="body" translation="[528,335]" width="840" height="90" maxLines="3" />
+        <Rectangle translation="[528,470]" width="840" height="126" color="#070B10" />
+        <Rectangle translation="[528,470]" width="840" height="2" color="#70BCE8" />
+        <Label id="link" translation="[560,504]" width="776" height="58" maxLines="1" horizAlign="center" vertAlign="center" />
+        <Label id="privacy" translation="[528,630]" width="840" height="62" maxLines="2" />
+        <PorticoButton id="done" translation="[528,748]" />
+    </children>
+</component>

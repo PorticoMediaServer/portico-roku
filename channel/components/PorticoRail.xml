@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoRail" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoRail.brs" />
+    <children>
+        <Poster id="surface" height="1032" loadHeight="1032" loadDisplayMode="scaleToFill" />
+        <Poster id="collapsedBrandBed" translation="[19,26]" width="38" height="38" loadWidth="38" loadHeight="38" loadDisplayMode="scaleToFill" />
+        <Poster id="symbol" translation="[24,31]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" />
+        <Poster id="wordmark" translation="[19,28]" width="154" height="34" loadWidth="154" loadHeight="34" loadDisplayMode="scaleToFit" />
+        <Group id="items" translation="[8,74]">
+            <PorticoRailItem id="item0" />
+            <PorticoRailItem id="item1" />
+            <PorticoRailItem id="item2" />
+            <PorticoRailItem id="item3" />
+            <PorticoRailItem id="item4" />
+            <PorticoRailItem id="item5" />
+            <PorticoRailItem id="item6" />
+            <PorticoRailItem id="item7" />
+            <PorticoRailItem id="item8" />
+            <PorticoRailItem id="item9" />
+            <PorticoRailItem id="item10" />
+        </Group>
+        <Rectangle id="divider" translation="[16,420]" height="1" color="#8F9BA6" opacity="0.22" />
+    </children>
+</component>

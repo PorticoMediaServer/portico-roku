@@ -1,0 +1,21 @@
+{
+  "artifacts": [
+    {
+      "bytes": 104887,
+      "name": "operations.v1.json",
+      "sha256": "6babafbb1d428f9c9c9a812ac671ab34f57109eb60b1cc510fddb343ae2f3e16"
+    },
+    {
+      "bytes": 103076,
+      "name": "product-contract.v1.json",
+      "sha256": "7fe61975ab502c4e06a3a552cf627414d3e57cb9e406b017d20ceb8ee1231313"
+    },
+    {
+      "bytes": 174591,
+      "name": "product-language.v1.json",
+      "sha256": "d608afd4cfbd72c04b9cdae0f7e6e0c4b81fbbb1808caa59d12d1739dec82227"
+    }
+  ],
+  "generatorRevision": 1,
+  "schemaVersion": 1
+}

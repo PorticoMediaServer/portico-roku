@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoSavedScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoSavedScreen.brs" />
+    <children>
+        <PorticoLibraryScreen id="savedContent" />
+        <PorticoImportantNotice id="mutationNotice" visible="false" translation="[0,24]" />
+    </children>
+</component>

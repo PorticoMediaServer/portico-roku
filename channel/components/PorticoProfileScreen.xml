@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoProfileScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoProfiles.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSecureRegistry.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoViewerPreferences.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSettingsModels.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoProfileScreen.brs" />
+    <children>
+        <Rectangle id="canvas" width="1784" height="1080" color="#070B10" />
+        <Label id="title" translation="[0,46]" width="900" height="62" maxLines="1" />
+        <Group id="summary" translation="[0,132]">
+            <Rectangle id="summarySurface" width="1712" height="118" color="#0A1017" />
+            <Rectangle translation="[0,117]" width="1712" height="1" color="#C7D0D8" opacity="0.12" />
+            <Poster id="avatar" translation="[20,27]" width="64" height="64" loadWidth="64" loadHeight="64" loadDisplayMode="scaleToFit" />
+            <Label id="initial" translation="[20,27]" width="64" height="64" horizAlign="center" vertAlign="center" maxLines="1" />
+            <Label id="displayName" translation="[104,18]" width="1480" height="34" maxLines="1" />
+            <Label id="authLabel" translation="[104,52]" width="1480" height="25" maxLines="1" />
+            <Label id="serverStatus" translation="[104,80]" width="1480" height="25" maxLines="1" />
+        </Group>
+        <Label id="accountGroup" translation="[0,278]" width="800" height="26" maxLines="1" />
+        <PorticoSettingsRow id="row0" translation="[0,312]" />
+        <PorticoSettingsRow id="row1" translation="[0,414]" />
+        <PorticoSettingsRow id="row2" translation="[0,516]" />
+        <PorticoSettingsRow id="row3" translation="[0,654]" />
+    </children>
+</component>

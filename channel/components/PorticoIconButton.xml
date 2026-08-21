@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoIconButton" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoIconButton.brs" />
+    <children>
+        <Poster id="surface" width="64" height="64" loadWidth="64" loadHeight="64" loadDisplayMode="scaleToFill" />
+        <Poster id="icon" translation="[17,17]" width="29" height="29" loadWidth="29" loadHeight="29" loadDisplayMode="scaleToFit" />
+    </children>
+</component>

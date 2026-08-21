@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoSettingsRow" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoSettingsRow.brs" />
+    <children>
+        <Poster id="surface" width="1712" height="94" loadWidth="1712" loadHeight="94" loadDisplayMode="scaleToFill" />
+        <Poster id="icon" translation="[22,33]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" />
+        <Label id="label" translation="[72,14]" width="950" height="30" maxLines="1" />
+        <Label id="description" translation="[72,48]" width="1100" height="25" maxLines="1" />
+        <Group id="valueGroup">
+            <Label id="value" translation="[1302,0]" width="334" height="94" horizAlign="right" vertAlign="center" maxLines="1" />
+            <Poster id="chevron" translation="[1656,35]" width="24" height="24" loadWidth="24" loadHeight="24" loadDisplayMode="scaleToFit" />
+        </Group>
+        <Poster id="toggle" translation="[1618,29]" width="62" height="36" loadWidth="62" loadHeight="36" loadDisplayMode="scaleToFit" visible="false" />
+    </children>
+</component>

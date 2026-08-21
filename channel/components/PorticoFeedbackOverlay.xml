@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoFeedbackOverlay" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoFeedbackOverlay.brs" />
+    <children>
+        <Rectangle id="scrim" width="1920" height="1080" color="#000000" opacity="0.74" />
+        <Rectangle id="panel" translation="[480,75]" width="960" height="930" color="#111923" />
+        <Rectangle id="panelLine" translation="[480,75]" width="960" height="2" color="#4B5966" />
+        <Label id="title" translation="[528,118]" width="840" height="52" maxLines="1" />
+        <Label id="section" translation="[528,278]" width="840" height="30" maxLines="1" />
+        <Label id="privacy" translation="[528,794]" width="840" height="54" maxLines="2" />
+        <Label id="status" translation="[528,850]" width="840" height="30" maxLines="1" />
+        <PorticoButton id="kind0" translation="[528,190]" />
+        <PorticoButton id="kind1" translation="[738,190]" />
+        <PorticoButton id="kind2" translation="[948,190]" />
+        <PorticoButton id="kind3" translation="[1158,190]" />
+        <PorticoButton id="category0" translation="[528,324]" />
+        <PorticoButton id="category1" translation="[528,390]" />
+        <PorticoButton id="category2" translation="[528,456]" />
+        <PorticoButton id="category3" translation="[528,522]" />
+        <PorticoButton id="category4" translation="[528,588]" />
+        <PorticoButton id="category5" translation="[528,654]" />
+        <PorticoButton id="category6" translation="[528,720]" />
+        <PorticoButton id="send" translation="[528,892]" />
+        <PorticoButton id="cancel" translation="[778,892]" />
+    </children>
+</component>

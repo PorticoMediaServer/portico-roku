@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoMediaCard" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="compensation" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+        <field id="shape" type="string" value="poster" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoMediaCard.brs" />
+    <children>
+        <Poster id="surface" loadDisplayMode="scaleToFill" />
+        <Rectangle id="fallbackBed" translation="[6,6]" color="#0A1017" />
+        <Poster id="artwork" translation="[6,6]" loadDisplayMode="scaleToZoom" />
+        <Rectangle id="progressTrack" color="#F4F7FA" opacity="0.28" />
+        <Rectangle id="progressValue" color="#70BCE8" />
+        <Poster id="artworkCorners" translation="[6,6]" loadDisplayMode="scaleToFill" />
+        <Poster id="fallbackIcon" loadDisplayMode="scaleToFit" />
+        <Label id="title" />
+        <Label id="meta" />
+    </children>
+</component>

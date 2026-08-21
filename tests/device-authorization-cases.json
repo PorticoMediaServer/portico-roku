@@ -1,0 +1,43 @@
+{
+  "pollingCases": [
+    {"kind": "pending", "currentInterval": 5, "retryAfter": 5, "failureCount": 0, "expectedDelay": 5, "expectedInterval": 5},
+    {"kind": "slow_down", "currentInterval": 5, "retryAfter": 10, "failureCount": 0, "expectedDelay": 10, "expectedInterval": 10},
+    {"kind": "slow_down", "currentInterval": 10, "retryAfter": 12, "failureCount": 0, "expectedDelay": 15, "expectedInterval": 15},
+    {"kind": "transient", "currentInterval": 5, "retryAfter": 0, "failureCount": 1, "expectedDelay": 10, "expectedInterval": 5},
+    {"kind": "transient", "currentInterval": 5, "retryAfter": 45, "failureCount": 2, "expectedDelay": 45, "expectedInterval": 5},
+    {"kind": "transient", "currentInterval": 10, "retryAfter": 0, "failureCount": 8, "expectedDelay": 60, "expectedInterval": 10}
+  ],
+  "runtimeProjectionInput": {
+    "accountStatus": "authorizing",
+    "hostedStatus": "online",
+    "accountDisplayName": "Living Room",
+    "authorizationUserCode": "ABCD-2345",
+    "verificationDisplayUri": "api.getportico.tv/device",
+    "deviceCode": "must-not-project",
+    "accessToken": "must-not-project",
+    "refreshToken": "must-not-project",
+    "authorizationSessionId": "must-not-project",
+    "verificationUri": "https://api.getportico.tv/device"
+  },
+  "runtimeProjectionExpected": {
+    "accountStatus": "authorizing",
+    "hostedStatus": "online",
+    "accountDisplayName": "Living Room",
+    "authorizationUserCode": "ABCD-2345",
+    "verificationDisplayUri": "api.getportico.tv/device"
+  },
+  "timestampCases": [
+    {"input": "2026-07-13T18:22:31Z", "expected": "2026-07-13T18:22:31"},
+    {"input": "2026-07-13T18:22:31.4Z", "expected": "2026-07-13T18:22:31.400"},
+    {"input": "2026-07-13T18:22:31.456789Z", "expected": "2026-07-13T18:22:31.456"},
+    {"input": "2026-07-13T18:22:31+00:00", "expected": "2026-07-13T18:22:31"},
+    {"input": "2026-07-13T18:22:31+0000", "expected": "2026-07-13T18:22:31"},
+    {"input": "2026-07-13T18:22:31-03:00", "expected": ""},
+    {"input": "2026-07-13T18:22:31+01:00", "expected": ""},
+    {"input": "2026-02-29T18:22:31Z", "expected": ""},
+    {"input": "2028-02-29T18:22:31Z", "expected": "2028-02-29T18:22:31"},
+    {"input": "2026-07-13 18:22:31Z", "expected": ""},
+    {"input": "2026-07-13T25:22:31Z", "expected": ""},
+    {"input": "not-a-time", "expected": ""}
+  ]
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoScene" extends="Scene">
+    <interface>
+        <field id="visualContract" type="assocarray" onChange="build" />
+        <field id="runtimeState" type="assocarray" onChange="runtimeChanged" />
+        <field id="page" type="string" value="home" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="routeRequested" type="string" alwaysNotify="true" />
+        <field id="accountRefreshRequested" type="boolean" value="false" alwaysNotify="true" />
+        <field id="externalRequest" type="assocarray" alwaysNotify="true" onChange="externalRequestChanged" />
+        <field id="externalRequestAcknowledgement" type="assocarray" alwaysNotify="true" />
+        <field id="playbackPresentationCommand" type="assocarray" alwaysNotify="true" onChange="playbackPresentationCommandChanged" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoAuthGateModels.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoRoutes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/PorticoNavigationStore.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/BackCoordinator.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/RailController.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoScene.brs" />
+    <children>
+        <Group id="designRoot">
+            <Rectangle id="projector" width="1920" height="1080" color="#070B10" />
+            <Group id="content" translation="[136,0]" />
+            <Group id="railLayer" translation="[24,24]">
+                <PorticoRail id="rail" />
+            </Group>
+            <PorticoStateScreen id="stateScreen" visible="true" />
+        </Group>
+    </children>
+</component>

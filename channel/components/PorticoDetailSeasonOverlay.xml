@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoDetailSeasonOverlay" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoDetailSeasonOverlay.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#000000" opacity="0.74" />
+        <Group translation="[560,112]">
+            <Rectangle width="800" height="856" color="#0A1017" />
+            <Rectangle width="3" height="856" color="#378EC3" />
+            <Rectangle width="800" height="1" color="#34424F" />
+            <Rectangle translation="[0,855]" width="800" height="1" color="#34424F" />
+            <Label id="title" translation="[42,34]" width="716" height="48" maxLines="1" />
+            <Label id="subtitle" translation="[42,84]" width="716" height="32" maxLines="1" />
+            <PorticoButton id="row0" translation="[42,142]" />
+            <PorticoButton id="row1" translation="[42,226]" />
+            <PorticoButton id="row2" translation="[42,310]" />
+            <PorticoButton id="row3" translation="[42,394]" />
+            <PorticoButton id="row4" translation="[42,478]" />
+            <PorticoButton id="row5" translation="[42,562]" />
+            <PorticoButton id="row6" translation="[42,646]" />
+            <PorticoButton id="row7" translation="[42,730]" />
+        </Group>
+    </children>
+</component>

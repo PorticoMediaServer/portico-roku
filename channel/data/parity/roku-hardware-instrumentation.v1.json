@@ -1,0 +1,113 @@
+{
+  "advertisedResolutionClasses": [
+    "fhd"
+  ],
+  "budgets": {
+    "launchTimeMs": 3000,
+    "longSessionHours": 10,
+    "memoryWarningCount": 0,
+    "navigationLatencyMs": 250,
+    "sceneNodeCountProxy": 350,
+    "textureBytesProxy": 67108864
+  },
+  "deviceClasses": [
+    {
+      "advertised": false,
+      "id": "low-power-hd",
+      "memoryClass": "low",
+      "resolution": {
+        "height": 720,
+        "width": 1280
+      },
+      "status": "pending-runtime-and-certification"
+    },
+    {
+      "advertised": true,
+      "id": "mainstream-fhd",
+      "memoryClass": "standard",
+      "resolution": {
+        "height": 1080,
+        "width": 1920
+      },
+      "status": "pending-runtime"
+    },
+    {
+      "advertised": true,
+      "id": "current-high-end-fhd",
+      "memoryClass": "high",
+      "resolution": {
+        "height": 1080,
+        "width": 1920
+      },
+      "status": "pending-runtime"
+    }
+  ],
+  "evidence": {
+    "artifactBinding": "exact-package-sha256-required",
+    "collection": "roku-developer-console-or-approved-device-harness",
+    "sourceOnlyStatus": "does-not-claim-hardware-execution"
+  },
+  "kind": "portico.roku-hardware-instrumentation-contract",
+  "measurements": [
+    {
+      "id": "launch-time",
+      "required": true,
+      "unit": "milliseconds"
+    },
+    {
+      "id": "navigation-latency",
+      "required": true,
+      "unit": "milliseconds"
+    },
+    {
+      "id": "scene-node-count-proxy",
+      "required": true,
+      "unit": "count"
+    },
+    {
+      "id": "texture-bytes-proxy",
+      "required": true,
+      "unit": "bytes"
+    },
+    {
+      "id": "memory-warning-count",
+      "required": true,
+      "unit": "count"
+    },
+    {
+      "id": "playback-duration",
+      "required": true,
+      "unit": "minutes"
+    },
+    {
+      "id": "network-restart-recovery",
+      "required": true,
+      "unit": "boolean"
+    },
+    {
+      "id": "ten-hour-soak",
+      "required": true,
+      "unit": "hours"
+    }
+  ],
+  "minimumRokuOs": "15.0",
+  "resolutionAdvertisement": {
+    "advertisedClasses": [
+      "fhd"
+    ],
+    "pendingEvidenceClasses": [
+      "hd"
+    ],
+    "policy": "fail-closed",
+    "requiresRuntimeEvidence": true
+  },
+  "scaling": {
+    "contract": "layout coordinates are authored in FHD design space and scale uniformly to the active display class",
+    "hdStatus": "source-contract-pending-runtime",
+    "letterboxPolicy": "preserve-focus-and-safe-area",
+    "maxScale": 1,
+    "minScale": 0.6666667
+  },
+  "status": "source-scaffold",
+  "version": 1
+}

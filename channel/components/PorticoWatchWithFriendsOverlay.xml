@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoWatchWithFriendsOverlay" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="context" type="assocarray" onChange="applyContext" />
+        <field id="action" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerScope.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoWatchWithFriendsOverlay.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#000000" opacity="0.74" />
+        <Group id="sheet" translation="[470,160]">
+            <Rectangle width="980" height="760" color="#0A1017" />
+            <Rectangle width="980" height="1" color="#34424F" />
+            <Rectangle translation="[0,759]" width="980" height="1" color="#34424F" />
+            <Rectangle width="3" height="760" color="#378EC3" />
+            <Label id="title" translation="[48,40]" width="760" height="45" maxLines="1" />
+            <Label id="subtitle" translation="[48,92]" width="820" height="58" maxLines="2" />
+            <PorticoIconButton id="close" translation="[868,40]" />
+            <Label id="status" translation="[48,157]" width="884" height="34" maxLines="1" />
+            <Label id="section" translation="[48,218]" width="884" height="34" maxLines="1" />
+            <PorticoButton id="row0" translation="[48,270]" />
+            <PorticoButton id="row1" translation="[48,332]" />
+            <PorticoButton id="row2" translation="[48,394]" />
+            <PorticoButton id="row3" translation="[48,456]" />
+            <PorticoButton id="row4" translation="[48,518]" />
+            <PorticoButton id="row5" translation="[48,580]" />
+            <PorticoButton id="row6" translation="[48,642]" />
+        </Group>
+    </children>
+</component>

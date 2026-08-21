@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoServerSelection" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoServerSelection.brs" />
+    <children>
+        <Poster id="scrim" width="1920" height="1080" loadWidth="1920" loadHeight="1080" loadDisplayMode="scaleToFill" />
+        <Group id="panel" translation="[1110,90]">
+            <Poster id="panelSurface" width="720" loadWidth="720" loadDisplayMode="scaleToFill" />
+            <Label id="title" translation="[22,24]" width="540" height="38" maxLines="1" />
+            <PorticoIconButton id="closeAction" translation="[634,11]" />
+            <Rectangle id="headerRule" translation="[0,86]" width="720" height="1" color="#33404A" opacity="0.55" />
+
+            <Group id="profileSummary" translation="[22,97]">
+                <Poster id="avatar" translation="[0,10]" width="52" height="52" loadWidth="52" loadHeight="52" loadDisplayMode="scaleToFill" />
+                <Label id="avatarText" translation="[0,10]" width="52" height="52" maxLines="1" horizAlign="center" vertAlign="center" />
+                <Label id="accountName" translation="[66,3]" width="588" height="34" maxLines="1" />
+                <Label id="accountDetail" translation="[66,41]" width="588" height="27" maxLines="1" />
+            </Group>
+            <Rectangle id="profileRule" translation="[22,178]" width="676" height="1" color="#33404A" opacity="0.35" />
+
+            <Group id="serverRows" translation="[10,189]">
+                <PorticoServerRow id="serverRow0" />
+                <PorticoServerRow id="serverRow1" translation="[0,82]" />
+                <PorticoServerRow id="serverRow2" translation="[0,164]" />
+                <PorticoServerRow id="serverRow3" translation="[0,246]" />
+                <PorticoServerRow id="serverRow4" translation="[0,328]" />
+                <PorticoServerRow id="serverRow5" translation="[0,410]" />
+            </Group>
+
+            <Group id="catalogState" translation="[26,199]" visible="false">
+                <Label id="catalogStatus" width="668" height="25" maxLines="1" />
+                <Label id="catalogBody" translation="[0,31]" width="668" height="48" maxLines="2" />
+            </Group>
+
+            <Rectangle id="actionRule" width="676" height="1" color="#33404A" opacity="0.35" />
+            <PorticoServerRow id="refreshAction" />
+            <PorticoServerRow id="accountAction" />
+        </Group>
+    </children>
+</component>

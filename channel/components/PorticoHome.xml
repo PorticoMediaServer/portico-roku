@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoHome" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="compensation" type="assocarray" onChange="render" />
+        <field id="focusedAction" type="integer" value="0" onChange="render" />
+        <field id="focusedRow" type="integer" value="0" onChange="render" />
+        <field id="focusedIndices" type="array" onChange="render" />
+        <field id="heroIndex" type="integer" value="0" onChange="render" />
+        <field id="focusArea" type="string" value="homeActions" onChange="render" />
+        <field id="focusSemanticId" type="string" value="home.unavailable" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoHome.brs" />
+    <children>
+        <Group id="hero" />
+        <Group id="rows" />
+        <Group id="availability" />
+    </children>
+</component>

@@ -1,0 +1,48 @@
+{
+  "kind": "portico.roku-hardware-instrumentation-contract",
+  "version": 1,
+  "status": "source-scaffold",
+  "minimumRokuOs": "15.0",
+  "advertisedResolutionClasses": ["fhd"],
+  "resolutionAdvertisement": {
+    "advertisedClasses": ["fhd"],
+    "pendingEvidenceClasses": ["hd"],
+    "policy": "fail-closed",
+    "requiresRuntimeEvidence": true
+  },
+  "deviceClasses": [
+    {"id": "low-power-hd", "resolution": {"width": 1280, "height": 720}, "memoryClass": "low", "advertised": false, "status": "pending-runtime-and-certification"},
+    {"id": "mainstream-fhd", "resolution": {"width": 1920, "height": 1080}, "memoryClass": "standard", "advertised": true, "status": "pending-runtime"},
+    {"id": "current-high-end-fhd", "resolution": {"width": 1920, "height": 1080}, "memoryClass": "high", "advertised": true, "status": "pending-runtime"}
+  ],
+  "scaling": {
+    "contract": "layout coordinates are authored in FHD design space and scale uniformly to the active display class",
+    "minScale": 0.6666667,
+    "maxScale": 1,
+    "letterboxPolicy": "preserve-focus-and-safe-area",
+    "hdStatus": "source-contract-pending-runtime"
+  },
+  "measurements": [
+    {"id": "launch-time", "unit": "milliseconds", "required": true},
+    {"id": "navigation-latency", "unit": "milliseconds", "required": true},
+    {"id": "scene-node-count-proxy", "unit": "count", "required": true},
+    {"id": "texture-bytes-proxy", "unit": "bytes", "required": true},
+    {"id": "memory-warning-count", "unit": "count", "required": true},
+    {"id": "playback-duration", "unit": "minutes", "required": true},
+    {"id": "network-restart-recovery", "unit": "boolean", "required": true},
+    {"id": "ten-hour-soak", "unit": "hours", "required": true}
+  ],
+  "budgets": {
+    "launchTimeMs": 3000,
+    "navigationLatencyMs": 250,
+    "sceneNodeCountProxy": 350,
+    "memoryWarningCount": 0,
+    "textureBytesProxy": 67108864,
+    "longSessionHours": 10
+  },
+  "evidence": {
+    "collection": "roku-developer-console-or-approved-device-harness",
+    "artifactBinding": "exact-package-sha256-required",
+    "sourceOnlyStatus": "does-not-claim-hardware-execution"
+  }
+}

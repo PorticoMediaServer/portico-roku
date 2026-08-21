@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoHomeShelf" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="compensation" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+        <field id="focusedIndex" type="integer" value="0" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoHomeShelf.brs" />
+    <children>
+        <Label id="heading" width="1280" height="36" maxLines="1" />
+        <Group id="reserved" visible="false">
+            <Group id="reserved0" /><Group id="reserved1" /><Group id="reserved2" /><Group id="reserved3" />
+            <Group id="reserved4" /><Group id="reserved5" /><Group id="reserved6" />
+        </Group>
+        <PorticoMediaCard id="card0" visible="false" /><PorticoMediaCard id="card1" visible="false" />
+        <PorticoMediaCard id="card2" visible="false" /><PorticoMediaCard id="card3" visible="false" />
+        <PorticoMediaCard id="card4" visible="false" /><PorticoMediaCard id="card5" visible="false" />
+        <PorticoMediaCard id="card6" visible="false" />
+    </children>
+</component>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoBrowseTile" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+        <field id="tileKind" type="string" value="facet" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoBrowseTile.brs" />
+    <children>
+        <Poster id="surface" loadDisplayMode="scaleToFill" />
+        <Label id="title0" maxLines="1" />
+        <Label id="title1" maxLines="1" />
+        <Label id="meta" maxLines="1" />
+        <Label id="summary0" maxLines="1" />
+        <Label id="summary1" maxLines="1" />
+        <Label id="summary2" maxLines="1" />
+    </children>
+</component>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoAuthGate" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoAuthGate.brs" />
+    <children>
+        <Rectangle id="canvas" width="1920" height="1080" color="#070B10" />
+        <Poster id="wordmark" translation="[760,78]" width="400" height="87" loadWidth="400" loadHeight="87" loadDisplayMode="scaleToFit" />
+        <Label id="eyebrow" translation="[200,270]" width="640" height="32" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="title" translation="[200,300]" width="640" height="62" maxLines="1" horizAlign="center" />
+        <Label id="message0" translation="[200,378]" width="640" height="36" maxLines="1" horizAlign="center" />
+        <Label id="message1" translation="[200,414]" width="640" height="36" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="verificationUri" translation="[200,458]" width="640" height="42" maxLines="1" horizAlign="center" visible="false" />
+        <Group id="codeGroup" translation="[0,496]" visible="false">
+            <Label id="code0" width="104" height="116" maxLines="1" /><Label id="code1" width="104" height="116" maxLines="1" />
+            <Label id="code2" width="104" height="116" maxLines="1" /><Label id="code3" width="104" height="116" maxLines="1" />
+            <Label id="code4" width="104" height="116" maxLines="1" /><Label id="code5" width="104" height="116" maxLines="1" />
+            <Label id="code6" width="104" height="116" maxLines="1" /><Label id="code7" width="104" height="116" maxLines="1" />
+            <Label id="code8" width="104" height="116" maxLines="1" />
+        </Group>
+        <Label id="detail0" translation="[200,646]" width="640" height="34" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="detail1" translation="[200,680]" width="640" height="34" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="loadingDots" translation="[200,510]" width="640" height="62" maxLines="1" horizAlign="center" visible="false" />
+        <Rectangle id="divider" translation="[959,286]" width="2" height="590" color="#24313C" />
+        <Label id="accountTitle" translation="[1080,300]" width="640" height="62" maxLines="1" horizAlign="center" />
+        <Label id="accountMessage" translation="[1080,378]" width="640" height="72" maxLines="2" horizAlign="center" />
+        <Label id="accountOr" translation="[1120,736]" width="560" height="34" maxLines="1" horizAlign="center" visible="false" />
+        <Label id="accountError" translation="[1080,854]" width="640" height="62" maxLines="2" horizAlign="center" visible="false" />
+        <Group id="actions" translation="[0,0]">
+            <PorticoAuthAction id="action0" visible="false" />
+            <PorticoAuthAction id="action1" visible="false" />
+            <PorticoAuthAction id="action2" visible="false" />
+            <PorticoAuthAction id="action3" visible="false" />
+            <PorticoAuthAction id="action4" visible="false" />
+        </Group>
+    </children>
+</component>

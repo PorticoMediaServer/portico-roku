@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoSettingsChoiceRow" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="semanticId" type="string" value="settings.choice.unavailable" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoSettingsChoiceRow.brs" />
+    <children>
+        <Poster id="surface" width="680" height="74" loadWidth="680" loadHeight="74" loadDisplayMode="scaleToFill" />
+        <Label id="label" translation="[20,0]" width="570" height="74" vertAlign="center" maxLines="1" />
+        <Poster id="radio" translation="[626,23]" width="28" height="28" loadWidth="28" loadHeight="28" loadDisplayMode="scaleToFit" />
+    </children>
+</component>

@@ -1,0 +1,4027 @@
+{
+  "schemaVersion": 1,
+  "registryVersion": "1.0.0",
+  "states": [
+    "default",
+    "focused",
+    "selected",
+    "disabled",
+    "rail",
+    "dark-background",
+    "destructive"
+  ],
+  "semanticToMaster": {
+    "accessibility.audio-description": "ear",
+    "accessibility.captions": "captions",
+    "accessibility.universal": "accessibility",
+    "account.edit-profile": "pencil",
+    "account.profile": "circle-user-round",
+    "account.profiles": "users",
+    "account.security": "key-round",
+    "account.sign-in": "log-in",
+    "account.sign-out": "log-out",
+    "account.user": "user-round",
+    "account.verified": "shield-check",
+    "account.visibility.hide": "eye-off",
+    "account.visibility.show": "eye",
+    "account.watch-together": "users",
+    "action.add": "plus",
+    "action.add-to-list": "list-plus",
+    "action.archive": "archive",
+    "action.cancel": "x",
+    "action.clear": "x",
+    "action.close": "x",
+    "action.confirm": "check",
+    "action.customize": "sliders-horizontal",
+    "action.delete": "trash-2",
+    "action.dislike": "thumbs-down",
+    "action.dismiss": "check",
+    "action.download": "download",
+    "action.edit": "pencil",
+    "action.favorite": "heart",
+    "action.feedback": "message-square",
+    "action.filter": "sliders-horizontal",
+    "action.fullscreen-enter": "maximize-2",
+    "action.fullscreen-exit": "minimize-2",
+    "action.like": "thumbs-up",
+    "action.mark-read": "check",
+    "action.mark-unread": "mail",
+    "action.mark-watched": "check",
+    "action.more": "ellipsis",
+    "action.open-external": "external-link",
+    "action.optimize": "gauge",
+    "action.pin": "pin",
+    "action.prepare-download": "download-cloud",
+    "action.rate": "star",
+    "action.reaction": "thumbs-up",
+    "action.refresh": "refresh-cw",
+    "action.remove": "x",
+    "action.report": "message-square-warning",
+    "action.reset": "rotate-ccw",
+    "action.resolve": "circle-check",
+    "action.retry": "refresh-cw",
+    "action.send": "send",
+    "action.sort": "arrow-down-a-z",
+    "action.sort-ascending": "arrow-up-a-z",
+    "action.sort-descending": "arrow-down-z-a",
+    "action.switch-server": "server",
+    "action.undo": "rotate-ccw",
+    "action.unpin": "pin-off",
+    "action.watchlist": "bookmark",
+    "appearance.dark-mode": "moon",
+    "communication.inbox": "inbox",
+    "communication.message": "message-square",
+    "communication.microphone": "mic-2",
+    "communication.notifications": "bell",
+    "communication.report": "message-square-warning",
+    "device.client": "monitor-smartphone",
+    "device.display": "monitor",
+    "device.nearby": "radar",
+    "device.network": "network",
+    "device.offline": "wifi-off",
+    "device.server": "server",
+    "device.storage": "hard-drive",
+    "device.tv": "tv",
+    "device.wifi": "wifi",
+    "library.archive": "archive",
+    "library.collection": "library",
+    "library.saved": "folder-heart",
+    "library.storage": "hard-drive",
+    "media.audiobook": "headphones",
+    "media.calendar": "calendar-days",
+    "media.collection": "grid-3x3",
+    "media.live-tv": "tv",
+    "media.movie": "film",
+    "media.music": "music-2",
+    "media.photo": "camera",
+    "media.playlist": "list-music",
+    "media.video": "video",
+    "metadata.info": "info",
+    "metadata.time": "clock-3",
+    "navigation.back": "arrow-left",
+    "navigation.channels": "radio",
+    "navigation.collapse": "chevron-up",
+    "navigation.disclosure": "chevron-right",
+    "navigation.expand": "chevron-down",
+    "navigation.forward": "arrow-right",
+    "navigation.home": "home",
+    "navigation.library": "library",
+    "navigation.move-down": "chevron-down",
+    "navigation.move-up": "chevron-up",
+    "navigation.next": "chevron-right",
+    "navigation.previous": "chevron-left",
+    "navigation.saved": "folder-heart",
+    "navigation.search": "search",
+    "navigation.settings": "settings",
+    "playback.audio": "headphones",
+    "playback.autoplay": "play-circle",
+    "playback.captions": "captions",
+    "playback.chapters": "list",
+    "playback.language": "languages",
+    "playback.lyrics": "mic-2",
+    "playback.mute": "volume-x",
+    "playback.next": "skip-forward",
+    "playback.pause": "pause",
+    "playback.picture-in-picture": "picture-in-picture-2",
+    "playback.play": "play",
+    "playback.previous": "skip-back",
+    "playback.quality": "gauge",
+    "playback.queue": "list-video",
+    "playback.record": "circle",
+    "playback.repeat": "repeat",
+    "playback.repeat-one": "repeat-1",
+    "playback.replay": "rotate-ccw",
+    "playback.restart": "rotate-ccw",
+    "playback.route.airplay": "airplay",
+    "playback.route.cast": "cast",
+    "playback.seek-back": "rotate-ccw",
+    "playback.seek-forward": "rotate-cw",
+    "playback.shuffle": "shuffle",
+    "playback.speed": "gauge",
+    "playback.subtitles": "subtitles",
+    "playback.technical-stats": "activity",
+    "playback.unmute": "volume-2",
+    "playback.up-next": "list-video",
+    "playback.volume": "volume-2",
+    "preference.downloads": "download",
+    "preference.language": "languages",
+    "preference.notifications": "bell",
+    "preference.playback": "sliders-horizontal",
+    "preference.quality": "gauge",
+    "preference.seek-interval": "rotate-cw",
+    "preference.storage": "hard-drive",
+    "status.active": "circle",
+    "status.artwork-unavailable": "image-off",
+    "status.downloaded": "circle-check",
+    "status.downloading": "download",
+    "status.empty": "inbox",
+    "status.error": "circle-x",
+    "status.icon-mapping-missing": "triangle-alert",
+    "status.info": "info",
+    "status.live": "radio",
+    "status.loading": "loader-circle",
+    "status.locked": "lock-keyhole",
+    "status.notification": "bell",
+    "status.offline": "wifi-off",
+    "status.online": "wifi",
+    "status.rate-limited": "clock-3",
+    "status.secure": "shield-check",
+    "status.selected": "check",
+    "status.success": "circle-check",
+    "status.warning": "triangle-alert",
+    "view.calendar": "calendar-days",
+    "view.details": "info",
+    "view.grid": "grid-3x3",
+    "view.list": "list"
+  },
+  "masters": {
+    "accessibility": {
+      "default": {
+        "path": "accessibility-default.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-default.png"
+      },
+      "focused": {
+        "path": "accessibility-focused.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-focused.png"
+      },
+      "selected": {
+        "path": "accessibility-selected.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-selected.png"
+      },
+      "disabled": {
+        "path": "accessibility-disabled.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-disabled.png"
+      },
+      "rail": {
+        "path": "accessibility-rail.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-rail.png"
+      },
+      "dark-background": {
+        "path": "accessibility-dark-background.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-dark-background.png"
+      },
+      "destructive": {
+        "path": "accessibility-destructive.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442",
+        "uri": "pkg:/images/icons/generated/accessibility-destructive.png"
+      }
+    },
+    "activity": {
+      "default": {
+        "path": "activity-default.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-default.png"
+      },
+      "focused": {
+        "path": "activity-focused.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-focused.png"
+      },
+      "selected": {
+        "path": "activity-selected.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-selected.png"
+      },
+      "disabled": {
+        "path": "activity-disabled.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-disabled.png"
+      },
+      "rail": {
+        "path": "activity-rail.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-rail.png"
+      },
+      "dark-background": {
+        "path": "activity-dark-background.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-dark-background.png"
+      },
+      "destructive": {
+        "path": "activity-destructive.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa",
+        "uri": "pkg:/images/icons/generated/activity-destructive.png"
+      }
+    },
+    "airplay": {
+      "default": {
+        "path": "airplay-default.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-default.png"
+      },
+      "focused": {
+        "path": "airplay-focused.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-focused.png"
+      },
+      "selected": {
+        "path": "airplay-selected.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-selected.png"
+      },
+      "disabled": {
+        "path": "airplay-disabled.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-disabled.png"
+      },
+      "rail": {
+        "path": "airplay-rail.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-rail.png"
+      },
+      "dark-background": {
+        "path": "airplay-dark-background.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-dark-background.png"
+      },
+      "destructive": {
+        "path": "airplay-destructive.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1",
+        "uri": "pkg:/images/icons/generated/airplay-destructive.png"
+      }
+    },
+    "archive": {
+      "default": {
+        "path": "archive-default.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-default.png"
+      },
+      "focused": {
+        "path": "archive-focused.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-focused.png"
+      },
+      "selected": {
+        "path": "archive-selected.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-selected.png"
+      },
+      "disabled": {
+        "path": "archive-disabled.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-disabled.png"
+      },
+      "rail": {
+        "path": "archive-rail.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-rail.png"
+      },
+      "dark-background": {
+        "path": "archive-dark-background.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-dark-background.png"
+      },
+      "destructive": {
+        "path": "archive-destructive.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3",
+        "uri": "pkg:/images/icons/generated/archive-destructive.png"
+      }
+    },
+    "arrow-down-a-z": {
+      "default": {
+        "path": "arrow-down-a-z-default.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-default.png"
+      },
+      "focused": {
+        "path": "arrow-down-a-z-focused.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-focused.png"
+      },
+      "selected": {
+        "path": "arrow-down-a-z-selected.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-selected.png"
+      },
+      "disabled": {
+        "path": "arrow-down-a-z-disabled.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-disabled.png"
+      },
+      "rail": {
+        "path": "arrow-down-a-z-rail.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-rail.png"
+      },
+      "dark-background": {
+        "path": "arrow-down-a-z-dark-background.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-dark-background.png"
+      },
+      "destructive": {
+        "path": "arrow-down-a-z-destructive.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117",
+        "uri": "pkg:/images/icons/generated/arrow-down-a-z-destructive.png"
+      }
+    },
+    "arrow-down-z-a": {
+      "default": {
+        "path": "arrow-down-z-a-default.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-default.png"
+      },
+      "focused": {
+        "path": "arrow-down-z-a-focused.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-focused.png"
+      },
+      "selected": {
+        "path": "arrow-down-z-a-selected.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-selected.png"
+      },
+      "disabled": {
+        "path": "arrow-down-z-a-disabled.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-disabled.png"
+      },
+      "rail": {
+        "path": "arrow-down-z-a-rail.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-rail.png"
+      },
+      "dark-background": {
+        "path": "arrow-down-z-a-dark-background.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-dark-background.png"
+      },
+      "destructive": {
+        "path": "arrow-down-z-a-destructive.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d",
+        "uri": "pkg:/images/icons/generated/arrow-down-z-a-destructive.png"
+      }
+    },
+    "arrow-left": {
+      "default": {
+        "path": "arrow-left-default.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-default.png"
+      },
+      "focused": {
+        "path": "arrow-left-focused.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-focused.png"
+      },
+      "selected": {
+        "path": "arrow-left-selected.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-selected.png"
+      },
+      "disabled": {
+        "path": "arrow-left-disabled.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-disabled.png"
+      },
+      "rail": {
+        "path": "arrow-left-rail.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-rail.png"
+      },
+      "dark-background": {
+        "path": "arrow-left-dark-background.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-dark-background.png"
+      },
+      "destructive": {
+        "path": "arrow-left-destructive.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543",
+        "uri": "pkg:/images/icons/generated/arrow-left-destructive.png"
+      }
+    },
+    "arrow-right": {
+      "default": {
+        "path": "arrow-right-default.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-default.png"
+      },
+      "focused": {
+        "path": "arrow-right-focused.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-focused.png"
+      },
+      "selected": {
+        "path": "arrow-right-selected.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-selected.png"
+      },
+      "disabled": {
+        "path": "arrow-right-disabled.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-disabled.png"
+      },
+      "rail": {
+        "path": "arrow-right-rail.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-rail.png"
+      },
+      "dark-background": {
+        "path": "arrow-right-dark-background.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-dark-background.png"
+      },
+      "destructive": {
+        "path": "arrow-right-destructive.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526",
+        "uri": "pkg:/images/icons/generated/arrow-right-destructive.png"
+      }
+    },
+    "arrow-up-a-z": {
+      "default": {
+        "path": "arrow-up-a-z-default.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-default.png"
+      },
+      "focused": {
+        "path": "arrow-up-a-z-focused.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-focused.png"
+      },
+      "selected": {
+        "path": "arrow-up-a-z-selected.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-selected.png"
+      },
+      "disabled": {
+        "path": "arrow-up-a-z-disabled.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-disabled.png"
+      },
+      "rail": {
+        "path": "arrow-up-a-z-rail.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-rail.png"
+      },
+      "dark-background": {
+        "path": "arrow-up-a-z-dark-background.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-dark-background.png"
+      },
+      "destructive": {
+        "path": "arrow-up-a-z-destructive.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3",
+        "uri": "pkg:/images/icons/generated/arrow-up-a-z-destructive.png"
+      }
+    },
+    "bell": {
+      "default": {
+        "path": "bell-default.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-default.png"
+      },
+      "focused": {
+        "path": "bell-focused.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-focused.png"
+      },
+      "selected": {
+        "path": "bell-selected.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-selected.png"
+      },
+      "disabled": {
+        "path": "bell-disabled.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-disabled.png"
+      },
+      "rail": {
+        "path": "bell-rail.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-rail.png"
+      },
+      "dark-background": {
+        "path": "bell-dark-background.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-dark-background.png"
+      },
+      "destructive": {
+        "path": "bell-destructive.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f",
+        "uri": "pkg:/images/icons/generated/bell-destructive.png"
+      }
+    },
+    "bookmark": {
+      "default": {
+        "path": "bookmark-default.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a",
+        "uri": "pkg:/images/icons/generated/bookmark-default.png"
+      },
+      "focused": {
+        "path": "bookmark-focused.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a",
+        "uri": "pkg:/images/icons/generated/bookmark-focused.png"
+      },
+      "selected": {
+        "path": "bookmark-selected.png",
+        "sha256": "3a1cc3051dabdf3ca97619845247335abde32fbb1de24dd76b4e88b92f40c587",
+        "uri": "pkg:/images/icons/generated/bookmark-selected.png"
+      },
+      "disabled": {
+        "path": "bookmark-disabled.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a",
+        "uri": "pkg:/images/icons/generated/bookmark-disabled.png"
+      },
+      "rail": {
+        "path": "bookmark-rail.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a",
+        "uri": "pkg:/images/icons/generated/bookmark-rail.png"
+      },
+      "dark-background": {
+        "path": "bookmark-dark-background.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a",
+        "uri": "pkg:/images/icons/generated/bookmark-dark-background.png"
+      },
+      "destructive": {
+        "path": "bookmark-destructive.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a",
+        "uri": "pkg:/images/icons/generated/bookmark-destructive.png"
+      }
+    },
+    "calendar-days": {
+      "default": {
+        "path": "calendar-days-default.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-default.png"
+      },
+      "focused": {
+        "path": "calendar-days-focused.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-focused.png"
+      },
+      "selected": {
+        "path": "calendar-days-selected.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-selected.png"
+      },
+      "disabled": {
+        "path": "calendar-days-disabled.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-disabled.png"
+      },
+      "rail": {
+        "path": "calendar-days-rail.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-rail.png"
+      },
+      "dark-background": {
+        "path": "calendar-days-dark-background.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-dark-background.png"
+      },
+      "destructive": {
+        "path": "calendar-days-destructive.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa",
+        "uri": "pkg:/images/icons/generated/calendar-days-destructive.png"
+      }
+    },
+    "camera": {
+      "default": {
+        "path": "camera-default.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-default.png"
+      },
+      "focused": {
+        "path": "camera-focused.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-focused.png"
+      },
+      "selected": {
+        "path": "camera-selected.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-selected.png"
+      },
+      "disabled": {
+        "path": "camera-disabled.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-disabled.png"
+      },
+      "rail": {
+        "path": "camera-rail.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-rail.png"
+      },
+      "dark-background": {
+        "path": "camera-dark-background.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-dark-background.png"
+      },
+      "destructive": {
+        "path": "camera-destructive.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806",
+        "uri": "pkg:/images/icons/generated/camera-destructive.png"
+      }
+    },
+    "captions": {
+      "default": {
+        "path": "captions-default.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-default.png"
+      },
+      "focused": {
+        "path": "captions-focused.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-focused.png"
+      },
+      "selected": {
+        "path": "captions-selected.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-selected.png"
+      },
+      "disabled": {
+        "path": "captions-disabled.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-disabled.png"
+      },
+      "rail": {
+        "path": "captions-rail.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-rail.png"
+      },
+      "dark-background": {
+        "path": "captions-dark-background.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-dark-background.png"
+      },
+      "destructive": {
+        "path": "captions-destructive.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/captions-destructive.png"
+      }
+    },
+    "cast": {
+      "default": {
+        "path": "cast-default.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-default.png"
+      },
+      "focused": {
+        "path": "cast-focused.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-focused.png"
+      },
+      "selected": {
+        "path": "cast-selected.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-selected.png"
+      },
+      "disabled": {
+        "path": "cast-disabled.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-disabled.png"
+      },
+      "rail": {
+        "path": "cast-rail.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-rail.png"
+      },
+      "dark-background": {
+        "path": "cast-dark-background.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-dark-background.png"
+      },
+      "destructive": {
+        "path": "cast-destructive.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed",
+        "uri": "pkg:/images/icons/generated/cast-destructive.png"
+      }
+    },
+    "check": {
+      "default": {
+        "path": "check-default.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-default.png"
+      },
+      "focused": {
+        "path": "check-focused.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-focused.png"
+      },
+      "selected": {
+        "path": "check-selected.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-selected.png"
+      },
+      "disabled": {
+        "path": "check-disabled.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-disabled.png"
+      },
+      "rail": {
+        "path": "check-rail.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-rail.png"
+      },
+      "dark-background": {
+        "path": "check-dark-background.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-dark-background.png"
+      },
+      "destructive": {
+        "path": "check-destructive.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8",
+        "uri": "pkg:/images/icons/generated/check-destructive.png"
+      }
+    },
+    "chevron-down": {
+      "default": {
+        "path": "chevron-down-default.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-default.png"
+      },
+      "focused": {
+        "path": "chevron-down-focused.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-focused.png"
+      },
+      "selected": {
+        "path": "chevron-down-selected.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-selected.png"
+      },
+      "disabled": {
+        "path": "chevron-down-disabled.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-disabled.png"
+      },
+      "rail": {
+        "path": "chevron-down-rail.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-rail.png"
+      },
+      "dark-background": {
+        "path": "chevron-down-dark-background.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-dark-background.png"
+      },
+      "destructive": {
+        "path": "chevron-down-destructive.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131",
+        "uri": "pkg:/images/icons/generated/chevron-down-destructive.png"
+      }
+    },
+    "chevron-left": {
+      "default": {
+        "path": "chevron-left-default.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-default.png"
+      },
+      "focused": {
+        "path": "chevron-left-focused.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-focused.png"
+      },
+      "selected": {
+        "path": "chevron-left-selected.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-selected.png"
+      },
+      "disabled": {
+        "path": "chevron-left-disabled.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-disabled.png"
+      },
+      "rail": {
+        "path": "chevron-left-rail.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-rail.png"
+      },
+      "dark-background": {
+        "path": "chevron-left-dark-background.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-dark-background.png"
+      },
+      "destructive": {
+        "path": "chevron-left-destructive.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9",
+        "uri": "pkg:/images/icons/generated/chevron-left-destructive.png"
+      }
+    },
+    "chevron-right": {
+      "default": {
+        "path": "chevron-right-default.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-default.png"
+      },
+      "focused": {
+        "path": "chevron-right-focused.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-focused.png"
+      },
+      "selected": {
+        "path": "chevron-right-selected.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-selected.png"
+      },
+      "disabled": {
+        "path": "chevron-right-disabled.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-disabled.png"
+      },
+      "rail": {
+        "path": "chevron-right-rail.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-rail.png"
+      },
+      "dark-background": {
+        "path": "chevron-right-dark-background.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-dark-background.png"
+      },
+      "destructive": {
+        "path": "chevron-right-destructive.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738",
+        "uri": "pkg:/images/icons/generated/chevron-right-destructive.png"
+      }
+    },
+    "chevron-up": {
+      "default": {
+        "path": "chevron-up-default.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-default.png"
+      },
+      "focused": {
+        "path": "chevron-up-focused.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-focused.png"
+      },
+      "selected": {
+        "path": "chevron-up-selected.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-selected.png"
+      },
+      "disabled": {
+        "path": "chevron-up-disabled.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-disabled.png"
+      },
+      "rail": {
+        "path": "chevron-up-rail.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-rail.png"
+      },
+      "dark-background": {
+        "path": "chevron-up-dark-background.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-dark-background.png"
+      },
+      "destructive": {
+        "path": "chevron-up-destructive.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e",
+        "uri": "pkg:/images/icons/generated/chevron-up-destructive.png"
+      }
+    },
+    "circle": {
+      "default": {
+        "path": "circle-default.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-default.png"
+      },
+      "focused": {
+        "path": "circle-focused.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-focused.png"
+      },
+      "selected": {
+        "path": "circle-selected.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-selected.png"
+      },
+      "disabled": {
+        "path": "circle-disabled.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-disabled.png"
+      },
+      "rail": {
+        "path": "circle-rail.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-rail.png"
+      },
+      "dark-background": {
+        "path": "circle-dark-background.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-dark-background.png"
+      },
+      "destructive": {
+        "path": "circle-destructive.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8",
+        "uri": "pkg:/images/icons/generated/circle-destructive.png"
+      }
+    },
+    "circle-check": {
+      "default": {
+        "path": "circle-check-default.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-default.png"
+      },
+      "focused": {
+        "path": "circle-check-focused.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-focused.png"
+      },
+      "selected": {
+        "path": "circle-check-selected.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-selected.png"
+      },
+      "disabled": {
+        "path": "circle-check-disabled.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-disabled.png"
+      },
+      "rail": {
+        "path": "circle-check-rail.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-rail.png"
+      },
+      "dark-background": {
+        "path": "circle-check-dark-background.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-dark-background.png"
+      },
+      "destructive": {
+        "path": "circle-check-destructive.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b",
+        "uri": "pkg:/images/icons/generated/circle-check-destructive.png"
+      }
+    },
+    "circle-user-round": {
+      "default": {
+        "path": "circle-user-round-default.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-default.png"
+      },
+      "focused": {
+        "path": "circle-user-round-focused.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-focused.png"
+      },
+      "selected": {
+        "path": "circle-user-round-selected.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-selected.png"
+      },
+      "disabled": {
+        "path": "circle-user-round-disabled.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-disabled.png"
+      },
+      "rail": {
+        "path": "circle-user-round-rail.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-rail.png"
+      },
+      "dark-background": {
+        "path": "circle-user-round-dark-background.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-dark-background.png"
+      },
+      "destructive": {
+        "path": "circle-user-round-destructive.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d",
+        "uri": "pkg:/images/icons/generated/circle-user-round-destructive.png"
+      }
+    },
+    "circle-x": {
+      "default": {
+        "path": "circle-x-default.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-default.png"
+      },
+      "focused": {
+        "path": "circle-x-focused.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-focused.png"
+      },
+      "selected": {
+        "path": "circle-x-selected.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-selected.png"
+      },
+      "disabled": {
+        "path": "circle-x-disabled.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-disabled.png"
+      },
+      "rail": {
+        "path": "circle-x-rail.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-rail.png"
+      },
+      "dark-background": {
+        "path": "circle-x-dark-background.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-dark-background.png"
+      },
+      "destructive": {
+        "path": "circle-x-destructive.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969",
+        "uri": "pkg:/images/icons/generated/circle-x-destructive.png"
+      }
+    },
+    "clock-3": {
+      "default": {
+        "path": "clock-3-default.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-default.png"
+      },
+      "focused": {
+        "path": "clock-3-focused.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-focused.png"
+      },
+      "selected": {
+        "path": "clock-3-selected.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-selected.png"
+      },
+      "disabled": {
+        "path": "clock-3-disabled.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-disabled.png"
+      },
+      "rail": {
+        "path": "clock-3-rail.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-rail.png"
+      },
+      "dark-background": {
+        "path": "clock-3-dark-background.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-dark-background.png"
+      },
+      "destructive": {
+        "path": "clock-3-destructive.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced",
+        "uri": "pkg:/images/icons/generated/clock-3-destructive.png"
+      }
+    },
+    "download": {
+      "default": {
+        "path": "download-default.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-default.png"
+      },
+      "focused": {
+        "path": "download-focused.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-focused.png"
+      },
+      "selected": {
+        "path": "download-selected.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-selected.png"
+      },
+      "disabled": {
+        "path": "download-disabled.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-disabled.png"
+      },
+      "rail": {
+        "path": "download-rail.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-rail.png"
+      },
+      "dark-background": {
+        "path": "download-dark-background.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-dark-background.png"
+      },
+      "destructive": {
+        "path": "download-destructive.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af",
+        "uri": "pkg:/images/icons/generated/download-destructive.png"
+      }
+    },
+    "download-cloud": {
+      "default": {
+        "path": "download-cloud-default.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-default.png"
+      },
+      "focused": {
+        "path": "download-cloud-focused.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-focused.png"
+      },
+      "selected": {
+        "path": "download-cloud-selected.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-selected.png"
+      },
+      "disabled": {
+        "path": "download-cloud-disabled.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-disabled.png"
+      },
+      "rail": {
+        "path": "download-cloud-rail.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-rail.png"
+      },
+      "dark-background": {
+        "path": "download-cloud-dark-background.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-dark-background.png"
+      },
+      "destructive": {
+        "path": "download-cloud-destructive.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34",
+        "uri": "pkg:/images/icons/generated/download-cloud-destructive.png"
+      }
+    },
+    "ear": {
+      "default": {
+        "path": "ear-default.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-default.png"
+      },
+      "focused": {
+        "path": "ear-focused.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-focused.png"
+      },
+      "selected": {
+        "path": "ear-selected.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-selected.png"
+      },
+      "disabled": {
+        "path": "ear-disabled.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-disabled.png"
+      },
+      "rail": {
+        "path": "ear-rail.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-rail.png"
+      },
+      "dark-background": {
+        "path": "ear-dark-background.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-dark-background.png"
+      },
+      "destructive": {
+        "path": "ear-destructive.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b",
+        "uri": "pkg:/images/icons/generated/ear-destructive.png"
+      }
+    },
+    "ellipsis": {
+      "default": {
+        "path": "ellipsis-default.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-default.png"
+      },
+      "focused": {
+        "path": "ellipsis-focused.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-focused.png"
+      },
+      "selected": {
+        "path": "ellipsis-selected.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-selected.png"
+      },
+      "disabled": {
+        "path": "ellipsis-disabled.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-disabled.png"
+      },
+      "rail": {
+        "path": "ellipsis-rail.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-rail.png"
+      },
+      "dark-background": {
+        "path": "ellipsis-dark-background.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-dark-background.png"
+      },
+      "destructive": {
+        "path": "ellipsis-destructive.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823",
+        "uri": "pkg:/images/icons/generated/ellipsis-destructive.png"
+      }
+    },
+    "external-link": {
+      "default": {
+        "path": "external-link-default.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-default.png"
+      },
+      "focused": {
+        "path": "external-link-focused.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-focused.png"
+      },
+      "selected": {
+        "path": "external-link-selected.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-selected.png"
+      },
+      "disabled": {
+        "path": "external-link-disabled.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-disabled.png"
+      },
+      "rail": {
+        "path": "external-link-rail.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-rail.png"
+      },
+      "dark-background": {
+        "path": "external-link-dark-background.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-dark-background.png"
+      },
+      "destructive": {
+        "path": "external-link-destructive.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808",
+        "uri": "pkg:/images/icons/generated/external-link-destructive.png"
+      }
+    },
+    "eye": {
+      "default": {
+        "path": "eye-default.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-default.png"
+      },
+      "focused": {
+        "path": "eye-focused.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-focused.png"
+      },
+      "selected": {
+        "path": "eye-selected.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-selected.png"
+      },
+      "disabled": {
+        "path": "eye-disabled.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-disabled.png"
+      },
+      "rail": {
+        "path": "eye-rail.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-rail.png"
+      },
+      "dark-background": {
+        "path": "eye-dark-background.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-dark-background.png"
+      },
+      "destructive": {
+        "path": "eye-destructive.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3",
+        "uri": "pkg:/images/icons/generated/eye-destructive.png"
+      }
+    },
+    "eye-off": {
+      "default": {
+        "path": "eye-off-default.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-default.png"
+      },
+      "focused": {
+        "path": "eye-off-focused.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-focused.png"
+      },
+      "selected": {
+        "path": "eye-off-selected.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-selected.png"
+      },
+      "disabled": {
+        "path": "eye-off-disabled.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-disabled.png"
+      },
+      "rail": {
+        "path": "eye-off-rail.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-rail.png"
+      },
+      "dark-background": {
+        "path": "eye-off-dark-background.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-dark-background.png"
+      },
+      "destructive": {
+        "path": "eye-off-destructive.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86",
+        "uri": "pkg:/images/icons/generated/eye-off-destructive.png"
+      }
+    },
+    "film": {
+      "default": {
+        "path": "film-default.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-default.png"
+      },
+      "focused": {
+        "path": "film-focused.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-focused.png"
+      },
+      "selected": {
+        "path": "film-selected.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-selected.png"
+      },
+      "disabled": {
+        "path": "film-disabled.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-disabled.png"
+      },
+      "rail": {
+        "path": "film-rail.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-rail.png"
+      },
+      "dark-background": {
+        "path": "film-dark-background.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-dark-background.png"
+      },
+      "destructive": {
+        "path": "film-destructive.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f",
+        "uri": "pkg:/images/icons/generated/film-destructive.png"
+      }
+    },
+    "folder-heart": {
+      "default": {
+        "path": "folder-heart-default.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-default.png"
+      },
+      "focused": {
+        "path": "folder-heart-focused.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-focused.png"
+      },
+      "selected": {
+        "path": "folder-heart-selected.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-selected.png"
+      },
+      "disabled": {
+        "path": "folder-heart-disabled.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-disabled.png"
+      },
+      "rail": {
+        "path": "folder-heart-rail.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-rail.png"
+      },
+      "dark-background": {
+        "path": "folder-heart-dark-background.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-dark-background.png"
+      },
+      "destructive": {
+        "path": "folder-heart-destructive.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb",
+        "uri": "pkg:/images/icons/generated/folder-heart-destructive.png"
+      }
+    },
+    "gauge": {
+      "default": {
+        "path": "gauge-default.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-default.png"
+      },
+      "focused": {
+        "path": "gauge-focused.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-focused.png"
+      },
+      "selected": {
+        "path": "gauge-selected.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-selected.png"
+      },
+      "disabled": {
+        "path": "gauge-disabled.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-disabled.png"
+      },
+      "rail": {
+        "path": "gauge-rail.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-rail.png"
+      },
+      "dark-background": {
+        "path": "gauge-dark-background.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-dark-background.png"
+      },
+      "destructive": {
+        "path": "gauge-destructive.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb",
+        "uri": "pkg:/images/icons/generated/gauge-destructive.png"
+      }
+    },
+    "grid-3x3": {
+      "default": {
+        "path": "grid-3x3-default.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-default.png"
+      },
+      "focused": {
+        "path": "grid-3x3-focused.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-focused.png"
+      },
+      "selected": {
+        "path": "grid-3x3-selected.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-selected.png"
+      },
+      "disabled": {
+        "path": "grid-3x3-disabled.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-disabled.png"
+      },
+      "rail": {
+        "path": "grid-3x3-rail.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-rail.png"
+      },
+      "dark-background": {
+        "path": "grid-3x3-dark-background.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-dark-background.png"
+      },
+      "destructive": {
+        "path": "grid-3x3-destructive.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae",
+        "uri": "pkg:/images/icons/generated/grid-3x3-destructive.png"
+      }
+    },
+    "hard-drive": {
+      "default": {
+        "path": "hard-drive-default.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-default.png"
+      },
+      "focused": {
+        "path": "hard-drive-focused.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-focused.png"
+      },
+      "selected": {
+        "path": "hard-drive-selected.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-selected.png"
+      },
+      "disabled": {
+        "path": "hard-drive-disabled.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-disabled.png"
+      },
+      "rail": {
+        "path": "hard-drive-rail.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-rail.png"
+      },
+      "dark-background": {
+        "path": "hard-drive-dark-background.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-dark-background.png"
+      },
+      "destructive": {
+        "path": "hard-drive-destructive.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286",
+        "uri": "pkg:/images/icons/generated/hard-drive-destructive.png"
+      }
+    },
+    "headphones": {
+      "default": {
+        "path": "headphones-default.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-default.png"
+      },
+      "focused": {
+        "path": "headphones-focused.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-focused.png"
+      },
+      "selected": {
+        "path": "headphones-selected.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-selected.png"
+      },
+      "disabled": {
+        "path": "headphones-disabled.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-disabled.png"
+      },
+      "rail": {
+        "path": "headphones-rail.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-rail.png"
+      },
+      "dark-background": {
+        "path": "headphones-dark-background.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-dark-background.png"
+      },
+      "destructive": {
+        "path": "headphones-destructive.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662",
+        "uri": "pkg:/images/icons/generated/headphones-destructive.png"
+      }
+    },
+    "heart": {
+      "default": {
+        "path": "heart-default.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4",
+        "uri": "pkg:/images/icons/generated/heart-default.png"
+      },
+      "focused": {
+        "path": "heart-focused.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4",
+        "uri": "pkg:/images/icons/generated/heart-focused.png"
+      },
+      "selected": {
+        "path": "heart-selected.png",
+        "sha256": "5d978ca2b39809551f6593c4cf09c338dbf822edb421e84e89023feae20fe015",
+        "uri": "pkg:/images/icons/generated/heart-selected.png"
+      },
+      "disabled": {
+        "path": "heart-disabled.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4",
+        "uri": "pkg:/images/icons/generated/heart-disabled.png"
+      },
+      "rail": {
+        "path": "heart-rail.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4",
+        "uri": "pkg:/images/icons/generated/heart-rail.png"
+      },
+      "dark-background": {
+        "path": "heart-dark-background.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4",
+        "uri": "pkg:/images/icons/generated/heart-dark-background.png"
+      },
+      "destructive": {
+        "path": "heart-destructive.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4",
+        "uri": "pkg:/images/icons/generated/heart-destructive.png"
+      }
+    },
+    "home": {
+      "default": {
+        "path": "home-default.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-default.png"
+      },
+      "focused": {
+        "path": "home-focused.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-focused.png"
+      },
+      "selected": {
+        "path": "home-selected.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-selected.png"
+      },
+      "disabled": {
+        "path": "home-disabled.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-disabled.png"
+      },
+      "rail": {
+        "path": "home-rail.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-rail.png"
+      },
+      "dark-background": {
+        "path": "home-dark-background.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-dark-background.png"
+      },
+      "destructive": {
+        "path": "home-destructive.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034",
+        "uri": "pkg:/images/icons/generated/home-destructive.png"
+      }
+    },
+    "image-off": {
+      "default": {
+        "path": "image-off-default.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-default.png"
+      },
+      "focused": {
+        "path": "image-off-focused.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-focused.png"
+      },
+      "selected": {
+        "path": "image-off-selected.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-selected.png"
+      },
+      "disabled": {
+        "path": "image-off-disabled.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-disabled.png"
+      },
+      "rail": {
+        "path": "image-off-rail.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-rail.png"
+      },
+      "dark-background": {
+        "path": "image-off-dark-background.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-dark-background.png"
+      },
+      "destructive": {
+        "path": "image-off-destructive.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b",
+        "uri": "pkg:/images/icons/generated/image-off-destructive.png"
+      }
+    },
+    "inbox": {
+      "default": {
+        "path": "inbox-default.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-default.png"
+      },
+      "focused": {
+        "path": "inbox-focused.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-focused.png"
+      },
+      "selected": {
+        "path": "inbox-selected.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-selected.png"
+      },
+      "disabled": {
+        "path": "inbox-disabled.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-disabled.png"
+      },
+      "rail": {
+        "path": "inbox-rail.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-rail.png"
+      },
+      "dark-background": {
+        "path": "inbox-dark-background.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-dark-background.png"
+      },
+      "destructive": {
+        "path": "inbox-destructive.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc",
+        "uri": "pkg:/images/icons/generated/inbox-destructive.png"
+      }
+    },
+    "info": {
+      "default": {
+        "path": "info-default.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-default.png"
+      },
+      "focused": {
+        "path": "info-focused.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-focused.png"
+      },
+      "selected": {
+        "path": "info-selected.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-selected.png"
+      },
+      "disabled": {
+        "path": "info-disabled.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-disabled.png"
+      },
+      "rail": {
+        "path": "info-rail.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-rail.png"
+      },
+      "dark-background": {
+        "path": "info-dark-background.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-dark-background.png"
+      },
+      "destructive": {
+        "path": "info-destructive.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89",
+        "uri": "pkg:/images/icons/generated/info-destructive.png"
+      }
+    },
+    "key-round": {
+      "default": {
+        "path": "key-round-default.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-default.png"
+      },
+      "focused": {
+        "path": "key-round-focused.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-focused.png"
+      },
+      "selected": {
+        "path": "key-round-selected.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-selected.png"
+      },
+      "disabled": {
+        "path": "key-round-disabled.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-disabled.png"
+      },
+      "rail": {
+        "path": "key-round-rail.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-rail.png"
+      },
+      "dark-background": {
+        "path": "key-round-dark-background.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-dark-background.png"
+      },
+      "destructive": {
+        "path": "key-round-destructive.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9",
+        "uri": "pkg:/images/icons/generated/key-round-destructive.png"
+      }
+    },
+    "languages": {
+      "default": {
+        "path": "languages-default.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-default.png"
+      },
+      "focused": {
+        "path": "languages-focused.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-focused.png"
+      },
+      "selected": {
+        "path": "languages-selected.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-selected.png"
+      },
+      "disabled": {
+        "path": "languages-disabled.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-disabled.png"
+      },
+      "rail": {
+        "path": "languages-rail.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-rail.png"
+      },
+      "dark-background": {
+        "path": "languages-dark-background.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-dark-background.png"
+      },
+      "destructive": {
+        "path": "languages-destructive.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d",
+        "uri": "pkg:/images/icons/generated/languages-destructive.png"
+      }
+    },
+    "library": {
+      "default": {
+        "path": "library-default.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-default.png"
+      },
+      "focused": {
+        "path": "library-focused.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-focused.png"
+      },
+      "selected": {
+        "path": "library-selected.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-selected.png"
+      },
+      "disabled": {
+        "path": "library-disabled.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-disabled.png"
+      },
+      "rail": {
+        "path": "library-rail.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-rail.png"
+      },
+      "dark-background": {
+        "path": "library-dark-background.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-dark-background.png"
+      },
+      "destructive": {
+        "path": "library-destructive.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590",
+        "uri": "pkg:/images/icons/generated/library-destructive.png"
+      }
+    },
+    "list": {
+      "default": {
+        "path": "list-default.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-default.png"
+      },
+      "focused": {
+        "path": "list-focused.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-focused.png"
+      },
+      "selected": {
+        "path": "list-selected.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-selected.png"
+      },
+      "disabled": {
+        "path": "list-disabled.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-disabled.png"
+      },
+      "rail": {
+        "path": "list-rail.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-rail.png"
+      },
+      "dark-background": {
+        "path": "list-dark-background.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-dark-background.png"
+      },
+      "destructive": {
+        "path": "list-destructive.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d",
+        "uri": "pkg:/images/icons/generated/list-destructive.png"
+      }
+    },
+    "list-music": {
+      "default": {
+        "path": "list-music-default.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-default.png"
+      },
+      "focused": {
+        "path": "list-music-focused.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-focused.png"
+      },
+      "selected": {
+        "path": "list-music-selected.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-selected.png"
+      },
+      "disabled": {
+        "path": "list-music-disabled.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-disabled.png"
+      },
+      "rail": {
+        "path": "list-music-rail.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-rail.png"
+      },
+      "dark-background": {
+        "path": "list-music-dark-background.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-dark-background.png"
+      },
+      "destructive": {
+        "path": "list-music-destructive.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c",
+        "uri": "pkg:/images/icons/generated/list-music-destructive.png"
+      }
+    },
+    "list-plus": {
+      "default": {
+        "path": "list-plus-default.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-default.png"
+      },
+      "focused": {
+        "path": "list-plus-focused.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-focused.png"
+      },
+      "selected": {
+        "path": "list-plus-selected.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-selected.png"
+      },
+      "disabled": {
+        "path": "list-plus-disabled.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-disabled.png"
+      },
+      "rail": {
+        "path": "list-plus-rail.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-rail.png"
+      },
+      "dark-background": {
+        "path": "list-plus-dark-background.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-dark-background.png"
+      },
+      "destructive": {
+        "path": "list-plus-destructive.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99",
+        "uri": "pkg:/images/icons/generated/list-plus-destructive.png"
+      }
+    },
+    "list-video": {
+      "default": {
+        "path": "list-video-default.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-default.png"
+      },
+      "focused": {
+        "path": "list-video-focused.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-focused.png"
+      },
+      "selected": {
+        "path": "list-video-selected.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-selected.png"
+      },
+      "disabled": {
+        "path": "list-video-disabled.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-disabled.png"
+      },
+      "rail": {
+        "path": "list-video-rail.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-rail.png"
+      },
+      "dark-background": {
+        "path": "list-video-dark-background.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-dark-background.png"
+      },
+      "destructive": {
+        "path": "list-video-destructive.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca",
+        "uri": "pkg:/images/icons/generated/list-video-destructive.png"
+      }
+    },
+    "loader-circle": {
+      "default": {
+        "path": "loader-circle-default.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-default.png"
+      },
+      "focused": {
+        "path": "loader-circle-focused.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-focused.png"
+      },
+      "selected": {
+        "path": "loader-circle-selected.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-selected.png"
+      },
+      "disabled": {
+        "path": "loader-circle-disabled.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-disabled.png"
+      },
+      "rail": {
+        "path": "loader-circle-rail.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-rail.png"
+      },
+      "dark-background": {
+        "path": "loader-circle-dark-background.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-dark-background.png"
+      },
+      "destructive": {
+        "path": "loader-circle-destructive.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc",
+        "uri": "pkg:/images/icons/generated/loader-circle-destructive.png"
+      }
+    },
+    "lock-keyhole": {
+      "default": {
+        "path": "lock-keyhole-default.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-default.png"
+      },
+      "focused": {
+        "path": "lock-keyhole-focused.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-focused.png"
+      },
+      "selected": {
+        "path": "lock-keyhole-selected.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-selected.png"
+      },
+      "disabled": {
+        "path": "lock-keyhole-disabled.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-disabled.png"
+      },
+      "rail": {
+        "path": "lock-keyhole-rail.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-rail.png"
+      },
+      "dark-background": {
+        "path": "lock-keyhole-dark-background.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-dark-background.png"
+      },
+      "destructive": {
+        "path": "lock-keyhole-destructive.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a",
+        "uri": "pkg:/images/icons/generated/lock-keyhole-destructive.png"
+      }
+    },
+    "log-in": {
+      "default": {
+        "path": "log-in-default.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-default.png"
+      },
+      "focused": {
+        "path": "log-in-focused.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-focused.png"
+      },
+      "selected": {
+        "path": "log-in-selected.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-selected.png"
+      },
+      "disabled": {
+        "path": "log-in-disabled.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-disabled.png"
+      },
+      "rail": {
+        "path": "log-in-rail.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-rail.png"
+      },
+      "dark-background": {
+        "path": "log-in-dark-background.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-dark-background.png"
+      },
+      "destructive": {
+        "path": "log-in-destructive.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c",
+        "uri": "pkg:/images/icons/generated/log-in-destructive.png"
+      }
+    },
+    "log-out": {
+      "default": {
+        "path": "log-out-default.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-default.png"
+      },
+      "focused": {
+        "path": "log-out-focused.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-focused.png"
+      },
+      "selected": {
+        "path": "log-out-selected.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-selected.png"
+      },
+      "disabled": {
+        "path": "log-out-disabled.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-disabled.png"
+      },
+      "rail": {
+        "path": "log-out-rail.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-rail.png"
+      },
+      "dark-background": {
+        "path": "log-out-dark-background.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-dark-background.png"
+      },
+      "destructive": {
+        "path": "log-out-destructive.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96",
+        "uri": "pkg:/images/icons/generated/log-out-destructive.png"
+      }
+    },
+    "mail": {
+      "default": {
+        "path": "mail-default.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-default.png"
+      },
+      "focused": {
+        "path": "mail-focused.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-focused.png"
+      },
+      "selected": {
+        "path": "mail-selected.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-selected.png"
+      },
+      "disabled": {
+        "path": "mail-disabled.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-disabled.png"
+      },
+      "rail": {
+        "path": "mail-rail.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-rail.png"
+      },
+      "dark-background": {
+        "path": "mail-dark-background.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-dark-background.png"
+      },
+      "destructive": {
+        "path": "mail-destructive.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65",
+        "uri": "pkg:/images/icons/generated/mail-destructive.png"
+      }
+    },
+    "maximize-2": {
+      "default": {
+        "path": "maximize-2-default.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-default.png"
+      },
+      "focused": {
+        "path": "maximize-2-focused.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-focused.png"
+      },
+      "selected": {
+        "path": "maximize-2-selected.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-selected.png"
+      },
+      "disabled": {
+        "path": "maximize-2-disabled.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-disabled.png"
+      },
+      "rail": {
+        "path": "maximize-2-rail.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-rail.png"
+      },
+      "dark-background": {
+        "path": "maximize-2-dark-background.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "maximize-2-destructive.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b",
+        "uri": "pkg:/images/icons/generated/maximize-2-destructive.png"
+      }
+    },
+    "message-square": {
+      "default": {
+        "path": "message-square-default.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-default.png"
+      },
+      "focused": {
+        "path": "message-square-focused.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-focused.png"
+      },
+      "selected": {
+        "path": "message-square-selected.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-selected.png"
+      },
+      "disabled": {
+        "path": "message-square-disabled.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-disabled.png"
+      },
+      "rail": {
+        "path": "message-square-rail.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-rail.png"
+      },
+      "dark-background": {
+        "path": "message-square-dark-background.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-dark-background.png"
+      },
+      "destructive": {
+        "path": "message-square-destructive.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe",
+        "uri": "pkg:/images/icons/generated/message-square-destructive.png"
+      }
+    },
+    "message-square-warning": {
+      "default": {
+        "path": "message-square-warning-default.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-default.png"
+      },
+      "focused": {
+        "path": "message-square-warning-focused.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-focused.png"
+      },
+      "selected": {
+        "path": "message-square-warning-selected.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-selected.png"
+      },
+      "disabled": {
+        "path": "message-square-warning-disabled.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-disabled.png"
+      },
+      "rail": {
+        "path": "message-square-warning-rail.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-rail.png"
+      },
+      "dark-background": {
+        "path": "message-square-warning-dark-background.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-dark-background.png"
+      },
+      "destructive": {
+        "path": "message-square-warning-destructive.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6",
+        "uri": "pkg:/images/icons/generated/message-square-warning-destructive.png"
+      }
+    },
+    "mic-2": {
+      "default": {
+        "path": "mic-2-default.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-default.png"
+      },
+      "focused": {
+        "path": "mic-2-focused.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-focused.png"
+      },
+      "selected": {
+        "path": "mic-2-selected.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-selected.png"
+      },
+      "disabled": {
+        "path": "mic-2-disabled.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-disabled.png"
+      },
+      "rail": {
+        "path": "mic-2-rail.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-rail.png"
+      },
+      "dark-background": {
+        "path": "mic-2-dark-background.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "mic-2-destructive.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235",
+        "uri": "pkg:/images/icons/generated/mic-2-destructive.png"
+      }
+    },
+    "minimize-2": {
+      "default": {
+        "path": "minimize-2-default.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-default.png"
+      },
+      "focused": {
+        "path": "minimize-2-focused.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-focused.png"
+      },
+      "selected": {
+        "path": "minimize-2-selected.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-selected.png"
+      },
+      "disabled": {
+        "path": "minimize-2-disabled.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-disabled.png"
+      },
+      "rail": {
+        "path": "minimize-2-rail.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-rail.png"
+      },
+      "dark-background": {
+        "path": "minimize-2-dark-background.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "minimize-2-destructive.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde",
+        "uri": "pkg:/images/icons/generated/minimize-2-destructive.png"
+      }
+    },
+    "monitor": {
+      "default": {
+        "path": "monitor-default.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-default.png"
+      },
+      "focused": {
+        "path": "monitor-focused.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-focused.png"
+      },
+      "selected": {
+        "path": "monitor-selected.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-selected.png"
+      },
+      "disabled": {
+        "path": "monitor-disabled.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-disabled.png"
+      },
+      "rail": {
+        "path": "monitor-rail.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-rail.png"
+      },
+      "dark-background": {
+        "path": "monitor-dark-background.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-dark-background.png"
+      },
+      "destructive": {
+        "path": "monitor-destructive.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1",
+        "uri": "pkg:/images/icons/generated/monitor-destructive.png"
+      }
+    },
+    "monitor-smartphone": {
+      "default": {
+        "path": "monitor-smartphone-default.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-default.png"
+      },
+      "focused": {
+        "path": "monitor-smartphone-focused.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-focused.png"
+      },
+      "selected": {
+        "path": "monitor-smartphone-selected.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-selected.png"
+      },
+      "disabled": {
+        "path": "monitor-smartphone-disabled.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-disabled.png"
+      },
+      "rail": {
+        "path": "monitor-smartphone-rail.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-rail.png"
+      },
+      "dark-background": {
+        "path": "monitor-smartphone-dark-background.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-dark-background.png"
+      },
+      "destructive": {
+        "path": "monitor-smartphone-destructive.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d",
+        "uri": "pkg:/images/icons/generated/monitor-smartphone-destructive.png"
+      }
+    },
+    "moon": {
+      "default": {
+        "path": "moon-default.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-default.png"
+      },
+      "focused": {
+        "path": "moon-focused.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-focused.png"
+      },
+      "selected": {
+        "path": "moon-selected.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-selected.png"
+      },
+      "disabled": {
+        "path": "moon-disabled.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-disabled.png"
+      },
+      "rail": {
+        "path": "moon-rail.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-rail.png"
+      },
+      "dark-background": {
+        "path": "moon-dark-background.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-dark-background.png"
+      },
+      "destructive": {
+        "path": "moon-destructive.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c",
+        "uri": "pkg:/images/icons/generated/moon-destructive.png"
+      }
+    },
+    "music-2": {
+      "default": {
+        "path": "music-2-default.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-default.png"
+      },
+      "focused": {
+        "path": "music-2-focused.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-focused.png"
+      },
+      "selected": {
+        "path": "music-2-selected.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-selected.png"
+      },
+      "disabled": {
+        "path": "music-2-disabled.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-disabled.png"
+      },
+      "rail": {
+        "path": "music-2-rail.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-rail.png"
+      },
+      "dark-background": {
+        "path": "music-2-dark-background.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "music-2-destructive.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba",
+        "uri": "pkg:/images/icons/generated/music-2-destructive.png"
+      }
+    },
+    "network": {
+      "default": {
+        "path": "network-default.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-default.png"
+      },
+      "focused": {
+        "path": "network-focused.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-focused.png"
+      },
+      "selected": {
+        "path": "network-selected.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-selected.png"
+      },
+      "disabled": {
+        "path": "network-disabled.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-disabled.png"
+      },
+      "rail": {
+        "path": "network-rail.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-rail.png"
+      },
+      "dark-background": {
+        "path": "network-dark-background.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-dark-background.png"
+      },
+      "destructive": {
+        "path": "network-destructive.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2",
+        "uri": "pkg:/images/icons/generated/network-destructive.png"
+      }
+    },
+    "pause": {
+      "default": {
+        "path": "pause-default.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-default.png"
+      },
+      "focused": {
+        "path": "pause-focused.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-focused.png"
+      },
+      "selected": {
+        "path": "pause-selected.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-selected.png"
+      },
+      "disabled": {
+        "path": "pause-disabled.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-disabled.png"
+      },
+      "rail": {
+        "path": "pause-rail.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-rail.png"
+      },
+      "dark-background": {
+        "path": "pause-dark-background.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-dark-background.png"
+      },
+      "destructive": {
+        "path": "pause-destructive.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23",
+        "uri": "pkg:/images/icons/generated/pause-destructive.png"
+      }
+    },
+    "pencil": {
+      "default": {
+        "path": "pencil-default.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-default.png"
+      },
+      "focused": {
+        "path": "pencil-focused.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-focused.png"
+      },
+      "selected": {
+        "path": "pencil-selected.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-selected.png"
+      },
+      "disabled": {
+        "path": "pencil-disabled.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-disabled.png"
+      },
+      "rail": {
+        "path": "pencil-rail.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-rail.png"
+      },
+      "dark-background": {
+        "path": "pencil-dark-background.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-dark-background.png"
+      },
+      "destructive": {
+        "path": "pencil-destructive.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9",
+        "uri": "pkg:/images/icons/generated/pencil-destructive.png"
+      }
+    },
+    "picture-in-picture-2": {
+      "default": {
+        "path": "picture-in-picture-2-default.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-default.png"
+      },
+      "focused": {
+        "path": "picture-in-picture-2-focused.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-focused.png"
+      },
+      "selected": {
+        "path": "picture-in-picture-2-selected.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-selected.png"
+      },
+      "disabled": {
+        "path": "picture-in-picture-2-disabled.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-disabled.png"
+      },
+      "rail": {
+        "path": "picture-in-picture-2-rail.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-rail.png"
+      },
+      "dark-background": {
+        "path": "picture-in-picture-2-dark-background.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "picture-in-picture-2-destructive.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de",
+        "uri": "pkg:/images/icons/generated/picture-in-picture-2-destructive.png"
+      }
+    },
+    "pin": {
+      "default": {
+        "path": "pin-default.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-default.png"
+      },
+      "focused": {
+        "path": "pin-focused.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-focused.png"
+      },
+      "selected": {
+        "path": "pin-selected.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-selected.png"
+      },
+      "disabled": {
+        "path": "pin-disabled.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-disabled.png"
+      },
+      "rail": {
+        "path": "pin-rail.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-rail.png"
+      },
+      "dark-background": {
+        "path": "pin-dark-background.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-dark-background.png"
+      },
+      "destructive": {
+        "path": "pin-destructive.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22",
+        "uri": "pkg:/images/icons/generated/pin-destructive.png"
+      }
+    },
+    "pin-off": {
+      "default": {
+        "path": "pin-off-default.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-default.png"
+      },
+      "focused": {
+        "path": "pin-off-focused.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-focused.png"
+      },
+      "selected": {
+        "path": "pin-off-selected.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-selected.png"
+      },
+      "disabled": {
+        "path": "pin-off-disabled.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-disabled.png"
+      },
+      "rail": {
+        "path": "pin-off-rail.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-rail.png"
+      },
+      "dark-background": {
+        "path": "pin-off-dark-background.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-dark-background.png"
+      },
+      "destructive": {
+        "path": "pin-off-destructive.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795",
+        "uri": "pkg:/images/icons/generated/pin-off-destructive.png"
+      }
+    },
+    "play": {
+      "default": {
+        "path": "play-default.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-default.png"
+      },
+      "focused": {
+        "path": "play-focused.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-focused.png"
+      },
+      "selected": {
+        "path": "play-selected.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-selected.png"
+      },
+      "disabled": {
+        "path": "play-disabled.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-disabled.png"
+      },
+      "rail": {
+        "path": "play-rail.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-rail.png"
+      },
+      "dark-background": {
+        "path": "play-dark-background.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-dark-background.png"
+      },
+      "destructive": {
+        "path": "play-destructive.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f",
+        "uri": "pkg:/images/icons/generated/play-destructive.png"
+      }
+    },
+    "play-circle": {
+      "default": {
+        "path": "play-circle-default.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-default.png"
+      },
+      "focused": {
+        "path": "play-circle-focused.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-focused.png"
+      },
+      "selected": {
+        "path": "play-circle-selected.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-selected.png"
+      },
+      "disabled": {
+        "path": "play-circle-disabled.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-disabled.png"
+      },
+      "rail": {
+        "path": "play-circle-rail.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-rail.png"
+      },
+      "dark-background": {
+        "path": "play-circle-dark-background.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-dark-background.png"
+      },
+      "destructive": {
+        "path": "play-circle-destructive.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5",
+        "uri": "pkg:/images/icons/generated/play-circle-destructive.png"
+      }
+    },
+    "plus": {
+      "default": {
+        "path": "plus-default.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-default.png"
+      },
+      "focused": {
+        "path": "plus-focused.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-focused.png"
+      },
+      "selected": {
+        "path": "plus-selected.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-selected.png"
+      },
+      "disabled": {
+        "path": "plus-disabled.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-disabled.png"
+      },
+      "rail": {
+        "path": "plus-rail.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-rail.png"
+      },
+      "dark-background": {
+        "path": "plus-dark-background.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-dark-background.png"
+      },
+      "destructive": {
+        "path": "plus-destructive.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b",
+        "uri": "pkg:/images/icons/generated/plus-destructive.png"
+      }
+    },
+    "radar": {
+      "default": {
+        "path": "radar-default.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-default.png"
+      },
+      "focused": {
+        "path": "radar-focused.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-focused.png"
+      },
+      "selected": {
+        "path": "radar-selected.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-selected.png"
+      },
+      "disabled": {
+        "path": "radar-disabled.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-disabled.png"
+      },
+      "rail": {
+        "path": "radar-rail.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-rail.png"
+      },
+      "dark-background": {
+        "path": "radar-dark-background.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-dark-background.png"
+      },
+      "destructive": {
+        "path": "radar-destructive.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972",
+        "uri": "pkg:/images/icons/generated/radar-destructive.png"
+      }
+    },
+    "radio": {
+      "default": {
+        "path": "radio-default.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-default.png"
+      },
+      "focused": {
+        "path": "radio-focused.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-focused.png"
+      },
+      "selected": {
+        "path": "radio-selected.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-selected.png"
+      },
+      "disabled": {
+        "path": "radio-disabled.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-disabled.png"
+      },
+      "rail": {
+        "path": "radio-rail.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-rail.png"
+      },
+      "dark-background": {
+        "path": "radio-dark-background.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-dark-background.png"
+      },
+      "destructive": {
+        "path": "radio-destructive.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf",
+        "uri": "pkg:/images/icons/generated/radio-destructive.png"
+      }
+    },
+    "refresh-cw": {
+      "default": {
+        "path": "refresh-cw-default.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-default.png"
+      },
+      "focused": {
+        "path": "refresh-cw-focused.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-focused.png"
+      },
+      "selected": {
+        "path": "refresh-cw-selected.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-selected.png"
+      },
+      "disabled": {
+        "path": "refresh-cw-disabled.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-disabled.png"
+      },
+      "rail": {
+        "path": "refresh-cw-rail.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-rail.png"
+      },
+      "dark-background": {
+        "path": "refresh-cw-dark-background.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-dark-background.png"
+      },
+      "destructive": {
+        "path": "refresh-cw-destructive.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a",
+        "uri": "pkg:/images/icons/generated/refresh-cw-destructive.png"
+      }
+    },
+    "repeat": {
+      "default": {
+        "path": "repeat-default.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-default.png"
+      },
+      "focused": {
+        "path": "repeat-focused.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-focused.png"
+      },
+      "selected": {
+        "path": "repeat-selected.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-selected.png"
+      },
+      "disabled": {
+        "path": "repeat-disabled.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-disabled.png"
+      },
+      "rail": {
+        "path": "repeat-rail.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-rail.png"
+      },
+      "dark-background": {
+        "path": "repeat-dark-background.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-dark-background.png"
+      },
+      "destructive": {
+        "path": "repeat-destructive.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb",
+        "uri": "pkg:/images/icons/generated/repeat-destructive.png"
+      }
+    },
+    "repeat-1": {
+      "default": {
+        "path": "repeat-1-default.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-default.png"
+      },
+      "focused": {
+        "path": "repeat-1-focused.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-focused.png"
+      },
+      "selected": {
+        "path": "repeat-1-selected.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-selected.png"
+      },
+      "disabled": {
+        "path": "repeat-1-disabled.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-disabled.png"
+      },
+      "rail": {
+        "path": "repeat-1-rail.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-rail.png"
+      },
+      "dark-background": {
+        "path": "repeat-1-dark-background.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-dark-background.png"
+      },
+      "destructive": {
+        "path": "repeat-1-destructive.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd",
+        "uri": "pkg:/images/icons/generated/repeat-1-destructive.png"
+      }
+    },
+    "rotate-ccw": {
+      "default": {
+        "path": "rotate-ccw-default.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-default.png"
+      },
+      "focused": {
+        "path": "rotate-ccw-focused.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-focused.png"
+      },
+      "selected": {
+        "path": "rotate-ccw-selected.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-selected.png"
+      },
+      "disabled": {
+        "path": "rotate-ccw-disabled.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-disabled.png"
+      },
+      "rail": {
+        "path": "rotate-ccw-rail.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-rail.png"
+      },
+      "dark-background": {
+        "path": "rotate-ccw-dark-background.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-dark-background.png"
+      },
+      "destructive": {
+        "path": "rotate-ccw-destructive.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980",
+        "uri": "pkg:/images/icons/generated/rotate-ccw-destructive.png"
+      }
+    },
+    "rotate-cw": {
+      "default": {
+        "path": "rotate-cw-default.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-default.png"
+      },
+      "focused": {
+        "path": "rotate-cw-focused.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-focused.png"
+      },
+      "selected": {
+        "path": "rotate-cw-selected.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-selected.png"
+      },
+      "disabled": {
+        "path": "rotate-cw-disabled.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-disabled.png"
+      },
+      "rail": {
+        "path": "rotate-cw-rail.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-rail.png"
+      },
+      "dark-background": {
+        "path": "rotate-cw-dark-background.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-dark-background.png"
+      },
+      "destructive": {
+        "path": "rotate-cw-destructive.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637",
+        "uri": "pkg:/images/icons/generated/rotate-cw-destructive.png"
+      }
+    },
+    "search": {
+      "default": {
+        "path": "search-default.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-default.png"
+      },
+      "focused": {
+        "path": "search-focused.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-focused.png"
+      },
+      "selected": {
+        "path": "search-selected.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-selected.png"
+      },
+      "disabled": {
+        "path": "search-disabled.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-disabled.png"
+      },
+      "rail": {
+        "path": "search-rail.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-rail.png"
+      },
+      "dark-background": {
+        "path": "search-dark-background.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-dark-background.png"
+      },
+      "destructive": {
+        "path": "search-destructive.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6",
+        "uri": "pkg:/images/icons/generated/search-destructive.png"
+      }
+    },
+    "send": {
+      "default": {
+        "path": "send-default.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-default.png"
+      },
+      "focused": {
+        "path": "send-focused.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-focused.png"
+      },
+      "selected": {
+        "path": "send-selected.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-selected.png"
+      },
+      "disabled": {
+        "path": "send-disabled.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-disabled.png"
+      },
+      "rail": {
+        "path": "send-rail.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-rail.png"
+      },
+      "dark-background": {
+        "path": "send-dark-background.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-dark-background.png"
+      },
+      "destructive": {
+        "path": "send-destructive.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67",
+        "uri": "pkg:/images/icons/generated/send-destructive.png"
+      }
+    },
+    "server": {
+      "default": {
+        "path": "server-default.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-default.png"
+      },
+      "focused": {
+        "path": "server-focused.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-focused.png"
+      },
+      "selected": {
+        "path": "server-selected.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-selected.png"
+      },
+      "disabled": {
+        "path": "server-disabled.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-disabled.png"
+      },
+      "rail": {
+        "path": "server-rail.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-rail.png"
+      },
+      "dark-background": {
+        "path": "server-dark-background.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-dark-background.png"
+      },
+      "destructive": {
+        "path": "server-destructive.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266",
+        "uri": "pkg:/images/icons/generated/server-destructive.png"
+      }
+    },
+    "settings": {
+      "default": {
+        "path": "settings-default.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-default.png"
+      },
+      "focused": {
+        "path": "settings-focused.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-focused.png"
+      },
+      "selected": {
+        "path": "settings-selected.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-selected.png"
+      },
+      "disabled": {
+        "path": "settings-disabled.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-disabled.png"
+      },
+      "rail": {
+        "path": "settings-rail.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-rail.png"
+      },
+      "dark-background": {
+        "path": "settings-dark-background.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-dark-background.png"
+      },
+      "destructive": {
+        "path": "settings-destructive.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115",
+        "uri": "pkg:/images/icons/generated/settings-destructive.png"
+      }
+    },
+    "shield-check": {
+      "default": {
+        "path": "shield-check-default.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-default.png"
+      },
+      "focused": {
+        "path": "shield-check-focused.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-focused.png"
+      },
+      "selected": {
+        "path": "shield-check-selected.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-selected.png"
+      },
+      "disabled": {
+        "path": "shield-check-disabled.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-disabled.png"
+      },
+      "rail": {
+        "path": "shield-check-rail.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-rail.png"
+      },
+      "dark-background": {
+        "path": "shield-check-dark-background.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-dark-background.png"
+      },
+      "destructive": {
+        "path": "shield-check-destructive.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04",
+        "uri": "pkg:/images/icons/generated/shield-check-destructive.png"
+      }
+    },
+    "shuffle": {
+      "default": {
+        "path": "shuffle-default.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-default.png"
+      },
+      "focused": {
+        "path": "shuffle-focused.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-focused.png"
+      },
+      "selected": {
+        "path": "shuffle-selected.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-selected.png"
+      },
+      "disabled": {
+        "path": "shuffle-disabled.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-disabled.png"
+      },
+      "rail": {
+        "path": "shuffle-rail.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-rail.png"
+      },
+      "dark-background": {
+        "path": "shuffle-dark-background.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-dark-background.png"
+      },
+      "destructive": {
+        "path": "shuffle-destructive.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710",
+        "uri": "pkg:/images/icons/generated/shuffle-destructive.png"
+      }
+    },
+    "skip-back": {
+      "default": {
+        "path": "skip-back-default.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-default.png"
+      },
+      "focused": {
+        "path": "skip-back-focused.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-focused.png"
+      },
+      "selected": {
+        "path": "skip-back-selected.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-selected.png"
+      },
+      "disabled": {
+        "path": "skip-back-disabled.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-disabled.png"
+      },
+      "rail": {
+        "path": "skip-back-rail.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-rail.png"
+      },
+      "dark-background": {
+        "path": "skip-back-dark-background.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-dark-background.png"
+      },
+      "destructive": {
+        "path": "skip-back-destructive.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6",
+        "uri": "pkg:/images/icons/generated/skip-back-destructive.png"
+      }
+    },
+    "skip-forward": {
+      "default": {
+        "path": "skip-forward-default.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-default.png"
+      },
+      "focused": {
+        "path": "skip-forward-focused.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-focused.png"
+      },
+      "selected": {
+        "path": "skip-forward-selected.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-selected.png"
+      },
+      "disabled": {
+        "path": "skip-forward-disabled.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-disabled.png"
+      },
+      "rail": {
+        "path": "skip-forward-rail.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-rail.png"
+      },
+      "dark-background": {
+        "path": "skip-forward-dark-background.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-dark-background.png"
+      },
+      "destructive": {
+        "path": "skip-forward-destructive.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1",
+        "uri": "pkg:/images/icons/generated/skip-forward-destructive.png"
+      }
+    },
+    "sliders-horizontal": {
+      "default": {
+        "path": "sliders-horizontal-default.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-default.png"
+      },
+      "focused": {
+        "path": "sliders-horizontal-focused.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-focused.png"
+      },
+      "selected": {
+        "path": "sliders-horizontal-selected.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-selected.png"
+      },
+      "disabled": {
+        "path": "sliders-horizontal-disabled.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-disabled.png"
+      },
+      "rail": {
+        "path": "sliders-horizontal-rail.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-rail.png"
+      },
+      "dark-background": {
+        "path": "sliders-horizontal-dark-background.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-dark-background.png"
+      },
+      "destructive": {
+        "path": "sliders-horizontal-destructive.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c",
+        "uri": "pkg:/images/icons/generated/sliders-horizontal-destructive.png"
+      }
+    },
+    "star": {
+      "default": {
+        "path": "star-default.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-default.png"
+      },
+      "focused": {
+        "path": "star-focused.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-focused.png"
+      },
+      "selected": {
+        "path": "star-selected.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-selected.png"
+      },
+      "disabled": {
+        "path": "star-disabled.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-disabled.png"
+      },
+      "rail": {
+        "path": "star-rail.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-rail.png"
+      },
+      "dark-background": {
+        "path": "star-dark-background.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-dark-background.png"
+      },
+      "destructive": {
+        "path": "star-destructive.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f",
+        "uri": "pkg:/images/icons/generated/star-destructive.png"
+      }
+    },
+    "subtitles": {
+      "default": {
+        "path": "subtitles-default.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-default.png"
+      },
+      "focused": {
+        "path": "subtitles-focused.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-focused.png"
+      },
+      "selected": {
+        "path": "subtitles-selected.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-selected.png"
+      },
+      "disabled": {
+        "path": "subtitles-disabled.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-disabled.png"
+      },
+      "rail": {
+        "path": "subtitles-rail.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-rail.png"
+      },
+      "dark-background": {
+        "path": "subtitles-dark-background.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-dark-background.png"
+      },
+      "destructive": {
+        "path": "subtitles-destructive.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350",
+        "uri": "pkg:/images/icons/generated/subtitles-destructive.png"
+      }
+    },
+    "thumbs-down": {
+      "default": {
+        "path": "thumbs-down-default.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-default.png"
+      },
+      "focused": {
+        "path": "thumbs-down-focused.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-focused.png"
+      },
+      "selected": {
+        "path": "thumbs-down-selected.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-selected.png"
+      },
+      "disabled": {
+        "path": "thumbs-down-disabled.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-disabled.png"
+      },
+      "rail": {
+        "path": "thumbs-down-rail.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-rail.png"
+      },
+      "dark-background": {
+        "path": "thumbs-down-dark-background.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-dark-background.png"
+      },
+      "destructive": {
+        "path": "thumbs-down-destructive.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be",
+        "uri": "pkg:/images/icons/generated/thumbs-down-destructive.png"
+      }
+    },
+    "thumbs-up": {
+      "default": {
+        "path": "thumbs-up-default.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-default.png"
+      },
+      "focused": {
+        "path": "thumbs-up-focused.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-focused.png"
+      },
+      "selected": {
+        "path": "thumbs-up-selected.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-selected.png"
+      },
+      "disabled": {
+        "path": "thumbs-up-disabled.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-disabled.png"
+      },
+      "rail": {
+        "path": "thumbs-up-rail.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-rail.png"
+      },
+      "dark-background": {
+        "path": "thumbs-up-dark-background.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-dark-background.png"
+      },
+      "destructive": {
+        "path": "thumbs-up-destructive.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f",
+        "uri": "pkg:/images/icons/generated/thumbs-up-destructive.png"
+      }
+    },
+    "trash-2": {
+      "default": {
+        "path": "trash-2-default.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-default.png"
+      },
+      "focused": {
+        "path": "trash-2-focused.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-focused.png"
+      },
+      "selected": {
+        "path": "trash-2-selected.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-selected.png"
+      },
+      "disabled": {
+        "path": "trash-2-disabled.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-disabled.png"
+      },
+      "rail": {
+        "path": "trash-2-rail.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-rail.png"
+      },
+      "dark-background": {
+        "path": "trash-2-dark-background.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "trash-2-destructive.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1",
+        "uri": "pkg:/images/icons/generated/trash-2-destructive.png"
+      }
+    },
+    "triangle-alert": {
+      "default": {
+        "path": "triangle-alert-default.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-default.png"
+      },
+      "focused": {
+        "path": "triangle-alert-focused.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-focused.png"
+      },
+      "selected": {
+        "path": "triangle-alert-selected.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-selected.png"
+      },
+      "disabled": {
+        "path": "triangle-alert-disabled.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-disabled.png"
+      },
+      "rail": {
+        "path": "triangle-alert-rail.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-rail.png"
+      },
+      "dark-background": {
+        "path": "triangle-alert-dark-background.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-dark-background.png"
+      },
+      "destructive": {
+        "path": "triangle-alert-destructive.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0",
+        "uri": "pkg:/images/icons/generated/triangle-alert-destructive.png"
+      }
+    },
+    "tv": {
+      "default": {
+        "path": "tv-default.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-default.png"
+      },
+      "focused": {
+        "path": "tv-focused.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-focused.png"
+      },
+      "selected": {
+        "path": "tv-selected.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-selected.png"
+      },
+      "disabled": {
+        "path": "tv-disabled.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-disabled.png"
+      },
+      "rail": {
+        "path": "tv-rail.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-rail.png"
+      },
+      "dark-background": {
+        "path": "tv-dark-background.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-dark-background.png"
+      },
+      "destructive": {
+        "path": "tv-destructive.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2",
+        "uri": "pkg:/images/icons/generated/tv-destructive.png"
+      }
+    },
+    "user-round": {
+      "default": {
+        "path": "user-round-default.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-default.png"
+      },
+      "focused": {
+        "path": "user-round-focused.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-focused.png"
+      },
+      "selected": {
+        "path": "user-round-selected.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-selected.png"
+      },
+      "disabled": {
+        "path": "user-round-disabled.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-disabled.png"
+      },
+      "rail": {
+        "path": "user-round-rail.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-rail.png"
+      },
+      "dark-background": {
+        "path": "user-round-dark-background.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-dark-background.png"
+      },
+      "destructive": {
+        "path": "user-round-destructive.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b",
+        "uri": "pkg:/images/icons/generated/user-round-destructive.png"
+      }
+    },
+    "users": {
+      "default": {
+        "path": "users-default.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-default.png"
+      },
+      "focused": {
+        "path": "users-focused.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-focused.png"
+      },
+      "selected": {
+        "path": "users-selected.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-selected.png"
+      },
+      "disabled": {
+        "path": "users-disabled.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-disabled.png"
+      },
+      "rail": {
+        "path": "users-rail.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-rail.png"
+      },
+      "dark-background": {
+        "path": "users-dark-background.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-dark-background.png"
+      },
+      "destructive": {
+        "path": "users-destructive.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9",
+        "uri": "pkg:/images/icons/generated/users-destructive.png"
+      }
+    },
+    "video": {
+      "default": {
+        "path": "video-default.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-default.png"
+      },
+      "focused": {
+        "path": "video-focused.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-focused.png"
+      },
+      "selected": {
+        "path": "video-selected.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-selected.png"
+      },
+      "disabled": {
+        "path": "video-disabled.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-disabled.png"
+      },
+      "rail": {
+        "path": "video-rail.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-rail.png"
+      },
+      "dark-background": {
+        "path": "video-dark-background.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-dark-background.png"
+      },
+      "destructive": {
+        "path": "video-destructive.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c",
+        "uri": "pkg:/images/icons/generated/video-destructive.png"
+      }
+    },
+    "volume-2": {
+      "default": {
+        "path": "volume-2-default.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-default.png"
+      },
+      "focused": {
+        "path": "volume-2-focused.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-focused.png"
+      },
+      "selected": {
+        "path": "volume-2-selected.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-selected.png"
+      },
+      "disabled": {
+        "path": "volume-2-disabled.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-disabled.png"
+      },
+      "rail": {
+        "path": "volume-2-rail.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-rail.png"
+      },
+      "dark-background": {
+        "path": "volume-2-dark-background.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-dark-background.png"
+      },
+      "destructive": {
+        "path": "volume-2-destructive.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6",
+        "uri": "pkg:/images/icons/generated/volume-2-destructive.png"
+      }
+    },
+    "volume-x": {
+      "default": {
+        "path": "volume-x-default.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-default.png"
+      },
+      "focused": {
+        "path": "volume-x-focused.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-focused.png"
+      },
+      "selected": {
+        "path": "volume-x-selected.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-selected.png"
+      },
+      "disabled": {
+        "path": "volume-x-disabled.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-disabled.png"
+      },
+      "rail": {
+        "path": "volume-x-rail.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-rail.png"
+      },
+      "dark-background": {
+        "path": "volume-x-dark-background.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-dark-background.png"
+      },
+      "destructive": {
+        "path": "volume-x-destructive.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4",
+        "uri": "pkg:/images/icons/generated/volume-x-destructive.png"
+      }
+    },
+    "wifi": {
+      "default": {
+        "path": "wifi-default.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-default.png"
+      },
+      "focused": {
+        "path": "wifi-focused.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-focused.png"
+      },
+      "selected": {
+        "path": "wifi-selected.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-selected.png"
+      },
+      "disabled": {
+        "path": "wifi-disabled.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-disabled.png"
+      },
+      "rail": {
+        "path": "wifi-rail.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-rail.png"
+      },
+      "dark-background": {
+        "path": "wifi-dark-background.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-dark-background.png"
+      },
+      "destructive": {
+        "path": "wifi-destructive.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539",
+        "uri": "pkg:/images/icons/generated/wifi-destructive.png"
+      }
+    },
+    "wifi-off": {
+      "default": {
+        "path": "wifi-off-default.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-default.png"
+      },
+      "focused": {
+        "path": "wifi-off-focused.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-focused.png"
+      },
+      "selected": {
+        "path": "wifi-off-selected.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-selected.png"
+      },
+      "disabled": {
+        "path": "wifi-off-disabled.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-disabled.png"
+      },
+      "rail": {
+        "path": "wifi-off-rail.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-rail.png"
+      },
+      "dark-background": {
+        "path": "wifi-off-dark-background.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-dark-background.png"
+      },
+      "destructive": {
+        "path": "wifi-off-destructive.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803",
+        "uri": "pkg:/images/icons/generated/wifi-off-destructive.png"
+      }
+    },
+    "x": {
+      "default": {
+        "path": "x-default.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-default.png"
+      },
+      "focused": {
+        "path": "x-focused.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-focused.png"
+      },
+      "selected": {
+        "path": "x-selected.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-selected.png"
+      },
+      "disabled": {
+        "path": "x-disabled.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-disabled.png"
+      },
+      "rail": {
+        "path": "x-rail.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-rail.png"
+      },
+      "dark-background": {
+        "path": "x-dark-background.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-dark-background.png"
+      },
+      "destructive": {
+        "path": "x-destructive.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd",
+        "uri": "pkg:/images/icons/generated/x-destructive.png"
+      }
+    }
+  }
+}

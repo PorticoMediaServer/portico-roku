@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "environment": "development",
+  "status": "development-sideload",
+  "version": "0.1.0",
+  "buildNumber": "0",
+  "previousBuildNumber": "0",
+  "channel": "development",
+  "commit": "UNSTAMPED_DEVELOPMENT",
+  "publisherId": null,
+  "channelId": null,
+  "signingIdentity": null,
+  "metadata": {
+    "privacyUrl": null,
+    "supportedCountries": [],
+    "searchFeedUrl": null,
+    "deepLinkBaseUrl": null
+  },
+  "evidence": "development-sideload-only"
+}

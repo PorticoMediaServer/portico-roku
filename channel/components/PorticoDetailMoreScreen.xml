@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoDetailMoreScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoDetailMoreScreen.brs" />
+    <children>
+        <Poster id="scrim" width="1920" height="1080" loadWidth="1920" loadHeight="1080" loadDisplayMode="scaleToFill" />
+        <Group id="panel" translation="[1110,144]">
+            <Poster id="panelSurface" width="720" height="792" loadWidth="720" loadHeight="792" loadDisplayMode="scaleToFill" />
+            <Label id="context" translation="[28,25]" width="664" height="25" maxLines="1" />
+            <Label id="title" translation="[28,52]" width="664" height="43" maxLines="1" />
+            <PorticoIconButton id="backAction" translation="[24,40]" visible="false" />
+            <PorticoIconButton id="closeAction" translation="[632,40]" />
+            <Rectangle translation="[28,112]" width="664" height="1" color="#C7D0D8" opacity="0.12" />
+            <Group id="body" translation="[20,132]" />
+            <Label id="status" translation="[28,742]" width="664" height="28" maxLines="1" />
+        </Group>
+    </children>
+</component>

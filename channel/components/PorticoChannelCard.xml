@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoChannelCard" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoChannelCard.brs" />
+    <children>
+        <Rectangle id="focusBorder" width="848" height="118" color="#EAF6FF" visible="false" />
+        <Rectangle id="surface" translation="[3,3]" width="842" height="112" color="#0A1017" />
+        <Rectangle id="logoBed" translation="[18,18]" width="82" height="82" color="#151F29" />
+        <Poster id="logo" translation="[27,27]" width="64" height="64" loadWidth="64" loadHeight="64" loadDisplayMode="scaleToFit" />
+        <Label id="mark" translation="[18,18]" width="82" height="82" maxLines="1" horizAlign="center" vertAlign="center" />
+        <Label id="title" translation="[126,25]" width="680" height="31" maxLines="1" />
+        <Label id="now" translation="[126,62]" width="680" height="25" maxLines="1" />
+        <Label id="number" visible="false" />
+    </children>
+</component>

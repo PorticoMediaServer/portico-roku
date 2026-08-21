@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoSearchScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoMediaActions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoSearchScreen.brs" />
+    <children>
+        <Label id="title" translation="[0,34]" width="800" height="58" maxLines="1" />
+        <Group id="queryField" translation="[0,108]">
+            <Poster id="querySurface" width="1200" height="68" loadWidth="1200" loadHeight="68" loadDisplayMode="scaleToFill" />
+            <Poster id="searchIcon" translation="[20,19]" width="30" height="30" loadWidth="30" loadHeight="30" loadDisplayMode="scaleToFit" />
+            <Label id="queryText" translation="[64,0]" width="1048" height="68" maxLines="1" vertAlign="center" />
+            <PorticoIconButton id="clearAction" translation="[1128,2]" visible="false" />
+        </Group>
+
+        <Group id="searchControls" translation="[0,190]">
+            <PorticoButton id="groupControl" />
+            <PorticoButton id="sortControl" translation="[300,0]" />
+            <PorticoButton id="directionControl" translation="[600,0]" />
+        </Group>
+
+        <Group id="keyboard" translation="[0,194]" visible="false">
+            <Poster id="keyboardSurface" width="1200" height="288" loadWidth="1200" loadHeight="288" loadDisplayMode="scaleToFill" />
+            <PorticoSearchKey id="key0" /><PorticoSearchKey id="key1" /><PorticoSearchKey id="key2" /><PorticoSearchKey id="key3" /><PorticoSearchKey id="key4" />
+            <PorticoSearchKey id="key5" /><PorticoSearchKey id="key6" /><PorticoSearchKey id="key7" /><PorticoSearchKey id="key8" /><PorticoSearchKey id="key9" />
+            <PorticoSearchKey id="key10" /><PorticoSearchKey id="key11" /><PorticoSearchKey id="key12" /><PorticoSearchKey id="key13" /><PorticoSearchKey id="key14" />
+            <PorticoSearchKey id="key15" /><PorticoSearchKey id="key16" /><PorticoSearchKey id="key17" /><PorticoSearchKey id="key18" /><PorticoSearchKey id="key19" />
+            <PorticoSearchKey id="key20" /><PorticoSearchKey id="key21" /><PorticoSearchKey id="key22" /><PorticoSearchKey id="key23" /><PorticoSearchKey id="key24" />
+            <PorticoSearchKey id="key25" /><PorticoSearchKey id="key26" /><PorticoSearchKey id="key27" /><PorticoSearchKey id="key28" /><PorticoSearchKey id="key29" />
+            <PorticoSearchKey id="key30" /><PorticoSearchKey id="key31" /><PorticoSearchKey id="key32" /><PorticoSearchKey id="key33" /><PorticoSearchKey id="key34" />
+            <PorticoSearchKey id="key35" /><PorticoSearchKey id="key36" /><PorticoSearchKey id="key37" /><PorticoSearchKey id="key38" /><PorticoSearchKey id="key39" />
+        </Group>
+
+        <Group id="resultsViewport" translation="[0,278]">
+            <Group id="resultsCanvas">
+                <Label id="resultsTitle" width="1712" height="38" maxLines="1" />
+                <Label id="groupTitle0" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="groupTitle1" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="groupTitle2" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="groupTitle3" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="groupTitle4" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="groupTitle5" width="1712" height="38" maxLines="1" visible="false" />
+                <PorticoSearchResult id="result0" visible="false" /><PorticoSearchResult id="result1" visible="false" />
+                <PorticoSearchResult id="result2" visible="false" /><PorticoSearchResult id="result3" visible="false" />
+                <PorticoSearchResult id="result4" visible="false" /><PorticoSearchResult id="result5" visible="false" />
+                <PorticoSearchResult id="result6" visible="false" /><PorticoSearchResult id="result7" visible="false" />
+                <PorticoSearchResult id="result8" visible="false" /><PorticoSearchResult id="result9" visible="false" />
+                <PorticoSearchResult id="result10" visible="false" /><PorticoSearchResult id="result11" visible="false" />
+                <PorticoSearchResult id="result12" visible="false" /><PorticoSearchResult id="result13" visible="false" />
+                <PorticoSearchResult id="result14" visible="false" /><PorticoSearchResult id="result15" visible="false" />
+                <PorticoSearchResult id="result16" visible="false" /><PorticoSearchResult id="result17" visible="false" />
+                <PorticoSearchResult id="result18" visible="false" /><PorticoSearchResult id="result19" visible="false" />
+                <PorticoSearchResult id="result20" visible="false" /><PorticoSearchResult id="result21" visible="false" />
+                <PorticoSearchResult id="result22" visible="false" /><PorticoSearchResult id="result23" visible="false" />
+                <PorticoButton id="more0" visible="false" /><PorticoButton id="more1" visible="false" />
+                <PorticoButton id="more2" visible="false" /><PorticoButton id="more3" visible="false" />
+                <PorticoButton id="more4" visible="false" /><PorticoButton id="more5" visible="false" />
+            </Group>
+        </Group>
+
+        <Label id="loadingLabel" translation="[0,298]" width="1712" height="38" maxLines="1" visible="false" />
+        <Group id="stateGroup" translation="[0,318]" visible="false">
+            <Poster id="stateIconBed" translation="[815,42]" width="82" height="82" loadWidth="82" loadHeight="82" loadDisplayMode="scaleToFill" />
+            <Poster id="stateIcon" translation="[835,62]" width="42" height="42" loadWidth="42" loadHeight="42" loadDisplayMode="scaleToFit" />
+            <Label id="stateTitle" translation="[386,150]" width="940" height="38" maxLines="1" horizAlign="center" />
+            <Label id="stateMessage0" translation="[536,200]" width="640" height="28" maxLines="1" horizAlign="center" />
+            <Label id="stateMessage1" translation="[536,228]" width="640" height="28" maxLines="1" horizAlign="center" />
+            <Label id="stateMessage2" translation="[536,256]" width="640" height="28" maxLines="1" horizAlign="center" />
+            <PorticoButton id="retryAction" translation="[773,314]" visible="false" />
+        </Group>
+        <Group id="recentGroup" translation="[0,298]" visible="false">
+            <Label id="recentTitle" width="800" height="40" maxLines="1" />
+            <PorticoButton id="recent0" translation="[0,58]" visible="false" />
+            <PorticoButton id="recent1" translation="[290,58]" visible="false" />
+            <PorticoButton id="recent2" translation="[580,58]" visible="false" />
+            <PorticoButton id="recent3" translation="[870,58]" visible="false" />
+            <PorticoButton id="recent4" translation="[1160,58]" visible="false" />
+            <PorticoButton id="clearHistory" translation="[0,140]" visible="false" />
+        </Group>
+        <PorticoMediaActionsPanel id="quickActions" translation="[1280,108]" visible="false" />
+    </children>
+</component>

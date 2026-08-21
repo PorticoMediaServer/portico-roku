@@ -1,0 +1,44 @@
+{
+  "applications": {
+    "android": {
+      "mobileApplicationId": "org.getportico.portico.dev",
+      "signing": "REQUIRED_FOR_STAGING_OR_PRODUCTION",
+      "televisionApplicationId": "org.getportico.portico.tv.dev"
+    },
+    "apple": {
+      "iosBundleId": "org.getportico.portico.dev",
+      "storeIds": "EXPLICIT_PLACEHOLDER",
+      "teamId": "REQUIRED_FOR_STAGING_OR_PRODUCTION",
+      "tvosBundleId": "org.getportico.portico.tv.dev"
+    },
+    "integrations": {
+      "castReceiverId": "EXPLICIT_PLACEHOLDER",
+      "push": "REQUIRED_WHEN_ENABLED"
+    },
+    "roku": {
+      "channelId": "EXPLICIT_PLACEHOLDER",
+      "publisherId": "REQUIRED_FOR_STAGING_OR_PRODUCTION"
+    }
+  },
+  "buildNumber": "0",
+  "channel": "development",
+  "commitSource": "git",
+  "environment": "development",
+  "hostedApiAuthorityByEnvironment": {
+    "development": "http://localhost:8080",
+    "production": "REQUIRED_EXTERNAL_CONFIGURATION",
+    "staging": "REQUIRED_EXTERNAL_CONFIGURATION",
+    "test": "http://127.0.0.1:8080"
+  },
+  "revision": 1,
+  "safety": {
+    "protectedEnvironments": [
+      "staging",
+      "production"
+    ],
+    "rejectPlaceholderIdentity": true,
+    "requireHttpsHostedAuthority": true,
+    "requireSigning": true
+  },
+  "version": "0.0.0-development"
+}

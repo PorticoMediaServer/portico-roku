@@ -1,0 +1,1 @@
+Generated deterministically by scripts/generate-assets.mjs.

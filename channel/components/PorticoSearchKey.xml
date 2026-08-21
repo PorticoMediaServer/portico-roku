@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoSearchKey" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoSearchKey.brs" />
+    <children>
+        <Poster id="surface" width="104" height="56" loadWidth="104" loadHeight="56" loadDisplayMode="scaleToFill" />
+        <Label id="label" width="104" height="56" maxLines="1" horizAlign="center" vertAlign="center" />
+    </children>
+</component>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoGuideProgram" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+        <field id="selected" type="boolean" value="false" onChange="render" />
+        <field id="cellWidth" type="integer" value="468" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoGuideProgram.brs" />
+    <children>
+        <Rectangle id="focusBorder" width="468" height="104" color="#70BCE8" visible="false" />
+        <Rectangle id="surface" translation="[3,3]" width="462" height="98" color="#101820" />
+        <Rectangle id="liveRule" translation="[3,3]" width="4" height="98" color="#E3B341" visible="false" />
+        <Label id="title" translation="[22,19]" width="420" height="29" maxLines="1" />
+        <Label id="meta" translation="[22,55]" width="420" height="25" maxLines="1" />
+    </children>
+</component>

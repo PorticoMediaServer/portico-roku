@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoDvrConsumerRow" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+        <field id="actionOneFocused" type="boolean" value="false" onChange="render" />
+        <field id="actionTwoFocused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoDvrConsumerRow.brs" />
+    <children>
+        <Rectangle id="focusBorder" width="1712" height="108" color="#EAF6FF" visible="false" />
+        <Rectangle id="surface" translation="[3,3]" width="1706" height="102" color="#0A1017" />
+        <Label id="title" translation="[20,15]" width="1060" height="32" maxLines="1" />
+        <Label id="meta" translation="[20,55]" width="1060" height="25" maxLines="1" />
+        <Label id="status" translation="[1080,0]" width="220" height="108" maxLines="1" vertAlign="center" horizAlign="right" />
+        <PorticoButton id="actionOne" translation="[1324,22]" visible="false" />
+        <PorticoButton id="actionTwo" translation="[1514,22]" visible="false" />
+    </children>
+</component>

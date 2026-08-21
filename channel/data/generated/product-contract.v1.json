@@ -1,0 +1,4228 @@
+{
+  "contract": {
+    "actionRevision": "v1",
+    "apiVersion": "v1",
+    "applicationEvents": {
+      "authoritativeResetErrorCodes": [
+        "invalid_poll_cursor"
+      ],
+      "eventTypes": [
+        "data.changed",
+        "library.scan.completed"
+      ],
+      "longPollResetField": "resetRequired",
+      "revision": "v1",
+      "tags": [
+        "account",
+        "audiobook-entities",
+        "collections",
+        "dashboard:history",
+        "dashboard:jobs",
+        "dashboard:live",
+        "database",
+        "devices",
+        "display-preferences",
+        "downloads",
+        "dvr",
+        "home",
+        "jobs",
+        "libraries",
+        "library-channels",
+        "library-items",
+        "live-tv",
+        "media",
+        "media-state",
+        "metadata",
+        "notifications",
+        "playback",
+        "playback-progress",
+        "playlists",
+        "profiles",
+        "quick-connect",
+        "remote-access",
+        "saved",
+        "search",
+        "settings",
+        "users",
+        "watch-with-friends"
+      ]
+    },
+    "artworkRoles": [
+      {
+        "aspectRatio": 0.6666666666666666,
+        "fit": "cover",
+        "id": "poster",
+        "purpose": "Primary portrait artwork for video, books, recordings, and collections."
+      },
+      {
+        "aspectRatio": 1,
+        "fit": "cover",
+        "id": "square",
+        "purpose": "Primary artwork for artists, albums, tracks, and music collections."
+      },
+      {
+        "aspectRatio": 1.7777777777777777,
+        "fit": "cover",
+        "id": "backdrop",
+        "purpose": "Wide detail, hero, and playback background artwork."
+      },
+      {
+        "aspectRatio": 1.7777777777777777,
+        "fit": "cover",
+        "id": "thumb",
+        "purpose": "Episode, chapter, and compact landscape artwork."
+      },
+      {
+        "aspectRatio": 3,
+        "fit": "contain",
+        "id": "logo",
+        "purpose": "Transparent title or channel mark; never a primary-card substitute."
+      },
+      {
+        "aspectRatio": 5.4,
+        "fit": "cover",
+        "id": "banner",
+        "purpose": "Optional extra-wide promotional artwork."
+      }
+    ],
+    "browseFields": [
+      {
+        "allowedValues": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special",
+          "artist",
+          "album",
+          "track",
+          "author",
+          "book",
+          "audiobook-series",
+          "chapter",
+          "collection",
+          "playlist",
+          "category",
+          "recording",
+          "live-channel",
+          "live-program",
+          "person",
+          "extra"
+        ],
+        "complexity": "quick",
+        "controlHint": "select",
+        "cost": "indexed",
+        "id": "entityKind",
+        "label": "Media type",
+        "operators": [
+          "equals",
+          "not-equals",
+          "in",
+          "not-in"
+        ],
+        "valueType": "enum"
+      },
+      {
+        "complexity": "quick",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "title",
+        "label": "Title",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "alternateTitle",
+        "label": "Alternate title",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "originalTitle",
+        "label": "Original title",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "id": "language",
+        "label": "Language",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "status",
+        "label": "Status",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "standard",
+        "controlHint": "date-range",
+        "cost": "indexed",
+        "id": "releaseDate",
+        "label": "Release date",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between",
+          "is-present",
+          "is-missing"
+        ],
+        "valueType": "date"
+      },
+      {
+        "complexity": "standard",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "year",
+        "label": "Year",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between"
+        ],
+        "valueType": "number"
+      },
+      {
+        "complexity": "standard",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "decade",
+        "label": "Decade",
+        "operators": [
+          "equals"
+        ],
+        "valueType": "number"
+      },
+      {
+        "complexity": "standard",
+        "controlHint": "date-range",
+        "cost": "indexed",
+        "id": "dateAdded",
+        "label": "Date added",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between"
+        ],
+        "valueType": "date"
+      },
+      {
+        "allowedValues": [
+          "unplayed",
+          "in-progress",
+          "played"
+        ],
+        "complexity": "quick",
+        "controlHint": "select",
+        "cost": "indexed",
+        "id": "playState",
+        "label": "Playback",
+        "operators": [
+          "equals",
+          "not-equals",
+          "in",
+          "not-in"
+        ],
+        "valueType": "enum"
+      },
+      {
+        "complexity": "quick",
+        "controlHint": "toggle",
+        "cost": "indexed",
+        "id": "favorite",
+        "label": "Favorite",
+        "operators": [
+          "is"
+        ],
+        "valueType": "boolean"
+      },
+      {
+        "complexity": "quick",
+        "controlHint": "toggle",
+        "cost": "indexed",
+        "id": "watchlisted",
+        "label": "Saved",
+        "operators": [
+          "is"
+        ],
+        "valueType": "boolean"
+      },
+      {
+        "complexity": "standard",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "personalRating",
+        "label": "Your rating",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between",
+          "is-present",
+          "is-missing"
+        ],
+        "valueType": "number"
+      },
+      {
+        "complexity": "quick",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "facetSource": {
+          "countField": "count",
+          "endpointTemplate": "/api/libraries/{libraryId}/categories",
+          "filterField": "filter",
+          "filterPrefix": "genre:",
+          "labelField": "name",
+          "valueField": "name"
+        },
+        "id": "genre",
+        "label": "Genre",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "facetSource": {
+          "countField": "count",
+          "endpointTemplate": "/api/libraries/{libraryId}/categories",
+          "filterField": "filter",
+          "filterPrefix": "tag:",
+          "labelField": "name",
+          "valueField": "name"
+        },
+        "id": "tag",
+        "label": "Tag",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "applicableKinds": [
+          "artist",
+          "album",
+          "track"
+        ],
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "facetSource": {
+          "countField": "count",
+          "endpointTemplate": "/api/libraries/{libraryId}/categories",
+          "filterField": "filter",
+          "filterPrefix": "label:",
+          "labelField": "name",
+          "valueField": "name"
+        },
+        "id": "label",
+        "label": "Label",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "applicableKinds": [
+          "book"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "author",
+        "label": "Author",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "book"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "narrator",
+        "label": "Narrator",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "book",
+          "audiobook-series"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "series",
+        "label": "Series",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special"
+        ],
+        "complexity": "standard",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "studio",
+        "label": "Studio",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "company",
+        "label": "Company",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "show",
+          "season",
+          "episode",
+          "special",
+          "recording"
+        ],
+        "complexity": "standard",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "network",
+        "label": "Network",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "country",
+        "label": "Country",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "id": "keyword",
+        "label": "Keyword",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "id": "collection",
+        "label": "Collection",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "id": "franchise",
+        "label": "Franchise",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "actor",
+        "label": "Actor",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "director",
+        "label": "Director",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "writer",
+        "label": "Writer",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "show",
+          "season",
+          "episode"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "creator",
+        "label": "Creator",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "special",
+          "artist",
+          "album",
+          "track",
+          "book",
+          "recording"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "credit",
+        "label": "Credit",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "standard",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "contentRating",
+        "label": "Content rating",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed",
+        "id": "regionalCertification",
+        "label": "Regional certification",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "communityRating",
+        "label": "Community rating",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between",
+          "is-present",
+          "is-missing"
+        ],
+        "valueType": "number"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "criticRating",
+        "label": "Critic rating",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between",
+          "is-present",
+          "is-missing"
+        ],
+        "valueType": "number"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "audienceRating",
+        "label": "Audience rating",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between",
+          "is-present",
+          "is-missing"
+        ],
+        "valueType": "number"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "facet-multi-select",
+        "cost": "indexed",
+        "id": "acceptedProviderIdentity",
+        "label": "Provider identity",
+        "operators": [
+          "contains",
+          "not-contains",
+          "contains-any",
+          "contains-all"
+        ],
+        "valueType": "identity-set"
+      },
+      {
+        "allowedValues": [
+          "available",
+          "partial",
+          "unavailable"
+        ],
+        "complexity": "standard",
+        "controlHint": "select",
+        "cost": "indexed",
+        "id": "availability",
+        "label": "Availability",
+        "operators": [
+          "equals",
+          "not-equals",
+          "in",
+          "not-in"
+        ],
+        "valueType": "enum"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "episode",
+          "special",
+          "recording"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "resolution",
+        "label": "Resolution",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "episode",
+          "special",
+          "recording"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "dynamicRange",
+        "label": "Dynamic range",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "episode",
+          "special",
+          "track",
+          "book",
+          "recording"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "source",
+        "label": "Source",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "applicableKinds": [
+          "movie",
+          "episode",
+          "special",
+          "recording"
+        ],
+        "complexity": "advanced",
+        "controlHint": "text",
+        "cost": "indexed-join",
+        "id": "mediaVersion",
+        "label": "Media version",
+        "operators": [
+          "equals",
+          "not-equals",
+          "contains",
+          "not-contains",
+          "starts-with"
+        ],
+        "valueType": "string"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "number-range",
+        "cost": "indexed",
+        "id": "durationSeconds",
+        "label": "Duration",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between"
+        ],
+        "valueType": "duration"
+      },
+      {
+        "complexity": "advanced",
+        "controlHint": "date-range",
+        "cost": "indexed",
+        "id": "lastPlayedAt",
+        "label": "Last played",
+        "operators": [
+          "equals",
+          "less-than",
+          "at-most",
+          "greater-than",
+          "at-least",
+          "between",
+          "is-present",
+          "is-missing"
+        ],
+        "valueType": "date"
+      }
+    ],
+    "browseOperators": [
+      {
+        "id": "equals",
+        "valueTypes": [
+          "enum",
+          "string",
+          "date",
+          "number",
+          "duration"
+        ]
+      },
+      {
+        "id": "not-equals",
+        "valueTypes": [
+          "enum",
+          "string"
+        ]
+      },
+      {
+        "id": "contains",
+        "valueTypes": [
+          "string",
+          "identity-set"
+        ]
+      },
+      {
+        "id": "not-contains",
+        "valueTypes": [
+          "string",
+          "identity-set"
+        ]
+      },
+      {
+        "id": "starts-with",
+        "valueTypes": [
+          "string"
+        ]
+      },
+      {
+        "id": "in",
+        "valueTypes": [
+          "enum"
+        ]
+      },
+      {
+        "id": "not-in",
+        "valueTypes": [
+          "enum"
+        ]
+      },
+      {
+        "id": "less-than",
+        "valueTypes": [
+          "date",
+          "number",
+          "duration"
+        ]
+      },
+      {
+        "id": "at-most",
+        "valueTypes": [
+          "date",
+          "number",
+          "duration"
+        ]
+      },
+      {
+        "id": "greater-than",
+        "valueTypes": [
+          "date",
+          "number",
+          "duration"
+        ]
+      },
+      {
+        "id": "at-least",
+        "valueTypes": [
+          "date",
+          "number",
+          "duration"
+        ]
+      },
+      {
+        "id": "between",
+        "valueTypes": [
+          "date",
+          "number",
+          "duration"
+        ]
+      },
+      {
+        "id": "is",
+        "valueTypes": [
+          "boolean"
+        ]
+      },
+      {
+        "id": "contains-any",
+        "valueTypes": [
+          "identity-set"
+        ]
+      },
+      {
+        "id": "contains-all",
+        "valueTypes": [
+          "identity-set"
+        ]
+      },
+      {
+        "id": "is-present",
+        "valueTypes": [
+          "presence"
+        ]
+      },
+      {
+        "id": "is-missing",
+        "valueTypes": [
+          "presence"
+        ]
+      }
+    ],
+    "browseSorts": [
+      {
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "title",
+        "label": "Title"
+      },
+      {
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "sortTitle",
+        "label": "Sort title"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "dateAdded",
+        "label": "Date added"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "releaseDate",
+        "label": "Release date"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "year",
+        "label": "Year"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "communityRating",
+        "label": "Community rating"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "criticRating",
+        "label": "Critic rating"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "durationSeconds",
+        "label": "Duration"
+      },
+      {
+        "defaultDirection": "desc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "lastPlayedAt",
+        "label": "Last played"
+      },
+      {
+        "applicableKinds": [
+          "episode"
+        ],
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "seasonNumber",
+        "label": "Season"
+      },
+      {
+        "applicableKinds": [
+          "episode"
+        ],
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "episodeNumber",
+        "label": "Episode"
+      },
+      {
+        "applicableKinds": [
+          "artist",
+          "album",
+          "track"
+        ],
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "artist",
+        "label": "Artist"
+      },
+      {
+        "applicableKinds": [
+          "album",
+          "track"
+        ],
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "album",
+        "label": "Album"
+      },
+      {
+        "applicableKinds": [
+          "track"
+        ],
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "trackNumber",
+        "label": "Track"
+      },
+      {
+        "applicableKinds": [
+          "book"
+        ],
+        "defaultDirection": "asc",
+        "directions": [
+          "asc",
+          "desc"
+        ],
+        "expensive": false,
+        "id": "author",
+        "label": "Author"
+      }
+    ],
+    "compatibility": {
+      "apiContract": {
+        "digest": "",
+        "digestAlgorithm": "",
+        "identity": ""
+      },
+      "build": {
+        "buildNumber": "",
+        "channel": "",
+        "commit": "",
+        "timestamp": null,
+        "version": ""
+      },
+      "capabilities": null,
+      "envelopeRevision": 0,
+      "forwardCompatibility": {
+        "apiContractDigestMismatch": "",
+        "authorizationOnPartialUpgrade": "",
+        "unknownOptionalCapabilities": "",
+        "unknownRequiredSemantics": ""
+      },
+      "requiredSemantics": null,
+      "semanticRevisions": null,
+      "supportedClientProtocol": {
+        "maximum": 0,
+        "minimum": 0
+      }
+    },
+    "entityKinds": [
+      "movie",
+      "show",
+      "season",
+      "episode",
+      "special",
+      "artist",
+      "album",
+      "track",
+      "author",
+      "audiobook-series",
+      "book",
+      "chapter",
+      "recording",
+      "live-channel",
+      "live-program",
+      "person",
+      "collection",
+      "playlist",
+      "category",
+      "extra",
+      "unsupported"
+    ],
+    "entitySemantics": [
+      {
+        "childKinds": [
+          "extra"
+        ],
+        "childOrder": [
+          "title",
+          "id"
+        ],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "movie",
+        "parentKinds": [],
+        "playable": true,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "season",
+          "special",
+          "episode"
+        ],
+        "childOrder": [
+          "seasonNumber",
+          "episodeNumber",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "detail",
+        "id": "show",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "episode",
+          "special"
+        ],
+        "childOrder": [
+          "episodeNumber",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "series-detail",
+        "id": "season",
+        "parentKinds": [
+          "show"
+        ],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "extra"
+        ],
+        "childOrder": [
+          "title",
+          "id"
+        ],
+        "container": false,
+        "defaultDestination": "series-detail",
+        "id": "episode",
+        "parentKinds": [
+          "season",
+          "show"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "special",
+        "parentKinds": [
+          "season",
+          "show"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "album",
+          "track"
+        ],
+        "childOrder": [
+          "releaseDate",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "detail",
+        "id": "artist",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "square"
+      },
+      {
+        "childKinds": [
+          "track"
+        ],
+        "childOrder": [
+          "discNumber",
+          "trackNumber",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "detail",
+        "id": "album",
+        "parentKinds": [
+          "artist"
+        ],
+        "playable": false,
+        "primaryArtworkRole": "square"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "track",
+        "parentKinds": [
+          "album",
+          "artist"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "square"
+      },
+      {
+        "childKinds": [
+          "audiobook-series",
+          "book"
+        ],
+        "childOrder": [
+          "seriesIndex",
+          "releaseDate",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "detail",
+        "id": "author",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "book"
+        ],
+        "childOrder": [
+          "seriesIndex",
+          "releaseDate",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "children",
+        "id": "audiobook-series",
+        "parentKinds": [
+          "author"
+        ],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "chapter"
+        ],
+        "childOrder": [
+          "chapterNumber",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "detail",
+        "id": "book",
+        "parentKinds": [
+          "author",
+          "audiobook-series"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "chapter",
+        "parentKinds": [
+          "book"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "thumb"
+      },
+      {
+        "childKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode",
+          "album",
+          "track",
+          "book",
+          "recording"
+        ],
+        "childOrder": [
+          "membershipOrder",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "children",
+        "id": "collection",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "movie",
+          "episode",
+          "track",
+          "book",
+          "recording"
+        ],
+        "childOrder": [
+          "entryOrder",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "children",
+        "id": "playlist",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "movie",
+          "show",
+          "episode",
+          "album",
+          "track",
+          "book",
+          "recording"
+        ],
+        "childOrder": [
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "children",
+        "id": "category",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "recording",
+        "parentKinds": [
+          "show"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [
+          "live-program"
+        ],
+        "childOrder": [
+          "startTime",
+          "id"
+        ],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "live-channel",
+        "parentKinds": [],
+        "playable": true,
+        "primaryArtworkRole": "logo"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "live-program",
+        "parentKinds": [
+          "live-channel"
+        ],
+        "playable": false,
+        "primaryArtworkRole": "thumb"
+      },
+      {
+        "childKinds": [
+          "movie",
+          "show",
+          "episode"
+        ],
+        "childOrder": [
+          "releaseDate",
+          "title",
+          "id"
+        ],
+        "container": true,
+        "defaultDestination": "detail",
+        "id": "person",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "extra",
+        "parentKinds": [
+          "movie",
+          "show",
+          "season",
+          "episode"
+        ],
+        "playable": true,
+        "primaryArtworkRole": "poster"
+      },
+      {
+        "childKinds": [],
+        "childOrder": [],
+        "container": false,
+        "defaultDestination": "detail",
+        "id": "unsupported",
+        "parentKinds": [],
+        "playable": false,
+        "primaryArtworkRole": "poster"
+      }
+    ],
+    "eventTransports": [
+      "sse",
+      "long-poll"
+    ],
+    "language": {
+      "defaultLocale": "en-US",
+      "endpointTemplate": "/api/product-language/{locale}",
+      "iconFamily": "lucide",
+      "revision": "v1",
+      "supportedLocales": [
+        "en-US"
+      ]
+    },
+    "libraryKinds": [
+      {
+        "description": "Feature films, shorts, and cinematic collections.",
+        "id": "movies",
+        "label": "Movies",
+        "pivots": [
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "shelves",
+            "endpointTemplate": "/api/libraries/{libraryId}/discover",
+            "entityKinds": [
+              "movie"
+            ],
+            "id": "discover",
+            "label": "Discover",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "shelves"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "movie"
+            ],
+            "id": "movies",
+            "label": "Movies",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/collections?libraryId={libraryId}",
+            "entityKinds": [
+              "collection"
+            ],
+            "id": "collections",
+            "label": "Collections",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "facets",
+            "endpointTemplate": "/api/libraries/{libraryId}/categories",
+            "entityKinds": [
+              "category"
+            ],
+            "id": "categories",
+            "label": "Categories",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "facets"
+            ]
+          }
+        ],
+        "sortOrder": 10
+      },
+      {
+        "description": "Episodic television with explicit show, season, and episode relationships.",
+        "id": "tv",
+        "label": "TV Shows",
+        "pivots": [
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "shelves",
+            "endpointTemplate": "/api/libraries/{libraryId}/discover",
+            "entityKinds": [
+              "show"
+            ],
+            "id": "discover",
+            "label": "Discover",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "shelves"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "show"
+            ],
+            "id": "shows",
+            "label": "Shows",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "seasonNumber"
+              },
+              {
+                "direction": "asc",
+                "field": "episodeNumber"
+              }
+            ],
+            "defaultView": "list",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "episode"
+            ],
+            "id": "episodes",
+            "label": "Episodes",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/collections?libraryId={libraryId}",
+            "entityKinds": [
+              "collection"
+            ],
+            "id": "collections",
+            "label": "Collections",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "facets",
+            "endpointTemplate": "/api/libraries/{libraryId}/categories",
+            "entityKinds": [
+              "category"
+            ],
+            "id": "categories",
+            "label": "Categories",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "facets"
+            ]
+          }
+        ],
+        "sortOrder": 20
+      },
+      {
+        "description": "Anime series and films using the television hierarchy with independent defaults.",
+        "id": "anime",
+        "label": "Anime",
+        "pivots": [
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "shelves",
+            "endpointTemplate": "/api/libraries/{libraryId}/discover",
+            "entityKinds": [
+              "show"
+            ],
+            "id": "discover",
+            "label": "Discover",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "shelves"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "show"
+            ],
+            "id": "shows",
+            "label": "Shows",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "seasonNumber"
+              },
+              {
+                "direction": "asc",
+                "field": "episodeNumber"
+              }
+            ],
+            "defaultView": "list",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "episode"
+            ],
+            "id": "episodes",
+            "label": "Episodes",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/collections?libraryId={libraryId}",
+            "entityKinds": [
+              "collection"
+            ],
+            "id": "collections",
+            "label": "Collections",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "facets",
+            "endpointTemplate": "/api/libraries/{libraryId}/categories",
+            "entityKinds": [
+              "category"
+            ],
+            "id": "categories",
+            "label": "Categories",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "facets"
+            ]
+          }
+        ],
+        "sortOrder": 30
+      },
+      {
+        "description": "Artists, albums, tracks, playlists, and genres.",
+        "id": "music",
+        "label": "Music",
+        "pivots": [
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "shelves",
+            "endpointTemplate": "/api/libraries/{libraryId}/discover",
+            "entityKinds": [
+              "album",
+              "track"
+            ],
+            "id": "discover",
+            "label": "Discover",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "shelves"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "artist"
+            ],
+            "id": "artists",
+            "label": "Artists",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "album"
+            ],
+            "id": "albums",
+            "label": "Albums",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "album"
+              },
+              {
+                "direction": "asc",
+                "field": "trackNumber"
+              }
+            ],
+            "defaultView": "list",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "track"
+            ],
+            "id": "tracks",
+            "label": "Tracks",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "list",
+            "endpointTemplate": "/api/playlists?libraryId={libraryId}",
+            "entityKinds": [
+              "playlist"
+            ],
+            "id": "playlists",
+            "label": "Playlists",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "list"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "facets",
+            "endpointTemplate": "/api/libraries/{libraryId}/categories",
+            "entityKinds": [
+              "category"
+            ],
+            "id": "genres",
+            "label": "Genres",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "facets"
+            ]
+          }
+        ],
+        "sortOrder": 40
+      },
+      {
+        "description": "Authors, books, series, and chapter-aware long-form playback.",
+        "id": "audiobooks",
+        "label": "Audiobooks",
+        "pivots": [
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "shelves",
+            "endpointTemplate": "/api/libraries/{libraryId}/discover",
+            "entityKinds": [
+              "book"
+            ],
+            "id": "discover",
+            "label": "Discover",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "shelves"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/authors",
+            "entityKinds": [
+              "author"
+            ],
+            "id": "authors",
+            "label": "Authors",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "book"
+            ],
+            "id": "books",
+            "label": "Books",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/series",
+            "entityKinds": [
+              "audiobook-series"
+            ],
+            "id": "series",
+            "label": "Series",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/collections?libraryId={libraryId}",
+            "entityKinds": [
+              "collection"
+            ],
+            "id": "collections",
+            "label": "Collections",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid"
+            ]
+          }
+        ],
+        "sortOrder": 50
+      },
+      {
+        "description": "Completed recordings grouped by show and recording schedule.",
+        "id": "recorded-tv",
+        "label": "Recorded TV",
+        "pivots": [
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "recording"
+            ],
+            "id": "recordings",
+            "label": "Recordings",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": true,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "grid",
+            "endpointTemplate": "/api/libraries/{libraryId}/browse",
+            "entityKinds": [
+              "recording"
+            ],
+            "id": "shows",
+            "label": "Shows",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "grid",
+              "compact-grid",
+              "list",
+              "table"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "desc",
+                "field": "dateAdded"
+              },
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "timeline",
+            "endpointTemplate": "/api/dvr/schedule",
+            "entityKinds": [
+              "recording"
+            ],
+            "id": "schedule",
+            "label": "Schedule",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "timeline"
+            ]
+          },
+          {
+            "browseSupported": false,
+            "defaultSort": [
+              {
+                "direction": "asc",
+                "field": "title"
+              }
+            ],
+            "defaultView": "facets",
+            "endpointTemplate": "/api/libraries/{libraryId}/categories",
+            "entityKinds": [
+              "category"
+            ],
+            "id": "categories",
+            "label": "Categories",
+            "presentationFields": [
+              "year",
+              "durationSeconds",
+              "contentRating",
+              "communityRating",
+              "criticRating",
+              "playState",
+              "progressSeconds",
+              "availability",
+              "parentTitle",
+              "seasonNumber",
+              "episodeNumber"
+            ],
+            "supportedViews": [
+              "facets"
+            ]
+          }
+        ],
+        "sortOrder": 60
+      }
+    ],
+    "longPoll": {
+      "defaultWaitSeconds": 20,
+      "maximumConcurrentStreams": 4,
+      "maximumWaitSeconds": 25
+    },
+    "mediaActions": [
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/playback-sessions",
+          "requiredInputs": [
+            "mediaId",
+            "clientProfile"
+          ],
+          "resultHandling": "playback-session"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "play",
+        "invalidates": [
+          "playback.active",
+          "activity"
+        ],
+        "mutating": false,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.play",
+          "labelMessageId": "action.play",
+          "priority": 100,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/playback-sessions",
+          "requiredInputs": [
+            "mediaId",
+            "clientProfile"
+          ],
+          "resultHandling": "playback-session",
+          "staticBody": {
+            "startSeconds": 0
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "play.from-beginning",
+        "invalidates": [
+          "playback.active",
+          "activity"
+        ],
+        "mutating": false,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.restart",
+          "labelMessageId": "action.play-from-beginning",
+          "priority": 95,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/download-grants",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "download-grant",
+          "staticBody": {
+            "profile": "source"
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "download",
+        "invalidates": [],
+        "mutating": false,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.download",
+          "labelMessageId": "action.download",
+          "priority": 70,
+          "surfaces": [
+            "mobile"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "selection",
+          "flowId": "queue-selection",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "queue.add",
+        "invalidates": [
+          "playback.queue"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.queue",
+          "labelMessageId": "action.add-queue",
+          "priority": 60,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/watchlist",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "watchlisted": true
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "watchlist.add",
+        "invalidates": [
+          "media",
+          "watchlist",
+          "home"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "saved",
+          "iconId": "action.watchlist",
+          "labelMessageId": "action.add-watchlist",
+          "priority": 90,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/watchlist",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "watchlisted": false
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "watchlist.remove",
+        "invalidates": [
+          "media",
+          "watchlist",
+          "home"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "saved",
+          "iconId": "action.watchlist",
+          "labelMessageId": "action.remove-watchlist",
+          "priority": 90,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/favorite",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "favorite": true
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "favorite.add",
+        "invalidates": [
+          "media",
+          "favorites",
+          "home"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "saved",
+          "iconId": "action.favorite",
+          "labelMessageId": "action.add-favorite",
+          "priority": 80,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/favorite",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "favorite": false
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "favorite.remove",
+        "invalidates": [
+          "media",
+          "favorites",
+          "home"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "saved",
+          "iconId": "action.favorite",
+          "labelMessageId": "action.remove-favorite",
+          "priority": 80,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/watched",
+          "requiredInputs": [
+            "mediaId",
+            "watched"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "watched.set",
+        "invalidates": [
+          "media",
+          "home",
+          "history"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "state",
+          "iconId": "action.watched",
+          "labelMessageId": "action.mark-watched",
+          "priority": 70,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/watched",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "watched": true
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "watched.mark",
+        "invalidates": [
+          "media",
+          "home",
+          "history"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "state",
+          "iconId": "action.watched",
+          "labelMessageId": "action.mark-watched",
+          "priority": 70,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/watched",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "watched": false
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "watched.unmark",
+        "invalidates": [
+          "media",
+          "home",
+          "history"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "state",
+          "iconId": "action.watched",
+          "labelMessageId": "action.mark-unwatched",
+          "priority": 70,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/reaction",
+          "requiredInputs": [
+            "mediaId",
+            "reaction"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "reaction.set",
+        "invalidates": [
+          "media",
+          "recommendations"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "state",
+          "iconId": "action.reaction",
+          "labelMessageId": "action.react",
+          "priority": 50,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/rating",
+          "requiredInputs": [
+            "mediaId",
+            "rating"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "rating.set",
+        "invalidates": [
+          "media",
+          "recommendations"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "state",
+          "iconId": "action.rating",
+          "labelMessageId": "action.rate",
+          "priority": 50,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "selection",
+          "flowId": "collection-picker",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "collection.add",
+        "invalidates": [
+          "collections",
+          "media"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "saved",
+          "iconId": "action.collection",
+          "labelMessageId": "action.add-collection",
+          "priority": 40,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "selection",
+          "flowId": "playlist-picker",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "playlist.add",
+        "invalidates": [
+          "playlists",
+          "media"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "saved",
+          "iconId": "action.playlist",
+          "labelMessageId": "action.add-playlist",
+          "priority": 40,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "selection",
+          "flowId": "metadata-editor",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "metadata.edit",
+        "invalidates": [
+          "media",
+          "libraries"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "administration",
+          "iconId": "action.metadata",
+          "labelMessageId": "action.edit-metadata",
+          "priority": 50,
+          "surfaces": [
+            "web-admin"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/jobs",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "job",
+          "staticBody": {
+            "type": "metadata_refresh"
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "metadata.refresh",
+        "invalidates": [
+          "media",
+          "jobs"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "administration",
+          "iconId": "action.refresh",
+          "labelMessageId": "action.refresh-metadata",
+          "priority": 40,
+          "surfaces": [
+            "web-admin"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/jobs",
+          "requiredInputs": [
+            "mediaId",
+            "analysisMode"
+          ],
+          "resultHandling": "job",
+          "staticBody": {
+            "type": "media_analyze"
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "media.analyze",
+        "invalidates": [
+          "media",
+          "jobs"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "administration",
+          "iconId": "action.metadata",
+          "labelMessageId": "action.analyze-media",
+          "priority": 30,
+          "surfaces": [
+            "web-admin"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/media/{mediaId}/jobs",
+          "requiredInputs": [
+            "mediaId",
+            "profile"
+          ],
+          "resultHandling": "job",
+          "staticBody": {
+            "type": "optimize_version"
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "media.optimize",
+        "invalidates": [
+          "media",
+          "jobs"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "administration",
+          "iconId": "action.optimize",
+          "labelMessageId": "action.optimize-media",
+          "priority": 20,
+          "surfaces": [
+            "web-admin"
+          ]
+        }
+      },
+      {
+        "bulkSupported": true,
+        "command": {
+          "execution": "per-item",
+          "kind": "api",
+          "method": "DELETE",
+          "pathTemplate": "/api/media/{mediaId}",
+          "requiredInputs": [
+            "mediaId"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": true,
+          "tone": "destructive"
+        },
+        "id": "media.delete",
+        "invalidates": [
+          "media",
+          "libraries",
+          "home",
+          "saved"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "administration",
+          "iconId": "action.delete",
+          "labelMessageId": "action.delete-media",
+          "priority": 10,
+          "surfaces": [
+            "web-admin"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "selection",
+          "flowId": "live-playback",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "live.play",
+        "invalidates": [
+          "playback.active",
+          "activity"
+        ],
+        "mutating": false,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.play",
+          "labelMessageId": "action.play",
+          "priority": 100,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/dvr/recordings",
+          "requiredInputs": [
+            "sourceId",
+            "channelId",
+            "programId",
+            "title",
+            "startsAt",
+            "endsAt"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.record",
+        "invalidates": [
+          "dvr.recordings",
+          "dvr.schedule",
+          "live-tv.guide"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.record",
+          "labelMessageId": "action.record-once",
+          "priority": 90,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/dvr/rules",
+          "requiredInputs": [
+            "sourceId",
+            "channelId",
+            "programId",
+            "title"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "matchType": "series"
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.record-series",
+        "invalidates": [
+          "dvr.rules",
+          "dvr.schedule",
+          "live-tv.guide"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.record",
+          "labelMessageId": "action.record-series",
+          "priority": 85,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "POST",
+          "pathTemplate": "/api/dvr/recordings/{id}/playback",
+          "requiredInputs": [
+            "id",
+            "clientProfile"
+          ],
+          "resultHandling": "playback-session"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.play",
+        "invalidates": [
+          "playback.active",
+          "activity"
+        ],
+        "mutating": false,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.play",
+          "labelMessageId": "action.play-recording",
+          "priority": 100,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "DELETE",
+          "pathTemplate": "/api/dvr/recordings/{id}",
+          "requiredInputs": [
+            "id"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": true,
+          "tone": "destructive"
+        },
+        "id": "dvr.cancel",
+        "invalidates": [
+          "dvr.recordings",
+          "dvr.schedule",
+          "dvr.conflicts"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.cancel",
+          "labelMessageId": "action.cancel-recording",
+          "priority": 70,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "DELETE",
+          "pathTemplate": "/api/dvr/recordings/{id}",
+          "requiredInputs": [
+            "id"
+          ],
+          "resultHandling": "json"
+        },
+        "confirmation": {
+          "required": true,
+          "tone": "destructive"
+        },
+        "id": "dvr.delete",
+        "invalidates": [
+          "dvr.recordings",
+          "dvr.schedule",
+          "recorded-tv"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.delete",
+          "labelMessageId": "action.delete-recording",
+          "priority": 60,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "selection",
+          "flowId": "dvr-recording-editor",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.edit",
+        "invalidates": [
+          "dvr.recordings",
+          "dvr.schedule"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.settings",
+          "labelMessageId": "action.edit-recording",
+          "priority": 55,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "PATCH",
+          "pathTemplate": "/api/dvr/rules/{id}",
+          "requiredInputs": [
+            "id",
+            "expectedRevision"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "enabled": true
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.enable",
+        "invalidates": [
+          "dvr.rules",
+          "dvr.schedule",
+          "dvr.conflicts"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.record",
+          "labelMessageId": "action.enable-recording-rule",
+          "priority": 50,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "single",
+          "kind": "api",
+          "method": "PATCH",
+          "pathTemplate": "/api/dvr/rules/{id}",
+          "requiredInputs": [
+            "id",
+            "expectedRevision"
+          ],
+          "resultHandling": "json",
+          "staticBody": {
+            "enabled": false
+          }
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.disable",
+        "invalidates": [
+          "dvr.rules",
+          "dvr.schedule",
+          "dvr.conflicts"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.record",
+          "labelMessageId": "action.disable-recording-rule",
+          "priority": 50,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "selection",
+          "flowId": "dvr-rule-editor",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "dvr.rule.create",
+        "invalidates": [
+          "dvr.rules",
+          "dvr.schedule",
+          "dvr.conflicts"
+        ],
+        "mutating": true,
+        "presentation": {
+          "group": "recording",
+          "iconId": "action.record",
+          "labelMessageId": "action.create-rule",
+          "priority": 65,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "selection",
+          "flowId": "feedback-report",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "feedback.report-problem",
+        "invalidates": [],
+        "mutating": false,
+        "presentation": {
+          "group": "feedback",
+          "iconId": "action.report",
+          "labelMessageId": "action.report-problem",
+          "priority": 20,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "selection",
+          "flowId": "quality-request",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "feedback.request-higher-quality",
+        "invalidates": [],
+        "mutating": false,
+        "presentation": {
+          "group": "feedback",
+          "iconId": "action.quality",
+          "labelMessageId": "action.request-higher-quality",
+          "priority": 10,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      },
+      {
+        "bulkSupported": false,
+        "command": {
+          "execution": "selection",
+          "flowId": "watch-with-friends",
+          "kind": "client-flow",
+          "resultHandling": "flow"
+        },
+        "confirmation": {
+          "required": false,
+          "tone": "none"
+        },
+        "id": "watch-with-friends.start",
+        "invalidates": [
+          "playback.active",
+          "watch-with-friends"
+        ],
+        "mutating": false,
+        "presentation": {
+          "group": "playback",
+          "iconId": "action.people",
+          "labelMessageId": "action.watch-with-friends",
+          "priority": 55,
+          "surfaces": [
+            "web",
+            "mobile",
+            "television"
+          ]
+        }
+      }
+    ],
+    "presentationFields": [
+      "year",
+      "durationSeconds",
+      "contentRating",
+      "communityRating",
+      "criticRating",
+      "playState",
+      "progressSeconds",
+      "availability",
+      "parentTitle",
+      "seasonNumber",
+      "episodeNumber"
+    ],
+    "queryLimits": {
+      "cursorTtlSeconds": 3600,
+      "defaultLimit": 60,
+      "maximumBytes": 65536,
+      "maximumClauses": 40,
+      "maximumDepth": 5,
+      "maximumLimit": 200
+    },
+    "search": {
+      "cursor": {
+        "expiredErrorCode": "cursor_expired",
+        "invalidErrorCode": "invalid_cursor",
+        "mode": "independent-group",
+        "opaque": true,
+        "principalBound": true,
+        "requiresSingleGroup": true,
+        "scopeFields": [
+          "query",
+          "group",
+          "libraryIds",
+          "sort",
+          "direction"
+        ],
+        "ttlSeconds": 3600
+      },
+      "endpoint": "/api/search",
+      "facetMode": "none",
+      "filters": [
+        {
+          "allowedValues": [
+            "movies",
+            "movie",
+            "shows",
+            "show",
+            "anime",
+            "season",
+            "episodes",
+            "episode",
+            "music",
+            "track",
+            "artist",
+            "album",
+            "audiobooks",
+            "book",
+            "audiobook",
+            "people",
+            "person",
+            "live-tv",
+            "live-channel",
+            "live_channel"
+          ],
+          "id": "entityKinds",
+          "label": "Result types",
+          "multiple": true,
+          "valueType": "enum"
+        },
+        {
+          "id": "libraryIds",
+          "label": "Libraries",
+          "multiple": true,
+          "source": {
+            "endpoint": "/api/libraries",
+            "labelField": "name",
+            "valueField": "id"
+          },
+          "valueType": "identity"
+        },
+        {
+          "allowedValues": [
+            "movies",
+            "shows",
+            "episodes",
+            "music",
+            "audiobooks",
+            "people",
+            "live-tv"
+          ],
+          "id": "group",
+          "label": "Result group",
+          "multiple": false,
+          "valueType": "enum"
+        }
+      ],
+      "groupOrder": [
+        "movies",
+        "shows",
+        "episodes",
+        "music",
+        "audiobooks",
+        "people",
+        "live-tv"
+      ],
+      "groups": [
+        {
+          "entityKind": "movie",
+          "id": "movies",
+          "resultKinds": [
+            "movie"
+          ],
+          "sorts": [
+            "relevance",
+            "title",
+            "releaseYear",
+            "dateAdded"
+          ],
+          "supportsLibraryScope": true,
+          "title": "Movies"
+        },
+        {
+          "entityKind": "show",
+          "id": "shows",
+          "resultKinds": [
+            "show",
+            "anime",
+            "season"
+          ],
+          "sorts": [
+            "relevance",
+            "title",
+            "releaseYear",
+            "dateAdded"
+          ],
+          "supportsLibraryScope": true,
+          "title": "Shows"
+        },
+        {
+          "entityKind": "episode",
+          "id": "episodes",
+          "resultKinds": [
+            "episode"
+          ],
+          "sorts": [
+            "relevance",
+            "title",
+            "releaseYear",
+            "dateAdded"
+          ],
+          "supportsLibraryScope": true,
+          "title": "Episodes"
+        },
+        {
+          "entityKind": "track",
+          "id": "music",
+          "resultKinds": [
+            "artist",
+            "album",
+            "track"
+          ],
+          "sorts": [
+            "relevance",
+            "title",
+            "releaseYear",
+            "dateAdded"
+          ],
+          "supportsLibraryScope": true,
+          "title": "Music"
+        },
+        {
+          "entityKind": "book",
+          "id": "audiobooks",
+          "resultKinds": [
+            "audiobook"
+          ],
+          "sorts": [
+            "relevance",
+            "title",
+            "releaseYear",
+            "dateAdded"
+          ],
+          "supportsLibraryScope": true,
+          "title": "Audiobooks"
+        },
+        {
+          "entityKind": "person",
+          "id": "people",
+          "resultKinds": [
+            "person"
+          ],
+          "sorts": [
+            "relevance",
+            "title"
+          ],
+          "supportsLibraryScope": true,
+          "title": "People"
+        },
+        {
+          "entityKind": "live-channel",
+          "id": "live-tv",
+          "resultKinds": [
+            "live_channel"
+          ],
+          "sorts": [
+            "relevance"
+          ],
+          "supportsLibraryScope": false,
+          "title": "Live TV Channels"
+        }
+      ],
+      "limits": {
+        "defaultGroupLimit": 8,
+        "fullDefaultGroupLimit": 50,
+        "maximumGroupLimit": 50,
+        "maximumQueryLength": 120,
+        "minimumQueryLength": 1,
+        "quickInitialGroupLimit": 3,
+        "quickMaximumGroups": 6,
+        "quickMaximumItemsPerGroup": 6
+      },
+      "resultSemantics": {
+        "artworkRoleSource": "entitySemantics.primaryArtworkRole",
+        "destinationSource": "entitySemantics.defaultDestination",
+        "hierarchySource": "entitySemantics.parentKinds+childKinds+childOrder",
+        "kindMappings": [
+          {
+            "entityKind": "movie",
+            "resultKind": "movie"
+          },
+          {
+            "entityKind": "show",
+            "resultKind": "show"
+          },
+          {
+            "entityKind": "show",
+            "resultKind": "anime"
+          },
+          {
+            "entityKind": "season",
+            "resultKind": "season"
+          },
+          {
+            "entityKind": "episode",
+            "resultKind": "episode"
+          },
+          {
+            "entityKind": "artist",
+            "resultKind": "artist"
+          },
+          {
+            "entityKind": "album",
+            "resultKind": "album"
+          },
+          {
+            "entityKind": "track",
+            "resultKind": "track"
+          },
+          {
+            "entityKind": "book",
+            "resultKind": "audiobook"
+          },
+          {
+            "entityKind": "person",
+            "resultKind": "person"
+          },
+          {
+            "entityKind": "live-channel",
+            "resultKind": "live_channel"
+          }
+        ]
+      },
+      "revision": "v1",
+      "sorts": [
+        {
+          "applicableGroups": [
+            "movies",
+            "shows",
+            "episodes",
+            "music",
+            "audiobooks",
+            "people",
+            "live-tv"
+          ],
+          "defaultDirection": "desc",
+          "directions": [
+            "desc"
+          ],
+          "id": "relevance",
+          "label": "Best match"
+        },
+        {
+          "applicableGroups": [
+            "movies",
+            "shows",
+            "episodes",
+            "music",
+            "audiobooks",
+            "people"
+          ],
+          "defaultDirection": "asc",
+          "directions": [
+            "asc",
+            "desc"
+          ],
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "applicableGroups": [
+            "movies",
+            "shows",
+            "episodes",
+            "music",
+            "audiobooks"
+          ],
+          "defaultDirection": "desc",
+          "directions": [
+            "asc",
+            "desc"
+          ],
+          "id": "releaseYear",
+          "label": "Release year"
+        },
+        {
+          "applicableGroups": [
+            "movies",
+            "shows",
+            "episodes",
+            "music",
+            "audiobooks"
+          ],
+          "defaultDirection": "desc",
+          "directions": [
+            "asc",
+            "desc"
+          ],
+          "id": "dateAdded",
+          "label": "Date added"
+        }
+      ]
+    },
+    "serverCapabilities": [
+      "downloads",
+      "home.lazy-rows",
+      "library.canonical-browse",
+      "library.capability-resolution",
+      "live-tv",
+      "media.actions",
+      "notifications",
+      "playback.google-cast-custom-receiver",
+      "remote-access.direct",
+      "saved.favorites-resource",
+      "saved.first-class-resources",
+      "search.grouped-cursors",
+      "settings.typed-revisioned",
+      "watch-with-friends"
+    ]
+  },
+  "generatorRevision": 1,
+  "rokuPolicy": {
+    "consumerActionAllowlist": [
+      "collection.add",
+      "favorite.add",
+      "favorite.remove",
+      "feedback.report-problem",
+      "feedback.request-higher-quality",
+      "live.play",
+      "play",
+      "play.from-beginning",
+      "playlist.add",
+      "queue.add",
+      "rating.set",
+      "reaction.set",
+      "watched.mark",
+      "watched.set",
+      "watched.unmark",
+      "watchlist.add",
+      "watchlist.remove",
+      "watch-with-friends.start"
+    ],
+    "deviceClass": "television",
+    "forbiddenActionGroups": [
+      "administration"
+    ],
+    "forbiddenActionIds": [
+      "download",
+      "media.analyze",
+      "media.delete",
+      "media.optimize",
+      "metadata.edit",
+      "metadata.refresh"
+    ],
+    "platform": "roku",
+    "unknownActions": "hide"
+  },
+  "schemaVersion": 1,
+  "snapshotRole": "build-time-validation-and-conformance-only",
+  "sources": {
+    "productContractSchema": {
+      "name": "product-contract.schema.json",
+      "sha256": "24dfa1be56c52a65fab6cf3b89c95726cfec2e90e0bec07f56d0e072fc02a321"
+    },
+    "productLanguage": {
+      "name": "en-US.json",
+      "sha256": "a58eb6689c539e1e63c8c64ae6e79fe522b0049f392eb576936b8e4b05cbba5e"
+    }
+  }
+}

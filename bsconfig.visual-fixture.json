@@ -1,0 +1,18 @@
+{
+  "rootDir": "channel",
+  "files": [
+    {"src": "development/manifest", "dest": "manifest"},
+    "source/**/*",
+    "components/**/*",
+    "!components/PorticoScene.xml",
+    {"src": "development/PorticoScene.xml", "dest": "components/PorticoScene.xml"},
+    "fonts/**/*",
+    "images/**/*",
+    "data/**/*"
+  ],
+  "stagingFolderPath": "artifacts/staging-visual-fixture",
+  "createPackage": true,
+  "outFile": "artifacts/portico-roku-visual-fixture.zip",
+  "sourceMap": false,
+  "retainStagingFolder": true
+}

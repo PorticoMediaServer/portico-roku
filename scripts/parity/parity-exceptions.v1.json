@@ -1,0 +1,108 @@
+{
+  "kind": "portico.parity-exception-registry",
+  "version": 1,
+  "baseline": "tvos-product-behavior-v1",
+  "consumer": "roku-product-behavior-v1",
+  "status": "source-contract",
+  "entries": [
+    {
+      "id": "downloads",
+      "feature": "Downloads",
+      "tvosBehavior": "supported-when-authorized",
+      "rokuBehavior": "unsupported",
+      "classification": "platform_limitation",
+      "uiBehavior": "hide-action",
+      "serverCapability": "downloads=false",
+      "reason": "Roku local storage and background transfer are not a governed first-public capability.",
+      "followUp": "Reopen only with a versioned Roku storage and lifecycle contract."
+    },
+    {
+      "id": "airplay",
+      "feature": "AirPlay",
+      "tvosBehavior": "supported-by-platform",
+      "rokuBehavior": "unsupported",
+      "classification": "platform_limitation",
+      "uiBehavior": "hide-action",
+      "serverCapability": "airplay=false",
+      "reason": "AirPlay is an Apple platform capability and is not a Roku receiver contract.",
+      "followUp": "No Roku action until an approved receiver authority exists."
+    },
+    {
+      "id": "cast",
+      "feature": "Cast",
+      "tvosBehavior": "capability-negotiated",
+      "rokuBehavior": "unsupported",
+      "classification": "platform_limitation",
+      "uiBehavior": "hide-action",
+      "serverCapability": "cast=false",
+      "reason": "Roku does not provide the reviewed Cast receiver boundary used by the Apple clients.",
+      "followUp": "Reopen with a signed receiver and typed handoff contract."
+    },
+    {
+      "id": "pip",
+      "feature": "Picture in Picture",
+      "tvosBehavior": "supported-by-platform",
+      "rokuBehavior": "unsupported",
+      "classification": "platform_limitation",
+      "uiBehavior": "hide-action",
+      "serverCapability": "pip=false",
+      "reason": "The Roku playback lifecycle has no approved PiP ownership model.",
+      "followUp": "Reopen with background playback, focus, and grant-lifecycle evidence."
+    },
+    {
+      "id": "caption-styling",
+      "feature": "Caption styling",
+      "tvosBehavior": "client-preference-supported",
+      "rokuBehavior": "system-managed",
+      "classification": "platform_limitation",
+      "uiBehavior": "show-system-controls",
+      "serverCapability": "captionStyling=system",
+      "reason": "Roku caption appearance is governed by OS-level settings rather than an app-owned style model.",
+      "followUp": "Audio Guide and low-vision hardware acceptance must verify the system path."
+    },
+    {
+      "id": "playback-speed",
+      "feature": "Playback speed",
+      "tvosBehavior": "capability-negotiated",
+      "rokuBehavior": "unsupported",
+      "classification": "platform_limitation",
+      "uiBehavior": "disable-action",
+      "serverCapability": "playbackSpeed=false",
+      "reason": "The reviewed Roku Video contract does not expose a safe variable-rate authority.",
+      "followUp": "Reopen only after decoder and progress semantics are versioned."
+    },
+    {
+      "id": "hdr-capability",
+      "feature": "HDR",
+      "tvosBehavior": "capability-negotiated",
+      "rokuBehavior": "unavailable-until-probed",
+      "classification": "temporary_missing",
+      "uiBehavior": "request-compatible-source",
+      "serverCapability": "hdr=false-until-runtime-evidence",
+      "reason": "Roku source code publishes a conservative profile and does not invent decoder tuples.",
+      "followUp": "Replace with measured tuples only through the protected capability probe process."
+    },
+    {
+      "id": "reduced-motion",
+      "feature": "Reduced motion",
+      "tvosBehavior": "user-preference-supported",
+      "rokuBehavior": "degraded-system-aware",
+      "classification": "platform_limitation",
+      "uiBehavior": "honor-reduced-motion-contract",
+      "serverCapability": "reducedMotion=client-local",
+      "reason": "Roku exposes fewer app-level motion controls; player transitions must remain bounded and skippable.",
+      "followUp": "Verify Audio Guide, motion, and focus behavior on hardware."
+    },
+    {
+      "id": "deep-link-unknown-route",
+      "feature": "Unknown deep-link route/version",
+      "tvosBehavior": "fail-closed-actionable-fallback",
+      "rokuBehavior": "fail-closed-home-or-defer-once",
+      "classification": "product_decision",
+      "uiBehavior": "safe-home-or-auth-gate",
+      "serverCapability": "unknown-required-route=rejected",
+      "reason": "Unknown required routes cannot be guessed; optional capabilities may be ignored without widening authority.",
+      "followUp": "Add a registry entry before introducing a new cross-client route."
+    }
+  ]
+}

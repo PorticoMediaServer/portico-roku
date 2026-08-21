@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoBrowseTab" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoBrowseTab.brs" />
+    <children>
+        <Poster id="surface" width="168" height="68" loadWidth="168" loadHeight="68" loadDisplayMode="scaleToFill" />
+        <Label id="label" translation="[8,0]" width="152" height="62" maxLines="1" horizAlign="center" vertAlign="center" />
+        <Rectangle id="rule" translation="[8,65]" width="152" height="3" color="#378EC3" visible="false" />
+    </children>
+</component>

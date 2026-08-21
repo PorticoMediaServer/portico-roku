@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoLiveTvTask" extends="Task">
+    <interface>
+        <field id="command" type="assocarray" />
+        <field id="projection" type="assocarray" alwaysNotify="true" />
+        <field id="commandEnvelope" type="assocarray" alwaysNotify="true" />
+        <field id="projectionEnvelope" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSecureRegistry.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSignedDocuments.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerScope.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoServerSession.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCacheKeys.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoOperationContract.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoContentModels.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoBrowseModels.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoBrowseApi.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoChannelsRuntime.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoLiveTvModels.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoLiveTvTask.brs" />
+</component>

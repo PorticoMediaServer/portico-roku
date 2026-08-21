@@ -1,0 +1,23 @@
+{
+  "kind": "portico.shared-error-recovery-contract",
+  "version": 1,
+  "status": "source-contract",
+  "entries": [
+    {"id": "authentication-required", "input": "http-401", "classification": "authentication_required", "retryable": true, "maxAttempts": 1, "action": "refresh_credentials", "terminalAction": "sign_in"},
+    {"id": "forbidden", "input": "http-403", "classification": "forbidden", "retryable": false, "maxAttempts": 0, "action": "reselect_profile", "terminalAction": "reselect_profile"},
+    {"id": "conflict", "input": "http-409", "classification": "conflict", "retryable": false, "maxAttempts": 0, "action": "refresh_route", "terminalAction": "refresh_route"},
+    {"id": "throttled", "input": "http-429", "classification": "throttled", "retryable": true, "maxAttempts": 2, "action": "retry_after", "terminalAction": "contact_support"},
+    {"id": "server-error", "input": "http-5xx", "classification": "server_error", "retryable": true, "maxAttempts": 2, "action": "retry", "terminalAction": "contact_support"},
+    {"id": "transport-timeout", "input": "transport-timeout", "classification": "transport_error", "retryable": true, "maxAttempts": 2, "action": "retry", "terminalAction": "contact_support"},
+    {"id": "malformed-response", "input": "malformed-response", "classification": "parse_error", "retryable": false, "maxAttempts": 0, "action": "terminal", "terminalAction": "contact_support"},
+    {"id": "native-playback-error", "input": "native-playback-error", "classification": "playback_error", "retryable": true, "maxAttempts": 1, "action": "retry", "terminalAction": "close_player"},
+    {"id": "unknown-required-action", "input": "unknown-required-action", "classification": "unsupported_required_action", "retryable": false, "maxAttempts": 0, "action": "upgrade_client", "terminalAction": "upgrade_client"}
+  ],
+  "retryPolicy": {
+    "maxRetryAfterSeconds": 86400,
+    "backoffSeconds": [1, 3],
+    "neverRetryMethods": ["POST-non-idempotent", "DELETE-unknown-outcome"],
+    "unknownOptionalCapability": "ignore-and-preserve",
+    "unknownRequiredSemantic": "reject-actionably"
+  }
+}

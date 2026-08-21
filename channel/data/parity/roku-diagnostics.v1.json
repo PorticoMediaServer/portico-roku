@@ -1,0 +1,59 @@
+{
+  "allowedFields": [
+    "buildVersion",
+    "buildChannel",
+    "platform",
+    "deviceClass",
+    "routeId",
+    "viewerGeneration",
+    "playbackGeneration",
+    "requestId",
+    "taskKind",
+    "eventKind",
+    "classification",
+    "retryAttempt",
+    "occurredAt"
+  ],
+  "eventKinds": [
+    "route",
+    "viewer",
+    "task",
+    "playback",
+    "focus",
+    "accessibility",
+    "recovery"
+  ],
+  "kind": "portico.roku-diagnostics-contract",
+  "privateFields": [
+    "accessToken",
+    "refreshToken",
+    "mediaGrant",
+    "password",
+    "pin",
+    "accountEmail",
+    "profileName",
+    "mediaTitle",
+    "mediaId",
+    "serverOrigin",
+    "url",
+    "headers",
+    "filesystemPath",
+    "rawError"
+  ],
+  "redaction": {
+    "correlationIds": "bounded-and-non-secret",
+    "credentialLikeValues": "drop-event",
+    "rawMessages": "drop",
+    "unknownFields": "drop"
+  },
+  "ring": {
+    "hardwareStatus": "pending-device-workflow",
+    "maxEventBytes": 512,
+    "maxEvents": 128,
+    "maxExportBytes": 16384,
+    "overflow": "drop-oldest",
+    "supportExport": "explicit-user-or-support-action-only"
+  },
+  "status": "source-contract",
+  "version": 1
+}

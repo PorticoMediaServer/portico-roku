@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoSearchResult" extends="Group">
+    <interface>
+        <field id="model" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoSearchResult.brs" />
+    <children>
+        <Poster id="surface" width="846" height="174" loadWidth="846" loadHeight="174" loadDisplayMode="scaleToFill" />
+        <Rectangle id="fallbackBed" translation="[10,12]" width="100" height="150" color="#101820" />
+        <Poster id="artwork" translation="[10,12]" width="100" height="150" loadWidth="100" loadHeight="150" loadDisplayMode="scaleToZoom" />
+        <Poster id="artworkCorners" translation="[10,12]" width="100" height="150" loadWidth="100" loadHeight="150" loadDisplayMode="scaleToFill" />
+        <Poster id="fallbackIcon" translation="[40,67]" width="40" height="40" loadWidth="40" loadHeight="40" loadDisplayMode="scaleToFit" />
+        <Label id="title" translation="[128,21]" width="690" height="31" maxLines="1" />
+        <Label id="meta" translation="[128,55]" width="690" height="25" maxLines="1" />
+        <Label id="summary0" translation="[128,91]" width="690" height="27" maxLines="1" />
+        <Label id="summary1" translation="[128,118]" width="690" height="27" maxLines="1" />
+    </children>
+</component>

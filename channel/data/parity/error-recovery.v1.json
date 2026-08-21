@@ -1,0 +1,101 @@
+{
+  "entries": [
+    {
+      "action": "refresh_credentials",
+      "classification": "authentication_required",
+      "id": "authentication-required",
+      "input": "http-401",
+      "maxAttempts": 1,
+      "retryable": true,
+      "terminalAction": "sign_in"
+    },
+    {
+      "action": "reselect_profile",
+      "classification": "forbidden",
+      "id": "forbidden",
+      "input": "http-403",
+      "maxAttempts": 0,
+      "retryable": false,
+      "terminalAction": "reselect_profile"
+    },
+    {
+      "action": "refresh_route",
+      "classification": "conflict",
+      "id": "conflict",
+      "input": "http-409",
+      "maxAttempts": 0,
+      "retryable": false,
+      "terminalAction": "refresh_route"
+    },
+    {
+      "action": "retry_after",
+      "classification": "throttled",
+      "id": "throttled",
+      "input": "http-429",
+      "maxAttempts": 2,
+      "retryable": true,
+      "terminalAction": "contact_support"
+    },
+    {
+      "action": "retry",
+      "classification": "server_error",
+      "id": "server-error",
+      "input": "http-5xx",
+      "maxAttempts": 2,
+      "retryable": true,
+      "terminalAction": "contact_support"
+    },
+    {
+      "action": "retry",
+      "classification": "transport_error",
+      "id": "transport-timeout",
+      "input": "transport-timeout",
+      "maxAttempts": 2,
+      "retryable": true,
+      "terminalAction": "contact_support"
+    },
+    {
+      "action": "terminal",
+      "classification": "parse_error",
+      "id": "malformed-response",
+      "input": "malformed-response",
+      "maxAttempts": 0,
+      "retryable": false,
+      "terminalAction": "contact_support"
+    },
+    {
+      "action": "retry",
+      "classification": "playback_error",
+      "id": "native-playback-error",
+      "input": "native-playback-error",
+      "maxAttempts": 1,
+      "retryable": true,
+      "terminalAction": "close_player"
+    },
+    {
+      "action": "upgrade_client",
+      "classification": "unsupported_required_action",
+      "id": "unknown-required-action",
+      "input": "unknown-required-action",
+      "maxAttempts": 0,
+      "retryable": false,
+      "terminalAction": "upgrade_client"
+    }
+  ],
+  "kind": "portico.shared-error-recovery-contract",
+  "retryPolicy": {
+    "backoffSeconds": [
+      1,
+      3
+    ],
+    "maxRetryAfterSeconds": 86400,
+    "neverRetryMethods": [
+      "POST-non-idempotent",
+      "DELETE-unknown-outcome"
+    ],
+    "unknownOptionalCapability": "ignore-and-preserve",
+    "unknownRequiredSemantic": "reject-actionably"
+  },
+  "status": "source-contract",
+  "version": 1
+}

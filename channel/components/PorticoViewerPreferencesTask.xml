@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoViewerPreferencesTask" extends="Task">
+    <interface>
+        <field id="command" type="assocarray" alwaysNotify="true" />
+        <field id="projection" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpConstants.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoHttpHelpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSecureRegistry.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoProfiles.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoViewerScope.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoServerSession.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSignedDocuments.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoOperationContract.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoViewerPreferences.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoViewerPreferencesTask.brs" />
+</component>

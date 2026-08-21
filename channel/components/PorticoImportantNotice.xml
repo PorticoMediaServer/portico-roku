@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoImportantNotice" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="render" />
+        <field id="focused" type="boolean" value="false" onChange="render" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoImportantNotice.brs" />
+    <children>
+        <Rectangle id="surface" width="1776" height="118" color="#111923" />
+        <Rectangle id="outline" width="1776" height="2" color="#4B5966" />
+        <Poster id="icon" translation="[22,41]" width="36" height="36" loadWidth="36" loadHeight="36" loadDisplayMode="scaleToFit" />
+        <Label id="title" translation="[80,19]" width="1390" height="34" maxLines="1" />
+        <Label id="body" translation="[80,56]" width="1390" height="48" maxLines="2" />
+        <PorticoButton id="dismiss" translation="[1520,27]" />
+    </children>
+</component>

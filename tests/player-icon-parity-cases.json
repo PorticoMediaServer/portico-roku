@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "playerBack": [
+    {"mediaType": "video", "expectedEvent": "stop", "keepsPlayback": false},
+    {"mediaType": "music", "expectedEvent": "exit-browsing", "keepsPlayback": true},
+    {"mediaType": "audiobook", "expectedEvent": "exit-browsing", "keepsPlayback": true}
+  ],
+  "activation": {"sameKeyUntilRelease": 1, "staleGenerationCommits": 0},
+  "focusContainers": ["player.transport", "player.utility", "player.panel"],
+  "icons": [
+    {"semanticId": "playback.play", "state": "focused", "master": "play"},
+    {"semanticId": "playback.pause", "state": "default", "master": "pause"},
+    {"semanticId": "navigation.back", "state": "rail", "master": "arrow-left"},
+    {"semanticId": "unknown.not-approved", "productionUri": ""}
+  ]
+}

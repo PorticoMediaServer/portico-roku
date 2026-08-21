@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoLibraryScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+        <field id="focusState" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoMediaActions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoLibraryScreen.brs" />
+    <children>
+        <Label id="libraryTitle" translation="[0,25]" width="720" height="43" maxLines="1" />
+        <Label id="serverLabel" translation="[0,67]" width="720" height="25" maxLines="1" />
+        <Label id="availabilityLabel" translation="[1392,34]" width="320" height="28" maxLines="1" horizAlign="right" visible="false" />
+        <Group id="tabs" translation="[0,102]">
+            <Rectangle id="tabsRule" translation="[0,67]" width="1712" height="1" color="#C5DAEB" opacity="0.08" />
+            <PorticoBrowseTab id="tab0" visible="false" /><PorticoBrowseTab id="tab1" visible="false" />
+            <PorticoBrowseTab id="tab2" visible="false" /><PorticoBrowseTab id="tab3" visible="false" />
+            <PorticoBrowseTab id="tab4" visible="false" /><PorticoBrowseTab id="tab5" visible="false" />
+        </Group>
+        <Group id="toolbar" translation="[0,192]">
+            <PorticoBrowseAction id="toolbar0" visible="false" /><PorticoBrowseAction id="toolbar1" visible="false" />
+            <PorticoBrowseAction id="toolbar2" visible="false" /><PorticoBrowseAction id="toolbar3" visible="false" />
+            <Label id="resultCount" translation="[1430,0]" width="282" height="64" maxLines="1" horizAlign="right" vertAlign="center" />
+        </Group>
+
+        <Group id="contentViewport" translation="[0,282]">
+            <Group id="contentCanvas">
+                <Label id="sectionTitle0" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="sectionTitle1" width="1712" height="38" maxLines="1" visible="false" />
+                <Label id="sectionTitle2" width="1712" height="38" maxLines="1" visible="false" />
+                <PorticoBrowseCard id="card0" visible="false" /><PorticoBrowseCard id="card1" visible="false" /><PorticoBrowseCard id="card2" visible="false" />
+                <PorticoBrowseCard id="card3" visible="false" /><PorticoBrowseCard id="card4" visible="false" /><PorticoBrowseCard id="card5" visible="false" />
+                <PorticoBrowseCard id="card6" visible="false" /><PorticoBrowseCard id="card7" visible="false" /><PorticoBrowseCard id="card8" visible="false" />
+                <PorticoBrowseCard id="card9" visible="false" /><PorticoBrowseCard id="card10" visible="false" /><PorticoBrowseCard id="card11" visible="false" />
+                <PorticoBrowseCard id="card12" visible="false" /><PorticoBrowseCard id="card13" visible="false" /><PorticoBrowseCard id="card14" visible="false" />
+                <PorticoBrowseCard id="card15" visible="false" /><PorticoBrowseCard id="card16" visible="false" /><PorticoBrowseCard id="card17" visible="false" />
+                <PorticoBrowseCard id="card18" visible="false" /><PorticoBrowseCard id="card19" visible="false" /><PorticoBrowseCard id="card20" visible="false" />
+                <PorticoBrowseListRow id="list0" visible="false" /><PorticoBrowseListRow id="list1" visible="false" />
+                <PorticoBrowseListRow id="list2" visible="false" /><PorticoBrowseListRow id="list3" visible="false" />
+                <PorticoBrowseListRow id="list4" visible="false" /><PorticoBrowseListRow id="list5" visible="false" />
+                <PorticoBrowseListRow id="list6" visible="false" /><PorticoBrowseListRow id="list7" visible="false" />
+                <PorticoBrowseListRow id="list8" visible="false" /><PorticoBrowseListRow id="list9" visible="false" />
+                <PorticoBrowseListRow id="list10" visible="false" /><PorticoBrowseListRow id="list11" visible="false" />
+                <PorticoBrowseTile id="tile0" visible="false" /><PorticoBrowseTile id="tile1" visible="false" />
+                <PorticoBrowseTile id="tile2" visible="false" /><PorticoBrowseTile id="tile3" visible="false" />
+                <PorticoBrowseTile id="tile4" visible="false" /><PorticoBrowseTile id="tile5" visible="false" />
+                <PorticoBrowseTile id="tile6" visible="false" /><PorticoBrowseTile id="tile7" visible="false" />
+                <PorticoBrowseTile id="tile8" visible="false" /><PorticoBrowseTile id="tile9" visible="false" />
+                <PorticoBrowseTile id="tile10" visible="false" /><PorticoBrowseTile id="tile11" visible="false" />
+                <PorticoButton id="loadMoreAction" visible="false" />
+            </Group>
+        </Group>
+
+        <Group id="skeletonGrid" translation="[0,282]" visible="false">
+            <Group id="skeleton0" /><Group id="skeleton1" /><Group id="skeleton2" /><Group id="skeleton3" /><Group id="skeleton4" /><Group id="skeleton5" /><Group id="skeleton6" />
+            <Group id="skeleton7" /><Group id="skeleton8" /><Group id="skeleton9" /><Group id="skeleton10" /><Group id="skeleton11" /><Group id="skeleton12" /><Group id="skeleton13" />
+        </Group>
+        <Group id="stateGroup" translation="[0,282]" visible="false">
+            <Poster id="stateIconBed" translation="[815,82]" width="82" height="82" loadWidth="82" loadHeight="82" loadDisplayMode="scaleToFill" />
+            <Poster id="stateIcon" translation="[835,102]" width="42" height="42" loadWidth="42" loadHeight="42" loadDisplayMode="scaleToFit" />
+            <Label id="stateTitle" translation="[386,190]" width="940" height="38" maxLines="1" horizAlign="center" />
+            <Label id="stateMessage0" translation="[536,240]" width="640" height="28" maxLines="1" horizAlign="center" />
+            <Label id="stateMessage1" translation="[536,268]" width="640" height="28" maxLines="1" horizAlign="center" />
+            <Label id="stateMessage2" translation="[536,296]" width="640" height="28" maxLines="1" horizAlign="center" />
+            <PorticoButton id="retryAction" translation="[773,354]" visible="false" />
+        </Group>
+        <Group id="alphabetIndexRail" translation="[1680,290]" visible="false" />
+        <PorticoMediaActionsPanel id="quickActions" translation="[1280,108]" visible="false" />
+        <PorticoLibraryFilterOverlay id="filterOverlay" visible="false" />
+    </children>
+</component>

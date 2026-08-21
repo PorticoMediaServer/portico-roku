@@ -1,0 +1,53 @@
+{
+  "kind": "portico.semantic-remote-accessibility-contract",
+  "version": 1,
+  "status": "source-contract",
+  "actions": ["move", "select", "back", "play-pause", "seek", "context-menu", "info", "dismiss"],
+  "mappings": {
+    "tvos": {
+      "up": "move",
+      "down": "move",
+      "left": "move",
+      "right": "move",
+      "select": "select",
+      "menu": "back",
+      "playPause": "play-pause",
+      "longPressSelect": "context-menu",
+      "play": "play-pause"
+    },
+    "roku": {
+      "up": "move",
+      "down": "move",
+      "left": "move",
+      "right": "move",
+      "select": "select",
+      "back": "back",
+      "play": "play-pause",
+      "replay": "seek",
+      "info": "info",
+      "options": "context-menu"
+    }
+  },
+  "backHierarchy": [
+    "close-top-utility-overlay",
+    "close-modal-or-panel",
+    "exit-player-to-previous-route",
+    "navigate-to-previous-route",
+    "remain-at-root"
+  ],
+  "chromePolicy": "back-never-toggles-chrome-forever",
+  "focus": {
+    "initial": "first-enabled-item-in-logical-section",
+    "edge": "remain-on-edge-and-preserve-focus",
+    "modalTrap": "focus-remains-within-modal-until-dismissed",
+    "restoration": "restore-logical-item-or-first-enabled-sibling",
+    "disabled": "skip-disabled-items"
+  },
+  "accessibility": {
+    "requiredStates": ["label", "selected", "disabled", "loading", "error"],
+    "announcementEvents": ["selection-changed", "loading-started", "loading-finished", "error-action-available", "player-state-changed"],
+    "labelPolicy": "semantic-labels-without-identifiers-or-credentials",
+    "reducedMotion": "honor-client-local-preference-and-avoid-essential-motion-only-cues",
+    "hardwareStatus": "pending-VoiceOver-and-Audio-Guide-run"
+  }
+}

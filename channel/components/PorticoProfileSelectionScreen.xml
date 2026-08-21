@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="PorticoProfileSelectionScreen" extends="Group">
+    <interface>
+        <field id="viewState" type="assocarray" onChange="applyViewState" />
+        <field id="activation" type="assocarray" alwaysNotify="true" />
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/PorticoNodes.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoCoreValues.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoProductLanguage.brs" />
+    <script type="text/brightscript" uri="pkg:/source/core/PorticoIconResolver.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoSecureRegistry.brs" />
+    <script type="text/brightscript" uri="pkg:/source/lib/PorticoProfiles.brs" />
+    <script type="text/brightscript" uri="pkg:/source/navigation/ActivationTransactions.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusContainers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusMemory.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/FocusTrace.brs" />
+    <script type="text/brightscript" uri="pkg:/source/focus/ScreenFocusAuthority.brs" />
+    <script type="text/brightscript" uri="pkg:/components/PorticoProfileSelectionScreen.brs" />
+    <children>
+        <Rectangle width="1920" height="1080" color="#070B10" />
+        <Poster id="wordmark" translation="[883,160]" width="154" height="34" loadWidth="154" loadHeight="34" />
+        <Label id="title" translation="[360,232]" width="1200" height="70" maxLines="1" horizAlign="center" />
+        <Label id="message" translation="[360,308]" width="1200" height="38" maxLines="1" horizAlign="center" />
+        <Group id="cards" translation="[184,410]">
+            <PorticoProfileCard id="card0" /><PorticoProfileCard id="card1" translation="[232,0]" /><PorticoProfileCard id="card2" translation="[464,0]" /><PorticoProfileCard id="card3" translation="[696,0]" />
+            <PorticoProfileCard id="card4" translation="[928,0]" /><PorticoProfileCard id="card5" translation="[1160,0]" /><PorticoProfileCard id="card6" translation="[1392,0]" /><PorticoProfileCard id="card7" translation="[1624,0]" />
+        </Group>
+        <PorticoProfilePinOverlay id="pinOverlay" visible="false" />
+    </children>
+</component>
