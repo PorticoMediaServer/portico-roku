@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, utimesSync, writeFileSync} from 'node:fs';
+import {chmodSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, utimesSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, relative, resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
@@ -40,7 +40,11 @@ try {
   writeFileSync(manifestPath, renderManifest(readFileSync(manifestPath, 'utf8'), identity));
   const stableTime = new Date('2020-01-01T00:00:00Z');
   const normalizedEntries = files(staging);
-  for (const entry of normalizedEntries) utimesSync(resolve(staging, entry), stableTime, stableTime);
+  for (const entry of normalizedEntries) {
+    const path = resolve(staging, entry);
+    chmodSync(path, 0o644);
+    utimesSync(path, stableTime, stableTime);
+  }
   packageZip(archive, normalizedEntries);
   packageZip(comparison, normalizedEntries);
   assert.deepEqual(readFileSync(archive), readFileSync(comparison), 'Roku release archive is not reproducible from identical staging input.');
