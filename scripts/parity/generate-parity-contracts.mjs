@@ -5,7 +5,7 @@ import {join} from "node:path";
 import {PARITY_CONTRACT_FILES, PARITY_SOURCE_DIRECTORY, REPOSITORY_ROOT, stableJson, validateParityFiles} from "./parity-contracts.mjs";
 
 validateParityFiles();
-const outputDirectory = join(REPOSITORY_ROOT, "Client Prototypes", "roku-visual-parity", "channel", "data", "parity");
+const outputDirectory = join(REPOSITORY_ROOT, "channel", "data", "parity");
 mkdirSync(outputDirectory, {recursive: true});
 for (const name of PARITY_CONTRACT_FILES) {
   const value = JSON.parse(readFileSync(join(PARITY_SOURCE_DIRECTORY, name), "utf8"));
