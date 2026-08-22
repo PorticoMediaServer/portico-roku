@@ -21,7 +21,9 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: {node-version: 24, cache: npm}
       - id: contract-source
-        run: echo "server_ref=$(node -p \"require('./scripts/contracts.sources.lock.json').server.ref\")" >> "$GITHUB_OUTPUT"
+        run: |
+          server_ref="$(node -p "require('./scripts/contracts.sources.lock.json').server.ref")"
+          echo "server_ref=$server_ref" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: PorticoMediaServer/portico-server
