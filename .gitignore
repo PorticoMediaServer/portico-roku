@@ -1,4 +1,5 @@
 node_modules/
+.contract-sources/
 /Project Architecture
 out/
 .DS_Store

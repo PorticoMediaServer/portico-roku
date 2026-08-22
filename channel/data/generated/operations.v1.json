@@ -4406,7 +4406,7 @@
   "sources": {
     "hostedOpenApi": {
       "name": "portico-hosted.openapi.json",
-      "sha256": "1b7482129b83a982e9d4243dc338f8bc627295a265b5f078eeece2a11cc06230"
+      "sha256": "d086a6c580f17fb21d593339c81964f698ed4c5b5256cdbc4db0d5a1cf3b3024"
     },
     "serverOpenApi": {
       "name": "portico-server.openapi.json",

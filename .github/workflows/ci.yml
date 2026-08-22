@@ -20,8 +20,22 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: {node-version: 24, cache: npm}
+      - id: contract-source
+        run: echo "server_ref=$(node -p \"require('./scripts/contracts.sources.lock.json').server.ref\")" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: PorticoMediaServer/portico-server
+          ref: ${{ steps.contract-source.outputs.server_ref }}
+          path: .contract-sources/portico-server
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: .contract-sources/portico-server/go.mod
+          cache-dependency-path: .contract-sources/portico-server/go.sum
       - run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
       - run: npm ci --no-audit --no-fund
+      - run: npm run contracts:check
+        env:
+          PORTICO_SERVER_ROOT: ${{ github.workspace }}/.contract-sources/portico-server
       - run: npm run package:release
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: {name: portico-roku-sideload, path: artifacts/portico-roku-release.zip, if-no-files-found: error}
