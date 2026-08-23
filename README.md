@@ -1,4 +1,28 @@
-# Portico for Roku
+<div align="center">
+  <a href="https://getportico.tv">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PorticoMediaServer/getportico-tv/main/public/brand/portico-wordmark-white.svg">
+      <img src="https://raw.githubusercontent.com/PorticoMediaServer/getportico-tv/main/public/brand/portico-wordmark-black.svg" alt="Portico" width="420">
+    </picture>
+  </a>
+
+  <h1>Portico for Roku</h1>
+
+  <p><strong>The native Roku client for Portico Media Server.</strong></p>
+
+  <p>
+    <a href="https://github.com/PorticoMediaServer/portico-server">Portico Media Server</a> ·
+    <a href="https://getportico.tv">Website</a> ·
+    <a href="https://github.com/PorticoMediaServer/portico-roku/issues">Report an issue</a>
+  </p>
+
+  <p>
+    <a href="LICENSE"><img alt="GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-59636e?style=flat-square"></a>
+    <img alt="Prerelease software" src="https://img.shields.io/badge/status-prerelease-e09f3e?style=flat-square">
+  </p>
+</div>
+
+---
 
 > Portico Media Server is the heart of the project. Start with the [primary `portico-server` repository](https://github.com/PorticoMediaServer/portico-server) or visit [getportico.tv](https://getportico.tv).
 
