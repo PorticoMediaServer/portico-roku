@@ -8,14 +8,14 @@ import {
   readParityContracts,
   validateParityFiles,
   validateParityContracts
-} from "../../../../scripts/parity/parity-contracts.mjs";
+} from "../parity/parity-contracts.mjs";
 import {
   acceptCapability,
   mapRemoteInput,
   planRecovery,
   reduceBack,
   sanitizeDiagnostic
-} from "../../../../scripts/parity/parity-models.mjs";
+} from "../parity/parity-models.mjs";
 import {
   renderManifest,
   releaseIdentityDocument,

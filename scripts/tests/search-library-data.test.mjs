@@ -15,10 +15,10 @@ const libraryXml = read('channel/components/PorticoLibraryTask.xml');
 const libraryBridge = read('channel/source/lib/PorticoLibrary.brs');
 const registry = read('channel/source/lib/PorticoSecureRegistry.brs');
 const httpHelpers = read('channel/source/lib/PorticoHttpHelpers.brs');
-const client = read('../../apps/portico-server/packages/portico-client-core/src/client.ts');
-const rnSearch = read('../../apps/portico-react-native/packages/app/src/data/search.ts');
-const rnLibrary = read('../../apps/portico-react-native/packages/app/src/data/library.ts');
-const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+const client = read('../portico-server/packages/portico-client-core/src/client.ts');
+const rnSearch = read('../portico-react-native/packages/app/src/data/search.ts');
+const rnLibrary = read('../portico-react-native/packages/app/src/data/library.ts');
+const openapi = JSON.parse(read('../portico-server/api/openapi/portico-server.openapi.json'));
 
 for (const path of ['/search', '/libraries', '/libraries/{libraryId}/browse-capabilities', '/libraries/{libraryId}/browse', '/libraries/{id}/discover', '/libraries/{id}/categories', '/libraries/{id}/authors', '/libraries/{id}/series']) {
   assert.ok(openapi.paths[path], `${path} disappeared from the Server OpenAPI`);
@@ -30,8 +30,8 @@ assert.equal(openapi.components.schemas.SearchRequest.properties.limit.maximum, 
 assert.equal(openapi.components.schemas.SearchRequest.properties.query.maxLength, 120);
 assert.equal(openapi.components.schemas.BrowseLibraryRequest.properties.cursor.maxLength, 4096);
 assert.equal(openapi.components.schemas.BrowseLibraryRequest.properties.limit.maximum, 200);
-assert.match(client, /search: .*request<SearchResponse>\("\/api\/search".*method: "POST"/);
-assert.match(client, /libraries: .*request<ListResponse<Library>>\("\/api\/libraries"/);
+assert.match(client, /search:\s*\([^)]*\)\s*=>\s*request<SearchResponse>\("\/api\/search",\s*\{[^}]*method: "POST"/s);
+assert.match(client, /libraries:\s*\([^)]*\)\s*=>\s*request<ListResponse<Library>>\("\/api\/libraries"/s);
 assert.match(client, /libraryBrowseCapabilities:.*browse-capabilities/s);
 assert.match(client, /browseLibrary:.*method: "POST"/s);
 assert.match(rnSearch, /searchGroupViewModels/);
@@ -121,6 +121,8 @@ assert.doesNotMatch(searchTask.match(/sub PorticoSearchRequestMore[\s\S]*?end su
 assert.match(models, /width: 200, height: 300/);
 assert.match(models, /PorticoBrowseSearchMeta/);
 assert.match(models, /parentTitle/);
-assert.match(models, /if hasLandscape then presentation = "list"/);
+assert.doesNotMatch(models, /if hasLandscape then presentation = "list"/);
+assert.match(models, /return \{ presentation: "grid", items: items/);
+assert.match(models, /if kind = "square" or kind = "artist" or kind = "album" or kind = "track" then return "square"/);
 
 console.log('Verified credential-private Search and Library Tasks, bounded pagination windows, cancellation, authenticated artwork, and scoped Library stale cache.');

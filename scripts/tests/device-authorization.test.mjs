@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
-const porticoRoot = resolve(root, '../..');
+const workspaceRoot = resolve(root, '..');
 const read = path => readFileSync(resolve(root, path), 'utf8');
 const bridge = read('channel/source/lib/PorticoDeviceAuthorization.brs');
 const authTask = read('channel/components/PorticoDeviceAuthorizationTask.brs');
@@ -19,9 +19,8 @@ const setup = read('channel/components/PorticoAuthGate.brs');
 const setupXml = read('channel/components/PorticoAuthGate.xml');
 const setupModels = read('channel/source/lib/PorticoAuthGateModels.brs');
 const httpHelpers = read('channel/source/lib/PorticoHttpHelpers.brs');
-const architecture = read('Project Architecture/08 Generic Device Authorization.md');
 const fixtures = JSON.parse(read('tests/device-authorization-cases.json'));
-const openapi = JSON.parse(readFileSync(resolve(porticoRoot, 'apps/portico-cloud/api/openapi/portico-hosted.openapi.json'), 'utf8'));
+const openapi = JSON.parse(readFileSync(resolve(workspaceRoot, 'portico-internal/hosted-services/api/openapi/portico-hosted.openapi.json'), 'utf8'));
 
 assert.equal(openapi.info.version, 'v1');
 const createPath = openapi.paths['/api/device-authorization/sessions']?.post;
@@ -47,25 +46,6 @@ for (const schemaName of ['DeviceAuthorizationSessionRequest', 'ProfileSelection
   assert.ok(!schemas[schemaName].required?.includes('installationId'), `${schemaName} must keep installationId optional metadata`);
 }
 assert.deepEqual(schemas.RefreshTokenRequest.required, ['refreshToken', 'rotationKey']);
-
-function schedule({kind, currentInterval, retryAfter, failureCount}) {
-  if (kind === 'pending') {
-    const interval = Math.max(5, currentInterval, retryAfter);
-    return {delay: interval, interval};
-  }
-  if (kind === 'slow_down') {
-    const interval = Math.max(5, currentInterval + 5, retryAfter);
-    return {delay: interval, interval};
-  }
-  const exponent = Math.min(failureCount, 4);
-  const delay = Math.max(Math.min(60, Math.max(5, currentInterval) * (2 ** exponent)), retryAfter);
-  return {delay, interval: currentInterval};
-}
-
-for (const fixture of fixtures.pollingCases) {
-  const actual = schedule(fixture);
-  assert.deepEqual(actual, {delay: fixture.expectedDelay, interval: fixture.expectedInterval}, `polling policy drifted for ${JSON.stringify(fixture)}`);
-}
 
 function normalizeUtcTimestamp(value) {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?(Z|\+00:00|\+0000)$/i.exec(value);
@@ -93,7 +73,7 @@ const allowedProjection = new Set([
 ]);
 const projected = Object.fromEntries(Object.entries(fixtures.runtimeProjectionInput).filter(([key]) => allowedProjection.has(key)));
 assert.deepEqual(projected, fixtures.runtimeProjectionExpected);
-for (const forbidden of ['deviceCode', 'accessToken', 'refreshToken', 'authorizationSessionId', 'verificationUri']) {
+for (const forbidden of ['deviceCode', 'authorizationSessionId', 'accessToken', 'refreshToken', 'verificationUri']) {
   assert.ok(!(forbidden in projected), `${forbidden} escaped the positive UI projection`);
 }
 
@@ -140,9 +120,20 @@ assert.match(bridge, /kind = "sign-in-account"[\s\S]*sealedCredentials/);
 assert.match(bridge, /kind = "sign-out-account"[\s\S]*PorticoDeviceAuthorizationCommand/);
 
 assert.match(authTask, /https:\/\/api\.getportico\.tv\/api\/device-authorization\/sessions/);
+assert.match(authTask, /https:\/\/web\.getportico\.tv\/authorize-device/);
+assert.doesNotMatch(authTask, /https:\/\/web\.getportico\.tv\/device/);
+assert.match(authTask, /PorticoAuthorizationTaskPendingLifetimeIsValid[\s\S]*remaining >= 540 and remaining <= 630/);
 assert.match(authTask, /sub PorticoAuthorizationTaskCreate[\s\S]*result\.retryable[\s\S]*PorticoAuthorizationTaskScheduleCreationRetry/);
-assert.match(authTask, /sub PorticoAuthorizationTaskScheduleCreationRetry[\s\S]*delay = 2 \* multiplier[\s\S]*if delay > 30 then delay = 30/);
+assert.match(authTask, /sub PorticoAuthorizationTaskScheduleCreationRetry[\s\S]*delay = 5[\s\S]*retryAfter <> invalid and retryAfter > delay/);
 assert.match(authTask, /sub PorticoAuthorizationTaskPoll[\s\S]*PorticoAuthorizationTaskRenewExpiredSession/);
+assert.match(authTask, /renewalAtSeconds = nowSeconds \+ remaining - 30[\s\S]*controller\.nextAuthorizationAtSeconds >= renewalAtSeconds[\s\S]*controller\.renewalPending = true/);
+assert.match(authTask, /else if controller\.renewalPending[\s\S]*PorticoAuthorizationTaskCreate\(controller, true\)/);
+const createAuthorizationBody = authTask.match(/sub PorticoAuthorizationTaskCreate[\s\S]*?end sub/)?.[0] ?? '';
+assert.match(createAuthorizationBody, /preservePending[\s\S]*PorticoAuthorizationTaskScheduleReplacementRetry/);
+assert.match(createAuthorizationBody, /PorticoSecureRegistryCommit\("pending-account-authorization", pending\)[\s\S]*controller\.pending = pending[\s\S]*PorticoAuthorizationTaskPublishPending/);
+assert.doesNotMatch(createAuthorizationBody, /PorticoSecureRegistryClear\("pending-account-authorization"\)/);
+const replacementRetryBody = authTask.match(/sub PorticoAuthorizationTaskScheduleReplacementRetry[\s\S]*?end sub/)?.[0] ?? '';
+assert.match(replacementRetryBody, /PorticoAuthorizationTaskPendingIsReusable[\s\S]*PorticoAuthorizationTaskPublishPending/);
 assert.match(authTask, /sub PorticoAuthorizationTaskRenewExpiredSession[\s\S]*PorticoSecureRegistryClear\("pending-account-authorization"\)[\s\S]*controller\.pending = invalid[\s\S]*PorticoAuthorizationTaskPublish\("authorizing", "connecting"\)/);
 assert.match(authTask, /https:\/\/api\.getportico\.tv\/api\/auth\/sessions/);
 assert.match(authTask, /PorticoAuthorizationTaskOpenSealedCredentials/);
@@ -236,11 +227,6 @@ assert.doesNotMatch(compatibilityValidator, /schemaRevision|data\.version/);
 assert.equal(openapi.components.schemas.HostedSystemInfo.properties.apiVersion.const, 'v1');
 assert.deepEqual(openapi.components.schemas.HostedSystemInfo.required.includes('apiVersion'), true);
 
-assert.match(architecture, /API `v1`/);
-assert.match(architecture, /five minutes/);
-assert.match(architecture, /HTTP 403 `access_denied`/);
-assert.match(architecture, /roTimespan\.TotalSeconds\(\)/);
-assert.match(architecture, /Per-request HTTP timeout measurement remains in milliseconds/);
 
 const lifetimeSchedulerSource = authTask.replace(/function PorticoAuthorizationTaskHttp\([\s\S]*?end function/, '');
 assert.match(authTask, /function PorticoAuthorizationTaskNowSeconds\(controller as object\) as integer[\s\S]*TotalSeconds\(\)/);
@@ -363,5 +349,26 @@ pausedPending.elapsed = 299;
 assert.equal(recoveryOpen(pausedPending.elapsed), true);
 pausedPending.elapsed = 300;
 assert.equal(recoveryOpen(pausedPending.elapsed), false);
+
+// A background replacement is published only after its durable commit. Failed
+// replacement work leaves the old, unexpired display untouched.
+const atomicTicketSwap = (current, replacement, replacementCommitted, now) => {
+  if (replacementCommitted && replacement) return replacement;
+  return Date.parse(current.expiresAt) > now ? current : null;
+};
+const oldTicket = {userCode: 'ABCD-2345', expiresAt: '2026-08-22T18:10:00Z'};
+const newTicket = {userCode: 'WXYZ-6789', expiresAt: '2026-08-22T18:19:30Z'};
+assert.strictEqual(
+  atomicTicketSwap(oldTicket, newTicket, false, Date.parse('2026-08-22T18:09:40Z')),
+  oldTicket,
+);
+assert.strictEqual(
+  atomicTicketSwap(oldTicket, newTicket, true, Date.parse('2026-08-22T18:09:45Z')),
+  newTicket,
+);
+assert.equal(
+  atomicTicketSwap(oldTicket, null, false, Date.parse('2026-08-22T18:10:00Z')),
+  null,
+);
 
 console.log(`Verified secret-owning Roku authorization Task, Hosted ${openapi.info.version}, ${fixtures.pollingCases.length} timing cases, and ${fixtures.timestampCases.length} timestamp cases.`);

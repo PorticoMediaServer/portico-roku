@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const read = path => readFileSync(resolve(root, path), 'utf8');
-const sharedFixture = JSON.parse(read('../../scripts/parity/tv-interaction-outcomes.v1.json'));
+const sharedFixture = JSON.parse(read('scripts/parity/tv-interaction-outcomes.v1.json'));
 const cases = Object.fromEntries(sharedFixture.cases.map(item => [item.id, item]));
 
 const sources = {

@@ -8,7 +8,9 @@ sub PorticoDeviceAuthorizationRun()
     controller = {
         clock: clock,
         lastCommandSequence: 0,
+        authorizationRequested: false,
         authorizationActive: false,
+        renewalPending: false,
         pending: invalid,
         credentials: invalid,
         installationId: PorticoInstallationId(),
@@ -20,6 +22,7 @@ sub PorticoDeviceAuthorizationRun()
         credentialGeneration: 0,
         last401RefreshGeneration: -1,
         hostedCompatibility: "unknown",
+        hostedFailureKind: "unknown",
         hostedCompatibilityCheckedAtSeconds: -1,
         deauthorizationPending: invalid,
         terminalPending: invalid,
@@ -197,6 +200,7 @@ sub PorticoAuthorizationTaskPublishDirectSignIn(status as string, message as str
 end sub
 
 sub PorticoAuthorizationTaskStart(controller as object)
+    controller.authorizationRequested = true
     if controller.authorizationActive then return
     if controller.deauthorizationPending <> invalid or controller.terminalPending <> invalid then return
     credentialState = PorticoAuthorizationTaskCredentialState(controller.credentials)
@@ -211,6 +215,7 @@ sub PorticoAuthorizationTaskStart(controller as object)
         return
     end if
     controller.authorizationActive = true
+    controller.renewalPending = false
     controller.authorizationFailures = 0
     controller.nextAuthorizationAtSeconds = 0
     pendingRecord = PorticoSecureRegistryRead("pending-account-authorization")
@@ -230,6 +235,7 @@ sub PorticoAuthorizationTaskStart(controller as object)
         if PorticoAuthorizationTaskPendingIsReusable(controller.pending)
             PorticoAuthorizationTaskPublishPending(controller)
             controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + PorticoAuthorizationTaskInterval(controller.pending.interval)
+            PorticoAuthorizationTaskMarkRenewalIfDue(controller)
             return
         end if
         if not PorticoSecureRegistryClear("pending-account-authorization")
@@ -245,6 +251,7 @@ sub PorticoAuthorizationTaskStart(controller as object)
 end sub
 
 sub PorticoAuthorizationTaskPause(controller as object)
+    controller.authorizationRequested = false
     if not controller.authorizationActive then return
     controller.authorizationActive = false
     if controller.deauthorizationPending <> invalid
@@ -276,9 +283,11 @@ sub PorticoAuthorizationTaskTick(controller as object)
     end if
     if controller.authorizationActive and nowSeconds >= controller.nextAuthorizationAtSeconds
         if controller.pending = invalid
-            PorticoAuthorizationTaskCreate(controller)
+            PorticoAuthorizationTaskCreate(controller, false)
         else if controller.pending.redemptionStarted = true
             PorticoAuthorizationTaskRedeem(controller)
+        else if controller.renewalPending
+            PorticoAuthorizationTaskCreate(controller, true)
         else
             PorticoAuthorizationTaskPoll(controller)
         end if
@@ -296,14 +305,29 @@ sub PorticoAuthorizationTaskTick(controller as object)
     end if
 end sub
 
-sub PorticoAuthorizationTaskCreate(controller as object)
+sub PorticoAuthorizationTaskCreate(controller as object, preservePending as boolean)
+    if preservePending and not PorticoAuthorizationTaskPendingIsReusable(controller.pending)
+        controller.renewalPending = false
+        PorticoAuthorizationTaskRenewExpiredSession(controller)
+        return
+    end if
     if not PorticoAuthorizationTaskEnsureHostedCompatibility(controller, true, false)
         if controller.hostedCompatibility = "incompatible"
-            controller.authorizationActive = false
-            PorticoAuthorizationTaskPublish("authorization-unavailable", "incompatible")
+            if preservePending
+                PorticoAuthorizationTaskScheduleReplacementRetry(controller, "incompatible")
+            else
+                controller.authorizationActive = false
+                PorticoAuthorizationTaskPublish("authorization-unavailable", "incompatible")
+            end if
         else
-            PorticoAuthorizationTaskPublish("authorizing", "offline")
-            PorticoAuthorizationTaskScheduleCreationRetry(controller, invalid)
+            hostedStatus = "online"
+            if controller.hostedFailureKind = "offline" then hostedStatus = "offline"
+            if preservePending
+                PorticoAuthorizationTaskScheduleReplacementRetry(controller, hostedStatus)
+            else
+                PorticoAuthorizationTaskPublish("authorizing", hostedStatus)
+                PorticoAuthorizationTaskScheduleCreationRetry(controller, invalid)
+            end if
         end if
         return
     end if
@@ -326,35 +350,55 @@ sub PorticoAuthorizationTaskCreate(controller as object)
     if result.interrupted then return
     if not result.ok
         if result.retryable or result.status = 0
-            PorticoAuthorizationTaskPublish("authorizing", "offline")
-            PorticoAuthorizationTaskScheduleCreationRetry(controller, result.retryAfterSeconds)
+            hostedStatus = "online"
+            if result.status = 0 then hostedStatus = "offline"
+            if preservePending
+                PorticoAuthorizationTaskScheduleReplacementRetry(controller, hostedStatus)
+            else
+                PorticoAuthorizationTaskPublish("authorizing", hostedStatus)
+                PorticoAuthorizationTaskScheduleCreationRetry(controller, result.retryAfterSeconds)
+            end if
         else
-            controller.authorizationActive = false
-            PorticoAuthorizationTaskPublish("authorization-unavailable", "online")
+            if preservePending
+                PorticoAuthorizationTaskScheduleReplacementRetry(controller, "online")
+            else
+                controller.authorizationActive = false
+                PorticoAuthorizationTaskPublish("authorization-unavailable", "online")
+            end if
         end if
         return
     end if
 
     pending = PorticoAuthorizationTaskPendingFromCreate(result.data)
     if pending = invalid
-        controller.authorizationActive = false
-        PorticoAuthorizationTaskPublish("authorization-unavailable", "online")
+        if preservePending
+            PorticoAuthorizationTaskScheduleReplacementRetry(controller, "online")
+        else
+            controller.authorizationActive = false
+            PorticoAuthorizationTaskPublish("authorization-unavailable", "online")
+        end if
         return
     end if
     committed = PorticoSecureRegistryCommit("pending-account-authorization", pending)
     if not committed.ok
-        controller.authorizationActive = false
-        PorticoAuthorizationTaskPublish("authorization-unavailable", "online")
+        if preservePending
+            PorticoAuthorizationTaskScheduleReplacementRetry(controller, "online")
+        else
+            controller.authorizationActive = false
+            PorticoAuthorizationTaskPublish("authorization-unavailable", "online")
+        end if
         return
     end if
     controller.pending = pending
+    controller.renewalPending = false
     controller.authorizationFailures = 0
     PorticoAuthorizationTaskPublishPending(controller)
     controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + pending.interval
 end sub
 
 sub PorticoAuthorizationTaskPoll(controller as object)
-    if not PorticoAuthorizationTaskUTCIsFuture(controller.pending.expiresAt)
+    remaining = PorticoAuthorizationTaskSecondsUntil(controller.pending.expiresAt)
+    if remaining = invalid or remaining <= 0
         PorticoAuthorizationTaskRenewExpiredSession(controller)
         return
     end if
@@ -390,6 +434,7 @@ sub PorticoAuthorizationTaskPoll(controller as object)
             end if
         end if
         controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + interval
+        PorticoAuthorizationTaskMarkRenewalIfDue(controller)
     else if problemCode = "slow_down"
         controller.authorizationFailures = 0
         interval = PorticoAuthorizationTaskInterval(controller.pending.interval) + 5
@@ -401,6 +446,7 @@ sub PorticoAuthorizationTaskPoll(controller as object)
             return
         end if
         controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + interval
+        PorticoAuthorizationTaskMarkRenewalIfDue(controller)
     else if problemCode = "access_denied"
         PorticoAuthorizationTaskTerminal(controller, problemCode, "authorization-denied")
     else if problemCode = "expired_token"
@@ -418,9 +464,10 @@ sub PorticoAuthorizationTaskRenewExpiredSession(controller as object)
         return
     end if
     controller.pending = invalid
+    controller.renewalPending = false
     controller.authorizationActive = true
     controller.authorizationFailures = 0
-    controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller)
+    controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + 5
     PorticoAuthorizationTaskPublish("authorizing", "connecting")
 end sub
 
@@ -432,6 +479,7 @@ sub PorticoAuthorizationTaskHandleApproved(controller as object, data as dynamic
     interval = PorticoAuthorizationTaskInterval(data.interval)
     if interval > controller.pending.interval then controller.pending.interval = interval
     controller.pending.redemptionStarted = true
+    controller.renewalPending = false
     controller.pending.redemptionStartedAt = PorticoAuthorizationTaskUTCNowString()
     if controller.pending.redemptionStartedAt = "" or not PorticoSecureRegistryCommit("pending-account-authorization", controller.pending).ok
         controller.authorizationActive = false
@@ -487,6 +535,7 @@ sub PorticoAuthorizationTaskRedeem(controller as object)
     end if
     PorticoSecureRegistryClear("pending-account-authorization")
     controller.pending = invalid
+    controller.renewalPending = false
     controller.credentials = credentials
     controller.authorizationActive = false
     controller.authorizationFailures = 0
@@ -598,6 +647,7 @@ sub PorticoAuthorizationTaskSignOut(controller as object)
     PorticoSecureRegistryClear("pending-account-authorization")
     controller.authorizationActive = false
     controller.pending = invalid
+    controller.renewalPending = false
     controller.credentials = invalid
     controller.credentialGeneration = 0
     controller.nextRefreshAtSeconds = 0
@@ -648,12 +698,16 @@ function PorticoAuthorizationTaskEnsureHostedCompatibility(controller as object,
     if result.interrupted then return false
     if not result.ok
         controller.hostedCompatibility = "unknown"
+        controller.hostedFailureKind = "service"
+        if result.status = 0 then controller.hostedFailureKind = "offline"
         controller.hostedCompatibilityCheckedAtSeconds = -1
         if publishFailure
+            hostedStatus = "online"
+            if controller.hostedFailureKind = "offline" then hostedStatus = "offline"
             if controller.credentials <> invalid
-                PorticoAuthorizationTaskPublishAccount(controller, "hosted-unavailable", "offline")
+                PorticoAuthorizationTaskPublishAccount(controller, "hosted-unavailable", hostedStatus)
             else
-                PorticoAuthorizationTaskPublish("authorization-unavailable", "offline")
+                PorticoAuthorizationTaskPublish("authorization-unavailable", hostedStatus)
             end if
         end if
         return false
@@ -671,6 +725,7 @@ function PorticoAuthorizationTaskEnsureHostedCompatibility(controller as object,
         return false
     end if
     controller.hostedCompatibility = "compatible"
+    controller.hostedFailureKind = "none"
     controller.hostedCompatibilityCheckedAtSeconds = nowSeconds
     return true
 end function
@@ -716,6 +771,8 @@ sub PorticoAuthorizationTaskDeauthorize(controller as object, accountStatus as s
 end sub
 
 sub PorticoAuthorizationTaskTerminal(controller as object, terminalCode as string, accountStatus as string)
+    controller.renewalPending = false
+    selfHealing = accountStatus = "authorization-expired" or accountStatus = "authorization-interrupted"
     if controller.pending <> invalid
         terminalPending = {}
         for each key in controller.pending
@@ -741,6 +798,28 @@ sub PorticoAuthorizationTaskTerminal(controller as object, terminalCode as strin
     end if
     controller.authorizationActive = false
     controller.terminalPending = invalid
+    if selfHealing
+        if controller.pending <> invalid and not PorticoSecureRegistryClear("pending-account-authorization")
+            controller.terminalPending = { terminalCode: terminalCode, accountStatus: accountStatus }
+            controller.nextDurabilityRetryAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + 5
+            if controller.authorizationRequested
+                PorticoAuthorizationTaskPublish("authorizing", "connecting")
+            else
+                PorticoAuthorizationTaskPublish("signed-out", "unknown")
+            end if
+            return
+        end if
+        controller.pending = invalid
+        controller.authorizationFailures = 0
+        if not controller.authorizationRequested
+            PorticoAuthorizationTaskPublish("signed-out", "unknown")
+            return
+        end if
+        controller.authorizationActive = true
+        controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + 5
+        PorticoAuthorizationTaskPublish("authorizing", "connecting")
+        return
+    end if
     PorticoAuthorizationTaskPublish(accountStatus, "online")
 end sub
 
@@ -751,28 +830,41 @@ sub PorticoAuthorizationTaskScheduleAuthorizationRetry(controller as object, ret
         return
     end if
     controller.authorizationFailures = controller.authorizationFailures + 1
-    exponent = controller.authorizationFailures
-    if exponent > 4 then exponent = 4
-    multiplier = 1
-    for index = 1 to exponent
-        multiplier = multiplier * 2
-    end for
-    delay = PorticoAuthorizationTaskInterval(controller.pending.interval) * multiplier
-    if delay > 60 then delay = 60
+    delay = 5
     if retryAfter <> invalid and retryAfter > delay then delay = retryAfter
     controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + delay
+    PorticoAuthorizationTaskMarkRenewalIfDue(controller)
+end sub
+
+sub PorticoAuthorizationTaskScheduleReplacementRetry(controller as object, hostedStatus as string)
+    controller.renewalPending = false
+    if not PorticoAuthorizationTaskPendingIsReusable(controller.pending)
+        PorticoAuthorizationTaskRenewExpiredSession(controller)
+        return
+    end if
+    PorticoAuthorizationTaskPublishPending(controller, hostedStatus)
+    controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + 5
+    if hostedStatus = "incompatible" then controller.renewalPending = true
+end sub
+
+sub PorticoAuthorizationTaskMarkRenewalIfDue(controller as object)
+    if controller.pending = invalid then return
+    remaining = PorticoAuthorizationTaskSecondsUntil(controller.pending.expiresAt)
+    if remaining = invalid or remaining <= 0 then return
+    nowSeconds = PorticoAuthorizationTaskNowSeconds(controller)
+    renewalAtSeconds = nowSeconds
+    if remaining > 30 then renewalAtSeconds = nowSeconds + remaining - 30
+    ' A large Hosted retry interval must not carry the old display past its
+    ' renewal boundary. Wake for replacement without issuing an early poll.
+    if controller.nextAuthorizationAtSeconds >= renewalAtSeconds
+        controller.nextAuthorizationAtSeconds = renewalAtSeconds
+        controller.renewalPending = true
+    end if
 end sub
 
 sub PorticoAuthorizationTaskScheduleCreationRetry(controller as object, retryAfter as dynamic)
     controller.authorizationFailures = controller.authorizationFailures + 1
-    exponent = controller.authorizationFailures - 1
-    if exponent > 4 then exponent = 4
-    multiplier = 1
-    for index = 1 to exponent
-        multiplier = multiplier * 2
-    end for
-    delay = 2 * multiplier
-    if delay > 30 then delay = 30
+    delay = 5
     if retryAfter <> invalid and retryAfter > delay then delay = retryAfter
     controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + delay
 end sub
@@ -804,9 +896,9 @@ sub PorticoAuthorizationTaskScheduleRefreshRetry(controller as object, retryAfte
     controller.refreshScheduled = true
 end sub
 
-sub PorticoAuthorizationTaskPublishPending(controller as object)
+sub PorticoAuthorizationTaskPublishPending(controller as object, hostedStatus = "online" as string)
     displayUri = PorticoAuthorizationTaskVerificationDisplayUri(controller.pending.verificationUri)
-    PorticoAuthorizationTaskPublish("authorizing", "online", "", controller.pending.userCode, displayUri)
+    PorticoAuthorizationTaskPublish("authorizing", hostedStatus, "", controller.pending.userCode, displayUri)
 end sub
 
 sub PorticoAuthorizationTaskPublishAccount(controller as object, accountStatus as string, hostedStatus as string)
@@ -938,7 +1030,7 @@ function PorticoAuthorizationTaskPendingFromCreate(data as dynamic) as dynamic
     if not PorticoAuthorizationTaskDeviceCodeIsValid(data.deviceCode) then return invalid
     if not PorticoAuthorizationTaskUserCodeIsValid(data.userCode) then return invalid
     if PorticoAuthorizationTaskVerificationDisplayUri(data.verificationUri) = "" then return invalid
-    if not PorticoAuthorizationTaskUTCIsFuture(data.expiresAt) then return invalid
+    if not PorticoAuthorizationTaskPendingLifetimeIsValid(data.expiresAt) then return invalid
     return {
         version: 1,
         authorizationSessionId: data.authorizationSessionId.ToStr(),
@@ -1045,8 +1137,16 @@ end function
 
 function PorticoAuthorizationTaskVerificationDisplayUri(value as dynamic) as string
     if value = invalid then return ""
-    if value.ToStr().Trim() <> "https://api.getportico.tv/device" then return ""
-    return "api.getportico.tv/device"
+    if value.ToStr().Trim() <> "https://web.getportico.tv/authorize-device" then return ""
+    return "web.getportico.tv/authorize-device"
+end function
+
+function PorticoAuthorizationTaskPendingLifetimeIsValid(value as dynamic) as boolean
+    remaining = PorticoAuthorizationTaskSecondsUntil(value)
+    if remaining = invalid then return false
+    ' Hosted's generic device ticket contract is ten minutes. Allow bounded
+    ' transport and clock skew without accepting the retired short lifetime.
+    return remaining >= 540 and remaining <= 630
 end function
 
 function PorticoAuthorizationTaskInterval(value as dynamic) as integer

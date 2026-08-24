@@ -282,13 +282,11 @@ end function
 function PorticoBrowseLibraryPageFromBrowse(data as dynamic, artworkJobs as object) as dynamic
     if data = invalid or Type(data) <> "roAssociativeArray" or data.items = invalid or GetInterface(data.items, "ifArray") = invalid then return invalid
     items = []
-    hasLandscape = false
     for each rawItem in data.items
         if items.count() >= 200 then exit for
         item = PorticoBrowseMediaCard(rawItem)
         if item <> invalid and not PorticoBrowseContainsId(items, item.model.id)
             items.push(item.model)
-            if item.model.shape = "landscape" then hasLandscape = true
             if item.artworkSource <> ""
                 width = 404
                 height = 642
@@ -305,9 +303,7 @@ function PorticoBrowseLibraryPageFromBrowse(data as dynamic, artworkJobs as obje
         end if
     end for
     page = PorticoBrowsePageInfo(data.pageInfo)
-    presentation = "grid"
-    if hasLandscape then presentation = "list"
-    return { presentation: presentation, items: items, resultCount: page.total, hasMore: page.hasMore, nextCursor: page.nextCursor }
+    return { presentation: "grid", items: items, resultCount: page.total, hasMore: page.hasMore, nextCursor: page.nextCursor }
 end function
 
 function PorticoBrowseSavedResources(data as dynamic, resourceKind as string) as dynamic
@@ -797,9 +793,11 @@ end function
 function PorticoBrowseMediaKind(value as dynamic) as string
     kind = LCase(PorticoBrowseSafeText(value, 48)).Replace("_", "-")
     if kind = "series" then return "show"
-    if kind = "audiobook-series" then return "collection"
+    if kind = "audiobook-series" then return "audiobook-series"
     if kind = "audiobook" then return "book"
-    return kind
+    allowed = {movie: true, show: true, season: true, episode: true, anime: true, special: true, extra: true, person: true, collection: true, playlist: true, artist: true, album: true, track: true, author: true, "audiobook-series": true, book: true, chapter: true, recording: true, "live-channel": true, "live-program": true, category: true, unsupported: true}
+    if allowed[kind] = true then return kind
+    return "unsupported"
 end function
 
 function PorticoBrowseKindLabel(kind as string) as string
@@ -811,11 +809,13 @@ function PorticoBrowseKindLabel(kind as string) as string
     if kind = "album" then return "Album"
     if kind = "track" then return "Track"
     if kind = "author" then return "Author"
+    if kind = "audiobook-series" then return "Audiobook Series"
     if kind = "book" then return "Audiobook"
     if kind = "chapter" then return "Chapter"
     if kind = "recording" then return "Recording"
     if kind = "live-channel" then return "Channel"
     if kind = "live-program" then return "Live TV"
+    if kind = "unsupported" then return "Unsupported media"
     return ""
 end function
 
@@ -830,8 +830,8 @@ end function
 
 function PorticoBrowseShape(value as dynamic) as string
     kind = PorticoBrowseMediaKind(value)
-    if kind = "square" or kind = "artist" or kind = "album" or kind = "track" or kind = "author" or kind = "book" or kind = "chapter" then return "square"
-    if kind = "landscape" or kind = "episode" or kind = "recording" or kind = "live-channel" or kind = "live-program" then return "landscape"
+    if kind = "square" or kind = "artist" or kind = "album" or kind = "track" then return "square"
+    if kind = "landscape" or kind = "live-channel" then return "landscape"
     return "poster"
 end function
 

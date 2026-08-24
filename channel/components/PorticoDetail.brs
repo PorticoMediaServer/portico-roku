@@ -566,8 +566,8 @@ end function
 function detailShape(item as dynamic) as string
     if item = invalid or Type(item) <> "roAssociativeArray" then return "poster"
     kind = LCase(detailText(item.kind, 32))
-    if kind = "episode" or kind = "recording" or kind = "live-channel" or kind = "live-program" then return "landscape"
-    if kind = "artist" or kind = "album" or kind = "track" or kind = "author" or kind = "book" then return "square"
+    if kind = "live-channel" then return "landscape"
+    if kind = "artist" or kind = "album" or kind = "track" then return "square"
     return "poster"
 end function
 

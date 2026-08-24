@@ -1304,7 +1304,9 @@ sub PorticoPlaybackRenewGrant(controller as object, userInitiated as boolean)
             return
         end if
         if (result.status = 403 or result.status = 404) and controller.sourceRecoveryPending
-            PorticoPlaybackRestartForRecovery(controller)
+            ' Route re-resolution has already completed. A missing or forbidden
+            ' sealed playback session cannot be reconstructed by the client.
+            PorticoPlaybackFatalActive(controller, "playback-source-unavailable")
             return
         else if result.status = 403 or result.status = 404
             PorticoPlaybackFail(controller, "playback-session-ended", false)
@@ -1357,53 +1359,10 @@ sub PorticoPlaybackRecoverSource(controller as object)
         PorticoPlaybackRequestReconnect(controller)
         return
     end if
-    if PorticoPlaybackSelectRecoveryQuality(controller)
-        controller.sourceRecoveryPending = false
-        return
-    end if
-    if controller.sourceRecoveryAttempts <= 4
-        PorticoPlaybackRestartForRecovery(controller)
-        return
-    end if
+    ' Roku has no authority to invent a new quality or rebuild a session from
+    ' partial remembered fields. After route re-resolution and grant renewal,
+    ' the active sealed tuple either works or fails explicitly.
     PorticoPlaybackFatalActive(controller, "playback-source-unavailable")
-end sub
-
-function PorticoPlaybackSelectRecoveryQuality(controller as object) as boolean
-    if controller.playback = invalid or controller.playback.qualities = invalid then return false
-    for each quality in controller.playback.qualities
-        qualityId = PorticoPlaybackSafeId(quality.id)
-        if qualityId <> "" and qualityId <> controller.playback.selectedQualityId and controller.sourceRecoveryQualityIds[qualityId] <> true
-            controller.sourceRecoveryQualityIds[qualityId] = true
-            if PorticoPlaybackSelectQuality(controller, qualityId, true)
-                return true
-            end if
-        end if
-    end for
-    return false
-end function
-
-sub PorticoPlaybackRestartForRecovery(controller as object)
-    if controller.playback = invalid then return
-    targetKind = controller.lastTargetKind
-    targetId = controller.lastTargetId
-    positionSeconds = controller.positionSeconds
-    attempts = controller.sourceRecoveryAttempts
-    triedQualities = controller.sourceRecoveryQualityIds
-    if targetId = ""
-        PorticoPlaybackFatalActive(controller, "playback-source-unavailable")
-        return
-    end if
-    PorticoPlaybackStart(controller, {
-        selectedServerId: controller.serverId,
-        targetKind: targetKind,
-        targetId: targetId,
-        startSeconds: positionSeconds
-    })
-    if controller.playback <> invalid
-        controller.sourceRecoveryAttempts = attempts
-        controller.sourceRecoveryQualityIds = triedQualities
-        controller.sourceRecoveryPending = false
-    end if
 end sub
 
 sub PorticoPlaybackScheduleGrantRenewal(controller as object)

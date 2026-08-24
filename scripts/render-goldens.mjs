@@ -350,10 +350,10 @@ function detailComposition(modelOverride) {
 }
 
 function authAction(label, x, y, {primary = false, focused = false} = {}) {
-  const kind = primary ? 'primary' : 'secondary';
+  const kind = 'primary';
   const state = focused ? '-focus' : '';
   return image(`pkg:/images/ui/auth-action-${kind}${state}.png`, x, y, 520, 64)
-    + text(label, x + 260, y + 18, 21, 600, primary ? contract.colors.projector : contract.colors.silver, {anchor: 'middle'});
+    + text(label, x + 260, y + 18, 21, 600, contract.colors.projector, {anchor: 'middle'});
 }
 
 function authComposition({code = false} = {}) {
@@ -365,12 +365,12 @@ function authComposition({code = false} = {}) {
     parts.push(text('On a phone or computer, open the address below and enter this code.', 960, 462, 24, 400, contract.colors.softSilver, {anchor: 'middle'}));
     parts.push(text('portico.media/activate', 960, 538, 28, 600, contract.colors.screenBlueStrong, {anchor: 'middle'}));
     parts.push(text('7K3M-9Q2P', 960, 590, 96, 700, contract.colors.silver, {anchor: 'middle'}));
-    parts.push(authAction('Use Local Auth', 700, 792, {focused: true}));
+    parts.push(authAction('Sign in directly to a server', 700, 792, {focused: true}));
     parts.push(authAction('Back', 700, 868));
   } else {
     parts.push(text('Choose how you want to sign in.', 960, 462, 24, 400, contract.colors.softSilver, {anchor: 'middle'}));
     parts.push(authAction('Sign In with a Portico Account', 700, 542, {primary: true, focused: true}));
-    parts.push(authAction('Use Local Auth', 700, 618));
+    parts.push(authAction('Sign in directly to a server', 700, 618));
   }
   return svg(parts.join(''));
 }

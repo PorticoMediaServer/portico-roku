@@ -31,7 +31,7 @@ function PorticoSignedOutGateModel(runtimeState as dynamic, requestedMode = "lan
         {id: "account-login", label: "Username or email", primary: false},
         {id: "account-password", label: "Password", primary: false},
         {id: "account-submit", label: "Sign In", primary: true},
-        {id: "start-local-auth", label: "Sign in with server-only authentication", primary: false}
+        {id: "start-local-auth", label: "Sign in directly to a server", primary: false}
     ]
     if mode = "account" or accountStatus = "authorizing"
         code = PorticoSignedOutGateCode(runtime.authorizationUserCode)
@@ -46,11 +46,11 @@ function PorticoSignedOutGateModel(runtimeState as dynamic, requestedMode = "lan
             }
         end if
         if accountStatus = "authorization-denied"
-            return PorticoSignedOutGateAccountError("Sign-in wasn't approved", "You can request a new code when you're ready.", accountSignInError)
+            return PorticoSignedOutGateAccountError("Sign-in wasn't approved", "You can request a new code when you're ready.", accountSignInError, true)
         else if accountStatus = "authorization-expired"
-            return PorticoSignedOutGateAccountError("This code has expired", "Request a new sign-in code to continue.", accountSignInError)
+            return PorticoSignedOutGateAccountError("Refreshing your sign-in code", "The previous code expired. Portico will create a new one automatically.", accountSignInError)
         else if accountStatus = "authorization-interrupted"
-            return PorticoSignedOutGateAccountError("Sign-in incomplete", "That sign-in attempt could not be completed.", accountSignInError)
+            return PorticoSignedOutGateAccountError("Refreshing your sign-in code", "That attempt ended before approval. Portico will create a new code automatically.", accountSignInError)
         else if accountStatus = "authorization-unavailable" and LCase(PorticoSignedOutGateText(runtime.hostedStatus, "unknown", 32)) = "incompatible"
             return {
                 state: "account-error",
@@ -63,8 +63,20 @@ function PorticoSignedOutGateModel(runtimeState as dynamic, requestedMode = "lan
             message = PorticoSignedOutGateText(runtime.accountError, "Portico couldn't start account sign-in.", 240)
             return PorticoSignedOutGateAccountError("Sign-in unavailable", message, accountSignInError)
         end if
+        hostedStatus = LCase(PorticoSignedOutGateText(runtime.hostedStatus, "unknown", 32))
+        loadingTitle = "Quick connect"
+        loadingMessage = "Preparing your sign-in code…"
+        if hostedStatus = "offline"
+            loadingTitle = "Waiting for a connection"
+            loadingMessage = "This TV appears to be offline. Portico will try again automatically."
+        else if hostedStatus = "online"
+            loadingTitle = "Portico Account is unavailable"
+            loadingMessage = "The service isn't responding normally. Portico will try again automatically."
+        end if
         return {
             state: "account-loading",
+            title: loadingTitle,
+            message: loadingMessage,
             accountSignInError: accountSignInError,
             actions: accountActions
         }
@@ -77,19 +89,28 @@ function PorticoSignedOutGateModel(runtimeState as dynamic, requestedMode = "lan
     }
 end function
 
-function PorticoSignedOutGateAccountError(title as string, message as string, accountSignInError = "" as string) as object
+function PorticoSignedOutGateAccountError(title as string, message as string, accountSignInError = "" as string, manualRestart = false as boolean) as object
+    actions = [
+        {id: "account-login", label: "Username or email", primary: false},
+        {id: "account-password", label: "Password", primary: false},
+        {id: "account-submit", label: "Sign In", primary: true},
+        {id: "start-local-auth", label: "Sign in directly to a server", primary: false}
+    ]
+    if manualRestart
+        actions = [
+            {id: "start-account-setup", label: "Request New Code", primary: true},
+            {id: "account-login", label: "Username or email", primary: false},
+            {id: "account-password", label: "Password", primary: false},
+            {id: "account-submit", label: "Sign In", primary: true},
+            {id: "start-local-auth", label: "Sign in directly to a server", primary: false}
+        ]
+    end if
     return {
         state: "account-error",
         title: title,
         message: message,
         accountSignInError: accountSignInError,
-        actions: [
-            {id: "start-account-setup", label: "Try Again", primary: false},
-            {id: "account-login", label: "Username or email", primary: false},
-            {id: "account-password", label: "Password", primary: false},
-            {id: "account-submit", label: "Sign In", primary: true},
-            {id: "start-local-auth", label: "Sign in with server-only authentication", primary: false}
-        ]
+        actions: actions
     }
 end function
 

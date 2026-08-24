@@ -7,7 +7,7 @@ const root = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const read = path => readFileSync(resolve(root, path), 'utf8');
 const scene = read('channel/components/PorticoScene.brs');
 const authority = read('channel/source/focus/ScreenFocusAuthority.brs');
-const sharedFixture = JSON.parse(read('../../scripts/parity/tv-interaction-outcomes.v1.json'));
+const sharedFixture = JSON.parse(read('scripts/parity/tv-interaction-outcomes.v1.json'));
 const focusCases = sharedFixture.cases.filter(item => item.id === 'focus-removed-item-falls-back-semantically' || item.id === 'focus-reorder-preserves-semantic-id');
 
 assert.doesNotMatch(scene, /m\.routeHistory/, 'navigationStore must be the only route-history authority');

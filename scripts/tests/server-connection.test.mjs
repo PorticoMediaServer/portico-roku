@@ -17,8 +17,8 @@ const signedDocuments = read('channel/source/lib/PorticoSignedDocuments.brs');
 const main = read('channel/source/main.brs');
 const scene = read('channel/components/PorticoScene.brs');
 const operationsDocument = JSON.parse(read('channel/data/generated/operations.v1.json'));
-const fixture = JSON.parse(read('../../apps/portico-cloud/internal/app/testdata/document-signing-fixture.json'));
-const adversarialFixture = JSON.parse(read('../../apps/portico-cloud/internal/app/testdata/document-signing-adversarial-fixture.json'));
+const fixture = JSON.parse(read('../portico-internal/hosted-services/internal/app/testdata/document-signing-fixture.json'));
+const adversarialFixture = JSON.parse(read('../portico-internal/hosted-services/internal/app/testdata/document-signing-adversarial-fixture.json'));
 
 function sortJSON(value) {
   if (Array.isArray(value)) return value.map(sortJSON);
@@ -82,6 +82,7 @@ assert.doesNotMatch(taskXml, /field id="(?:accessToken|refreshToken|selectionEnv
 assert.match(signedDocuments, /CreateObject\("roDsa"\)/);
 assert.match(signedDocuments, /SetSignAlgorithm\("Ed25519"\)/);
 assert.match(signedDocuments, /portico-signed-document:route-document:v1/);
+assert.match(signedDocuments, /document\.kind\) <> "route-document"/);
 assert.match(signedDocuments, /FormatJson\(value, &h0001\)/);
 
 const hostedActivation = task.match(/sub PorticoServerConnectionActivateHosted\(controller as object, command as object\)([\s\S]*?)\nend sub/)?.[1] ?? '';
@@ -121,7 +122,7 @@ assert.ok(routeResolution.indexOf('PorticoSignedDocumentVerifyRoute') < routeRes
 assert.match(task, /health\.data\.serverPublicKeyFingerprint/);
 assert.match(task, /result\.data\.apiVersion <> "v1"/);
 
-assert.match(sessionCore, /function PorticoServerSessionVersion\(\) as integer\s+return 2/);
+assert.match(sessionCore, /function PorticoServerSessionVersion\(\) as integer\s+return 3/);
 assert.match(sessionCore, /purpose: "profile-bound-native-server-session"/);
 for (const field of ['authority', 'accountId', 'serverId', 'profileId', 'authorizationRevision', 'installationId', 'deviceId']) assert.match(sessionCore, new RegExp(`\\b${field}\\b`));
 assert.doesNotMatch(sessionCore, /installationId\) <> PorticoInstallationId\(\)/, 'Stored sessions must remain valid when installation metadata rotates');
@@ -137,6 +138,8 @@ assert.doesNotMatch(profiles, /value\.installationId\) <> PorticoProfilesSafeId\
 assert.match(sessionCore, /legacy_reactivation_required/);
 assert.match(sessionCore, /PorticoServerSessionRebaseIdentity/);
 assert.match(sessionCore, /PorticoServerSessionOneTimeConsume/);
+assert.match(sessionCore, /function PorticoServerSessionPreviousRoute/);
+assert.match(sessionCore, /previous\.serverId <> current\.serverId or previous\.serverPublicKeyFingerprint <> current\.serverPublicKeyFingerprint/);
 assert.ok(sessionCore.indexOf('section.Delete("value")') < sessionCore.indexOf('crypto.Decrypt'), 'One-time handoffs must be deleted before decryption/use');
 
 const refresh = task.match(/function PorticoServerConnectionRefresh\(controller as object, afterUnauthorized as boolean\) as boolean([\s\S]*?)\nend function/)?.[1] ?? '';
@@ -176,7 +179,16 @@ assert.match(task, /if existing\.payload\.refreshToken = session\.refreshToken[\
 assert.match(task, /"revokeNativeSession"/);
 assert.match(task, /PorticoSecureRegistryCommit\("server-session", tombstone\)[\s\S]*PorticoSecureRegistryClear\("server-session"\)/);
 assert.match(task, /PorticoServerConnectionVerifyOrRediscoverRoute\(controller, true\)/);
-assert.match(task, /priorities = \["public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded", "lan"/);
+const routeRecovery = task.match(/function PorticoServerConnectionVerifyOrRediscoverRoute[\s\S]*?\nend function/)?.[0] ?? '';
+assert.ok(routeRecovery.indexOf('PorticoServerConnectionVerifyRoute(controller, source)') < routeRecovery.indexOf('PorticoServerSessionPreviousRoute(source)'));
+assert.ok(routeRecovery.indexOf('PorticoServerSessionPreviousRoute(source)') < routeRecovery.indexOf('PorticoServerConnectionRediscoverStoredRoute(controller, source)'));
+assert.match(task, /rebased\.previousRoute = PorticoServerSessionRouteRecord\(source\)/);
+assert.match(task, /EnableLinkStatusEvent\(true\)/);
+assert.match(task, /nextNetworkRouteRetryAt = controller\.clock\.TotalSeconds\(\) \+ 2/);
+assert.match(task, /priorities = \["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded"\]/);
+for (const code of ["credential_revoked", "refresh_reused", "account_deleted", "profile_deleted", "membership_removed"]) {
+  assert.match(task, new RegExp(`code = "${code}"`), `server refresh must recognize ${code} as terminal`);
+}
 assert.match(task, /if code = "server-access-denied" then return "problem\.forbidden"/);
 assert.doesNotMatch(task, /if code = "server-access-denied" or code = "server-session-expired" then return "auth\.session-expired"/);
 const hostedFailure = task.match(/sub PorticoServerConnectionHandleHostedFailure[\s\S]*?\nend sub/)?.[0] ?? '';
@@ -198,4 +210,4 @@ assert.match(main, /PorticoServerConnectionController\(scene, port\)/);
 assert.match(main, /PorticoServerConnectionAccountStateChanged\(serverConnection, scene\.runtimeState\)/);
 assert.match(main, /PorticoMainAdvanceViewerAssertion/);
 
-console.log(`Verified ${operations.length} generated operations, signed route trust, profile-bound native session v2, one-time assertions, atomic persistence, and private bridge boundaries.`);
+console.log(`Verified ${operations.length} generated operations, signed route trust, profile-bound native session v3, bounded route recovery, one-time assertions, atomic persistence, and private bridge boundaries.`);

@@ -14,7 +14,7 @@
     "compile": "bsc --project bsconfig.json",
     "compile:visual-fixture": "bsc --project bsconfig.visual-fixture.json",
     "release:identity:check": "node scripts/verify-release-identity.mjs",
-    "package:release": "npm run release:identity:check && npm run assets:check && npm run compile && node scripts/package-release.mjs && npm run release:verify",
+    "package:release": "npm run release:identity:check && npm run assets:check && npm run icons:check && npm run compile && node scripts/package-release.mjs && npm run release:verify",
     "package:visual-fixture": "npm run compile:visual-fixture",
     "release:verify": "node scripts/verify-release-package.mjs",
     "release:inventory:update": "node scripts/verify-release-package.mjs --write-inventory",
@@ -35,10 +35,13 @@
     "test:browse": "node scripts/tests/search-library-data.test.mjs",
     "test:presentation": "node scripts/tests/search-library-presentation.test.mjs",
     "test:auth-gate": "node scripts/tests/auth-gate-presentation.test.mjs",
+    "test:tv-auth-contract": "node scripts/tests/tv-auth-visual-navigation.test.mjs",
+    "test:tv-page-motion": "node scripts/tests/tv-page-motion.test.mjs",
     "test:shell": "node scripts/tests/offline-shell.test.mjs",
     "test:saved": "node scripts/tests/saved-mutations.test.mjs",
     "test:channels": "node scripts/tests/channels-dvr.test.mjs",
     "test:settings-auth": "node scripts/tests/settings-local-auth.test.mjs",
+    "test:account-server-parity": "node scripts/tests/account-server-parity.test.mjs",
     "test:lan-session": "node scripts/tests/lan-session-projection.test.mjs",
     "test:viewer-fencing": "node scripts/tests/viewer-fencing.test.mjs",
     "test:navigation-focus": "node scripts/tests/navigation-focus-foundation.test.mjs",
@@ -50,9 +53,9 @@
     "test:application-events": "node scripts/tests/application-events.test.mjs",
     "test:accessibility-performance": "node scripts/tests/accessibility-performance.test.mjs",
     "test:playback-events": "node scripts/tests/playback-events-security.test.mjs && node scripts/tests/playback-events-lifecycle.test.mjs && node scripts/tests/constrained-event-main-integration.test.mjs",
-    "test:behavior": "npm run test:http && npm run test:auth && npm run test:servers && npm run test:connection && npm run test:lan-session && npm run test:viewer-fencing && npm run test:navigation-focus && npm run test:screen-focus && npm run test:tv-interaction-outcomes && npm run test:playback && npm run test:player && npm run test:player-icons && npm run test:content && npm run test:browse && npm run test:presentation && npm run test:auth-gate && npm run test:shell && npm run test:saved && npm run test:channels && npm run test:settings-auth && npm run test:lifecycle && npm run test:detail-more && npm run test:event-transport && npm run test:application-events && npm run test:accessibility-performance && npm run test:playback-events && npm run test:parity",
+    "test:behavior": "npm run test:http && npm run test:auth && npm run test:servers && npm run test:connection && npm run test:lan-session && npm run test:viewer-fencing && npm run test:navigation-focus && npm run test:screen-focus && npm run test:tv-interaction-outcomes && npm run test:playback && npm run test:player && npm run test:player-icons && npm run test:content && npm run test:browse && npm run test:presentation && npm run test:auth-gate && npm run test:tv-auth-contract && npm run test:tv-page-motion && npm run test:shell && npm run test:saved && npm run test:channels && npm run test:settings-auth && npm run test:account-server-parity && npm run test:lifecycle && npm run test:detail-more && npm run test:event-transport && npm run test:application-events && npm run test:accessibility-performance && npm run test:playback-events && npm run test:parity",
     "device": "node scripts/device/roku-device.mjs",
-    "test": "npm run test:behavior && npm run assets && npm run compile && npm run render && npm run compare && npm run verify"
+    "test": "npm run assets && npm run compile && npm run render && npm run test:behavior && npm run compare && npm run verify"
   },
   "devDependencies": {
     "brighterscript": "0.73.0"

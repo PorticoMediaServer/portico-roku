@@ -26,7 +26,7 @@ assert.match(gateXml, /id="divider"/);
 assert.match(gateXml, /id="accountTitle"/);
 assert.match(gate, /StandardKeyboardDialog/);
 assert.match(gate, /PorticoAuthGateSeal/);
-assert.match(gate + helper, /Sign in with server-only authentication/);
+assert.match(gate + helper, /Sign in directly to a server/);
 assert.match(helper, /runtime\.hostedStatus[\s\S]*= "incompatible"[\s\S]*title: "Update required"/);
 assert.match(helper, /Len\(normalized\) <> 9[\s\S]*Mid\(normalized, 5, 1\) <> "-"/);
 assert.equal((gate.match(/CreateObject\("roSGNode"/g) ?? []).length, 1);

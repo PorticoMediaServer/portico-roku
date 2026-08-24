@@ -252,6 +252,24 @@ sub applyViewState()
         m.playerPresenter.overlayKind = ""
     end if
 
+    sourceGenerationChanged = not generationChanged and model.sourceGeneration > m.playerController.sourceGeneration
+    if sourceGenerationChanged
+        ' A newer projection must fence the old private URL immediately. Keep
+        ' the controller generation unchanged until matching private content
+        ' arrives so onPrivateContentChanged can install the replacement.
+        PorticoPlayerStopVideo()
+        if m.playerController.video <> invalid then m.playerController.video.content = invalid
+        if m.playerController.privateContent <> invalid
+            privatePlaybackGeneration = PorticoHttpInteger(m.playerController.privateContent.porticoPlaybackGeneration, 0)
+            privateSourceGeneration = PorticoHttpInteger(m.playerController.privateContent.porticoSourceGeneration, 0)
+            if privatePlaybackGeneration <> model.playbackGeneration or privateSourceGeneration <> model.sourceGeneration
+                m.playerController.privateContent = invalid
+            end if
+        end if
+        m.playerController.nativeState = "buffering"
+        m.playerController.localStatusOverride = "buffering"
+    end if
+
     m.playerController.model = model
     if model.source <> invalid and model.sourceGeneration > m.playerController.sourceGeneration
         if m.playerController.privateContent <> invalid and PorticoHttpInteger(m.playerController.privateContent.porticoPlaybackGeneration, 0) = model.playbackGeneration and PorticoHttpInteger(m.playerController.privateContent.porticoSourceGeneration, 0) = model.sourceGeneration

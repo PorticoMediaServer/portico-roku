@@ -150,7 +150,6 @@ assert.match(serverSelection, /lastSpaceIndex = position/);
 for (const internalCopy of ['fixture media', 'authentication checks succeed', 'fresh content appears only after', 'Hosted Task', 'in this build', 'Server-scoped credentials', 'Connection diagnostics', 'discovered directly on this local network', 'not advertised by this server', 'securely sign it in', 'server-defined presentation', 'this view does not publish']) {
   assert.ok(!scene.includes(internalCopy), `Visible implementation copy leaked into the shell: ${internalCopy}`);
 }
-assert.doesNotMatch(scene, /will appear here/);
 assert.match(scene, /if result\.count\(\) >= 32 then exit for/);
 assert.match(home, /firstVisibleRow = m\.top\.focusedRow - 1[\s\S]*lastVisibleRow = firstVisibleRow \+ 2/);
 assert.match(person, /firstVisible = m\.focusIndex - 3[\s\S]*visibleIndex = index - firstVisible/);

@@ -195,7 +195,9 @@ function PorticoPlaybackFromResponse(data as dynamic, serverSession as object) a
     source = PorticoPlaybackIssuedResource(data.sourceUrl, serverSession.apiBaseUrl, allowInsecureLan)
     if source = invalid then return invalid
     resources = PorticoPlaybackResources(data.resources, serverSession.apiBaseUrl, allowInsecureLan)
-    if resources.Count() < 1 then return invalid
+    ' A playback response publishes one active plan, not a client-side matrix
+    ' from which Roku may choose another execution.
+    if resources.Count() <> 1 then return invalid
     selectedResource = PorticoPlaybackDefaultResource(resources)
     if selectedResource = invalid then return invalid
     ' The top-level URL is canonical for the initially selected route. A
@@ -254,13 +256,11 @@ function PorticoPlaybackFromResponse(data as dynamic, serverSession as object) a
         apiBaseUrl: serverSession.apiBaseUrl,
         allowInsecureLan: allowInsecureLan
     }
-    if playback.selectedQualityId = "" and playback.qualities.count() > 0
-        playback.selectedQualityId = playback.qualities[0].id
-        for each quality in playback.qualities
-            if quality.id = "original" then playback.selectedQualityId = "original"
-        end for
-    end if
     if playback.selectedSubtitleMode <> "off" and playback.selectedSubtitleMode <> "text" and playback.selectedSubtitleMode <> "burn_in" then return invalid
+    if selectedResource.qualityId <> playback.selectedQualityId then return invalid
+    if selectedResource.audioStreamId <> playback.selectedAudioStreamId then return invalid
+    if selectedResource.subtitleMode <> playback.selectedSubtitleMode then return invalid
+    if selectedResource.subtitleStreamId <> playback.selectedSubtitleStreamId then return invalid
     return playback
 end function
 

@@ -193,9 +193,11 @@ assert.match(task, /retrySeconds > 60/);
 assert.match(task, /kind = "source-error"[\s\S]*PorticoPlaybackRecoverSource\(controller\)/);
 const sourceRecovery = task.match(/sub PorticoPlaybackRecoverSource\(controller as object\)([\s\S]*?)\nend sub/)?.[1] ?? '';
 assert.match(sourceRecovery, /PorticoPlaybackRequestReconnect\(controller\)/, 'Route re-resolution must precede fatal playback UI');
-assert.match(sourceRecovery, /PorticoPlaybackSelectRecoveryQuality\(controller\)/, 'Compatible alternate qualities must be exhausted');
-assert.match(sourceRecovery, /PorticoPlaybackRestartForRecovery\(controller\)/, 'Playback must resume at the preserved position before failure');
+assert.doesNotMatch(sourceRecovery, /PorticoPlaybackSelectRecoveryQuality|PorticoPlaybackRestartForRecovery/, 'Roku must not invent a replacement tuple during recovery');
+assert.doesNotMatch(task, /PorticoPlaybackRestartForRecovery/, 'Every recovery path must preserve the server-sealed playback tuple');
 assert.ok(sourceRecovery.indexOf('PorticoPlaybackRequestReconnect') < sourceRecovery.indexOf('PorticoPlaybackFatalActive'));
+assert.match(models, /resources\.Count\(\) <> 1/);
+assert.match(models, /selectedResource\.qualityId <> playback\.selectedQualityId/);
 
 const transition = task.match(/sub PorticoPlaybackApplyTransitionFence\([\s\S]*?\nend sub/)?.[0] ?? '';
 assert.ok(transition.indexOf('PorticoPlaybackResetActive') < transition.indexOf('PorticoPlaybackAuthenticatedRequest'), 'Private state must clear before remote cleanup');

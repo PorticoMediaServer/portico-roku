@@ -14,7 +14,7 @@ const discoveryRuntime = read('channel/source/lib/PorticoDiscoveryRuntime.brs');
 const contentBridge = read('channel/source/lib/PorticoContent.brs');
 const main = read('channel/source/main.brs');
 const registry = read('channel/source/lib/PorticoSecureRegistry.brs');
-const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+const openapi = JSON.parse(read('../portico-server/api/openapi/portico-server.openapi.json'));
 
 for (const [path, verb] of [
   ['/watchlist', 'get'], ['/favorites', 'get'], ['/playlists', 'get'], ['/playlists/{playlistId}/items', 'get'],

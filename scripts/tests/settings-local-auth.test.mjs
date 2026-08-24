@@ -16,18 +16,35 @@ const taskXml = read('channel/components/PorticoLocalAuthTask.xml');
 const local = read('channel/source/lib/PorticoLocalAuth.brs');
 const bridge = read('channel/source/lib/PorticoLocalAuthBridge.brs');
 const main = read('channel/source/main.brs');
-const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+const openapi = JSON.parse(read('../portico-server/api/openapi/portico-server.openapi.json'));
+const hostedOpenapi = JSON.parse(
+  read('../portico-internal/hosted-services/api/openapi/portico-hosted.openapi.json'),
+);
 
 for (const path of ['/auth/sessions', '/auth/sessions/refresh', '/auth/sessions/revoke']) assert.ok(openapi.paths[path]?.post, `POST ${path} disappeared from the Server OpenAPI`);
 for (const path of ['/remote-access/health', '/auth/me', '/product-contract', '/libraries', '/account/library-navigation']) assert.ok(openapi.paths[path]?.get, `GET ${path} disappeared from the Server OpenAPI`);
-for (const schemaName of ['NativeSessionCreateRequest', 'NativeProfileSessionRequest', 'PorticoSessionAttachPayload', 'TVSetupSessionRequest']) {
+for (const schemaName of ['NativeSessionCreateRequest', 'NativeProfileSessionRequest', 'PorticoSessionAttachPayload']) {
   assert.ok(!openapi.components.schemas[schemaName].required?.includes('installationId'), `${schemaName} must keep installationId optional metadata`);
 }
+assert.ok(
+  !hostedOpenapi.components.schemas.TVSetupSessionRequest.required?.includes(
+    'installationId',
+  ),
+  'TVSetupSessionRequest must keep installationId optional metadata',
+);
 assert.deepEqual(openapi.components.schemas.NativeSessionRefreshRequest.required, ['refreshToken', 'rotationKey']);
 
 for (const row of ['profile', 'server', 'automatic-profile', 'account-security', 'feedback', 'autoplay-next', 'up-next', 'seek-interval', 'preferred-audio', 'preferred-subtitles', 'pause-history', 'clear-watch-history', 'clear-search-history', 'sign-out']) assert.match(settings, new RegExp(`id: "${row}"`));
-assert.match(settings, /if authMode = "local" then authLabel = "Server Only Authentication"/);
+assert.match(settings, /if authMode = "local" then authLabel = "Direct server sign-in"/);
 assert.match(settings, /if authMode = "local"[\s\S]*serverAction = "open-connection"/);
+assert.match(settings, /PorticoSettingsServerCount\(runtime\.availableServers\) > 1/);
+assert.match(settings, /id: "server"[\s\S]*actionable: serverRowVisible, visible: serverRowVisible/);
+const serverSwitchVisible = (authMode, serverCount) =>
+  authMode !== 'local' && serverCount > 1;
+assert.equal(serverSwitchVisible('hosted', 0), false);
+assert.equal(serverSwitchVisible('hosted', 1), false);
+assert.equal(serverSwitchVisible('hosted', 2), true);
+assert.equal(serverSwitchVisible('local', 2), false);
 assert.doesNotMatch(settingsScreen, /PorticoPlaybackPreferences(?:Read|Update|Projection)/);
 assert.match(settingsScreen, /PorticoSettingsPatchPlayback\(\{autoplayNext:/);
 assert.match(settingsScreen, /PorticoSettingsOpenChoice\("seek"\)/);
@@ -78,6 +95,12 @@ assert.match(task, /PorticoServerSessionLocalHandoffWrite\(handoffId, selected, 
 assert.match(task, /controller\.status = "profile-selection-required"/);
 assert.match(task, /kind = "prepare-profile-switch"[\s\S]*controller\.status = "credentials"/);
 assert.match(task, /PorticoLocalAuthValidateIdentity\(controller, controller\.session\)/);
+for (const code of ["credential_revoked", "refresh_reused", "account_deleted", "profile_deleted", "membership_removed"]) {
+  assert.match(task, new RegExp(`code = "${code}"`), `local refresh must recognize ${code} as terminal`);
+}
+assert.match(local, /localCandidate = "http:\/\/" \+ url[\s\S]*PorticoHttpUrlAllowed\(localCandidate, true\)[\s\S]*url = localCandidate/, 'Bare LAN addresses must normalize through the private-network URL policy');
+assert.match(local, /Len\(url\) < 12 or Len\(url\) > 2048 or not PorticoHttpUrlAllowed\(url, true\)/, 'Manual URLs must reject public HTTP through the shared URL policy');
+assert.match(local, /allowInsecureLan = allowInsecureHint or Left\(LCase\(url\), 7\) = "http:\/\/"[\s\S]*allowInsecureLan: allowInsecureLan/, 'Local credential requests must pass HTTP routes through shared LAN validation');
 assert.match(task, /"\/api\/auth\/me"/);
 assert.match(task, /"\/api\/product-contract"/);
 assert.match(task, /"\/api\/account\/library-navigation"/);

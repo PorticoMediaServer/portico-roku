@@ -37,5 +37,7 @@
             <PorticoAuthAction id="action3" visible="false" />
             <PorticoAuthAction id="action4" visible="false" />
         </Group>
+        <Label id="legalNotice" translation="[460,978]" width="1000" height="24" maxLines="1" horizAlign="center" />
+        <Label id="legalUrls" translation="[460,1008]" width="1000" height="24" maxLines="1" horizAlign="center" />
     </children>
 </component>

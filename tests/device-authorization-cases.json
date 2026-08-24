@@ -12,19 +12,19 @@
     "hostedStatus": "online",
     "accountDisplayName": "Living Room",
     "authorizationUserCode": "ABCD-2345",
-    "verificationDisplayUri": "api.getportico.tv/device",
+    "verificationDisplayUri": "web.getportico.tv/authorize-device",
     "deviceCode": "must-not-project",
     "accessToken": "must-not-project",
     "refreshToken": "must-not-project",
     "authorizationSessionId": "must-not-project",
-    "verificationUri": "https://api.getportico.tv/device"
+    "verificationUri": "https://web.getportico.tv/authorize-device"
   },
   "runtimeProjectionExpected": {
     "accountStatus": "authorizing",
     "hostedStatus": "online",
     "accountDisplayName": "Living Room",
     "authorizationUserCode": "ABCD-2345",
-    "verificationDisplayUri": "api.getportico.tv/device"
+    "verificationDisplayUri": "web.getportico.tv/authorize-device"
   },
   "timestampCases": [
     {"input": "2026-07-13T18:22:31Z", "expected": "2026-07-13T18:22:31"},

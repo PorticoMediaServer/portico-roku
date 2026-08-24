@@ -24,6 +24,7 @@ end function
 
 function PorticoSignedDocumentVerifyRoute(document as dynamic, expectedServerId as string, trustedKeys as object) as object
     if document = invalid or Type(document) <> "roAssociativeArray" then return { ok: false, code: "invalid_route_document" }
+    if PorticoSignedDocumentScalarString(document.kind) <> "route-document" then return { ok: false, code: "wrong_document_kind" }
     if document.documentVersion <> 1 then return { ok: false, code: "unsupported_route_document" }
     if PorticoSignedDocumentScalarString(document.audience) <> "portico-media-server" then return { ok: false, code: "wrong_audience" }
     if PorticoSignedDocumentScalarString(document.serverId) <> expectedServerId then return { ok: false, code: "server_identity_mismatch" }

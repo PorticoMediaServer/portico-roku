@@ -9,8 +9,12 @@ const outputRoot = outputRootIndex >= 0 ? resolve(process.argv[outputRootIndex +
 if (outputRootIndex >= 0 && !process.argv[outputRootIndex + 1]) throw new Error('--output-root requires a directory.');
 const iconDirectory = join(outputRoot, 'channel/images/icons');
 const uiDirectory = join(outputRoot, 'channel/images/ui');
+const posterDirectory = join(outputRoot, 'channel/images/posters');
+const backdropDirectory = join(outputRoot, 'channel/images/backdrops');
 mkdirSync(iconDirectory, {recursive: true});
 mkdirSync(uiDirectory, {recursive: true});
+mkdirSync(posterDirectory, {recursive: true});
+mkdirSync(backdropDirectory, {recursive: true});
 
 const icons = {
   home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
@@ -61,12 +65,16 @@ const icons = {
   'image-off': '<path d="m2 2 20 20"/><path d="M10.41 10.41a2 2 0 0 0 2.83 2.83"/><path d="M13.5 5H19a2 2 0 0 1 2 2v10.5"/><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m3 17 5-5 4 4"/>'
 };
 
-function renderSvg(svg, outputPath, width, height) {
+function renderSvg(svg, outputPath, width, height, {requireAlpha = false} = {}) {
   const result = spawnSync('rsvg-convert', ['-w', String(width), '-h', String(height), '-o', outputPath], {
     encoding: 'utf8',
     input: svg
   });
   if (result.status !== 0) throw new Error(`rsvg-convert failed for ${outputPath}: ${result.stderr}`);
+  if (requireAlpha) {
+    const alphaResult = spawnSync('magick', [outputPath, '-define', 'png:color-type=6', outputPath], {encoding: 'utf8'});
+    if (alphaResult.status !== 0) throw new Error(`ImageMagick failed to preserve alpha for ${outputPath}: ${alphaResult.stderr}`);
+  }
 }
 
 function iconSvg(body, color) {
@@ -87,8 +95,8 @@ const rounded = (width, height, radius, fill, stroke = 'none', strokeWidth = 0) 
 const cornerCaps = (width, height, radius, fill) => `<path fill="${fill}" fill-rule="evenodd" d="M0 0H${width}V${height}H0Z M${radius} 0H${width - radius}A${radius} ${radius} 0 0 1 ${width} ${radius}V${height - radius}A${radius} ${radius} 0 0 1 ${width - radius} ${height}H${radius}A${radius} ${radius} 0 0 1 0 ${height - radius}V${radius}A${radius} ${radius} 0 0 1 ${radius} 0Z"/>`;
 
 const surfaces = [
-  ['button-primary.png', 166, 64, rounded(166, 64, 8, '#F4F7FA', '#F4F7FA', 3)],
-  ['button-primary-focus.png', 166, 64, rounded(166, 64, 8, '#70BCE8', '#F4F7FA', 3)],
+  ['button-primary.png', 166, 64, rounded(166, 64, 8, '#70BCE8', '#70BCE8', 3)],
+  ['button-primary-focus.png', 166, 64, rounded(166, 64, 8, '#378EC3', '#EAF6FF', 3)],
   ['button-dark.png', 166, 64, rounded(166, 64, 8, 'rgba(0,0,0,0)', 'rgba(197,218,235,.08)', 3)],
   ['button-dark-focus.png', 166, 64, rounded(166, 64, 8, 'rgba(0,0,0,0)', '#EAF6FF', 3)],
   ['icon-button.png', 64, 64, rounded(64, 64, 32, 'rgba(7,11,16,.84)', 'rgba(197,218,235,.08)', 3)],
@@ -204,5 +212,23 @@ const wordmark = readFileSync(join(root, 'channel/images/brand/portico-wordmark.
 const channelPoster = `<defs><linearGradient id="channel" x2="1" y2="1"><stop stop-color="#1D4277"/><stop offset="1" stop-color="#08131F"/></linearGradient></defs><rect width="540" height="405" rx="34" fill="url(#channel)"/><image href="data:image/png;base64,${wordmark}" x="66" y="156" width="408" height="93" preserveAspectRatio="xMidYMid meet"/>`;
 renderSvg(surface(540, 405, channelPoster), join(uiDirectory, 'channel-poster-fhd.png'), 540, 405);
 
+// Deterministic, synthetic media art keeps visual tests self-contained. These
+// files are excluded from release packages and carry no third-party artwork.
+const fixturePalette = ['#173A55', '#4B2936', '#254C42', '#513A22', '#31325C', '#244154', '#52343A', '#23483D', '#4A3A57'];
+const posterNames = ['fargo', 'rookie', 'hurt-locker', 'dolphin-reef', 'earth-stood-still', 'martian', 'blade-runner', 'life-aquatic', 'project-hail-mary'];
+for (const [index, name] of posterNames.entries()) {
+  const color = fixturePalette[index % fixturePalette.length];
+  const body = `<defs><linearGradient id="fixture-${index}" x2="1" y2="1"><stop stop-color="${color}"/><stop offset="1" stop-color="#070B10"/></linearGradient></defs><rect width="202" height="321" fill="url(#fixture-${index})"/><circle cx="150" cy="74" r="58" fill="rgba(112,188,232,.18)"/><path d="M24 274h154" stroke="rgba(244,247,250,.30)" stroke-width="4"/>`;
+  renderSvg(surface(202, 321, body), join(posterDirectory, `${name}.png`), 202, 321, {requireAlpha: true});
+}
+for (const [index, name] of ['rookie-episode-1', 'rookie-episode-2', 'rookie-episode-3'].entries()) {
+  const body = `<defs><linearGradient id="episode-${index}" x2="1" y2="1"><stop stop-color="${fixturePalette[index + 1]}"/><stop offset="1" stop-color="#070B10"/></linearGradient></defs><rect width="308" height="180" fill="url(#episode-${index})"/><circle cx="238" cy="52" r="46" fill="rgba(112,188,232,.16)"/>`;
+  renderSvg(surface(308, 180, body), join(backdropDirectory, `${name}.png`), 308, 180, {requireAlpha: true});
+}
+for (const [index, name] of ['fargo', 'rookie'].entries()) {
+  const body = `<defs><linearGradient id="backdrop-${index}" x2="1" y2="1"><stop stop-color="${fixturePalette[index]}"/><stop offset="1" stop-color="#070B10"/></linearGradient></defs><rect width="1280" height="720" fill="url(#backdrop-${index})"/><circle cx="980" cy="210" r="230" fill="rgba(112,188,232,.14)"/>`;
+  renderSvg(surface(1280, 720, body), join(backdropDirectory, `${name}.png`), 1280, 720);
+}
+
 writeFileSync(join(uiDirectory, 'GENERATED-ASSETS.txt'), 'Generated deterministically by scripts/generate-assets.mjs.\n');
-console.log(`Generated ${Object.keys(icons).length * 4 + surfaces.length + 4} Roku PNG assets.`);
+console.log(`Generated ${Object.keys(icons).length * 4 + surfaces.length + 18} Roku PNG assets.`);

@@ -5,6 +5,13 @@ end sub
 sub PorticoServerConnectionRun()
     clock = CreateObject("roTimespan")
     clock.Mark()
+    networkPort = CreateObject("roMessagePort")
+    deviceInfo = CreateObject("roDeviceInfo")
+    networkEventsEnabled = false
+    if networkPort <> invalid and deviceInfo <> invalid
+        deviceInfo.SetMessagePort(networkPort)
+        networkEventsEnabled = deviceInfo.EnableLinkStatusEvent(true)
+    end if
     controller = {
         clock: clock,
         lastCommandSequence: 0,
@@ -32,7 +39,10 @@ sub PorticoServerConnectionRun()
         libraryItems: [],
         navigationVerified: false,
         eventCapabilities: invalid,
-        productContractRevision: ""
+        productContractRevision: "",
+        networkPort: networkPort,
+        networkEventsEnabled: networkEventsEnabled,
+        nextNetworkRouteRetryAt: 0
     }
     loaded = PorticoOperationContractLoad()
     if loaded.ok
@@ -116,8 +126,33 @@ sub PorticoServerConnectionPrepareHostedContext(controller as object, command as
 end sub
 
 sub PorticoServerConnectionTick(controller as object)
+    PorticoServerConnectionObserveNetworkTransitions(controller)
     if controller.session <> invalid and controller.nextRefreshAt > 0 and controller.clock.TotalSeconds() >= controller.nextRefreshAt
         PorticoServerConnectionRefresh(controller, false)
+    end if
+end sub
+
+sub PorticoServerConnectionObserveNetworkTransitions(controller as object)
+    if controller.networkEventsEnabled <> true or controller.networkPort = invalid then return
+    while true
+        message = controller.networkPort.GetMessage()
+        if message = invalid then exit while
+        if Type(message) = "roDeviceInfoEvent" and message.IsStatusMessage()
+            info = message.GetInfo()
+            if PorticoCoreIsAssociativeArray(info) and info.linkStatus = true
+                ' Link restoration can mean a different LAN, NAT, or address. Let
+                ' bursts settle, then re-probe durable routes before Hosted.
+                controller.nextNetworkRouteRetryAt = controller.clock.TotalSeconds() + 2
+            end if
+        end if
+    end while
+    if controller.nextNetworkRouteRetryAt <= 0 or controller.clock.TotalSeconds() < controller.nextNetworkRouteRetryAt then return
+    controller.nextNetworkRouteRetryAt = 0
+    if PorticoServerSessionStored(controller.session) = invalid then return
+    if PorticoServerConnectionVerifyOrRediscoverRoute(controller, false)
+        controller.serverStatus = "active"
+        controller.serverErrorCode = ""
+        PorticoServerConnectionPublish(controller, true)
     end if
 end sub
 
@@ -862,12 +897,33 @@ end function
 function PorticoServerConnectionVerifyOrRediscoverRoute(controller as object, preferFresh as boolean) as boolean
     source = PorticoServerSessionStored(controller.session)
     if source = invalid then return false
-    if source.authority = "hosted" and preferFresh
-        if PorticoServerConnectionRediscoverStoredRoute(controller, source) then return true
-    end if
     if PorticoServerConnectionVerifyRoute(controller, source) then return true
+    previous = PorticoServerSessionPreviousRoute(source)
+    if previous <> invalid and PorticoServerConnectionVerifyRoute(controller, previous)
+        if PorticoServerConnectionAdoptStoredRoute(controller, source, previous) then return true
+    end if
     if source.authority = "hosted" then return PorticoServerConnectionRediscoverStoredRoute(controller, source)
     return false
+end function
+
+function PorticoServerConnectionAdoptStoredRoute(controller as object, source as object, route as object) as boolean
+    replacement = {}
+    for each key in source
+        replacement[key] = source[key]
+    end for
+    replacement.previousRoute = PorticoServerSessionRouteRecord(source)
+    replacement.apiBaseUrl = route.apiBaseUrl
+    replacement.routeType = route.routeType
+    replacement.allowInsecureLan = route.allowInsecureLan
+    replacement.serverPublicKeyFingerprint = route.serverPublicKeyFingerprint
+    replacement.routeGeneration = route.routeGeneration
+    if PorticoServerSessionStored(replacement) = invalid then return false
+    committed = PorticoSecureRegistryCommit("server-session", replacement)
+    if not committed.ok then return false
+    controller.session = replacement
+    controller.sessionGeneration = committed.generation
+    controller.last401Generation = -1
+    return true
 end function
 
 function PorticoServerConnectionRediscoverStoredRoute(controller as object, source as object) as boolean
@@ -887,8 +943,10 @@ function PorticoServerConnectionRediscoverStoredRoute(controller as object, sour
     for each key in source
         rebased[key] = source[key]
     end for
+    rebased.previousRoute = PorticoServerSessionRouteRecord(source)
     rebased.apiBaseUrl = route.apiBaseUrl
     rebased.routeType = route.routeType
+    rebased.allowInsecureLan = PorticoServerSessionRouteAllowsInsecureLan(route.routeType)
     rebased.serverPublicKeyFingerprint = route.serverPublicKeyFingerprint
     rebased.routeGeneration = route.routeGeneration
     if PorticoCoreSafeText(route.serverName, 80) <> "" then rebased.serverName = route.serverName
@@ -1087,7 +1145,7 @@ end function
 function PorticoServerConnectionRefreshFailureIsTerminal(result as object) as boolean
     code = ""
     if PorticoCoreIsAssociativeArray(result.problem) then code = LCase(PorticoCoreSafeIdentifier(result.problem.code, 96))
-    return code = "server_session_revoked" or code = "invalid_refresh_token" or code = "refresh_token_reuse"
+    return code = "credential_revoked" or code = "refresh_reused" or code = "account_deleted" or code = "profile_deleted" or code = "membership_removed" or code = "server_session_revoked" or code = "invalid_refresh_token" or code = "refresh_token_reuse"
 end function
 
 sub PorticoServerConnectionScheduleRefreshFailure(controller as object, source as object, afterUnauthorized as boolean)
@@ -1230,11 +1288,9 @@ end function
 function PorticoServerConnectionRouteCandidates(source as dynamic) as object
     result = []
     if not PorticoCoreIsArray(source) then return result
-    ' Transport selection is independent from locality/quality policy. Prefer a
-    ' verified public-direct route for continuity across network changes; the
-    ' server may still classify a same-network hairpin as local/original quality.
-    ' LAN remains a verified fallback rather than the durable primary address.
-    priorities = ["public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded", "lan", "lan_ip_encoded", "lan_discovered"]
+    ' A healthy identity-pinned LAN route is the default data plane. Signed
+    ' public routes remain verified fallbacks for topology changes and outages.
+    priorities = ["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded"]
     seen = {}
     for each routeType in priorities
         for each rawRoute in source

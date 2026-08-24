@@ -227,7 +227,10 @@ sub PorticoServerCatalogLoad(controller as object)
     controller.serverListStatus = "ready"
     controller.loadFailures = 0
     controller.refreshRequestedGeneration = -1
-    controller.nextLoadAtSeconds = PorticoServerCatalogNowSeconds(controller) + 300
+    ' The directory is a Hosted control-plane feature, not a presence feed.
+    ' Reload it only when account state changes or the user explicitly refreshes;
+    ' normal browsing and playback stay on the selected Portico Server.
+    controller.nextLoadAtSeconds = 2147483647
     PorticoServerCatalogPublish(controller, false)
 end sub
 

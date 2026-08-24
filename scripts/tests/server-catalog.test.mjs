@@ -11,8 +11,7 @@ const bridge = read('channel/source/lib/PorticoServerCatalog.brs');
 const scene = read('channel/components/PorticoScene.brs');
 const main = read('channel/source/main.brs');
 const registry = read('channel/source/lib/PorticoSecureRegistry.brs');
-const architecture = read('Project Architecture/06 Functional Client Architecture.md');
-const openapi = JSON.parse(read('../../apps/portico-cloud/api/openapi/portico-hosted.openapi.json'));
+const openapi = JSON.parse(read('../portico-internal/hosted-services/api/openapi/portico-hosted.openapi.json'));
 
 assert.ok(openapi.paths['/api/account/servers']?.get, 'Hosted OpenAPI no longer publishes the server-list operation');
 assert.equal(openapi.paths['/api/account/servers'].get.operationId, 'listAccountServers');
@@ -92,12 +91,11 @@ assert.doesNotMatch(scene, /availabilityLabel = "Unavailable"/);
 assert.match(scene, /listIsStale[\s\S]*availabilityLabel = "Not checked"/);
 assert.match(scene, /if result\.count\(\) >= 500 then exit for/);
 assert.match(scene, /serverListStatus = "denied"[\s\S]*status = "ACCESS DENIED"/);
+assert.match(scene, /id: "empty"[\s\S]*status: "ACCOUNT READY"[\s\S]*statusTone: "account"/);
+assert.match(scene, /Your Portico Account is signed in\. When you create a server or someone shares one with you, it will appear here\./);
+assert.match(scene, /selectedServerId = ""[\s\S]*serverListStatus = "ready"/);
 assert.doesNotMatch(scene, /Hosted Services/);
 assert.match(scene, /emitActivation\("select-server", server\.id\)[\s\S]*openInternalRoute\("connection"\)/);
-assert.match(architecture, /five 100-item pages/);
-assert.match(architecture, /bounded maximum of 500/);
-assert.match(architecture, /selection is projected as current only after the encrypted catalog commit succeeds/);
-assert.match(architecture, /TotalSeconds\(\)/);
 
 function aggregatePages(pages, maximum = 500) {
   const servers = [];

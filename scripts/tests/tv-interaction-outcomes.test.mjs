@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const rokuRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
-const fixture = JSON.parse(readFileSync(resolve(rokuRoot, '../../scripts/parity/tv-interaction-outcomes.v1.json'), 'utf8'));
+const fixture = JSON.parse(readFileSync(resolve(rokuRoot, 'scripts/parity/tv-interaction-outcomes.v1.json'), 'utf8'));
 const byId = Object.fromEntries(fixture.cases.map(item => [item.id, item]));
 const read = path => readFileSync(resolve(rokuRoot, path), 'utf8');
 const navigationAuthority = read('channel/source/navigation/PorticoNavigationStore.brs');

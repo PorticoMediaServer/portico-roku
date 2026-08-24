@@ -18,12 +18,12 @@ const sceneXml = read('channel/components/PorticoScene.xml');
 const rokuHome = read('channel/components/PorticoHome.brs');
 const rokuHomeShelf = read('channel/components/PorticoHomeShelf.brs');
 const rokuDetail = read('channel/components/PorticoDetail.brs');
-const client = read('../../apps/portico-server/packages/portico-client-core/src/client.ts');
-const homeScreen = read('../../apps/portico-react-native/packages/app/src/ui/screens/HomeScreen.tsx');
-const detailScreen = read('../../apps/portico-react-native/packages/app/src/ui/screens/DetailPlayerScreens.tsx');
-const mediaAdapters = read('../../apps/portico-react-native/packages/app/src/data/mediaAdapters.ts');
-const detailAdapter = read('../../apps/portico-react-native/packages/app/src/data/detail.ts');
-const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+const client = read('../portico-server/packages/portico-client-core/src/client.ts');
+const homeScreen = read('../portico-react-native/packages/app/src/ui/screens/HomeScreen.tsx');
+const detailScreen = read('../portico-react-native/packages/app/src/ui/screens/DetailPlayerScreens.tsx');
+const mediaAdapters = read('../portico-react-native/packages/app/src/data/mediaAdapters.ts');
+const detailAdapter = read('../portico-react-native/packages/app/src/data/detail.ts');
+const openapi = JSON.parse(read('../portico-server/api/openapi/portico-server.openapi.json'));
 
 for (const path of ['/home', '/home/rows/{id}', '/media/{id}']) {
   assert.ok(openapi.paths[path]?.get, `${path} disappeared from the Server OpenAPI`);
@@ -31,8 +31,8 @@ for (const path of ['/home', '/home/rows/{id}', '/media/{id}']) {
 }
 assert.equal(openapi.paths['/home/rows/{id}'].get.parameters.find(parameter => parameter.name === 'limit')?.schema?.maximum, 50);
 
-assert.match(client, /home: .*request<HomeResponse>\("\/api\/home"/);
-assert.match(client, /homeRow: .*request<HomeRow>\(`\/api\/home\/rows\//s);
+assert.match(client, /home:\s*\([^)]*\)\s*=>\s*request<HomeResponse>\("\/api\/home"/s);
+assert.match(client, /homeRow:[\s\S]*?return request<HomeRow>\([\s\S]*?`\/api\/home\/rows\//);
 assert.match(client, /media: .*includeRecommendations/s);
 assert.match(homeScreen, /client\.home\(\{signal\}\)/);
 assert.match(homeScreen, /const rowId = row\.id;[\s\S]*const cursor = row\.nextCursor;[\s\S]*client\.homeRow\(rowId, \{cursor, limit: 24\}\)/);

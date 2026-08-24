@@ -5,6 +5,9 @@ sub init()
     m.stateScreen = m.top.findNode("stateScreen")
     m.railLayer = m.top.findNode("railLayer")
     m.rail = m.top.findNode("rail")
+    m.pageTransitionVeil = m.top.findNode("pageTransitionVeil")
+    m.pageTransitionAnimation = m.top.findNode("pageTransitionAnimation")
+    if m.pageTransitionAnimation <> invalid then m.pageTransitionAnimation.ObserveField("state", "pageTransitionStateChanged")
     m.homeScreen = invalid
     m.detailScreen = invalid
     m.searchScreen = invalid
@@ -83,11 +86,68 @@ sub init()
     m.lastViewerPublished = false
     m.lastPublishedViewerGeneration = 0
     m.profileGateVisible = false
+    m.lastFullPageIdentity = ""
     loadedLanguage = PorticoProductLanguageLoad()
     m.productLanguage = invalid
     if loadedLanguage.ok then m.productLanguage = loadedLanguage.value
     m.playbackIdentity = {title: "", meta: ""}
     m.top.setFocus(true)
+end sub
+
+function PorticoSceneFullPageIdentity() as string
+    if not accountIsSignedIn()
+        return "auth:" + m.signedOutGateMode
+    end if
+    if runtimeValue("profileSelectionOverlay", false) = true then return "profile-selection"
+    if m.route = "player" then return "player"
+    return "route:" + m.route
+end function
+
+function PorticoScenePageMotionEnabled() as boolean
+    if m.contract = invalid or m.contract.motion = invalid or m.contract.motion.pageTransition = invalid then return false
+    if m.contract.motion.pageTransition.enabled <> true then return false
+    state = m.top.runtimeState
+    if state <> invalid and Type(state) = "roAssociativeArray"
+        if state.reducedMotion = true or state.animationsEnabled = false then return false
+    end if
+    return true
+end function
+
+sub PorticoSceneResetPageTransition()
+    if m.pageTransitionAnimation <> invalid then m.pageTransitionAnimation.control = "stop"
+    if m.pageTransitionVeil <> invalid
+        m.pageTransitionVeil.opacity = 0.0
+        m.pageTransitionVeil.visible = false
+    end if
+end sub
+
+sub PorticoSceneReconcileFullPageTransition()
+    identity = PorticoSceneFullPageIdentity()
+    previous = m.lastFullPageIdentity
+    m.lastFullPageIdentity = identity
+    if not PorticoScenePageMotionEnabled()
+        PorticoSceneResetPageTransition()
+        return
+    end if
+    if previous = "" or previous = identity then return
+    if m.pageTransitionVeil = invalid or m.pageTransitionAnimation = invalid then return
+    durationMs = 200
+    configured = m.contract.motion.pageTransition.durationMs
+    if configured <> invalid then durationMs = PorticoSceneSafeInteger(configured, 200)
+    if durationMs < 180 then durationMs = 180
+    if durationMs > 220 then durationMs = 220
+    m.pageTransitionAnimation.duration = durationMs / 1000.0
+    m.pageTransitionVeil.opacity = 1.0
+    m.pageTransitionVeil.visible = true
+    m.pageTransitionAnimation.control = "start"
+end sub
+
+sub pageTransitionStateChanged()
+    if m.pageTransitionAnimation = invalid or m.pageTransitionVeil = invalid then return
+    if m.pageTransitionAnimation.state = "stopped"
+        m.pageTransitionVeil.opacity = 0.0
+        m.pageTransitionVeil.visible = false
+    end if
 end sub
 
 sub PorticoSceneRefreshFocusGraph()
@@ -308,7 +368,7 @@ sub PorticoSceneReleaseClosedOverlays()
         PorticoSceneReleaseNode(m.globalImportantNotice, m.designRoot)
         m.globalImportantNotice = invalid
     end if
-    if m.route <> "player" and m.playerScreen <> invalid
+    if m.route <> "player" and m.playerScreen <> invalid and not PorticoSceneBackgroundAudioActive()
         PorticoSceneReleaseNode(m.playerScreen, m.designRoot)
         m.playerScreen = invalid
     end if
@@ -673,6 +733,7 @@ end sub
 
 sub renderScene()
     if m.contract = invalid then return
+    PorticoSceneReconcileFullPageTransition()
     m.profileGateVisible = false
 
     showAuthGate = not PorticoSceneVisualFixtureEnabled() and not accountIsSignedIn()
@@ -843,7 +904,12 @@ sub renderScene()
     end if
     PorticoSceneEnsureRouteSurface(m.route)
     PorticoSceneReleaseInactiveRouteSurfaces(m.route)
-    if m.playerScreen <> invalid then m.playerScreen.watchGroupState = activeWatchWithFriendsViewState()
+    if m.playerScreen <> invalid
+        m.playerScreen.watchGroupState = activeWatchWithFriendsViewState()
+        ' Hidden audio playback remains a live SceneGraph authority and must
+        ' receive grant/source-generation replacements while browsing.
+        m.playerScreen.viewState = activePlaybackModel()
+    end if
     PorticoSceneSetVisible(m.playerScreen, showPlayer)
     if showPlayer
         m.detailSeasonOpen = false
@@ -1343,6 +1409,15 @@ function activePlaybackModel() as object
         sourceGeneration: 0,
         identity: m.playbackIdentity
     }
+end function
+
+function PorticoSceneBackgroundAudioActive() as boolean
+    model = activePlaybackModel()
+    if model = invalid or model.source = invalid then return false
+    status = LCase(safeRuntimeLabel(model.playbackStatus, "", 24))
+    if status = "idle" or status = "ended" or status = "error" or status = "offline" then return false
+    mediaType = LCase(safeRuntimeLabel(model.source.mediaType, "", 40))
+    return mediaType = "audio" or mediaType = "music" or mediaType = "track" or mediaType = "book" or mediaType = "audiobook"
 end function
 
 function activeChannelsViewState() as object
@@ -2218,9 +2293,9 @@ function serverSelectionCatalogState() as dynamic
 
     return {
         id: "empty",
-        status: "NO SERVERS",
-        statusTone: "warning",
-        body: "No servers are shared with this Portico Account."
+        status: "ACCOUNT READY",
+        statusTone: "account",
+        body: "Your Portico Account is signed in. When you create a server or someone shares one with you, it will appear here."
     }
 end function
 
@@ -2266,7 +2341,7 @@ function runtimeServers() as object
                     availabilityLabel = "Not checked"
                     availabilityTone = "neutral"
                 else if authMode = "local"
-                    availabilityLabel = "Server Only Authentication"
+                    availabilityLabel = "Direct server sign-in"
                 else if not remoteAccessEnabled or availability = "remote_access_disabled"
                     detail = "Remote Access is off"
                     availabilityLabel = "Local network only"
@@ -2492,8 +2567,9 @@ function routeStateModel(route as string) as object
             status = "SERVERS UNAVAILABLE"
             body = "Portico couldn't load your servers."
         else if serverListStatus = "ready" and runtimeServers().count() = 0
-            status = "NO SERVERS"
-            body = "No servers are shared with this Portico Account."
+            status = "ACCOUNT READY"
+            tone = "account"
+            body = "Your Portico Account is signed in. When you create a server or someone shares one with you, it will appear here."
         else
             status = "CHOOSE A SERVER"
             tone = "account"

@@ -37,5 +37,9 @@
             </Group>
             <PorticoStateScreen id="stateScreen" visible="true" />
         </Group>
+        <Rectangle id="pageTransitionVeil" width="1920" height="1080" color="#070B10" opacity="0" visible="false" />
+        <Animation id="pageTransitionAnimation" duration="0.2" repeat="false" easeFunction="linear">
+            <FloatFieldInterpolator id="pageTransitionOpacity" key="[0.0,1.0]" keyValue="[1.0,0.0]" fieldToInterp="pageTransitionVeil.opacity" />
+        </Animation>
     </children>
 </component>

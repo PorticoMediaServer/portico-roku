@@ -13,7 +13,7 @@ const overlayXml = read('channel/components/PorticoDetailMoreScreen.xml');
 const scene = read('channel/components/PorticoScene.brs');
 const sceneXml = read('channel/components/PorticoScene.xml');
 const main = read('channel/source/main.brs');
-const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+const openapi = JSON.parse(read('../portico-server/api/openapi/portico-server.openapi.json'));
 
 for (const [path, verb] of [
   ['/playlists', 'get'], ['/playlists', 'post'], ['/playlists/{playlistId}/items:batch', 'post'],

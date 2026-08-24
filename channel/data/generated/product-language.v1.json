@@ -466,12 +466,18 @@
         "tone": "error"
       },
       "account.delete-password-label": {
-        "text": "Current Portico Account password"
+        "text": "Portico Account password (if set)"
       },
       "account.delete-ready": {
         "body": "This cannot be undone. You will be signed out on this browser after the account is deleted.",
         "icon": "status.warning",
         "title": "Delete this Portico Account?",
+        "tone": "warning"
+      },
+      "account.delete-reauthentication-required": {
+        "body": "Sign out, sign in again with Google or Apple, then return here to delete this account.",
+        "icon": "status.locked",
+        "title": "Sign in again to continue",
         "tone": "warning"
       },
       "account.deleted": {
@@ -1096,7 +1102,7 @@
         "text": "Portico Account"
       },
       "auth.authority.local": {
-        "text": "Server Only Authentication"
+        "text": "Direct server sign-in"
       },
       "auth.automatic-profile-trust-failed": {
         "body": "You can keep using the profile now, but this device will ask who is watching next time.",
@@ -5329,6 +5335,7 @@
     "profile_trust_failed": "auth.automatic-profile-trust-failed",
     "profiles_managed_by_portico_account": "auth.profiles-managed-by-portico-account",
     "rate_limited": "problem.rate-limited",
+    "reauthentication_required": "account.delete-reauthentication-required",
     "recent_reauthentication_required": "auth.session-expired",
     "refresh_token_reuse": "auth.session-expired",
     "remote_access_disabled": "problem.server-unavailable",
@@ -5449,6 +5456,6 @@
   "schemaVersion": 1,
   "source": {
     "name": "en-US.json",
-    "sha256": "a58eb6689c539e1e63c8c64ae6e79fe522b0049f392eb576936b8e4b05cbba5e"
+    "sha256": "ef42d0f1c33d08750dfbc3ed3af850f0458e65dcfdbb19227884768c693eeb1c"
   }
 }

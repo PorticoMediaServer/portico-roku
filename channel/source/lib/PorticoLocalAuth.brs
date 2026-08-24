@@ -284,7 +284,7 @@ function PorticoLocalAuthSystemCompatible(controller as object, baseUrl as strin
     capabilities = PorticoLocalAuthRequest(controller, "GET", baseUrl + "/api/auth/capabilities", invalid, invalid, 7000)
     if not capabilities.ok or capabilities.data = invalid or capabilities.data.localCredentialsEnabled <> true
         controller.status = "local-auth-disabled"
-        controller.message = "Server Only Authentication is not enabled on this server."
+        controller.message = "Direct server sign-in is not enabled on this server."
         PorticoLocalAuthPublish(controller)
         return false
     end if
@@ -393,7 +393,8 @@ function PorticoLocalAuthRequest(controller as object, method as string, url as 
             requestHeaders[key] = headers[key]
         end for
     end if
-    request = PorticoHttpNormalizeRequest({method: method, url: url, body: body, headers: requestHeaders, timeoutMs: timeoutMs, expectJson: true, allowInsecureLan: allowInsecureHint})
+    allowInsecureLan = allowInsecureHint or Left(LCase(url), 7) = "http://"
+    request = PorticoHttpNormalizeRequest({method: method, url: url, body: body, headers: requestHeaders, timeoutMs: timeoutMs, expectJson: true, allowInsecureLan: allowInsecureLan})
     validation = PorticoHttpValidatePrivateRequest(request)
     if not validation.ok then return PorticoLocalAuthFailure(0, false, validation.code)
     transfer = CreateObject("roUrlTransfer")
@@ -407,7 +408,7 @@ function PorticoLocalAuthRequest(controller as object, method as string, url as 
     if Left(LCase(request.url), 8) = "https://"
         if not transfer.SetCertificatesFile("common:/certs/ca-bundle.crt") then return PorticoLocalAuthFailure(0, true, "transport_error")
         if not transfer.EnablePeerVerification(true) or not transfer.EnableHostVerification(true) then return PorticoLocalAuthFailure(0, true, "transport_error")
-    else if not allowInsecureHint
+    else if not request.allowInsecureLan
         return PorticoLocalAuthFailure(0, false, "insecure_url")
     end if
     for each key in request.headers
@@ -454,9 +455,17 @@ function PorticoLocalAuthSecureBaseUrl(value as dynamic) as string
     if value = invalid then return ""
     url = value.ToStr().Trim()
     if url = "" then return ""
-    if Left(LCase(url), 8) <> "https://" then url = "https://" + url
-    if Len(url) < 12 or Len(url) > 2048 then return ""
     if Instr(1, url, Chr(0)) > 0 or Instr(1, url, Chr(10)) > 0 or Instr(1, url, Chr(13)) > 0 or Instr(1, url, Chr(9)) > 0 or Instr(1, url, " ") > 0 or Instr(1, url, "\") > 0 then return ""
+    lower = LCase(url)
+    if Left(lower, 7) <> "http://" and Left(lower, 8) <> "https://"
+        localCandidate = "http://" + url
+        if PorticoHttpUrlAllowed(localCandidate, true)
+            url = localCandidate
+        else
+            url = "https://" + url
+        end if
+    end if
+    if Len(url) < 12 or Len(url) > 2048 or not PorticoHttpUrlAllowed(url, true) then return ""
     if Instr(9, url, "@") > 0 or Instr(9, url, "?") > 0 or Instr(9, url, "#") > 0 then return ""
     while Right(url, 1) = "/"
         url = Left(url, Len(url) - 1)

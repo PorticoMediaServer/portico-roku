@@ -89,7 +89,7 @@ function PorticoLocalAuthScreenModel(state as object, hasLogin as boolean, hasPa
     if hasAddress then manual.label = "Change Server Address"
     retry = {id: "local-discover", label: "Search Again", primary: true}
     if status = "discovering"
-        return {title: "Server Only Authentication", message: "Looking for Portico servers on this network…", identity: "", fingerprint: "", loading: true, actions: [manual, back]}
+        return {title: "Direct server sign-in", message: "Looking for Portico servers on this network…", identity: "", fingerprint: "", loading: true, actions: [manual, back]}
     else if status = "servers"
         actions = []
         servers = state.nearbyServers
@@ -104,7 +104,7 @@ function PorticoLocalAuthScreenModel(state as object, hasLogin as boolean, hasPa
         actions.Push(manual)
         actions.Push(retry)
         actions.Push(back)
-        return {title: "Server Only Authentication", message: "Choose your Portico Server.", identity: "", fingerprint: "", loading: false, actions: actions}
+        return {title: "Direct server sign-in", message: "Choose your Portico Server.", identity: "", fingerprint: "", loading: false, actions: actions}
     else if status = "checking-server" or status = "restoring" or status = "signing-in"
         title = "Connecting"
         if status = "signing-in" then title = "Signing in"
@@ -122,9 +122,9 @@ function PorticoLocalAuthScreenModel(state as object, hasLogin as boolean, hasPa
         if hasLogin and hasPassword then actions.Push({id: "local-submit", label: "Sign In", primary: true})
         actions.Push(back)
         if message = "" then message = "Sign in with a local profile on " + selectedName + "."
-        return {title: "Server Only Authentication", message: message, identity: selectedName, fingerprint: "", loading: false, actions: actions}
+        return {title: "Direct server sign-in", message: message, identity: selectedName, fingerprint: "", loading: false, actions: actions}
     else if status = "idle" or status = "signed-out"
-        return {title: "Server Only Authentication", message: "Connect directly to a Portico Server with a local profile.", identity: "", fingerprint: "", loading: false, actions: [{id: "local-discover", label: "Find Nearby Servers", primary: true}, manual, back]}
+        return {title: "Direct server sign-in", message: "Connect using your server address and server credentials. No Portico Account is used.", identity: "", fingerprint: "", loading: false, actions: [{id: "local-discover", label: "Find Nearby Servers", primary: true}, manual, back]}
     else if status = "authenticated"
         return {title: "Connected", message: "", identity: PorticoLocalAuthScreenText(state.localAuthServerName, "Portico Server", 80), fingerprint: "", loading: false, actions: []}
     end if
@@ -138,7 +138,7 @@ end function
 function PorticoLocalAuthScreenErrorTitle(status as string) as string
     if status = "identity-error" or status = "identity-changed" then return "Server Identity Changed"
     if status = "server-incompatible" then return "Update Required"
-    if status = "local-auth-disabled" then return "Server Only Authentication Unavailable"
+    if status = "local-auth-disabled" then return "Direct Server Sign-in Unavailable"
     if status = "secure-route-required" or status = "secure-route-unavailable" then return "Secure Connection Required"
     if status = "storage-error" then return "Sign-in Not Saved"
     if status = "session-expired" then return "Sign In Again"

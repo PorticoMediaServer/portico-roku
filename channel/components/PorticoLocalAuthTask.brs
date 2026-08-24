@@ -212,7 +212,7 @@ sub PorticoLocalAuthSelectManual(controller as object, rawAddress as dynamic)
     baseUrl = PorticoLocalAuthSecureBaseUrl(rawAddress)
     if baseUrl = ""
         controller.status = "manual-address-error"
-        controller.message = "Enter an HTTPS address for your Portico Server."
+        controller.message = "Enter a valid Portico Server address on this network."
         PorticoLocalAuthPublish(controller)
         return
     end if
@@ -270,7 +270,7 @@ function PorticoLocalAuthResolveSecureDiscoveredRoute(controller as object, cand
     certStatus = LCase(PorticoHttpScalarString(hint.data.certificateStatus, ""))
     if hostname = "" or (certStatus <> "valid" and certStatus <> "active")
         controller.status = "secure-route-required"
-        controller.message = "This server does not have a trusted secure route for Server Only Authentication."
+        controller.message = "This server does not have a trusted secure route for direct server sign-in."
         PorticoLocalAuthPublish(controller)
         return invalid
     end if
@@ -302,7 +302,7 @@ sub PorticoLocalAuthRequireTrustOrCredentials(controller as object)
     if pin <> invalid
         if pin.fingerprint <> selected.fingerprint or (pin.serverId <> "" and selected.serverId <> "" and pin.serverId <> selected.serverId)
             controller.status = "identity-changed"
-            controller.message = "This server's identity has changed. Server Only Authentication was blocked."
+            controller.message = "This server's identity has changed. Direct server sign-in was blocked."
             PorticoLocalAuthPublish(controller)
             return
         end if
@@ -390,7 +390,7 @@ sub PorticoLocalAuthSubmitSealedCredentials(controller as object, sealed as dyna
         if response.status = 401
             controller.message = "The username or password was not accepted."
         else if response.status = 403
-            controller.message = "Server Only Authentication is not enabled on this server."
+            controller.message = "Direct server sign-in is not enabled on this server."
         else if response.status = 429
             controller.message = "Too many sign-in attempts. Wait a moment and try again."
         else
@@ -466,7 +466,7 @@ function PorticoLocalAuthRefresh(controller as object, afterUnauthorized as bool
     rotation = PorticoLocalAuthPendingRotation(session)
     if rotation = invalid
         controller.status = "server-unavailable"
-        controller.message = "The server-only session couldn't be refreshed."
+        controller.message = "The direct server session couldn't be refreshed."
         PorticoLocalAuthPublish(controller)
         return false
     end if
@@ -475,14 +475,14 @@ function PorticoLocalAuthRefresh(controller as object, afterUnauthorized as bool
     if not response.ok
         if PorticoLocalAuthRefreshFailureIsTerminal(response)
             PorticoSecureRegistryClear("server-refresh-rotation")
-            PorticoLocalAuthClearSession(controller, "session-expired", "Your server-only session has expired.")
+            PorticoLocalAuthClearSession(controller, "session-expired", "Your direct server session has expired.")
         else
             controller.refreshFailures = controller.refreshFailures + 1
             if controller.refreshFailures > 6 then controller.refreshFailures = 6
             controller.nextRefreshAt = controller.clock.TotalSeconds() + 5 * (2 ^ (controller.refreshFailures - 1))
             if afterUnauthorized or PorticoSignedDocumentSecondsUntil(session.accessExpiresAt) <= 0
                 controller.status = "server-unavailable"
-                controller.message = "The server-only session couldn't be refreshed."
+                controller.message = "The direct server session couldn't be refreshed."
                 PorticoLocalAuthPublish(controller)
             end if
         end if
@@ -496,7 +496,7 @@ function PorticoLocalAuthRefresh(controller as object, afterUnauthorized as bool
         routeType: session.routeType, routeGeneration: session.routeGeneration
     }, response.data)
     if replacement = invalid or replacement.accountUserId <> session.accountUserId or replacement.accountDeviceId <> session.accountDeviceId
-        PorticoLocalAuthClearSession(controller, "session-expired", "Your server-only session could not be renewed.")
+        PorticoLocalAuthClearSession(controller, "session-expired", "Your direct server session could not be renewed.")
         return false
     end if
     committed = PorticoSecureRegistryCommit("server-session", replacement)
@@ -540,7 +540,7 @@ end function
 function PorticoLocalAuthRefreshFailureIsTerminal(response as object) as boolean
     code = ""
     if response.problem <> invalid and Type(response.problem) = "roAssociativeArray" then code = LCase(PorticoHttpScalarString(response.problem.code, ""))
-    return code = "server_session_revoked" or code = "invalid_refresh_token" or code = "refresh_token_reuse"
+    return code = "credential_revoked" or code = "refresh_reused" or code = "account_deleted" or code = "profile_deleted" or code = "membership_removed" or code = "server_session_revoked" or code = "invalid_refresh_token" or code = "refresh_token_reuse"
 end function
 
 sub PorticoLocalAuthScheduleRefresh(controller as object)
@@ -556,7 +556,7 @@ function PorticoLocalAuthValidateIdentity(controller as object, session as objec
     health = PorticoLocalAuthRequest(controller, "GET", session.apiBaseUrl + "/api/remote-access/health", invalid, invalid, 7000)
     if not health.ok
         controller.status = "server-unavailable"
-        controller.message = "The server-only connection is unavailable."
+        controller.message = "The direct server connection is unavailable."
         PorticoLocalAuthPublish(controller)
         return false
     end if
@@ -578,16 +578,16 @@ function PorticoLocalAuthValidateIdentity(controller as object, session as objec
     end if
     if not identity.ok
         if PorticoLocalAuthEndpointFailureIsTerminal(identity)
-            PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this server-only session.")
+            PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this direct server session.")
         else
             controller.status = "server-unavailable"
-            controller.message = "The server-only connection is unavailable."
+            controller.message = "The direct server connection is unavailable."
             PorticoLocalAuthPublish(controller)
         end if
         return false
     end if
     if identity.data = invalid or identity.data.authenticated <> true or LCase(PorticoHttpScalarString(identity.data.authProvider, "")) <> "local"
-        PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this server-only session.")
+        PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this direct server session.")
         return false
     end if
     user = identity.data.user
@@ -598,10 +598,10 @@ function PorticoLocalAuthValidateIdentity(controller as object, session as objec
     contract = PorticoLocalAuthRequest(controller, "GET", session.apiBaseUrl + "/api/product-contract", invalid, {Authorization: "Bearer " + session.accessToken}, 10000)
     if not contract.ok
         if PorticoLocalAuthEndpointFailureIsTerminal(contract)
-            PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this server-only session.")
+            PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this direct server session.")
         else
             controller.status = "server-unavailable"
-            controller.message = "The server-only connection is unavailable."
+            controller.message = "The direct server connection is unavailable."
             PorticoLocalAuthPublish(controller)
         end if
         return false
@@ -616,10 +616,10 @@ function PorticoLocalAuthValidateIdentity(controller as object, session as objec
     navigation = PorticoLocalAuthRequest(controller, "GET", session.apiBaseUrl + "/api/account/library-navigation", invalid, {Authorization: "Bearer " + session.accessToken}, 10000)
     if not libraries.ok or not navigation.ok
         if PorticoLocalAuthEndpointFailureIsTerminal(libraries) or PorticoLocalAuthEndpointFailureIsTerminal(navigation)
-            PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this server-only session.")
+            PorticoLocalAuthClearSession(controller, "session-expired", "The server did not accept this direct server session.")
         else
             controller.status = "server-unavailable"
-            controller.message = "The server-only connection could not load your libraries."
+            controller.message = "The direct server connection could not load your libraries."
             PorticoLocalAuthPublish(controller)
         end if
         return false
@@ -671,7 +671,7 @@ sub PorticoLocalAuthSignOut(controller as object)
     if not durable then durable = PorticoSecureRegistryClear("server-session")
     if not durable
         controller.status = "storage-error"
-        controller.message = "Server Only Authentication could not be removed from this Roku."
+        controller.message = "Direct server sign-in could not be removed from this Roku."
         PorticoLocalAuthPublish(controller)
         return
     end if

@@ -12,7 +12,7 @@ const bridge = read('channel/source/lib/PorticoLiveTv.brs');
 const runtime = read('channel/source/lib/PorticoChannelsRuntime.brs');
 const scene = read('channel/components/PorticoScene.brs');
 const main = read('channel/source/main.brs');
-const openapi = JSON.parse(read('../../apps/portico-server/api/openapi/portico-server.openapi.json'));
+const openapi = JSON.parse(read('../portico-server/api/openapi/portico-server.openapi.json'));
 
 for (const [path, verb] of [
   ['/live-tv/sources', 'get'], ['/live-tv/sources/{sourceId}/channels', 'get'], ['/live-tv/sources/{sourceId}/guide', 'get'],

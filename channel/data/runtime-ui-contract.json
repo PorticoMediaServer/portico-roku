@@ -54,7 +54,17 @@
     "summaryLineHeight": 32,
     "bottomPadding": 50
   },
-  "controls": {"height": 64, "primaryWidth": 166, "iconSize": 64, "iconGlyphSize": 29, "gap": 12, "labelSize": 21, "focusBorder": 3},
+  "controls": {"height": 64, "primaryWidth": 166, "iconSize": 64, "iconGlyphSize": 29, "gap": 12, "labelSize": 21, "focusBorder": 3, "primaryFill": "#70BCE8", "primaryFocusFill": "#378EC3", "primaryText": "#070B10"},
+  "auth": {
+    "action": {"width": 560, "height": 72, "radius": 8, "fill": "#70BCE8", "focusFill": "#378EC3", "text": "#070B10"},
+    "credentialField": {"width": 560, "height": 72, "radius": 8, "fill": "#101820", "focusFill": "#151F29", "border": "rgba(112,188,232,.30)", "focusBorder": "#EAF6FF"},
+    "legal": {"focusable": false, "termsUrl": "getportico.tv/terms", "privacyUrl": "getportico.tv/privacy"},
+    "tvNavigation": {"minimumTargetHeight": 64, "inlineLinks": false, "backUnwindsSubpage": true}
+  },
+  "motion": {
+    "pageTransition": {"enabled": true, "durationMs": 200, "style": "fade-through", "animatedProperty": "opacity", "minimumDurationMs": 180, "maximumDurationMs": 220},
+    "reducedMotion": {"runtimeField": "reducedMotion", "animationEnabledField": "animationsEnabled", "immediate": true}
+  },
   "player": {
     "identityX": 72,
     "identityY": 58,

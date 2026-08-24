@@ -13,6 +13,7 @@ const presenter = read('channel/source/player/PorticoPlayerPresenter.brs');
 const transport = read('channel/components/PorticoPlayerTransportButton.brs');
 const transportXml = read('channel/components/PorticoPlayerTransportButton.xml');
 const playbackTask = read('channel/components/PorticoPlaybackTask.brs');
+const scene = read('channel/components/PorticoScene.brs');
 const assets = read('scripts/generate-assets.mjs');
 const contract = JSON.parse(read('channel/data/visual-contract.json'));
 
@@ -54,6 +55,9 @@ assert.doesNotMatch(presenter, /reveal-chrome/);
 assert.match(player, /semanticId: PorticoPlayerPresenterSemanticId\(m\.playerPresenter\)/);
 
 assert.match(player, /PorticoPlayerControllerIsAudio\(m\.playerController\)[\s\S]*PorticoPlayerEmit\("exit-browsing", \{exitRequested: true, keepPlayback: true/);
+assert.match(scene, /m\.route <> "player" and m\.playerScreen <> invalid and not PorticoSceneBackgroundAudioActive\(\)/);
+assert.match(scene, /m\.playerScreen\.viewState = activePlaybackModel\(\)/);
+assert.match(scene, /function PorticoSceneBackgroundAudioActive\(\)[\s\S]*mediaType = "audiobook"/);
 assert.match(player, /PorticoPlayerEmit\("stop", \{exitRequested: true/);
 assert.match(player, /if kind = "stop"[\s\S]*m\.playerController\.stopEventEmitted/);
 assert.match(player, /key = "play" and controlsAvailable and not overlayVisible[\s\S]*PorticoPlayerTogglePlayback\(\)/);
@@ -61,6 +65,11 @@ assert.match(player, /key = "play" and controlsAvailable and not overlayVisible[
 assert.match(player, /PorticoPlayerControllerAccepts\(m\.playerController, model\.playbackGeneration, model\.sourceGeneration\)/);
 assert.match(player, /m\.playerController\.privateContent\.porticoPlaybackGeneration/);
 assert.match(player, /m\.playerController\.video\.content = content/);
+assert.match(
+  player,
+  /sourceGenerationChanged[\s\S]*PorticoPlayerStopVideo\(\)[\s\S]*video\.content = invalid[\s\S]*privateSourceGeneration <> model\.sourceGeneration/,
+  'A newer source generation must fence the old Video content before replacement private content arrives',
+);
 assert.match(player, /m\.playerController\.video\.observeField\("position", "onVideoPositionChanged"\)/);
 assert.doesNotMatch(player, /Print|roUrlTransfer|accessToken|grantToken|sessionId|apiBaseUrl/i);
 

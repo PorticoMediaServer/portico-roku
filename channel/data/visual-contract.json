@@ -65,7 +65,20 @@
     "iconGlyphSize": 29,
     "gap": 12,
     "labelSize": 21,
-    "focusBorder": 3
+    "focusBorder": 3,
+    "primaryFill": "#70BCE8",
+    "primaryFocusFill": "#378EC3",
+    "primaryText": "#070B10"
+  },
+  "auth": {
+    "action": {"width": 560, "height": 72, "radius": 8, "fill": "#70BCE8", "focusFill": "#378EC3", "text": "#070B10"},
+    "credentialField": {"width": 560, "height": 72, "radius": 8, "fill": "#101820", "focusFill": "#151F29", "border": "rgba(112,188,232,.30)", "focusBorder": "#EAF6FF"},
+    "legal": {"focusable": false, "termsUrl": "getportico.tv/terms", "privacyUrl": "getportico.tv/privacy"},
+    "tvNavigation": {"minimumTargetHeight": 64, "inlineLinks": false, "backUnwindsSubpage": true}
+  },
+  "motion": {
+    "pageTransition": {"enabled": true, "durationMs": 200, "style": "fade-through", "animatedProperty": "opacity", "minimumDurationMs": 180, "maximumDurationMs": 220},
+    "reducedMotion": {"runtimeField": "reducedMotion", "animationEnabledField": "animationsEnabled", "immediate": true}
   },
   "player": {
     "identityX": 72,
@@ -119,7 +132,7 @@
       "meta": "TV Show  ·  2015  ·  TV-MA  ·  48m",
       "summary": "An unexpected crime fractures a quiet Midwestern town and draws a patient state trooper into its orbit.",
       "watchlisted": true,
-      "backdrop": "pkg:/images/backdrops/fargo.jpg"
+      "backdrop": "pkg:/images/backdrops/fargo.png"
     },
     "continueWatching": [
       {"id": "fargo", "title": "Fargo", "meta": "2015", "poster": "pkg:/images/posters/fargo.png", "progress": 64},
@@ -135,7 +148,7 @@
           "meta": "TV Show  ·  2018  ·  TV-14  ·  43m",
           "summary": "A late-career police recruit learns that experience can be as valuable as speed.",
           "watchlisted": false,
-          "backdrop": "pkg:/images/backdrops/rookie.jpg"
+          "backdrop": "pkg:/images/backdrops/rookie.png"
         }
       },
       {"id": "project-hail-mary", "title": "Project Hail Mary", "meta": "2021", "poster": "pkg:/images/posters/project-hail-mary.png", "progress": 21}
@@ -155,7 +168,7 @@
     "title": "The Hammer",
     "meta": "S06 E04  ·  43 min  ·  TV-14",
     "summary": "The team must help Tim and Lucy navigate a difficult day while a case puts the station under pressure.",
-    "backdrop": "pkg:/images/backdrops/rookie.jpg",
+    "backdrop": "pkg:/images/backdrops/rookie.png",
     "progress": 37,
     "episodes": [
       {"id": "rookie-s06e03", "title": "Training Day", "meta": "S06 E03  ·  43 min", "artwork": "pkg:/images/backdrops/rookie-episode-1.png", "progress": 100},

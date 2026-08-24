@@ -18,6 +18,8 @@ sub init()
     m.accountMessage = m.top.findNode("accountMessage")
     m.accountOr = m.top.findNode("accountOr")
     m.accountError = m.top.findNode("accountError")
+    m.legalNotice = m.top.findNode("legalNotice")
+    m.legalUrls = m.top.findNode("legalUrls")
     m.actionsGroup = m.top.findNode("actions")
     m.actions = [m.top.findNode("action0"), m.top.findNode("action1"), m.top.findNode("action2"), m.top.findNode("action3"), m.top.findNode("action4")]
 
@@ -50,6 +52,12 @@ sub init()
     m.accountOr.text = "or"
     m.accountError.font = PorticoFont("500", 20)
     m.accountError.color = "#FF5C77"
+    m.legalNotice.font = PorticoFont("400", 18)
+    m.legalNotice.color = "#8F9BA6"
+    m.legalNotice.text = "By continuing, you agree to Portico's terms and privacy policy."
+    m.legalUrls.font = PorticoFont("500", 18)
+    m.legalUrls.color = "#70BCE8"
+    m.legalUrls.text = "Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy"
 
     m.top.focusable = true
     m.focusedAction = 0
@@ -87,7 +95,8 @@ sub renderAuthGate(model as object)
     PorticoAuthGateApplyLines(m.messages, PorticoBreakText(message, 620, 27, "400", 2))
     m.verificationUri.text = PorticoAuthGateText(model.verificationDisplayUri, 160)
     m.verificationUri.visible = m.stateName = "account-code" and m.verificationUri.text <> ""
-    renderAuthCode(PorticoAuthGateText(model.code, 9))
+    code = PorticoAuthGateText(model.code, 9)
+    renderAuthCode(code)
     PorticoAuthGateApplyLines(m.details, PorticoBreakText(detail, 620, 23, "400", 2))
     m.loadingDots.visible = m.stateName = "account-loading" or m.stateName = "local-loading"
     m.accountError.text = PorticoAuthGateText(model.accountSignInError, 180)
@@ -260,19 +269,19 @@ end function
 
 function PorticoAuthGateDefaults(stateName as string) as object
     if stateName = "account-loading"
-        return {eyebrow: "", title: "Quick connect", message: "Preparing your sign-in code…", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in with server-only authentication", primary: false}]}
+        return {eyebrow: "", title: "Quick connect", message: "Preparing your sign-in code…", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in directly to a server", primary: false}]}
     else if stateName = "account-code"
-        return {eyebrow: "", title: "Quick connect", message: "Open Portico on your phone and enter this code.", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in with server-only authentication", primary: false}]}
+        return {eyebrow: "", title: "Quick connect", message: "Open Portico on your phone and enter this code.", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in directly to a server", primary: false}]}
     else if stateName = "account-error"
-        return {eyebrow: "", title: "Quick connect unavailable", message: "Portico couldn't create a quick-connect code.", detail: "", actions: [{id: "start-account-setup", label: "Try Again", primary: false}, {id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in with server-only authentication", primary: false}]}
+        return {eyebrow: "", title: "Quick connect unavailable", message: "Portico couldn't create a quick-connect code.", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in directly to a server", primary: false}]}
     else if stateName = "local-loading"
-        return {eyebrow: "SERVER ONLY", title: "Looking for your server", message: "Searching the local network for Portico servers…", detail: "", actions: [{id: "back-auth-landing", label: "Back", primary: false}]}
+        return {eyebrow: "DIRECT SERVER", title: "Looking for your server", message: "Searching the local network for Portico servers…", detail: "", actions: [{id: "back-auth-landing", label: "Back", primary: false}]}
     else if stateName = "local-error"
-        return {eyebrow: "SERVER ONLY", title: "Server unavailable", message: "No reachable Portico server was found on this local network.", detail: "", actions: [{id: "back-auth-landing", label: "Back", primary: false}]}
+        return {eyebrow: "DIRECT SERVER", title: "Server unavailable", message: "No reachable Portico server was found on this local network.", detail: "", actions: [{id: "back-auth-landing", label: "Back", primary: false}]}
     else if stateName = "local"
-        return {eyebrow: "SERVER ONLY", title: "Server Only Authentication", message: "Connect directly to a Portico server with a local profile.", detail: "", actions: [{id: "back-auth-landing", label: "Back", primary: false}]}
+        return {eyebrow: "DIRECT SERVER", title: "Direct server sign-in", message: "Connect using your server address and server credentials. No Portico Account is used.", detail: "", actions: [{id: "back-auth-landing", label: "Back", primary: false}]}
     end if
-    return {eyebrow: "", title: "Quick connect", message: "Preparing your sign-in code…", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in with server-only authentication", primary: false}]}
+    return {eyebrow: "", title: "Quick connect", message: "Preparing your sign-in code…", detail: "", actions: [{id: "account-login", label: "Username or email", primary: false}, {id: "account-password", label: "Password", primary: false}, {id: "account-submit", label: "Sign In", primary: true}, {id: "start-local-auth", label: "Sign in directly to a server", primary: false}]}
 end function
 
 function PorticoAuthGateActions(source as object) as object

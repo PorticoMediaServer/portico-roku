@@ -917,29 +917,6 @@
       },
       "method": "GET",
       "mutation": false,
-      "operationId": "getAuthTvSetupSessionsSetupSessionId",
-      "path": "/auth/tv-setup/sessions/{setupSessionId}",
-      "permission": "public",
-      "ratePolicy": "auth-sensitive",
-      "responseSchemas": [
-        "TVSetupSession"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "public",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "GET",
-      "mutation": false,
       "operationId": "getBranding",
       "path": "/branding",
       "permission": "public",
@@ -3372,52 +3349,6 @@
     },
     {
       "audience": "viewer",
-      "auth": "public",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "POST",
-      "mutation": true,
-      "operationId": "postAuthTvSetupRedeem",
-      "path": "/auth/tv-setup/redeem",
-      "permission": "public",
-      "ratePolicy": "auth-sensitive",
-      "responseSchemas": [
-        "NativeSessionCredentials"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "public",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "POST",
-      "mutation": true,
-      "operationId": "postAuthTvSetupSessions",
-      "path": "/auth/tv-setup/sessions",
-      "permission": "public",
-      "ratePolicy": "auth-sensitive",
-      "responseSchemas": [
-        "TVSetupSession"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
       "auth": "session",
       "idempotency": {
         "location": "none",
@@ -4406,11 +4337,11 @@
   "sources": {
     "hostedOpenApi": {
       "name": "portico-hosted.openapi.json",
-      "sha256": "d086a6c580f17fb21d593339c81964f698ed4c5b5256cdbc4db0d5a1cf3b3024"
+      "sha256": "d5ff9c6ad08e945c8e6166da1e0c8af6600bef77de0b352b8322fca457fa31c8"
     },
     "serverOpenApi": {
       "name": "portico-server.openapi.json",
-      "sha256": "01aec71b9afba7accf3df904dd4608584c94593b762c809a8aff3fdd74e74819"
+      "sha256": "d39045845e13f08616852c4c6c1cdfa6a41b289b9fdda7cc22609404cfbebc6c"
     }
   }
 }

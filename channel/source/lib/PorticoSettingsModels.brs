@@ -4,13 +4,15 @@ function PorticoSettingsModel(runtime as dynamic, language = invalid as dynamic)
     serverName = PorticoSettingsText(runtime.selectedServerName, PorticoSettingsCopy(language, "settings.no-server-connected", "No server connected"), 100)
     authMode = LCase(PorticoSettingsText(runtime.authMode, "hosted", 24))
     authLabel = "Portico Account"
-    if authMode = "local" then authLabel = "Server Only Authentication"
+    if authMode = "local" then authLabel = "Direct server sign-in"
     serverDescription = PorticoSettingsCopy(language, "settings.account.server-description", "Choose another server shared with this account")
     serverAction = "open-server-selection"
     if authMode = "local"
-        serverDescription = "Current server-only connection"
+        serverDescription = "Current direct server connection"
         serverAction = "open-connection"
     end if
+    serverSwitchVisible = authMode <> "local" and PorticoSettingsServerCount(runtime.availableServers) > 1
+    serverRowVisible = authMode = "local" or serverSwitchVisible
     connection = PorticoSettingsConnection(runtime.serverStatus, language)
     preferenceState = PorticoSettingsPreferences(runtime.viewerPreferences)
     preferenceStatus = LCase(PorticoSettingsText(runtime.preferencesStatus, "idle", 24))
@@ -50,7 +52,7 @@ function PorticoSettingsModel(runtime as dynamic, language = invalid as dynamic)
         rows: [
             {id: "preference-state", section: "account", label: PorticoSettingsCopy(language, preferenceMessageId, "Preferences unavailable"), description: PorticoSettingsBody(language, preferenceMessageId, "Reconnect and try again."), iconId: "status.warning", kind: "action", value: PorticoSettingsCopy(language, "action.retry", "Try again"), actionable: online and preferenceStatus <> "loading", visible: showPreferenceState},
             {id: "profile", section: "account", label: profileName, description: authLabel, iconId: "account.profile", kind: "action", value: PorticoSettingsCopy(language, "profiles.label.profile", "Profile"), actionable: true, visible: true},
-            {id: "server", section: "account", label: PorticoSettingsCopy(language, "settings.label.server", "Server"), description: serverDescription, iconId: "navigation.library", kind: "action", value: connection.label, actionable: true, visible: true},
+            {id: "server", section: "account", label: PorticoSettingsCopy(language, "settings.label.server", "Server"), description: serverDescription, iconId: "navigation.library", kind: "action", value: connection.label, actionable: serverRowVisible, visible: serverRowVisible},
             {id: "automatic-profile", section: "account", label: "Open profile automatically", description: "Open the last verified profile on this Roku.", iconId: "account.profile", kind: "toggle", checked: automatic, actionable: preferenceAvailable and online, visible: true},
             {id: "account-security", section: "account", label: "Account security", description: "Continue account and security changes on a phone or computer.", iconId: "metadata.info", kind: "action", value: "Show link", actionable: true, visible: authMode <> "local"},
             {id: "feedback", section: "account", label: PorticoSettingsCopy(language, "feedback.heading.message", "Send a message"), description: "Send a private message or report a problem to this server's owner.", iconId: "metadata.info", kind: "action", value: "", actionable: canFeedback, visible: true},
@@ -67,6 +69,11 @@ function PorticoSettingsModel(runtime as dynamic, language = invalid as dynamic)
             {id: "sign-out", section: "account-action", label: PorticoSettingsCopy(language, "action.sign-out", "Sign out"), description: authLabel, iconId: "account.sign-out", kind: "action", value: "", actionable: true, visible: true}
         ]
     }
+end function
+
+function PorticoSettingsServerCount(value as dynamic) as integer
+    if value = invalid or GetInterface(value, "ifArray") = invalid then return 0
+    return value.Count()
 end function
 
 function PorticoSettingsPreferences(value as dynamic) as object

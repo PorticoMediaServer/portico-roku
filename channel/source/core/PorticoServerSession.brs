@@ -1,5 +1,5 @@
 function PorticoServerSessionVersion() as integer
-    return 2
+    return 3
 end function
 
 function PorticoServerSessionRecord(credentials as dynamic, route as dynamic, expected as dynamic) as dynamic
@@ -39,7 +39,7 @@ function PorticoServerSessionRecord(credentials as dynamic, route as dynamic, ex
     apiBaseUrl = PorticoServerSessionSecureBaseUrl(route.apiBaseUrl, allowInsecureLan)
     fingerprint = PorticoCoreSafeText(route.serverPublicKeyFingerprint, 256)
     if apiBaseUrl = "" or fingerprint = "" then return invalid
-    return {
+    result = {
         version: PorticoServerSessionVersion(), purpose: "profile-bound-native-server-session", signedOut: false,
         authority: authority, accountId: accountId, serverId: serverId, profileId: profileId,
         authorizationRevision: authorizationRevision, routeGeneration: routeGeneration, installationId: installationId,
@@ -51,6 +51,9 @@ function PorticoServerSessionRecord(credentials as dynamic, route as dynamic, ex
         accessExpiresAt: PorticoCoreSafeText(credentials.accessExpiresAt, 64),
         refreshExpiresAt: PorticoCoreSafeText(credentials.refreshExpiresAt, 64)
     }
+    previous = PorticoServerSessionPreviousRoute(route)
+    if previous <> invalid then result.previousRoute = previous
+    return result
 end function
 
 function PorticoServerSessionStored(value as dynamic) as dynamic
@@ -70,7 +73,32 @@ function PorticoServerSessionStored(value as dynamic) as dynamic
     if Left(accessToken, Len(prefixes.access)) <> prefixes.access or Len(accessToken) < 24 then return invalid
     if Left(refreshToken, Len(prefixes.refresh)) <> prefixes.refresh or Len(refreshToken) < 24 then return invalid
     if PorticoSignedDocumentSecondsUntil(value.refreshExpiresAt) = invalid or PorticoSignedDocumentSecondsUntil(value.refreshExpiresAt) <= 0 then return invalid
+    if value.previousRoute <> invalid and PorticoServerSessionPreviousRoute(value) = invalid then return invalid
     return value
+end function
+
+function PorticoServerSessionRouteRecord(source as dynamic) as dynamic
+    if not PorticoCoreIsAssociativeArray(source) then return invalid
+    serverId = PorticoServerSessionId(source.serverId)
+    fingerprint = PorticoCoreSafeText(source.serverPublicKeyFingerprint, 256)
+    routeGeneration = PorticoServerSessionId(source.routeGeneration)
+    routeType = PorticoCoreSafeIdentifier(source.routeType, 48)
+    allowInsecureLan = PorticoServerSessionRouteAllowsInsecureLan(routeType)
+    apiBaseUrl = PorticoServerSessionSecureBaseUrl(source.apiBaseUrl, allowInsecureLan)
+    if serverId = "" or fingerprint = "" or routeGeneration = "" or routeType = "" or apiBaseUrl = "" then return invalid
+    return {
+        apiBaseUrl: apiBaseUrl, routeType: routeType, allowInsecureLan: allowInsecureLan,
+        serverId: serverId, serverPublicKeyFingerprint: fingerprint, routeGeneration: routeGeneration
+    }
+end function
+
+function PorticoServerSessionPreviousRoute(session as dynamic) as dynamic
+    if not PorticoCoreIsAssociativeArray(session) or not PorticoCoreIsAssociativeArray(session.previousRoute) then return invalid
+    current = PorticoServerSessionRouteRecord(session)
+    previous = PorticoServerSessionRouteRecord(session.previousRoute)
+    if current = invalid or previous = invalid then return invalid
+    if previous.serverId <> current.serverId or previous.serverPublicKeyFingerprint <> current.serverPublicKeyFingerprint then return invalid
+    return previous
 end function
 
 function PorticoServerSessionRequestProjection(value as dynamic, scope as dynamic, registryGeneration = 0 as integer) as dynamic
