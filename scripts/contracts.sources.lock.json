@@ -2,6 +2,6 @@
   "schemaVersion": 1,
   "server": {
     "repository": "PorticoMediaServer/portico-server",
-    "ref": "1ec925607c20236fe17353bc3fcfcec49b3bddf3"
+    "ref": "c420653741ed134073d7e3be62793e3fb7e7b1c5"
   }
 }
