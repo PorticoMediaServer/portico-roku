@@ -1,0 +1,3299 @@
+{
+  "schemaVersion": 1,
+  "registryVersion": "1.0.0",
+  "states": [
+    "default",
+    "focused",
+    "selected",
+    "disabled",
+    "rail",
+    "dark-background",
+    "destructive"
+  ],
+  "semanticToMaster": {
+    "accessibility.audio-description": "ear",
+    "accessibility.captions": "captions",
+    "accessibility.universal": "accessibility",
+    "account.edit-profile": "pencil",
+    "account.profile": "circle-user-round",
+    "account.profiles": "users",
+    "account.security": "key-round",
+    "account.sign-in": "log-in",
+    "account.sign-out": "log-out",
+    "account.user": "user-round",
+    "account.verified": "shield-check",
+    "account.visibility.hide": "eye-off",
+    "account.visibility.show": "eye",
+    "account.watch-together": "users",
+    "action.add": "plus",
+    "action.add-to-list": "list-plus",
+    "action.archive": "archive",
+    "action.cancel": "x",
+    "action.clear": "x",
+    "action.close": "x",
+    "action.confirm": "check",
+    "action.customize": "sliders-horizontal",
+    "action.delete": "trash-2",
+    "action.dislike": "thumbs-down",
+    "action.dismiss": "check",
+    "action.download": "download",
+    "action.edit": "pencil",
+    "action.favorite": "heart",
+    "action.feedback": "message-square",
+    "action.filter": "sliders-horizontal",
+    "action.fullscreen-enter": "maximize-2",
+    "action.fullscreen-exit": "minimize-2",
+    "action.like": "thumbs-up",
+    "action.mark-read": "check",
+    "action.mark-unread": "mail",
+    "action.mark-watched": "check",
+    "action.more": "ellipsis",
+    "action.open-external": "external-link",
+    "action.optimize": "gauge",
+    "action.pin": "pin",
+    "action.prepare-download": "download-cloud",
+    "action.rate": "star",
+    "action.reaction": "thumbs-up",
+    "action.refresh": "refresh-cw",
+    "action.remove": "x",
+    "action.report": "message-square-warning",
+    "action.reset": "rotate-ccw",
+    "action.resolve": "circle-check",
+    "action.retry": "refresh-cw",
+    "action.send": "send",
+    "action.sort": "arrow-down-a-z",
+    "action.sort-ascending": "arrow-up-a-z",
+    "action.sort-descending": "arrow-down-z-a",
+    "action.switch-server": "server",
+    "action.undo": "rotate-ccw",
+    "action.unpin": "pin-off",
+    "action.watchlist": "bookmark",
+    "appearance.dark-mode": "moon",
+    "communication.inbox": "inbox",
+    "communication.message": "message-square",
+    "communication.microphone": "mic-2",
+    "communication.notifications": "bell",
+    "communication.report": "message-square-warning",
+    "device.client": "monitor-smartphone",
+    "device.display": "monitor",
+    "device.nearby": "radar",
+    "device.network": "network",
+    "device.offline": "wifi-off",
+    "device.server": "server",
+    "device.storage": "hard-drive",
+    "device.tv": "tv",
+    "device.wifi": "wifi",
+    "library.archive": "archive",
+    "library.collection": "library",
+    "library.saved": "folder-heart",
+    "library.storage": "hard-drive",
+    "media.audiobook": "headphones",
+    "media.calendar": "calendar-days",
+    "media.collection": "grid-3x3",
+    "media.live-tv": "tv",
+    "media.movie": "film",
+    "media.music": "music-2",
+    "media.photo": "camera",
+    "media.playlist": "list-music",
+    "media.video": "video",
+    "metadata.info": "info",
+    "metadata.time": "clock-3",
+    "navigation.back": "arrow-left",
+    "navigation.channels": "radio",
+    "navigation.collapse": "chevron-up",
+    "navigation.disclosure": "chevron-right",
+    "navigation.expand": "chevron-down",
+    "navigation.forward": "arrow-right",
+    "navigation.home": "home",
+    "navigation.library": "library",
+    "navigation.move-down": "chevron-down",
+    "navigation.move-up": "chevron-up",
+    "navigation.next": "chevron-right",
+    "navigation.previous": "chevron-left",
+    "navigation.saved": "folder-heart",
+    "navigation.search": "search",
+    "navigation.settings": "settings",
+    "playback.audio": "headphones",
+    "playback.autoplay": "play-circle",
+    "playback.captions": "captions",
+    "playback.chapters": "list",
+    "playback.language": "languages",
+    "playback.lyrics": "mic-2",
+    "playback.mute": "volume-x",
+    "playback.next": "skip-forward",
+    "playback.pause": "pause",
+    "playback.picture-in-picture": "picture-in-picture-2",
+    "playback.play": "play",
+    "playback.previous": "skip-back",
+    "playback.quality": "gauge",
+    "playback.queue": "list-video",
+    "playback.record": "circle",
+    "playback.repeat": "repeat",
+    "playback.repeat-one": "repeat-1",
+    "playback.replay": "rotate-ccw",
+    "playback.restart": "rotate-ccw",
+    "playback.route.airplay": "airplay",
+    "playback.route.cast": "cast",
+    "playback.seek-back": "rotate-ccw",
+    "playback.seek-forward": "rotate-cw",
+    "playback.shuffle": "shuffle",
+    "playback.speed": "gauge",
+    "playback.subtitles": "subtitles",
+    "playback.technical-stats": "activity",
+    "playback.unmute": "volume-2",
+    "playback.up-next": "list-video",
+    "playback.volume": "volume-2",
+    "preference.downloads": "download",
+    "preference.language": "languages",
+    "preference.notifications": "bell",
+    "preference.playback": "sliders-horizontal",
+    "preference.quality": "gauge",
+    "preference.seek-interval": "rotate-cw",
+    "preference.storage": "hard-drive",
+    "status.active": "circle",
+    "status.artwork-unavailable": "image-off",
+    "status.downloaded": "circle-check",
+    "status.downloading": "download",
+    "status.empty": "inbox",
+    "status.error": "circle-x",
+    "status.icon-mapping-missing": "triangle-alert",
+    "status.info": "info",
+    "status.live": "radio",
+    "status.loading": "loader-circle",
+    "status.locked": "lock-keyhole",
+    "status.notification": "bell",
+    "status.offline": "wifi-off",
+    "status.online": "wifi",
+    "status.rate-limited": "clock-3",
+    "status.secure": "shield-check",
+    "status.selected": "check",
+    "status.success": "circle-check",
+    "status.warning": "triangle-alert",
+    "view.calendar": "calendar-days",
+    "view.details": "info",
+    "view.grid": "grid-3x3",
+    "view.list": "list"
+  },
+  "masters": {
+    "accessibility": {
+      "default": {
+        "path": "accessibility-default.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      },
+      "focused": {
+        "path": "accessibility-focused.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      },
+      "selected": {
+        "path": "accessibility-selected.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      },
+      "disabled": {
+        "path": "accessibility-disabled.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      },
+      "rail": {
+        "path": "accessibility-rail.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      },
+      "dark-background": {
+        "path": "accessibility-dark-background.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      },
+      "destructive": {
+        "path": "accessibility-destructive.png",
+        "sha256": "025ef7cee1bdb6efed8461a7226abe5cfb50f5d2ff9f9776126143190adf1442"
+      }
+    },
+    "activity": {
+      "default": {
+        "path": "activity-default.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      },
+      "focused": {
+        "path": "activity-focused.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      },
+      "selected": {
+        "path": "activity-selected.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      },
+      "disabled": {
+        "path": "activity-disabled.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      },
+      "rail": {
+        "path": "activity-rail.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      },
+      "dark-background": {
+        "path": "activity-dark-background.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      },
+      "destructive": {
+        "path": "activity-destructive.png",
+        "sha256": "30f465dfcde2e4ece1bfef9913300cb82d3a7e5d0c1ff22bef1844c4ff6725aa"
+      }
+    },
+    "airplay": {
+      "default": {
+        "path": "airplay-default.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      },
+      "focused": {
+        "path": "airplay-focused.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      },
+      "selected": {
+        "path": "airplay-selected.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      },
+      "disabled": {
+        "path": "airplay-disabled.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      },
+      "rail": {
+        "path": "airplay-rail.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      },
+      "dark-background": {
+        "path": "airplay-dark-background.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      },
+      "destructive": {
+        "path": "airplay-destructive.png",
+        "sha256": "2417e6d129cc30cff97304fa3e298be9297dbccf71e24198f707327d4779d7f1"
+      }
+    },
+    "archive": {
+      "default": {
+        "path": "archive-default.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      },
+      "focused": {
+        "path": "archive-focused.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      },
+      "selected": {
+        "path": "archive-selected.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      },
+      "disabled": {
+        "path": "archive-disabled.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      },
+      "rail": {
+        "path": "archive-rail.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      },
+      "dark-background": {
+        "path": "archive-dark-background.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      },
+      "destructive": {
+        "path": "archive-destructive.png",
+        "sha256": "cd1f6618dccae09cb988ac0bc57548f1e824326c3c83e1d89cfbfbbb240695e3"
+      }
+    },
+    "arrow-down-a-z": {
+      "default": {
+        "path": "arrow-down-a-z-default.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      },
+      "focused": {
+        "path": "arrow-down-a-z-focused.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      },
+      "selected": {
+        "path": "arrow-down-a-z-selected.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      },
+      "disabled": {
+        "path": "arrow-down-a-z-disabled.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      },
+      "rail": {
+        "path": "arrow-down-a-z-rail.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      },
+      "dark-background": {
+        "path": "arrow-down-a-z-dark-background.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      },
+      "destructive": {
+        "path": "arrow-down-a-z-destructive.png",
+        "sha256": "b4f7199aa6b53dcf904e73c23ddcec47f4a9cbc56437e1f92575dc70c5ccb117"
+      }
+    },
+    "arrow-down-z-a": {
+      "default": {
+        "path": "arrow-down-z-a-default.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      },
+      "focused": {
+        "path": "arrow-down-z-a-focused.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      },
+      "selected": {
+        "path": "arrow-down-z-a-selected.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      },
+      "disabled": {
+        "path": "arrow-down-z-a-disabled.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      },
+      "rail": {
+        "path": "arrow-down-z-a-rail.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      },
+      "dark-background": {
+        "path": "arrow-down-z-a-dark-background.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      },
+      "destructive": {
+        "path": "arrow-down-z-a-destructive.png",
+        "sha256": "30d5c3d9750196996713b9cc7baa8755ccb40e396b9597f78acbb46fd2b0593d"
+      }
+    },
+    "arrow-left": {
+      "default": {
+        "path": "arrow-left-default.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      },
+      "focused": {
+        "path": "arrow-left-focused.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      },
+      "selected": {
+        "path": "arrow-left-selected.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      },
+      "disabled": {
+        "path": "arrow-left-disabled.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      },
+      "rail": {
+        "path": "arrow-left-rail.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      },
+      "dark-background": {
+        "path": "arrow-left-dark-background.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      },
+      "destructive": {
+        "path": "arrow-left-destructive.png",
+        "sha256": "d374a17091ca0ad22efb6a191806457e9971f65c2583984a70baa3cfb6b49543"
+      }
+    },
+    "arrow-right": {
+      "default": {
+        "path": "arrow-right-default.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      },
+      "focused": {
+        "path": "arrow-right-focused.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      },
+      "selected": {
+        "path": "arrow-right-selected.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      },
+      "disabled": {
+        "path": "arrow-right-disabled.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      },
+      "rail": {
+        "path": "arrow-right-rail.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      },
+      "dark-background": {
+        "path": "arrow-right-dark-background.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      },
+      "destructive": {
+        "path": "arrow-right-destructive.png",
+        "sha256": "19652bfb15b251c69a40feb6a9d45ca2b8a9329a15658f9a6448d8154f0c3526"
+      }
+    },
+    "arrow-up-a-z": {
+      "default": {
+        "path": "arrow-up-a-z-default.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      },
+      "focused": {
+        "path": "arrow-up-a-z-focused.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      },
+      "selected": {
+        "path": "arrow-up-a-z-selected.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      },
+      "disabled": {
+        "path": "arrow-up-a-z-disabled.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      },
+      "rail": {
+        "path": "arrow-up-a-z-rail.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      },
+      "dark-background": {
+        "path": "arrow-up-a-z-dark-background.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      },
+      "destructive": {
+        "path": "arrow-up-a-z-destructive.png",
+        "sha256": "a20f33b910b98e65b3ff00aba16ba3820a2111ede8af4292143ffbd5b069bed3"
+      }
+    },
+    "bell": {
+      "default": {
+        "path": "bell-default.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      },
+      "focused": {
+        "path": "bell-focused.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      },
+      "selected": {
+        "path": "bell-selected.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      },
+      "disabled": {
+        "path": "bell-disabled.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      },
+      "rail": {
+        "path": "bell-rail.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      },
+      "dark-background": {
+        "path": "bell-dark-background.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      },
+      "destructive": {
+        "path": "bell-destructive.png",
+        "sha256": "5a24f86fed2d6608f4570c60e785ae99ad2f08afc15be6c13352729f2a11d70f"
+      }
+    },
+    "bookmark": {
+      "default": {
+        "path": "bookmark-default.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a"
+      },
+      "focused": {
+        "path": "bookmark-focused.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a"
+      },
+      "selected": {
+        "path": "bookmark-selected.png",
+        "sha256": "3a1cc3051dabdf3ca97619845247335abde32fbb1de24dd76b4e88b92f40c587"
+      },
+      "disabled": {
+        "path": "bookmark-disabled.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a"
+      },
+      "rail": {
+        "path": "bookmark-rail.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a"
+      },
+      "dark-background": {
+        "path": "bookmark-dark-background.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a"
+      },
+      "destructive": {
+        "path": "bookmark-destructive.png",
+        "sha256": "c02fc9eebbdf2eda8aab1f912701eb1f01bea44f2920ae930b490d643b89989a"
+      }
+    },
+    "calendar-days": {
+      "default": {
+        "path": "calendar-days-default.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      },
+      "focused": {
+        "path": "calendar-days-focused.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      },
+      "selected": {
+        "path": "calendar-days-selected.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      },
+      "disabled": {
+        "path": "calendar-days-disabled.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      },
+      "rail": {
+        "path": "calendar-days-rail.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      },
+      "dark-background": {
+        "path": "calendar-days-dark-background.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      },
+      "destructive": {
+        "path": "calendar-days-destructive.png",
+        "sha256": "5f021b7046f3e53a5341d39cd154517140a50770374cde03ea6952b167475baa"
+      }
+    },
+    "camera": {
+      "default": {
+        "path": "camera-default.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      },
+      "focused": {
+        "path": "camera-focused.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      },
+      "selected": {
+        "path": "camera-selected.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      },
+      "disabled": {
+        "path": "camera-disabled.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      },
+      "rail": {
+        "path": "camera-rail.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      },
+      "dark-background": {
+        "path": "camera-dark-background.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      },
+      "destructive": {
+        "path": "camera-destructive.png",
+        "sha256": "ec2fa9469c8b5535a763e61d433ceb11b54db16b5cc2d163b3552d706a34e806"
+      }
+    },
+    "captions": {
+      "default": {
+        "path": "captions-default.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "focused": {
+        "path": "captions-focused.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "selected": {
+        "path": "captions-selected.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "disabled": {
+        "path": "captions-disabled.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "rail": {
+        "path": "captions-rail.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "dark-background": {
+        "path": "captions-dark-background.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "destructive": {
+        "path": "captions-destructive.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      }
+    },
+    "cast": {
+      "default": {
+        "path": "cast-default.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      },
+      "focused": {
+        "path": "cast-focused.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      },
+      "selected": {
+        "path": "cast-selected.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      },
+      "disabled": {
+        "path": "cast-disabled.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      },
+      "rail": {
+        "path": "cast-rail.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      },
+      "dark-background": {
+        "path": "cast-dark-background.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      },
+      "destructive": {
+        "path": "cast-destructive.png",
+        "sha256": "550b548dcc0ea50e03fdc1858f67cfc492e17fad703ef096dc8920be39da51ed"
+      }
+    },
+    "check": {
+      "default": {
+        "path": "check-default.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      },
+      "focused": {
+        "path": "check-focused.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      },
+      "selected": {
+        "path": "check-selected.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      },
+      "disabled": {
+        "path": "check-disabled.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      },
+      "rail": {
+        "path": "check-rail.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      },
+      "dark-background": {
+        "path": "check-dark-background.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      },
+      "destructive": {
+        "path": "check-destructive.png",
+        "sha256": "d1a75e8e3690467883b8cd44955865dae1835c4d229c2f55a80fdafa24bb8ed8"
+      }
+    },
+    "chevron-down": {
+      "default": {
+        "path": "chevron-down-default.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      },
+      "focused": {
+        "path": "chevron-down-focused.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      },
+      "selected": {
+        "path": "chevron-down-selected.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      },
+      "disabled": {
+        "path": "chevron-down-disabled.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      },
+      "rail": {
+        "path": "chevron-down-rail.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      },
+      "dark-background": {
+        "path": "chevron-down-dark-background.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      },
+      "destructive": {
+        "path": "chevron-down-destructive.png",
+        "sha256": "0a6b45411674d6de5c0b2d1d308d4f2abf3897ab158451a162d2b4f0fb108131"
+      }
+    },
+    "chevron-left": {
+      "default": {
+        "path": "chevron-left-default.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      },
+      "focused": {
+        "path": "chevron-left-focused.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      },
+      "selected": {
+        "path": "chevron-left-selected.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      },
+      "disabled": {
+        "path": "chevron-left-disabled.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      },
+      "rail": {
+        "path": "chevron-left-rail.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      },
+      "dark-background": {
+        "path": "chevron-left-dark-background.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      },
+      "destructive": {
+        "path": "chevron-left-destructive.png",
+        "sha256": "0dd703c9f1a9032003ee68098cf0db503e8784de3d74c91c3c4de3a7f44f53d9"
+      }
+    },
+    "chevron-right": {
+      "default": {
+        "path": "chevron-right-default.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      },
+      "focused": {
+        "path": "chevron-right-focused.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      },
+      "selected": {
+        "path": "chevron-right-selected.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      },
+      "disabled": {
+        "path": "chevron-right-disabled.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      },
+      "rail": {
+        "path": "chevron-right-rail.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      },
+      "dark-background": {
+        "path": "chevron-right-dark-background.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      },
+      "destructive": {
+        "path": "chevron-right-destructive.png",
+        "sha256": "457e54cbbc95c1ebdd838a8bc562eb3a202d31c7e2efd359bb84291af6b16738"
+      }
+    },
+    "chevron-up": {
+      "default": {
+        "path": "chevron-up-default.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      },
+      "focused": {
+        "path": "chevron-up-focused.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      },
+      "selected": {
+        "path": "chevron-up-selected.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      },
+      "disabled": {
+        "path": "chevron-up-disabled.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      },
+      "rail": {
+        "path": "chevron-up-rail.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      },
+      "dark-background": {
+        "path": "chevron-up-dark-background.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      },
+      "destructive": {
+        "path": "chevron-up-destructive.png",
+        "sha256": "a40d4438f026e116a7a16f03d0efceceace972afb1bf7767910a22274b14550e"
+      }
+    },
+    "circle": {
+      "default": {
+        "path": "circle-default.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      },
+      "focused": {
+        "path": "circle-focused.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      },
+      "selected": {
+        "path": "circle-selected.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      },
+      "disabled": {
+        "path": "circle-disabled.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      },
+      "rail": {
+        "path": "circle-rail.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      },
+      "dark-background": {
+        "path": "circle-dark-background.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      },
+      "destructive": {
+        "path": "circle-destructive.png",
+        "sha256": "78225469492b0e14cafed302ce6f9b48bfe8760aec4fa80b93a0d0831099fdd8"
+      }
+    },
+    "circle-check": {
+      "default": {
+        "path": "circle-check-default.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      },
+      "focused": {
+        "path": "circle-check-focused.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      },
+      "selected": {
+        "path": "circle-check-selected.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      },
+      "disabled": {
+        "path": "circle-check-disabled.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      },
+      "rail": {
+        "path": "circle-check-rail.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      },
+      "dark-background": {
+        "path": "circle-check-dark-background.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      },
+      "destructive": {
+        "path": "circle-check-destructive.png",
+        "sha256": "20bb80fab9ae06c09c362831df36654f5bc8c7f27fa67c9abade2c2837f1c52b"
+      }
+    },
+    "circle-user-round": {
+      "default": {
+        "path": "circle-user-round-default.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      },
+      "focused": {
+        "path": "circle-user-round-focused.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      },
+      "selected": {
+        "path": "circle-user-round-selected.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      },
+      "disabled": {
+        "path": "circle-user-round-disabled.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      },
+      "rail": {
+        "path": "circle-user-round-rail.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      },
+      "dark-background": {
+        "path": "circle-user-round-dark-background.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      },
+      "destructive": {
+        "path": "circle-user-round-destructive.png",
+        "sha256": "64c7d22dec51c7c00c3c28980cf65326b86f28625aa2b1aadf74060bcea6865d"
+      }
+    },
+    "circle-x": {
+      "default": {
+        "path": "circle-x-default.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      },
+      "focused": {
+        "path": "circle-x-focused.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      },
+      "selected": {
+        "path": "circle-x-selected.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      },
+      "disabled": {
+        "path": "circle-x-disabled.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      },
+      "rail": {
+        "path": "circle-x-rail.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      },
+      "dark-background": {
+        "path": "circle-x-dark-background.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      },
+      "destructive": {
+        "path": "circle-x-destructive.png",
+        "sha256": "27fb759dfdee2c512c37ea04cf2a82268fc8330f4d482e240c03a9b157866969"
+      }
+    },
+    "clock-3": {
+      "default": {
+        "path": "clock-3-default.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      },
+      "focused": {
+        "path": "clock-3-focused.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      },
+      "selected": {
+        "path": "clock-3-selected.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      },
+      "disabled": {
+        "path": "clock-3-disabled.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      },
+      "rail": {
+        "path": "clock-3-rail.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      },
+      "dark-background": {
+        "path": "clock-3-dark-background.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      },
+      "destructive": {
+        "path": "clock-3-destructive.png",
+        "sha256": "1ff6b24668e303ad3d39abe2301abe556d2e34c6fa45a6c965669e4fd2891ced"
+      }
+    },
+    "download": {
+      "default": {
+        "path": "download-default.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      },
+      "focused": {
+        "path": "download-focused.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      },
+      "selected": {
+        "path": "download-selected.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      },
+      "disabled": {
+        "path": "download-disabled.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      },
+      "rail": {
+        "path": "download-rail.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      },
+      "dark-background": {
+        "path": "download-dark-background.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      },
+      "destructive": {
+        "path": "download-destructive.png",
+        "sha256": "ea971ba7e85bc964e85b0a89b3ff7c58d1eeca5fb71e7839909ae1ed5e6096af"
+      }
+    },
+    "download-cloud": {
+      "default": {
+        "path": "download-cloud-default.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      },
+      "focused": {
+        "path": "download-cloud-focused.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      },
+      "selected": {
+        "path": "download-cloud-selected.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      },
+      "disabled": {
+        "path": "download-cloud-disabled.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      },
+      "rail": {
+        "path": "download-cloud-rail.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      },
+      "dark-background": {
+        "path": "download-cloud-dark-background.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      },
+      "destructive": {
+        "path": "download-cloud-destructive.png",
+        "sha256": "efcfff86075742a93c835ff08b7e8ef9386620ece859439e2ac422d129642c34"
+      }
+    },
+    "ear": {
+      "default": {
+        "path": "ear-default.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      },
+      "focused": {
+        "path": "ear-focused.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      },
+      "selected": {
+        "path": "ear-selected.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      },
+      "disabled": {
+        "path": "ear-disabled.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      },
+      "rail": {
+        "path": "ear-rail.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      },
+      "dark-background": {
+        "path": "ear-dark-background.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      },
+      "destructive": {
+        "path": "ear-destructive.png",
+        "sha256": "ff03020af2fa40ae678f9c51ad1e89f2403989cdbc2d5817db693998c8ab356b"
+      }
+    },
+    "ellipsis": {
+      "default": {
+        "path": "ellipsis-default.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      },
+      "focused": {
+        "path": "ellipsis-focused.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      },
+      "selected": {
+        "path": "ellipsis-selected.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      },
+      "disabled": {
+        "path": "ellipsis-disabled.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      },
+      "rail": {
+        "path": "ellipsis-rail.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      },
+      "dark-background": {
+        "path": "ellipsis-dark-background.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      },
+      "destructive": {
+        "path": "ellipsis-destructive.png",
+        "sha256": "6cc309f68914635b0f65a83b1885fefb8ee3d5617b831663c378c7a6b528c823"
+      }
+    },
+    "external-link": {
+      "default": {
+        "path": "external-link-default.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      },
+      "focused": {
+        "path": "external-link-focused.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      },
+      "selected": {
+        "path": "external-link-selected.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      },
+      "disabled": {
+        "path": "external-link-disabled.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      },
+      "rail": {
+        "path": "external-link-rail.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      },
+      "dark-background": {
+        "path": "external-link-dark-background.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      },
+      "destructive": {
+        "path": "external-link-destructive.png",
+        "sha256": "496c8ac12e3373d00d6d4cf8cf0ab5924a54b4ab563389b31b9f915b58235808"
+      }
+    },
+    "eye": {
+      "default": {
+        "path": "eye-default.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      },
+      "focused": {
+        "path": "eye-focused.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      },
+      "selected": {
+        "path": "eye-selected.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      },
+      "disabled": {
+        "path": "eye-disabled.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      },
+      "rail": {
+        "path": "eye-rail.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      },
+      "dark-background": {
+        "path": "eye-dark-background.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      },
+      "destructive": {
+        "path": "eye-destructive.png",
+        "sha256": "d53181a9716e4eef1618a6c6fecfde64443e686bc70b954f1398ca6e3d7162b3"
+      }
+    },
+    "eye-off": {
+      "default": {
+        "path": "eye-off-default.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      },
+      "focused": {
+        "path": "eye-off-focused.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      },
+      "selected": {
+        "path": "eye-off-selected.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      },
+      "disabled": {
+        "path": "eye-off-disabled.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      },
+      "rail": {
+        "path": "eye-off-rail.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      },
+      "dark-background": {
+        "path": "eye-off-dark-background.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      },
+      "destructive": {
+        "path": "eye-off-destructive.png",
+        "sha256": "56c50e5c9da01cab63e63589c9b23e6edd076fcb2925600b96f0767d39bf6c86"
+      }
+    },
+    "film": {
+      "default": {
+        "path": "film-default.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      },
+      "focused": {
+        "path": "film-focused.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      },
+      "selected": {
+        "path": "film-selected.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      },
+      "disabled": {
+        "path": "film-disabled.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      },
+      "rail": {
+        "path": "film-rail.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      },
+      "dark-background": {
+        "path": "film-dark-background.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      },
+      "destructive": {
+        "path": "film-destructive.png",
+        "sha256": "22cb533dc3a55d8606e24d41961fecd723a8de8d458517ec0b0647d4e878692f"
+      }
+    },
+    "folder-heart": {
+      "default": {
+        "path": "folder-heart-default.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      },
+      "focused": {
+        "path": "folder-heart-focused.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      },
+      "selected": {
+        "path": "folder-heart-selected.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      },
+      "disabled": {
+        "path": "folder-heart-disabled.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      },
+      "rail": {
+        "path": "folder-heart-rail.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      },
+      "dark-background": {
+        "path": "folder-heart-dark-background.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      },
+      "destructive": {
+        "path": "folder-heart-destructive.png",
+        "sha256": "d6b4cc8243b12221185448e385ab6cb18083b02698f48b157c8f52b22ca310fb"
+      }
+    },
+    "gauge": {
+      "default": {
+        "path": "gauge-default.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      },
+      "focused": {
+        "path": "gauge-focused.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      },
+      "selected": {
+        "path": "gauge-selected.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      },
+      "disabled": {
+        "path": "gauge-disabled.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      },
+      "rail": {
+        "path": "gauge-rail.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      },
+      "dark-background": {
+        "path": "gauge-dark-background.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      },
+      "destructive": {
+        "path": "gauge-destructive.png",
+        "sha256": "ff9964f905b102698240b28a75c7e822de3a4544204786e0daac05cd9d7c61bb"
+      }
+    },
+    "grid-3x3": {
+      "default": {
+        "path": "grid-3x3-default.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      },
+      "focused": {
+        "path": "grid-3x3-focused.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      },
+      "selected": {
+        "path": "grid-3x3-selected.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      },
+      "disabled": {
+        "path": "grid-3x3-disabled.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      },
+      "rail": {
+        "path": "grid-3x3-rail.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      },
+      "dark-background": {
+        "path": "grid-3x3-dark-background.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      },
+      "destructive": {
+        "path": "grid-3x3-destructive.png",
+        "sha256": "5340d89e7e86c6a3009e4f63435d1b1bae663e823abb6cdcaaf3f5007e53dbae"
+      }
+    },
+    "hard-drive": {
+      "default": {
+        "path": "hard-drive-default.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      },
+      "focused": {
+        "path": "hard-drive-focused.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      },
+      "selected": {
+        "path": "hard-drive-selected.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      },
+      "disabled": {
+        "path": "hard-drive-disabled.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      },
+      "rail": {
+        "path": "hard-drive-rail.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      },
+      "dark-background": {
+        "path": "hard-drive-dark-background.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      },
+      "destructive": {
+        "path": "hard-drive-destructive.png",
+        "sha256": "b83d7bedb24a2a983fde5cdad54389b01aaed126081237d2658879cccf27e286"
+      }
+    },
+    "headphones": {
+      "default": {
+        "path": "headphones-default.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      },
+      "focused": {
+        "path": "headphones-focused.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      },
+      "selected": {
+        "path": "headphones-selected.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      },
+      "disabled": {
+        "path": "headphones-disabled.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      },
+      "rail": {
+        "path": "headphones-rail.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      },
+      "dark-background": {
+        "path": "headphones-dark-background.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      },
+      "destructive": {
+        "path": "headphones-destructive.png",
+        "sha256": "ec9d872da9ae9f5dc140356b8be9fb437b306c28dd487c0cb9c28cea04b23662"
+      }
+    },
+    "heart": {
+      "default": {
+        "path": "heart-default.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4"
+      },
+      "focused": {
+        "path": "heart-focused.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4"
+      },
+      "selected": {
+        "path": "heart-selected.png",
+        "sha256": "5d978ca2b39809551f6593c4cf09c338dbf822edb421e84e89023feae20fe015"
+      },
+      "disabled": {
+        "path": "heart-disabled.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4"
+      },
+      "rail": {
+        "path": "heart-rail.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4"
+      },
+      "dark-background": {
+        "path": "heart-dark-background.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4"
+      },
+      "destructive": {
+        "path": "heart-destructive.png",
+        "sha256": "92292da534502924a9d357ae613b15c33692f236be4b0fc8af382b5bda46cfe4"
+      }
+    },
+    "home": {
+      "default": {
+        "path": "home-default.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      },
+      "focused": {
+        "path": "home-focused.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      },
+      "selected": {
+        "path": "home-selected.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      },
+      "disabled": {
+        "path": "home-disabled.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      },
+      "rail": {
+        "path": "home-rail.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      },
+      "dark-background": {
+        "path": "home-dark-background.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      },
+      "destructive": {
+        "path": "home-destructive.png",
+        "sha256": "2bd9e643648013f522ae43df8d33ca508d368be6464439b0d2f9f3ab319b1034"
+      }
+    },
+    "image-off": {
+      "default": {
+        "path": "image-off-default.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      },
+      "focused": {
+        "path": "image-off-focused.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      },
+      "selected": {
+        "path": "image-off-selected.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      },
+      "disabled": {
+        "path": "image-off-disabled.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      },
+      "rail": {
+        "path": "image-off-rail.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      },
+      "dark-background": {
+        "path": "image-off-dark-background.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      },
+      "destructive": {
+        "path": "image-off-destructive.png",
+        "sha256": "b9af90607b80a4744b31325d6090fefbf6f0b7712cfa57ce2175134449fc116b"
+      }
+    },
+    "inbox": {
+      "default": {
+        "path": "inbox-default.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      },
+      "focused": {
+        "path": "inbox-focused.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      },
+      "selected": {
+        "path": "inbox-selected.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      },
+      "disabled": {
+        "path": "inbox-disabled.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      },
+      "rail": {
+        "path": "inbox-rail.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      },
+      "dark-background": {
+        "path": "inbox-dark-background.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      },
+      "destructive": {
+        "path": "inbox-destructive.png",
+        "sha256": "d803236e7e57fc866afe18c08e1f5d152e2de5df5411455e3c96dfb7dcf51cbc"
+      }
+    },
+    "info": {
+      "default": {
+        "path": "info-default.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      },
+      "focused": {
+        "path": "info-focused.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      },
+      "selected": {
+        "path": "info-selected.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      },
+      "disabled": {
+        "path": "info-disabled.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      },
+      "rail": {
+        "path": "info-rail.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      },
+      "dark-background": {
+        "path": "info-dark-background.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      },
+      "destructive": {
+        "path": "info-destructive.png",
+        "sha256": "ecf991c033b0a344334e0c18fc7cafe371e09eff54b959e04fc6323de88b0a89"
+      }
+    },
+    "key-round": {
+      "default": {
+        "path": "key-round-default.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      },
+      "focused": {
+        "path": "key-round-focused.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      },
+      "selected": {
+        "path": "key-round-selected.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      },
+      "disabled": {
+        "path": "key-round-disabled.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      },
+      "rail": {
+        "path": "key-round-rail.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      },
+      "dark-background": {
+        "path": "key-round-dark-background.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      },
+      "destructive": {
+        "path": "key-round-destructive.png",
+        "sha256": "e98ad67ebaa4601b80f6be9cfb8a61d134a85cc7609b61b2083864c3ba86d1b9"
+      }
+    },
+    "languages": {
+      "default": {
+        "path": "languages-default.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      },
+      "focused": {
+        "path": "languages-focused.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      },
+      "selected": {
+        "path": "languages-selected.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      },
+      "disabled": {
+        "path": "languages-disabled.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      },
+      "rail": {
+        "path": "languages-rail.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      },
+      "dark-background": {
+        "path": "languages-dark-background.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      },
+      "destructive": {
+        "path": "languages-destructive.png",
+        "sha256": "6fe77ca0927f5a6d52541944c9cc04df2c482e58fcf971a1c6f8a632e9ec790d"
+      }
+    },
+    "library": {
+      "default": {
+        "path": "library-default.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      },
+      "focused": {
+        "path": "library-focused.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      },
+      "selected": {
+        "path": "library-selected.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      },
+      "disabled": {
+        "path": "library-disabled.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      },
+      "rail": {
+        "path": "library-rail.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      },
+      "dark-background": {
+        "path": "library-dark-background.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      },
+      "destructive": {
+        "path": "library-destructive.png",
+        "sha256": "cc2e58c4da6f97a723c0228c6a2875a4548035fadb3ee9a1a19cac19f9db2590"
+      }
+    },
+    "list": {
+      "default": {
+        "path": "list-default.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      },
+      "focused": {
+        "path": "list-focused.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      },
+      "selected": {
+        "path": "list-selected.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      },
+      "disabled": {
+        "path": "list-disabled.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      },
+      "rail": {
+        "path": "list-rail.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      },
+      "dark-background": {
+        "path": "list-dark-background.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      },
+      "destructive": {
+        "path": "list-destructive.png",
+        "sha256": "3daa844d405014490f7bb01082f539c495731b2470670bad747d7e9eb069386d"
+      }
+    },
+    "list-music": {
+      "default": {
+        "path": "list-music-default.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      },
+      "focused": {
+        "path": "list-music-focused.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      },
+      "selected": {
+        "path": "list-music-selected.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      },
+      "disabled": {
+        "path": "list-music-disabled.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      },
+      "rail": {
+        "path": "list-music-rail.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      },
+      "dark-background": {
+        "path": "list-music-dark-background.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      },
+      "destructive": {
+        "path": "list-music-destructive.png",
+        "sha256": "ffe56226b55225a646d07f642a7f731b2c3bd9bd4c05b0efc3ea0cfb85e6839c"
+      }
+    },
+    "list-plus": {
+      "default": {
+        "path": "list-plus-default.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      },
+      "focused": {
+        "path": "list-plus-focused.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      },
+      "selected": {
+        "path": "list-plus-selected.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      },
+      "disabled": {
+        "path": "list-plus-disabled.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      },
+      "rail": {
+        "path": "list-plus-rail.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      },
+      "dark-background": {
+        "path": "list-plus-dark-background.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      },
+      "destructive": {
+        "path": "list-plus-destructive.png",
+        "sha256": "b3329777cb12ddf059cbcc3f0e70f7395a66f70d264a7d143112dfbfaeef4c99"
+      }
+    },
+    "list-video": {
+      "default": {
+        "path": "list-video-default.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      },
+      "focused": {
+        "path": "list-video-focused.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      },
+      "selected": {
+        "path": "list-video-selected.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      },
+      "disabled": {
+        "path": "list-video-disabled.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      },
+      "rail": {
+        "path": "list-video-rail.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      },
+      "dark-background": {
+        "path": "list-video-dark-background.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      },
+      "destructive": {
+        "path": "list-video-destructive.png",
+        "sha256": "6c39670076a74c9ac3899d1ce014345bd13e7373f2c9e1306931a664baed70ca"
+      }
+    },
+    "loader-circle": {
+      "default": {
+        "path": "loader-circle-default.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      },
+      "focused": {
+        "path": "loader-circle-focused.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      },
+      "selected": {
+        "path": "loader-circle-selected.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      },
+      "disabled": {
+        "path": "loader-circle-disabled.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      },
+      "rail": {
+        "path": "loader-circle-rail.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      },
+      "dark-background": {
+        "path": "loader-circle-dark-background.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      },
+      "destructive": {
+        "path": "loader-circle-destructive.png",
+        "sha256": "c6e354262cbb2c650a999faa8700ab2b6fd46d6ca9d9d6afd6ca63b622a0a0cc"
+      }
+    },
+    "lock-keyhole": {
+      "default": {
+        "path": "lock-keyhole-default.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      },
+      "focused": {
+        "path": "lock-keyhole-focused.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      },
+      "selected": {
+        "path": "lock-keyhole-selected.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      },
+      "disabled": {
+        "path": "lock-keyhole-disabled.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      },
+      "rail": {
+        "path": "lock-keyhole-rail.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      },
+      "dark-background": {
+        "path": "lock-keyhole-dark-background.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      },
+      "destructive": {
+        "path": "lock-keyhole-destructive.png",
+        "sha256": "b0b0d9c3eab7ef410aedd3f6cb1bc4ea3fffcb53e74257e42fa143263d510e8a"
+      }
+    },
+    "log-in": {
+      "default": {
+        "path": "log-in-default.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      },
+      "focused": {
+        "path": "log-in-focused.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      },
+      "selected": {
+        "path": "log-in-selected.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      },
+      "disabled": {
+        "path": "log-in-disabled.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      },
+      "rail": {
+        "path": "log-in-rail.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      },
+      "dark-background": {
+        "path": "log-in-dark-background.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      },
+      "destructive": {
+        "path": "log-in-destructive.png",
+        "sha256": "38b3b078b0045f5f92b3aa7844c58b776fdee625f2988b067127abd04305a86c"
+      }
+    },
+    "log-out": {
+      "default": {
+        "path": "log-out-default.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      },
+      "focused": {
+        "path": "log-out-focused.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      },
+      "selected": {
+        "path": "log-out-selected.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      },
+      "disabled": {
+        "path": "log-out-disabled.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      },
+      "rail": {
+        "path": "log-out-rail.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      },
+      "dark-background": {
+        "path": "log-out-dark-background.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      },
+      "destructive": {
+        "path": "log-out-destructive.png",
+        "sha256": "fc308744354d92d95c25e41fd87987adfb7ff28d179c29bf7d5559cebd024f96"
+      }
+    },
+    "mail": {
+      "default": {
+        "path": "mail-default.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      },
+      "focused": {
+        "path": "mail-focused.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      },
+      "selected": {
+        "path": "mail-selected.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      },
+      "disabled": {
+        "path": "mail-disabled.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      },
+      "rail": {
+        "path": "mail-rail.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      },
+      "dark-background": {
+        "path": "mail-dark-background.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      },
+      "destructive": {
+        "path": "mail-destructive.png",
+        "sha256": "794a114e970255b82d6696cc15323eb09ceafb19ddb47dbb548910f3d9fe5e65"
+      }
+    },
+    "maximize-2": {
+      "default": {
+        "path": "maximize-2-default.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      },
+      "focused": {
+        "path": "maximize-2-focused.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      },
+      "selected": {
+        "path": "maximize-2-selected.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      },
+      "disabled": {
+        "path": "maximize-2-disabled.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      },
+      "rail": {
+        "path": "maximize-2-rail.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      },
+      "dark-background": {
+        "path": "maximize-2-dark-background.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      },
+      "destructive": {
+        "path": "maximize-2-destructive.png",
+        "sha256": "36e0f1d777d3c537258f1cc6df8d9aed6f7f3867e3a39bb96c2f278d1d49c37b"
+      }
+    },
+    "message-square": {
+      "default": {
+        "path": "message-square-default.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      },
+      "focused": {
+        "path": "message-square-focused.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      },
+      "selected": {
+        "path": "message-square-selected.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      },
+      "disabled": {
+        "path": "message-square-disabled.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      },
+      "rail": {
+        "path": "message-square-rail.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      },
+      "dark-background": {
+        "path": "message-square-dark-background.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      },
+      "destructive": {
+        "path": "message-square-destructive.png",
+        "sha256": "6e72bca5bcb2522c529a629610d2573edf80a161098a78ad3db881ccf7f316fe"
+      }
+    },
+    "message-square-warning": {
+      "default": {
+        "path": "message-square-warning-default.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      },
+      "focused": {
+        "path": "message-square-warning-focused.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      },
+      "selected": {
+        "path": "message-square-warning-selected.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      },
+      "disabled": {
+        "path": "message-square-warning-disabled.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      },
+      "rail": {
+        "path": "message-square-warning-rail.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      },
+      "dark-background": {
+        "path": "message-square-warning-dark-background.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      },
+      "destructive": {
+        "path": "message-square-warning-destructive.png",
+        "sha256": "1d33c8890adc664fcca9b1df744edb67895560e74a60c593b9d4742fc97b88e6"
+      }
+    },
+    "mic-2": {
+      "default": {
+        "path": "mic-2-default.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      },
+      "focused": {
+        "path": "mic-2-focused.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      },
+      "selected": {
+        "path": "mic-2-selected.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      },
+      "disabled": {
+        "path": "mic-2-disabled.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      },
+      "rail": {
+        "path": "mic-2-rail.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      },
+      "dark-background": {
+        "path": "mic-2-dark-background.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      },
+      "destructive": {
+        "path": "mic-2-destructive.png",
+        "sha256": "36c03337149e783409e7e1088c2e320fa8317bc4caf8682ee4ce469fed741235"
+      }
+    },
+    "minimize-2": {
+      "default": {
+        "path": "minimize-2-default.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      },
+      "focused": {
+        "path": "minimize-2-focused.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      },
+      "selected": {
+        "path": "minimize-2-selected.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      },
+      "disabled": {
+        "path": "minimize-2-disabled.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      },
+      "rail": {
+        "path": "minimize-2-rail.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      },
+      "dark-background": {
+        "path": "minimize-2-dark-background.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      },
+      "destructive": {
+        "path": "minimize-2-destructive.png",
+        "sha256": "23d1c9700b58157caede801c4ba656a211fb71e228d48a01b0a36ffbd1c96cde"
+      }
+    },
+    "monitor": {
+      "default": {
+        "path": "monitor-default.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      },
+      "focused": {
+        "path": "monitor-focused.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      },
+      "selected": {
+        "path": "monitor-selected.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      },
+      "disabled": {
+        "path": "monitor-disabled.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      },
+      "rail": {
+        "path": "monitor-rail.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      },
+      "dark-background": {
+        "path": "monitor-dark-background.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      },
+      "destructive": {
+        "path": "monitor-destructive.png",
+        "sha256": "ae6211fcfb1e6803693adf96307225c0b09c4c71a9cf8ff7cf85205370aa3aa1"
+      }
+    },
+    "monitor-smartphone": {
+      "default": {
+        "path": "monitor-smartphone-default.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      },
+      "focused": {
+        "path": "monitor-smartphone-focused.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      },
+      "selected": {
+        "path": "monitor-smartphone-selected.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      },
+      "disabled": {
+        "path": "monitor-smartphone-disabled.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      },
+      "rail": {
+        "path": "monitor-smartphone-rail.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      },
+      "dark-background": {
+        "path": "monitor-smartphone-dark-background.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      },
+      "destructive": {
+        "path": "monitor-smartphone-destructive.png",
+        "sha256": "d3d83ff4eeec290b1a7987cefa1bd3ad8cf99aa477afff4f9746f5e6d53ac24d"
+      }
+    },
+    "moon": {
+      "default": {
+        "path": "moon-default.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      },
+      "focused": {
+        "path": "moon-focused.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      },
+      "selected": {
+        "path": "moon-selected.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      },
+      "disabled": {
+        "path": "moon-disabled.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      },
+      "rail": {
+        "path": "moon-rail.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      },
+      "dark-background": {
+        "path": "moon-dark-background.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      },
+      "destructive": {
+        "path": "moon-destructive.png",
+        "sha256": "2df5c823013ad9138cbbe9c375ff86efb4c0629fdccf1e55acc9077e23f1641c"
+      }
+    },
+    "music-2": {
+      "default": {
+        "path": "music-2-default.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      },
+      "focused": {
+        "path": "music-2-focused.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      },
+      "selected": {
+        "path": "music-2-selected.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      },
+      "disabled": {
+        "path": "music-2-disabled.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      },
+      "rail": {
+        "path": "music-2-rail.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      },
+      "dark-background": {
+        "path": "music-2-dark-background.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      },
+      "destructive": {
+        "path": "music-2-destructive.png",
+        "sha256": "a4622dd75978d01be2d65f47c61463a04ccd2a1c639c0edf0fad5ced948748ba"
+      }
+    },
+    "network": {
+      "default": {
+        "path": "network-default.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      },
+      "focused": {
+        "path": "network-focused.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      },
+      "selected": {
+        "path": "network-selected.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      },
+      "disabled": {
+        "path": "network-disabled.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      },
+      "rail": {
+        "path": "network-rail.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      },
+      "dark-background": {
+        "path": "network-dark-background.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      },
+      "destructive": {
+        "path": "network-destructive.png",
+        "sha256": "b5e76af5cee148411e3e9fc6d284193b4fe01de2a8e82981e0a558acae7818b2"
+      }
+    },
+    "pause": {
+      "default": {
+        "path": "pause-default.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      },
+      "focused": {
+        "path": "pause-focused.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      },
+      "selected": {
+        "path": "pause-selected.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      },
+      "disabled": {
+        "path": "pause-disabled.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      },
+      "rail": {
+        "path": "pause-rail.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      },
+      "dark-background": {
+        "path": "pause-dark-background.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      },
+      "destructive": {
+        "path": "pause-destructive.png",
+        "sha256": "a74ef6820ab93a59cb068d9050b4aed15ceaa49b2bf2b32f06e38cd75581bb23"
+      }
+    },
+    "pencil": {
+      "default": {
+        "path": "pencil-default.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      },
+      "focused": {
+        "path": "pencil-focused.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      },
+      "selected": {
+        "path": "pencil-selected.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      },
+      "disabled": {
+        "path": "pencil-disabled.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      },
+      "rail": {
+        "path": "pencil-rail.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      },
+      "dark-background": {
+        "path": "pencil-dark-background.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      },
+      "destructive": {
+        "path": "pencil-destructive.png",
+        "sha256": "df4b0897a040c32c47d61085a13b899d810f1d669cdc095796f46460f5adf3d9"
+      }
+    },
+    "picture-in-picture-2": {
+      "default": {
+        "path": "picture-in-picture-2-default.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      },
+      "focused": {
+        "path": "picture-in-picture-2-focused.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      },
+      "selected": {
+        "path": "picture-in-picture-2-selected.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      },
+      "disabled": {
+        "path": "picture-in-picture-2-disabled.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      },
+      "rail": {
+        "path": "picture-in-picture-2-rail.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      },
+      "dark-background": {
+        "path": "picture-in-picture-2-dark-background.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      },
+      "destructive": {
+        "path": "picture-in-picture-2-destructive.png",
+        "sha256": "f9590dbf11a9dc074ec12b3fd6f2deddd2a046bd17e39061ab16397ad17d33de"
+      }
+    },
+    "pin": {
+      "default": {
+        "path": "pin-default.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      },
+      "focused": {
+        "path": "pin-focused.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      },
+      "selected": {
+        "path": "pin-selected.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      },
+      "disabled": {
+        "path": "pin-disabled.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      },
+      "rail": {
+        "path": "pin-rail.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      },
+      "dark-background": {
+        "path": "pin-dark-background.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      },
+      "destructive": {
+        "path": "pin-destructive.png",
+        "sha256": "b135a9f205febf32cdc921d253a0c71385ce1ea99b98e26509ce849bb2120f22"
+      }
+    },
+    "pin-off": {
+      "default": {
+        "path": "pin-off-default.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      },
+      "focused": {
+        "path": "pin-off-focused.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      },
+      "selected": {
+        "path": "pin-off-selected.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      },
+      "disabled": {
+        "path": "pin-off-disabled.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      },
+      "rail": {
+        "path": "pin-off-rail.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      },
+      "dark-background": {
+        "path": "pin-off-dark-background.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      },
+      "destructive": {
+        "path": "pin-off-destructive.png",
+        "sha256": "2f2a6bdf266e9241e7f76b4d685e38480aca98d540a808d927de9821c9e5c795"
+      }
+    },
+    "play": {
+      "default": {
+        "path": "play-default.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      },
+      "focused": {
+        "path": "play-focused.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      },
+      "selected": {
+        "path": "play-selected.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      },
+      "disabled": {
+        "path": "play-disabled.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      },
+      "rail": {
+        "path": "play-rail.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      },
+      "dark-background": {
+        "path": "play-dark-background.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      },
+      "destructive": {
+        "path": "play-destructive.png",
+        "sha256": "f583e86567c1722d6b2971fb381d788c766878ee622121feae14e66e442f227f"
+      }
+    },
+    "play-circle": {
+      "default": {
+        "path": "play-circle-default.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      },
+      "focused": {
+        "path": "play-circle-focused.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      },
+      "selected": {
+        "path": "play-circle-selected.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      },
+      "disabled": {
+        "path": "play-circle-disabled.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      },
+      "rail": {
+        "path": "play-circle-rail.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      },
+      "dark-background": {
+        "path": "play-circle-dark-background.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      },
+      "destructive": {
+        "path": "play-circle-destructive.png",
+        "sha256": "90faf5d9dccebeaed019e0812581f139ee03b7db62e226068ab94e33ece5e6f5"
+      }
+    },
+    "plus": {
+      "default": {
+        "path": "plus-default.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      },
+      "focused": {
+        "path": "plus-focused.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      },
+      "selected": {
+        "path": "plus-selected.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      },
+      "disabled": {
+        "path": "plus-disabled.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      },
+      "rail": {
+        "path": "plus-rail.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      },
+      "dark-background": {
+        "path": "plus-dark-background.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      },
+      "destructive": {
+        "path": "plus-destructive.png",
+        "sha256": "506971d53360b4cf8157cbdd7e65d39c2cf05a233fd942f7aaf0f69211b43c3b"
+      }
+    },
+    "radar": {
+      "default": {
+        "path": "radar-default.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      },
+      "focused": {
+        "path": "radar-focused.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      },
+      "selected": {
+        "path": "radar-selected.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      },
+      "disabled": {
+        "path": "radar-disabled.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      },
+      "rail": {
+        "path": "radar-rail.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      },
+      "dark-background": {
+        "path": "radar-dark-background.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      },
+      "destructive": {
+        "path": "radar-destructive.png",
+        "sha256": "0c0dcad3d0a17f53e318602276df31f193b568f8c61c26e02dcf9b2a5a809972"
+      }
+    },
+    "radio": {
+      "default": {
+        "path": "radio-default.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      },
+      "focused": {
+        "path": "radio-focused.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      },
+      "selected": {
+        "path": "radio-selected.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      },
+      "disabled": {
+        "path": "radio-disabled.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      },
+      "rail": {
+        "path": "radio-rail.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      },
+      "dark-background": {
+        "path": "radio-dark-background.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      },
+      "destructive": {
+        "path": "radio-destructive.png",
+        "sha256": "53dcdb97f7f3bd14188656a3c844710b129c8f3c4c93ffc1f134161f6f1dacdf"
+      }
+    },
+    "refresh-cw": {
+      "default": {
+        "path": "refresh-cw-default.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      },
+      "focused": {
+        "path": "refresh-cw-focused.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      },
+      "selected": {
+        "path": "refresh-cw-selected.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      },
+      "disabled": {
+        "path": "refresh-cw-disabled.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      },
+      "rail": {
+        "path": "refresh-cw-rail.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      },
+      "dark-background": {
+        "path": "refresh-cw-dark-background.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      },
+      "destructive": {
+        "path": "refresh-cw-destructive.png",
+        "sha256": "e572c89fbb945ba41d7b8003214450d38fd04f4f65c6caab8473c365eb5b134a"
+      }
+    },
+    "repeat": {
+      "default": {
+        "path": "repeat-default.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      },
+      "focused": {
+        "path": "repeat-focused.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      },
+      "selected": {
+        "path": "repeat-selected.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      },
+      "disabled": {
+        "path": "repeat-disabled.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      },
+      "rail": {
+        "path": "repeat-rail.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      },
+      "dark-background": {
+        "path": "repeat-dark-background.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      },
+      "destructive": {
+        "path": "repeat-destructive.png",
+        "sha256": "bdac1f33cb7f7b4275f0e1f4652633d32e6b6c7e4dfedbd548ef153ff8a429cb"
+      }
+    },
+    "repeat-1": {
+      "default": {
+        "path": "repeat-1-default.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      },
+      "focused": {
+        "path": "repeat-1-focused.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      },
+      "selected": {
+        "path": "repeat-1-selected.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      },
+      "disabled": {
+        "path": "repeat-1-disabled.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      },
+      "rail": {
+        "path": "repeat-1-rail.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      },
+      "dark-background": {
+        "path": "repeat-1-dark-background.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      },
+      "destructive": {
+        "path": "repeat-1-destructive.png",
+        "sha256": "43eb049a73b2b318bce400621f510f0f442d440c6b9c15ea7b454911a027aacd"
+      }
+    },
+    "rotate-ccw": {
+      "default": {
+        "path": "rotate-ccw-default.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      },
+      "focused": {
+        "path": "rotate-ccw-focused.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      },
+      "selected": {
+        "path": "rotate-ccw-selected.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      },
+      "disabled": {
+        "path": "rotate-ccw-disabled.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      },
+      "rail": {
+        "path": "rotate-ccw-rail.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      },
+      "dark-background": {
+        "path": "rotate-ccw-dark-background.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      },
+      "destructive": {
+        "path": "rotate-ccw-destructive.png",
+        "sha256": "aa4e2522baa2dc674ec4f34321c122b7e772bc3c01e5857d3016784f09ce1980"
+      }
+    },
+    "rotate-cw": {
+      "default": {
+        "path": "rotate-cw-default.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      },
+      "focused": {
+        "path": "rotate-cw-focused.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      },
+      "selected": {
+        "path": "rotate-cw-selected.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      },
+      "disabled": {
+        "path": "rotate-cw-disabled.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      },
+      "rail": {
+        "path": "rotate-cw-rail.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      },
+      "dark-background": {
+        "path": "rotate-cw-dark-background.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      },
+      "destructive": {
+        "path": "rotate-cw-destructive.png",
+        "sha256": "23cceca561dfa1fa3e3fe991bdb6ede2cf79d9130ed21ca0c5b7c04c057dc637"
+      }
+    },
+    "search": {
+      "default": {
+        "path": "search-default.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      },
+      "focused": {
+        "path": "search-focused.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      },
+      "selected": {
+        "path": "search-selected.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      },
+      "disabled": {
+        "path": "search-disabled.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      },
+      "rail": {
+        "path": "search-rail.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      },
+      "dark-background": {
+        "path": "search-dark-background.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      },
+      "destructive": {
+        "path": "search-destructive.png",
+        "sha256": "e71426040e66bb9b2e890653c6338471ce8b4fb78713bff109225e69ec6d30c6"
+      }
+    },
+    "send": {
+      "default": {
+        "path": "send-default.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      },
+      "focused": {
+        "path": "send-focused.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      },
+      "selected": {
+        "path": "send-selected.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      },
+      "disabled": {
+        "path": "send-disabled.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      },
+      "rail": {
+        "path": "send-rail.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      },
+      "dark-background": {
+        "path": "send-dark-background.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      },
+      "destructive": {
+        "path": "send-destructive.png",
+        "sha256": "212521a69ced12b72e240af7c2e149b4be7960422f16d9e48910604a53adec67"
+      }
+    },
+    "server": {
+      "default": {
+        "path": "server-default.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      },
+      "focused": {
+        "path": "server-focused.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      },
+      "selected": {
+        "path": "server-selected.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      },
+      "disabled": {
+        "path": "server-disabled.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      },
+      "rail": {
+        "path": "server-rail.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      },
+      "dark-background": {
+        "path": "server-dark-background.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      },
+      "destructive": {
+        "path": "server-destructive.png",
+        "sha256": "d34aab1286261109bbff63b99d41897b4d551a2a2d3337fd5d7de74cda5af266"
+      }
+    },
+    "settings": {
+      "default": {
+        "path": "settings-default.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      },
+      "focused": {
+        "path": "settings-focused.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      },
+      "selected": {
+        "path": "settings-selected.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      },
+      "disabled": {
+        "path": "settings-disabled.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      },
+      "rail": {
+        "path": "settings-rail.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      },
+      "dark-background": {
+        "path": "settings-dark-background.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      },
+      "destructive": {
+        "path": "settings-destructive.png",
+        "sha256": "6e03dea9c8c23b26ecc7f34eefa8143a8c7fe0bd76561558ddc7093556c13115"
+      }
+    },
+    "shield-check": {
+      "default": {
+        "path": "shield-check-default.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      },
+      "focused": {
+        "path": "shield-check-focused.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      },
+      "selected": {
+        "path": "shield-check-selected.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      },
+      "disabled": {
+        "path": "shield-check-disabled.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      },
+      "rail": {
+        "path": "shield-check-rail.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      },
+      "dark-background": {
+        "path": "shield-check-dark-background.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      },
+      "destructive": {
+        "path": "shield-check-destructive.png",
+        "sha256": "eb35e20b57c3167ba6b7f5686647edc3649031344f90a609268389378c45bb04"
+      }
+    },
+    "shuffle": {
+      "default": {
+        "path": "shuffle-default.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      },
+      "focused": {
+        "path": "shuffle-focused.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      },
+      "selected": {
+        "path": "shuffle-selected.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      },
+      "disabled": {
+        "path": "shuffle-disabled.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      },
+      "rail": {
+        "path": "shuffle-rail.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      },
+      "dark-background": {
+        "path": "shuffle-dark-background.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      },
+      "destructive": {
+        "path": "shuffle-destructive.png",
+        "sha256": "dbff99f618aa5b855eeddf05edc32c5fe6fc3b742e99a94a74aecfcfb169a710"
+      }
+    },
+    "skip-back": {
+      "default": {
+        "path": "skip-back-default.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      },
+      "focused": {
+        "path": "skip-back-focused.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      },
+      "selected": {
+        "path": "skip-back-selected.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      },
+      "disabled": {
+        "path": "skip-back-disabled.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      },
+      "rail": {
+        "path": "skip-back-rail.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      },
+      "dark-background": {
+        "path": "skip-back-dark-background.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      },
+      "destructive": {
+        "path": "skip-back-destructive.png",
+        "sha256": "fe8eb1c44ce7b4096c04c6430d5b38bad7bf86d644e043edd4b8a29d3a3b2ca6"
+      }
+    },
+    "skip-forward": {
+      "default": {
+        "path": "skip-forward-default.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      },
+      "focused": {
+        "path": "skip-forward-focused.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      },
+      "selected": {
+        "path": "skip-forward-selected.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      },
+      "disabled": {
+        "path": "skip-forward-disabled.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      },
+      "rail": {
+        "path": "skip-forward-rail.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      },
+      "dark-background": {
+        "path": "skip-forward-dark-background.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      },
+      "destructive": {
+        "path": "skip-forward-destructive.png",
+        "sha256": "7c390e6b486856ae9df169aa0e2e28a0a9c9234317963cf8d0238772efbd68d1"
+      }
+    },
+    "sliders-horizontal": {
+      "default": {
+        "path": "sliders-horizontal-default.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      },
+      "focused": {
+        "path": "sliders-horizontal-focused.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      },
+      "selected": {
+        "path": "sliders-horizontal-selected.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      },
+      "disabled": {
+        "path": "sliders-horizontal-disabled.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      },
+      "rail": {
+        "path": "sliders-horizontal-rail.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      },
+      "dark-background": {
+        "path": "sliders-horizontal-dark-background.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      },
+      "destructive": {
+        "path": "sliders-horizontal-destructive.png",
+        "sha256": "1f832e45ce168736c213bca39faee42bf2a9d22df63d242681c61bfb804a5e1c"
+      }
+    },
+    "star": {
+      "default": {
+        "path": "star-default.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      },
+      "focused": {
+        "path": "star-focused.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      },
+      "selected": {
+        "path": "star-selected.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      },
+      "disabled": {
+        "path": "star-disabled.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      },
+      "rail": {
+        "path": "star-rail.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      },
+      "dark-background": {
+        "path": "star-dark-background.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      },
+      "destructive": {
+        "path": "star-destructive.png",
+        "sha256": "b96a3d147ff826a4a3af9e468b144da68d062338afc1592aef0fad17995f8d1f"
+      }
+    },
+    "subtitles": {
+      "default": {
+        "path": "subtitles-default.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "focused": {
+        "path": "subtitles-focused.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "selected": {
+        "path": "subtitles-selected.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "disabled": {
+        "path": "subtitles-disabled.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "rail": {
+        "path": "subtitles-rail.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "dark-background": {
+        "path": "subtitles-dark-background.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      },
+      "destructive": {
+        "path": "subtitles-destructive.png",
+        "sha256": "efa135a263b11e511a14f2d110ca4419292b70c61ccd08b77efe3f1a6504c350"
+      }
+    },
+    "thumbs-down": {
+      "default": {
+        "path": "thumbs-down-default.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      },
+      "focused": {
+        "path": "thumbs-down-focused.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      },
+      "selected": {
+        "path": "thumbs-down-selected.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      },
+      "disabled": {
+        "path": "thumbs-down-disabled.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      },
+      "rail": {
+        "path": "thumbs-down-rail.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      },
+      "dark-background": {
+        "path": "thumbs-down-dark-background.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      },
+      "destructive": {
+        "path": "thumbs-down-destructive.png",
+        "sha256": "ca1c4121e74d72ea0bbf49a0678ff3407927f3b0b3f34bfff67f55e408e645be"
+      }
+    },
+    "thumbs-up": {
+      "default": {
+        "path": "thumbs-up-default.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      },
+      "focused": {
+        "path": "thumbs-up-focused.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      },
+      "selected": {
+        "path": "thumbs-up-selected.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      },
+      "disabled": {
+        "path": "thumbs-up-disabled.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      },
+      "rail": {
+        "path": "thumbs-up-rail.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      },
+      "dark-background": {
+        "path": "thumbs-up-dark-background.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      },
+      "destructive": {
+        "path": "thumbs-up-destructive.png",
+        "sha256": "addeae63fe7218d71b7a940bac0d76954f7c2431f56dfdf1b18f69b24a3f6c5f"
+      }
+    },
+    "trash-2": {
+      "default": {
+        "path": "trash-2-default.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      },
+      "focused": {
+        "path": "trash-2-focused.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      },
+      "selected": {
+        "path": "trash-2-selected.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      },
+      "disabled": {
+        "path": "trash-2-disabled.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      },
+      "rail": {
+        "path": "trash-2-rail.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      },
+      "dark-background": {
+        "path": "trash-2-dark-background.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      },
+      "destructive": {
+        "path": "trash-2-destructive.png",
+        "sha256": "cdb857ac7f2f4882bd378ebdeaa4bed51ae3d3a61838a7caeb0424f678cefab1"
+      }
+    },
+    "triangle-alert": {
+      "default": {
+        "path": "triangle-alert-default.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      },
+      "focused": {
+        "path": "triangle-alert-focused.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      },
+      "selected": {
+        "path": "triangle-alert-selected.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      },
+      "disabled": {
+        "path": "triangle-alert-disabled.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      },
+      "rail": {
+        "path": "triangle-alert-rail.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      },
+      "dark-background": {
+        "path": "triangle-alert-dark-background.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      },
+      "destructive": {
+        "path": "triangle-alert-destructive.png",
+        "sha256": "9609bdfc495feeb0848a6df5051cd5da9c4650c33b97b6b3a69ad35a9f7c55a0"
+      }
+    },
+    "tv": {
+      "default": {
+        "path": "tv-default.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      },
+      "focused": {
+        "path": "tv-focused.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      },
+      "selected": {
+        "path": "tv-selected.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      },
+      "disabled": {
+        "path": "tv-disabled.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      },
+      "rail": {
+        "path": "tv-rail.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      },
+      "dark-background": {
+        "path": "tv-dark-background.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      },
+      "destructive": {
+        "path": "tv-destructive.png",
+        "sha256": "b07a13ad4102b589aaca5ddb0b72d52d87110cb3caecfb01331c0d3c4ea52bb2"
+      }
+    },
+    "user-round": {
+      "default": {
+        "path": "user-round-default.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      },
+      "focused": {
+        "path": "user-round-focused.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      },
+      "selected": {
+        "path": "user-round-selected.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      },
+      "disabled": {
+        "path": "user-round-disabled.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      },
+      "rail": {
+        "path": "user-round-rail.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      },
+      "dark-background": {
+        "path": "user-round-dark-background.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      },
+      "destructive": {
+        "path": "user-round-destructive.png",
+        "sha256": "23a3a70a94e52965846382f7779358fdd18b4c51a6552475df6ca74718a1773b"
+      }
+    },
+    "users": {
+      "default": {
+        "path": "users-default.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      },
+      "focused": {
+        "path": "users-focused.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      },
+      "selected": {
+        "path": "users-selected.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      },
+      "disabled": {
+        "path": "users-disabled.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      },
+      "rail": {
+        "path": "users-rail.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      },
+      "dark-background": {
+        "path": "users-dark-background.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      },
+      "destructive": {
+        "path": "users-destructive.png",
+        "sha256": "2f694b6d57bd1844a977b2b559e2c6a6befdcb04d10d9a2cc4da02c7a7a0bfd9"
+      }
+    },
+    "video": {
+      "default": {
+        "path": "video-default.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      },
+      "focused": {
+        "path": "video-focused.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      },
+      "selected": {
+        "path": "video-selected.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      },
+      "disabled": {
+        "path": "video-disabled.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      },
+      "rail": {
+        "path": "video-rail.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      },
+      "dark-background": {
+        "path": "video-dark-background.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      },
+      "destructive": {
+        "path": "video-destructive.png",
+        "sha256": "7178d6e5da7b5f7066b66b088769c180b40cafa460c6a3238ff1e3e758689d5c"
+      }
+    },
+    "volume-2": {
+      "default": {
+        "path": "volume-2-default.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      },
+      "focused": {
+        "path": "volume-2-focused.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      },
+      "selected": {
+        "path": "volume-2-selected.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      },
+      "disabled": {
+        "path": "volume-2-disabled.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      },
+      "rail": {
+        "path": "volume-2-rail.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      },
+      "dark-background": {
+        "path": "volume-2-dark-background.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      },
+      "destructive": {
+        "path": "volume-2-destructive.png",
+        "sha256": "9b46553b7dcede01b223a26af56e6c925926790f8281b12a7e7ea7c045bfc9f6"
+      }
+    },
+    "volume-x": {
+      "default": {
+        "path": "volume-x-default.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      },
+      "focused": {
+        "path": "volume-x-focused.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      },
+      "selected": {
+        "path": "volume-x-selected.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      },
+      "disabled": {
+        "path": "volume-x-disabled.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      },
+      "rail": {
+        "path": "volume-x-rail.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      },
+      "dark-background": {
+        "path": "volume-x-dark-background.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      },
+      "destructive": {
+        "path": "volume-x-destructive.png",
+        "sha256": "2690f3fd1f46432be0078e79351add01a69cacafc67163f106d4d54071166af4"
+      }
+    },
+    "wifi": {
+      "default": {
+        "path": "wifi-default.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      },
+      "focused": {
+        "path": "wifi-focused.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      },
+      "selected": {
+        "path": "wifi-selected.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      },
+      "disabled": {
+        "path": "wifi-disabled.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      },
+      "rail": {
+        "path": "wifi-rail.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      },
+      "dark-background": {
+        "path": "wifi-dark-background.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      },
+      "destructive": {
+        "path": "wifi-destructive.png",
+        "sha256": "db112461c6f3da849a2cc86444982e6033b148290a205a9f5ec8bf22a0b5b539"
+      }
+    },
+    "wifi-off": {
+      "default": {
+        "path": "wifi-off-default.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      },
+      "focused": {
+        "path": "wifi-off-focused.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      },
+      "selected": {
+        "path": "wifi-off-selected.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      },
+      "disabled": {
+        "path": "wifi-off-disabled.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      },
+      "rail": {
+        "path": "wifi-off-rail.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      },
+      "dark-background": {
+        "path": "wifi-off-dark-background.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      },
+      "destructive": {
+        "path": "wifi-off-destructive.png",
+        "sha256": "9922327a1fc6875b3e0aec88be3e1375e061e34393e2a177d0d4e71188c04803"
+      }
+    },
+    "x": {
+      "default": {
+        "path": "x-default.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      },
+      "focused": {
+        "path": "x-focused.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      },
+      "selected": {
+        "path": "x-selected.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      },
+      "disabled": {
+        "path": "x-disabled.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      },
+      "rail": {
+        "path": "x-rail.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      },
+      "dark-background": {
+        "path": "x-dark-background.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      },
+      "destructive": {
+        "path": "x-destructive.png",
+        "sha256": "2249d02dadb55ecf37c45824149881eec99cb7559a96df0820e3ea8eb74ab9fd"
+      }
+    }
+  }
+}

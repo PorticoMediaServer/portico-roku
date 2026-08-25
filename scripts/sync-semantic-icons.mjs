@@ -2,11 +2,15 @@
 
 import assert from 'node:assert/strict';
 import {copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
-import {dirname, join, resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+import {basename, dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const rokuRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const repositoryRoot = resolve(rokuRoot, '../..');
+// This repository owns the immutable icon registry. Keep the canonical source
+// inside the checkout so CI can verify packaging without relying on a parent
+// monorepo directory that is not present in a standalone checkout.
+const repositoryRoot = rokuRoot;
 const sourceRoot = resolve(repositoryRoot, 'assets/icons/generated/roku');
 const sourceManifestPath = join(sourceRoot, 'manifest.json');
 const assetRoot = resolve(rokuRoot, 'channel/images/icons/generated');
@@ -30,7 +34,15 @@ const packagedManifest = {
   masters: packagedMasters,
 };
 const manifestBytes = `${JSON.stringify(packagedManifest, null, 2)}\n`;
-const files = [...new Set(Object.values(sourceManifest.masters).flatMap(states => Object.values(states).map(entry => entry.path)))].sort();
+const sourceEntries = Object.values(sourceManifest.masters).flatMap(states => Object.values(states));
+const files = [...new Set(sourceEntries.map(entry => entry.path))].sort();
+for (const entry of sourceEntries) {
+  assert.equal(typeof entry.path, 'string', 'Semantic icon source path is missing.');
+  assert.equal(basename(entry.path), entry.path, `Semantic icon source path must be a filename: ${entry.path}`);
+  assert.match(entry.sha256, /^[a-f0-9]{64}$/, `Semantic icon source checksum is invalid: ${entry.path}`);
+  const actualSha256 = createHash('sha256').update(readFileSync(join(sourceRoot, entry.path))).digest('hex');
+  assert.equal(actualSha256, entry.sha256, `Canonical semantic icon source checksum drifted: ${entry.path}`);
+}
 
 if (check) {
   assert.ok(existsSync(packagedManifestPath), 'Packaged Roku semantic icon manifest is missing; run npm run icons:sync.');

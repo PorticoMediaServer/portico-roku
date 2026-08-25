@@ -72,8 +72,20 @@ function renderSvg(svg, outputPath, width, height, {requireAlpha = false} = {}) 
   });
   if (result.status !== 0) throw new Error(`rsvg-convert failed for ${outputPath}: ${result.stderr}`);
   if (requireAlpha) {
-    const alphaResult = spawnSync('magick', [outputPath, '-define', 'png:color-type=6', outputPath], {encoding: 'utf8'});
-    if (alphaResult.status !== 0) throw new Error(`ImageMagick failed to preserve alpha for ${outputPath}: ${alphaResult.stderr}`);
+    const arguments_ = [outputPath, '-define', 'png:color-type=6', outputPath];
+    let command = 'magick';
+    let alphaResult = spawnSync(command, arguments_, {encoding: 'utf8'});
+    if (alphaResult.error?.code === 'ENOENT') {
+      // Ubuntu 24.04 packages ImageMagick 6 as `convert`; Homebrew's
+      // ImageMagick 7 uses `magick`. Both receive the exact same bounded,
+      // repository-generated input and force the same explicit PNG type.
+      command = 'convert';
+      alphaResult = spawnSync(command, arguments_, {encoding: 'utf8'});
+    }
+    if (alphaResult.status !== 0) {
+      const detail = alphaResult.stderr || alphaResult.error?.message || `exit status ${String(alphaResult.status)}`;
+      throw new Error(`${command} failed to preserve alpha for ${outputPath}: ${detail}`);
+    }
   }
 }
 
