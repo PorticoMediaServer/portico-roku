@@ -42,7 +42,10 @@ sub PorticoServerConnectionRun()
         productContractRevision: "",
         networkPort: networkPort,
         networkEventsEnabled: networkEventsEnabled,
-        nextNetworkRouteRetryAt: 0
+        nextNetworkRouteRetryAt: 0,
+        networkRouteRetryFailures: 0,
+        hostedCompatibility: false,
+        hostedCompatibilityGeneration: -1
     }
     loaded = PorticoOperationContractLoad()
     if loaded.ok
@@ -120,6 +123,8 @@ sub PorticoServerConnectionPrepareHostedContext(controller as object, command as
         installationId: installationId, viewerGeneration: generation,
         provenByCredentialTask: true
     }
+    controller.hostedCompatibility = false
+    controller.hostedCompatibilityGeneration = -1
     controller.serverStatus = "not-connected"
     controller.serverErrorCode = ""
     PorticoServerConnectionPublish(controller, false)
@@ -142,7 +147,7 @@ sub PorticoServerConnectionObserveNetworkTransitions(controller as object)
             if PorticoCoreIsAssociativeArray(info) and info.linkStatus = true
                 ' Link restoration can mean a different LAN, NAT, or address. Let
                 ' bursts settle, then re-probe durable routes before Hosted.
-                controller.nextNetworkRouteRetryAt = controller.clock.TotalSeconds() + 2
+                controller.nextNetworkRouteRetryAt = controller.clock.TotalSeconds() + PorticoServerConnectionPositiveJitter(controller, 2, controller.networkRouteRetryFailures)
             end if
         end if
     end while
@@ -150,9 +155,13 @@ sub PorticoServerConnectionObserveNetworkTransitions(controller as object)
     controller.nextNetworkRouteRetryAt = 0
     if PorticoServerSessionStored(controller.session) = invalid then return
     if PorticoServerConnectionVerifyOrRediscoverRoute(controller, false)
+        controller.networkRouteRetryFailures = 0
         controller.serverStatus = "active"
         controller.serverErrorCode = ""
         PorticoServerConnectionPublish(controller, true)
+    else
+        controller.networkRouteRetryFailures = controller.networkRouteRetryFailures + 1
+        if controller.networkRouteRetryFailures > 7 then controller.networkRouteRetryFailures = 7
     end if
 end sub
 
@@ -361,8 +370,14 @@ function PorticoServerConnectionAuthorizeRestoredProfile(controller as object) a
     end if
     if not redeemed.ok
         if redeemed.retryable
-            ' Locked and multi-profile restores require a successful online
-            ' redemption. They intentionally cannot fall back to cached trust.
+            ' The direct session and the live profile directory are already
+            ' authoritative. A cached launch policy is only a consistency
+            ' check for the same profile, account revision, and PIN revision;
+            ' it never supplies a PIN or grants a new profile authority.
+            ' Preserve established continuity when the trust endpoint itself is
+            ' temporarily unavailable, while still requiring fresh directory
+            ' data above and failing closed on any mismatch.
+            if policyMatches then return true
             PorticoServerConnectionProfileSelectionRequired(controller)
         else
             PorticoViewerPreferencesForgetLaunch(session.authority, session.accountId, session.serverId, session.installationId)
@@ -740,6 +755,7 @@ sub PorticoServerConnectionResetPrivate(controller as object)
     controller.sessionGeneration = 0
     controller.last401Generation = -1
     controller.nextRefreshAt = 0
+    controller.networkRouteRetryFailures = 0
     controller.refreshFailures = 0
     controller.refreshTerminal = false
     controller.assertionId = ""
@@ -753,6 +769,8 @@ sub PorticoServerConnectionResetPrivate(controller as object)
     controller.navigationVerified = false
     controller.eventCapabilities = invalid
     controller.productContractRevision = ""
+    controller.hostedCompatibility = false
+    controller.hostedCompatibilityGeneration = -1
 end sub
 
 sub PorticoServerConnectionDiscardSession(controller as object, clearStored as boolean)
@@ -961,16 +979,21 @@ function PorticoServerConnectionRediscoverStoredRoute(controller as object, sour
 end function
 
 function PorticoServerConnectionHostedCompatible(controller as object, account as object) as boolean
+    if controller.hostedCompatibility = true and controller.hostedCompatibilityGeneration = account.generation then return true
     result = PorticoServerConnectionHttp(controller, {method: "GET", url: PorticoServerConnectionHostedBaseUrl() + "/api/system", body: "", headers: {}, timeoutMs: 10000, expectJson: true})
     if result.interrupted then return false
     if not result.ok
+        controller.hostedCompatibility = false
         PorticoServerConnectionHandleHostedFailure(controller, result, account.generation)
         return false
     end if
     if not PorticoCoreIsAssociativeArray(result.data) or result.data.name <> "Portico" or result.data.status <> "ok" or result.data.apiVersion <> "v1"
+        controller.hostedCompatibility = false
         PorticoServerConnectionFail(controller, "hosted-incompatible", false, false)
         return false
     end if
+    controller.hostedCompatibility = true
+    controller.hostedCompatibilityGeneration = account.generation
     return true
 end function
 
@@ -1151,11 +1174,29 @@ end function
 sub PorticoServerConnectionScheduleRefreshFailure(controller as object, source as object, afterUnauthorized as boolean)
     controller.refreshFailures = controller.refreshFailures + 1
     if controller.refreshFailures > 7 then controller.refreshFailures = 7
-    controller.nextRefreshAt = controller.clock.TotalSeconds() + (5 * (2 ^ (controller.refreshFailures - 1)))
+    delayFloor = 5 * (2 ^ (controller.refreshFailures - 1))
+    retryAfter = PorticoHttpInteger(source.retryAfterSeconds, 0)
+    if retryAfter > delayFloor then delayFloor = retryAfter
+    ' Keep both the exponential backoff and an authoritative Retry-After as
+    ' strict lower bounds. The deterministic cohort jitter is added after the
+    ' floor so a retry can never run early, including after process restart.
+    controller.nextRefreshAt = controller.clock.TotalSeconds() + delayFloor + PorticoServerConnectionPositiveJitter(controller, delayFloor, controller.refreshFailures)
     if afterUnauthorized or PorticoSignedDocumentSecondsUntil(source.accessExpiresAt) <= 0
         PorticoServerConnectionFail(controller, "server-offline", true, true)
     end if
 end sub
+
+function PorticoServerConnectionPositiveJitter(controller as object, cap as integer, attempt as integer) as integer
+    if cap < 1 then return 1
+    cohort = PorticoInstallationId()
+    value = 1000003
+    suffix = ":" + StrI(attempt)
+    material = cohort + suffix
+    for index = 1 to Len(material)
+        value = ((value * 33) + Asc(Mid(material, index, 1))) Mod 1000000007
+    end for
+    return 1 + (value Mod cap)
+end function
 
 sub PorticoServerConnectionScheduleRefresh(controller as object)
     remaining = PorticoSignedDocumentSecondsUntil(controller.session.accessExpiresAt)

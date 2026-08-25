@@ -4585,6 +4585,15 @@
         "title": "This isn't available to your profile",
         "tone": "warning"
       },
+      "problem.hosted-busy": {
+        "actions": [
+          "action.retry"
+        ],
+        "body": "Portico Account services couldn't finish this request yet. Your account and server are unchanged.",
+        "icon": "status.server",
+        "title": "This is taking a little longer",
+        "tone": "neutral"
+      },
       "problem.invalid-request": {
         "body": "Some information is missing or invalid. Review it and try again.",
         "icon": "status.error",
@@ -5222,6 +5231,7 @@
     "automatic_profile_trust_expired": "auth.automatic-profile-trust-required",
     "automatic_profile_trust_required": "auth.automatic-profile-trust-required",
     "connection_failed": "problem.connection-failed",
+    "credential_verification_unavailable": "problem.hosted-busy",
     "csrf_failed": "problem.request-verification-failed",
     "device_session_required": "auth.device-session-required",
     "download_failed": "download.failed",
@@ -5240,6 +5250,9 @@
     "feedback_rate_limited": "feedback.rate-limited",
     "feedback_response_failed": "feedback.response-failed",
     "feedback_unavailable": "problem.server-unavailable",
+    "hosted_authority_clock_invalid": "problem.server-unavailable",
+    "hosted_authority_stale": "problem.cloud-unavailable",
+    "hosted_busy": "problem.hosted-busy",
     "hosted_unavailable": "problem.cloud-unavailable",
     "incompatible_hosted_api_version": "auth.client-update-required",
     "incompatible_server_api_version": "auth.server-update-required",
@@ -5334,6 +5347,7 @@
     "profile_temporarily_locked": "auth.profile-temporarily-locked",
     "profile_trust_failed": "auth.automatic-profile-trust-failed",
     "profiles_managed_by_portico_account": "auth.profiles-managed-by-portico-account",
+    "rate_limit_unavailable": "problem.hosted-busy",
     "rate_limited": "problem.rate-limited",
     "reauthentication_required": "account.delete-reauthentication-required",
     "recent_reauthentication_required": "auth.session-expired",
@@ -5456,6 +5470,6 @@
   "schemaVersion": 1,
   "source": {
     "name": "en-US.json",
-    "sha256": "ef42d0f1c33d08750dfbc3ed3af850f0458e65dcfdbb19227884768c693eeb1c"
+    "sha256": "e338724a4eab81d5d25b85b801a05e6aaa9aef235e3d01575efc710b76a78794"
   }
 }

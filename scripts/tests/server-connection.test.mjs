@@ -184,11 +184,52 @@ assert.ok(routeRecovery.indexOf('PorticoServerConnectionVerifyRoute(controller, 
 assert.ok(routeRecovery.indexOf('PorticoServerSessionPreviousRoute(source)') < routeRecovery.indexOf('PorticoServerConnectionRediscoverStoredRoute(controller, source)'));
 assert.match(task, /rebased\.previousRoute = PorticoServerSessionRouteRecord\(source\)/);
 assert.match(task, /EnableLinkStatusEvent\(true\)/);
-assert.match(task, /nextNetworkRouteRetryAt = controller\.clock\.TotalSeconds\(\) \+ 2/);
+assert.match(task, /nextNetworkRouteRetryAt = controller\.clock\.TotalSeconds\(\) \+ PorticoServerConnectionPositiveJitter/);
+assert.match(task, /retryAfter > delayFloor/);
+assert.match(task, /nextRefreshAt = controller\.clock\.TotalSeconds\(\) \+ delayFloor \+ PorticoServerConnectionPositiveJitter/);
+assert.match(task, /hostedCompatibility = true/);
+assert.match(task, /if policyMatches then return true/);
 assert.match(task, /priorities = \["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded"\]/);
 for (const code of ["credential_revoked", "refresh_reused", "account_deleted", "profile_deleted", "membership_removed"]) {
   assert.match(task, new RegExp(`code = "${code}"`), `server refresh must recognize ${code} as terminal`);
 }
+
+// Execute the retry-boundary model used by PorticoServerConnectionPositiveJitter.
+// The production BrightScript hash is deliberately mirrored here so this test
+// catches the important safety property rather than only checking source text:
+// Retry-After and exponential backoff are floors, and stable jitter is always
+// added after whichever floor is larger.
+function retryDelayFloor(exponentialFloor, retryAfter) {
+  return Math.max(exponentialFloor, Number.isFinite(retryAfter) ? retryAfter : 0);
+}
+
+function stablePositiveJitter(cohort, attempt, cap) {
+  let value = 1000003;
+  const material = `${cohort}:${attempt}`;
+  for (const character of material) value = ((value * 33) + character.charCodeAt(0)) % 1000000007;
+  return 1 + (value % Math.max(1, cap));
+}
+
+function scheduledRetryDelay(exponentialFloor, retryAfter, cohort, attempt) {
+  const floor = retryDelayFloor(exponentialFloor, retryAfter);
+  return floor + stablePositiveJitter(cohort, attempt, floor);
+}
+
+for (const [exponentialFloor, retryAfter] of [[5, 0], [5, 3], [5, 60], [160, 60], [160, 3600]]) {
+  const delay = scheduledRetryDelay(exponentialFloor, retryAfter, 'roku-test-cohort', 3);
+  assert.ok(delay > exponentialFloor, `retry jitter must follow exponential floor (${exponentialFloor})`);
+  assert.ok(delay > retryAfter, `retry jitter must follow Retry-After floor (${retryAfter})`);
+}
+assert.equal(
+  scheduledRetryDelay(5, 60, 'roku-test-cohort', 3),
+  scheduledRetryDelay(5, 60, 'roku-test-cohort', 3),
+  'same installation cohort and attempt must produce stable retry timing'
+);
+assert.notEqual(
+  scheduledRetryDelay(5, 60, 'roku-test-cohort', 3),
+  scheduledRetryDelay(5, 60, 'different-cohort', 3),
+  'different cohorts should not be synchronized when their stable hash differs'
+);
 assert.match(task, /if code = "server-access-denied" then return "problem\.forbidden"/);
 assert.doesNotMatch(task, /if code = "server-access-denied" or code = "server-session-expired" then return "auth\.session-expired"/);
 const hostedFailure = task.match(/sub PorticoServerConnectionHandleHostedFailure[\s\S]*?\nend sub/)?.[0] ?? '';

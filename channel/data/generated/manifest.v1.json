@@ -3,17 +3,17 @@
     {
       "bytes": 103273,
       "name": "operations.v1.json",
-      "sha256": "c9a625cc7349ab533be50b8b8d5df0f6c52ca6b5739dadf1e0304da46edcbe31"
+      "sha256": "13d2e85950b64690e92f4b33b5f3028088bcab1dde8d9126b16de28d74975cb6"
     },
     {
       "bytes": 103076,
       "name": "product-contract.v1.json",
-      "sha256": "5b0cebe74a8b484ab78a59c16369458bd78e0084e51c08a07e8d6ffd9d23a9d4"
+      "sha256": "4bbdfb64f97b531cb6bc8d8cf3b8edcaaece83bc792cfba69b2b6ad8be1594a5"
     },
     {
-      "bytes": 174936,
+      "bytes": 175548,
       "name": "product-language.v1.json",
-      "sha256": "b48593861e678ff53600b38deabc262ff292056699d777c487544e96c86aca33"
+      "sha256": "ce4c27bf1b7711ab9ed4fb64f3291fe2e35f0524891b06ba0a1440ac2bafd6ca"
     }
   ],
   "generatorRevision": 1,
