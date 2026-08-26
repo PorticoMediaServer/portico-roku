@@ -16,6 +16,7 @@ sub PorticoDeviceAuthorizationRun()
         installationId: PorticoInstallationId(),
         nextAuthorizationAtSeconds: 0,
         authorizationFailures: 0,
+        authorizationStartedAtSeconds: -1,
         nextRefreshAtSeconds: 0,
         refreshScheduled: false,
         refreshFailures: 0,
@@ -215,6 +216,7 @@ sub PorticoAuthorizationTaskStart(controller as object)
         return
     end if
     controller.authorizationActive = true
+    controller.authorizationStartedAtSeconds = PorticoAuthorizationTaskNowSeconds(controller)
     controller.renewalPending = false
     controller.authorizationFailures = 0
     controller.nextAuthorizationAtSeconds = 0
@@ -325,7 +327,7 @@ sub PorticoAuthorizationTaskCreate(controller as object, preservePending as bool
             if preservePending
                 PorticoAuthorizationTaskScheduleReplacementRetry(controller, hostedStatus)
             else
-                PorticoAuthorizationTaskPublish("authorizing", hostedStatus)
+                PorticoAuthorizationTaskPublish("authorizing", PorticoAuthorizationTaskDelayedHostedStatus(controller, hostedStatus))
                 PorticoAuthorizationTaskScheduleCreationRetry(controller, invalid)
             end if
         end if
@@ -355,7 +357,7 @@ sub PorticoAuthorizationTaskCreate(controller as object, preservePending as bool
             if preservePending
                 PorticoAuthorizationTaskScheduleReplacementRetry(controller, hostedStatus)
             else
-                PorticoAuthorizationTaskPublish("authorizing", hostedStatus)
+                PorticoAuthorizationTaskPublish("authorizing", PorticoAuthorizationTaskDelayedHostedStatus(controller, hostedStatus))
                 PorticoAuthorizationTaskScheduleCreationRetry(controller, result.retryAfterSeconds)
             end if
         else
@@ -390,11 +392,20 @@ sub PorticoAuthorizationTaskCreate(controller as object, preservePending as bool
         return
     end if
     controller.pending = pending
+    controller.authorizationStartedAtSeconds = -1
     controller.renewalPending = false
     controller.authorizationFailures = 0
     PorticoAuthorizationTaskPublishPending(controller)
     controller.nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds(controller) + pending.interval
 end sub
+
+function PorticoAuthorizationTaskDelayedHostedStatus(controller as object, hostedStatus as string) as string
+    if hostedStatus = "incompatible" then return hostedStatus
+    startedAt = PorticoHttpInteger(controller.authorizationStartedAtSeconds, -1)
+    if startedAt < 0 then return "connecting"
+    if PorticoAuthorizationTaskNowSeconds(controller) - startedAt < 8 then return "connecting"
+    return hostedStatus
+end function
 
 sub PorticoAuthorizationTaskPoll(controller as object)
     remaining = PorticoAuthorizationTaskSecondsUntil(controller.pending.expiresAt)

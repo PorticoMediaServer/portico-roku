@@ -86,9 +86,11 @@ assert.match(terminal, /selfHealing = accountStatus = "authorization-expired" or
 assert.match(terminal, /if selfHealing[\s\S]*PorticoSecureRegistryClear\("pending-account-authorization"\)[\s\S]*controller\.authorizationActive = true[\s\S]*nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds\(controller\) \+ 5[\s\S]*PorticoAuthorizationTaskPublish\("authorizing", "connecting"\)/);
 assert.match(terminal, /if not controller\.authorizationRequested[\s\S]*PorticoAuthorizationTaskPublish\("signed-out", "unknown"\)[\s\S]*return/);
 assert.match(expired, /nextAuthorizationAtSeconds = PorticoAuthorizationTaskNowSeconds\(controller\) \+ 5/);
-assert.match(gateModels, /This TV appears to be offline\. Portico will try again automatically\./);
-assert.match(gateModels, /The service isn't responding normally\. Portico will try again automatically\./);
+assert.match(gateModels, /Portico will continue automatically when this TV is back online\./);
+assert.match(gateModels, /This is taking longer than usual\. Portico will keep trying automatically\./);
 assert.match(task, /controller\.hostedFailureKind = "service"[\s\S]*if result\.status = 0 then controller\.hostedFailureKind = "offline"/);
-assert.match(task, /hostedStatus = "online"[\s\S]*if result\.status = 0 then hostedStatus = "offline"[\s\S]*PorticoAuthorizationTaskPublish\("authorizing", hostedStatus\)/);
+assert.match(task, /authorizationStartedAtSeconds: -1/);
+assert.match(task, /PorticoAuthorizationTaskDelayedHostedStatus\(controller, hostedStatus\)/);
+assert.match(task, /PorticoAuthorizationTaskNowSeconds\(controller\) - startedAt < 8 then return "connecting"/);
 
 console.log('Verified the canonical Roku TV auth visual, retry, and Back-navigation contract.');

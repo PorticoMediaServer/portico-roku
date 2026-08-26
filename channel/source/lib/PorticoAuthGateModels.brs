@@ -67,11 +67,11 @@ function PorticoSignedOutGateModel(runtimeState as dynamic, requestedMode = "lan
         loadingTitle = "Quick connect"
         loadingMessage = "Preparing your sign-in code…"
         if hostedStatus = "offline"
-            loadingTitle = "Waiting for a connection"
-            loadingMessage = "This TV appears to be offline. Portico will try again automatically."
+            loadingTitle = "Still waiting for a connection"
+            loadingMessage = "Portico will continue automatically when this TV is back online."
         else if hostedStatus = "online"
-            loadingTitle = "Portico Account is unavailable"
-            loadingMessage = "The service isn't responding normally. Portico will try again automatically."
+            loadingTitle = "Still connecting to Portico"
+            loadingMessage = "This is taking longer than usual. Portico will keep trying automatically."
         end if
         return {
             state: "account-loading",

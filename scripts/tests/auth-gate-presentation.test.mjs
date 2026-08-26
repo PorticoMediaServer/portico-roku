@@ -28,6 +28,8 @@ assert.match(gate, /StandardKeyboardDialog/);
 assert.match(gate, /PorticoAuthGateSeal/);
 assert.match(gate + helper, /Sign in directly to a server/);
 assert.match(helper, /runtime\.hostedStatus[\s\S]*= "incompatible"[\s\S]*title: "Update required"/);
+assert.match(helper, /loadingTitle = "Still connecting to Portico"/);
+assert.doesNotMatch(helper, /Portico Account is unavailable/);
 assert.match(helper, /Len\(normalized\) <> 9[\s\S]*Mid\(normalized, 5, 1\) <> "-"/);
 assert.equal((gate.match(/CreateObject\("roSGNode"/g) ?? []).length, 1);
 assert.match(gate, /CreateObject\("roSGNode", "StandardKeyboardDialog"\)/);
