@@ -915,14 +915,340 @@ end function
 function PorticoServerConnectionVerifyOrRediscoverRoute(controller as object, preferFresh as boolean) as boolean
     source = PorticoServerSessionStored(controller.session)
     if source = invalid then return false
-    if PorticoServerConnectionVerifyRoute(controller, source) then return true
-    previous = PorticoServerSessionPreviousRoute(source)
-    if previous <> invalid and PorticoServerConnectionVerifyRoute(controller, previous)
-        if PorticoServerConnectionAdoptStoredRoute(controller, source, previous) then return true
+    route = PorticoServerConnectionRaceStoredRoutes(controller, source)
+    if route = invalid then return false
+    current = PorticoServerSessionRouteRecord(source)
+    if current <> invalid and route.apiBaseUrl = current.apiBaseUrl and route.routeType = current.routeType and route.routeGeneration = current.routeGeneration
+        return true
     end if
-    if source.authority = "hosted" then return PorticoServerConnectionRediscoverStoredRoute(controller, source)
-    return false
+    return PorticoServerConnectionAdoptStoredRoute(controller, source, route)
 end function
+
+' Keep Roku's independent BrightScript transport aligned with Client Core:
+' remembered LAN and public routes race first, public receives a short 150 ms
+' fallback delay when LAN is available, and read-only Hosted discovery begins
+' after 500 ms without cancelling a still-viable cached probe. Every winner is
+' identity-pinned before it can replace the active route.
+function PorticoServerConnectionRaceStoredRoutes(controller as object, source as object) as dynamic
+    port = CreateObject("roMessagePort")
+    clock = CreateObject("roTimespan")
+    if port = invalid or clock = invalid then return invalid
+    clock.Mark()
+    controller.routeFailureCode = "server-offline"
+
+    cached = []
+    current = PorticoServerSessionRouteRecord(source)
+    previous = PorticoServerSessionPreviousRoute(source)
+    if current <> invalid then cached.Push({route: current, state: "scheduled", startAfterMs: 0})
+    if previous <> invalid and (current = invalid or previous.apiBaseUrl <> current.apiBaseUrl)
+        cached.Push({route: previous, state: "scheduled", startAfterMs: 0})
+    end if
+    PorticoServerConnectionScheduleRouteRace(cached, 0)
+
+    account = invalid
+    if source.authority = "hosted"
+        candidateAccount = PorticoServerConnectionAccountCredentials()
+        if candidateAccount <> invalid and candidateAccount.userId = source.accountId then account = candidateAccount
+    end if
+    hosted = {
+        allowed: account <> invalid,
+        started: false,
+        finished: false,
+        stage: "",
+        request: invalid,
+        keySet: invalid,
+        probes: [],
+        failure: invalid,
+        trustFailure: false,
+        incompatible: false
+    }
+    identityMismatch = false
+
+    while clock.TotalMilliseconds() < 35000
+        if PorticoServerConnectionInterrupted(controller)
+            PorticoServerConnectionCancelRouteRace(cached, hosted)
+            return invalid
+        end if
+        nowMs = clock.TotalMilliseconds()
+        PorticoServerConnectionStartScheduledProbes(cached, port, clock, nowMs)
+        PorticoServerConnectionStartScheduledProbes(hosted.probes, port, clock, nowMs)
+
+        cachedFinished = PorticoServerConnectionRouteProbesFinished(cached)
+        if hosted.allowed and not hosted.started and (nowMs >= 500 or cachedFinished)
+            hosted.started = true
+            PorticoServerConnectionStartHostedRace(controller, hosted, account, source, port, clock)
+        end if
+
+        PorticoServerConnectionExpireRaceRequests(cached, clock)
+        PorticoServerConnectionExpireRaceRequests(hosted.probes, clock)
+        if hosted.request <> invalid and hosted.request.state = "active" and nowMs - hosted.request.startedAtMs >= hosted.request.request.timeoutMs
+            hosted.request.transfer.AsyncCancel()
+            hosted.request.state = "failed"
+            hosted.failure = PorticoServerConnectionHttpFailure(0, true, "timeout")
+            hosted.finished = true
+        end if
+
+        message = Wait(25, port)
+        if message <> invalid and Type(message) = "roUrlEvent"
+            winner = PorticoServerConnectionConsumeRouteProbeEvent(cached, message)
+            if winner <> invalid
+                if winner.identityMismatch = true
+                    identityMismatch = true
+                else if winner.route <> invalid
+                    PorticoServerConnectionCancelRouteRace(cached, hosted)
+                    controller.routeFailureCode = ""
+                    return winner.route
+                end if
+            end if
+            winner = PorticoServerConnectionConsumeRouteProbeEvent(hosted.probes, message)
+            if winner <> invalid
+                if winner.identityMismatch = true
+                    identityMismatch = true
+                else if winner.route <> invalid
+                    PorticoServerConnectionCancelRouteRace(cached, hosted)
+                    controller.routeFailureCode = ""
+                    return winner.route
+                end if
+            end if
+            if hosted.request <> invalid and hosted.request.state = "active" and message.GetSourceIdentity() = hosted.request.identity
+                result = PorticoServerConnectionHttpResult(hosted.request.request, message)
+                hosted.request.state = "finished"
+                PorticoServerConnectionAdvanceHostedRace(controller, hosted, account, source, result, port, clock)
+            end if
+        end if
+
+        cachedFinished = PorticoServerConnectionRouteProbesFinished(cached)
+        hostedProbesFinished = hosted.probes.Count() = 0 or PorticoServerConnectionRouteProbesFinished(hosted.probes)
+        if hosted.started and hosted.stage = "probes" and hostedProbesFinished then hosted.finished = true
+        if cachedFinished and (not hosted.allowed or hosted.finished)
+            PorticoServerConnectionCancelRouteRace(cached, hosted)
+            if hosted.incompatible
+                controller.routeFailureCode = "hosted-incompatible"
+                PorticoServerConnectionFail(controller, "hosted-incompatible", false, false)
+            else if hosted.failure <> invalid
+                PorticoServerConnectionHandleHostedFailure(controller, hosted.failure, account.generation)
+            else if hosted.trustFailure
+                controller.routeFailureCode = "route-trust-failed"
+            else if identityMismatch
+                controller.routeFailureCode = "server-identity-mismatch"
+            end if
+            return invalid
+        end if
+    end while
+    PorticoServerConnectionCancelRouteRace(cached, hosted)
+    if identityMismatch then controller.routeFailureCode = "server-identity-mismatch"
+    return invalid
+end function
+
+sub PorticoServerConnectionScheduleRouteRace(probes as object, startBaseMs as integer)
+    hasLan = false
+    hasPublic = false
+    for each probe in probes
+        if PorticoServerSessionRouteAllowsInsecureLan(probe.route.routeType)
+            hasLan = true
+        else
+            hasPublic = true
+        end if
+    end for
+    for each probe in probes
+        probe.startAfterMs = startBaseMs
+        if hasLan and hasPublic and not PorticoServerSessionRouteAllowsInsecureLan(probe.route.routeType)
+            probe.startAfterMs = startBaseMs + 150
+        end if
+    end for
+end sub
+
+sub PorticoServerConnectionStartScheduledProbes(probes as object, port as object, clock as object, nowMs as integer)
+    for each probe in probes
+        if probe.state = "scheduled" and nowMs >= probe.startAfterMs
+            request = {
+                method: "GET",
+                url: probe.route.apiBaseUrl + "/api/remote-access/health",
+                body: "",
+                headers: {},
+                timeoutMs: 3500,
+                expectJson: true,
+                allowInsecureLan: PorticoServerSessionRouteAllowsInsecureLan(probe.route.routeType)
+            }
+            started = PorticoServerConnectionStartRaceRequest(request, port, clock)
+            if started = invalid
+                probe.state = "failed"
+            else
+                probe.state = "active"
+                probe.transfer = started.transfer
+                probe.identity = started.identity
+                probe.request = started.request
+                probe.startedAtMs = started.startedAtMs
+            end if
+        end if
+    end for
+end sub
+
+function PorticoServerConnectionConsumeRouteProbeEvent(probes as object, message as object) as dynamic
+    for each probe in probes
+        if probe.state = "active" and message.GetSourceIdentity() = probe.identity
+            result = PorticoServerConnectionHttpResult(probe.request, message)
+            probe.state = "finished"
+            if not result.ok or not PorticoCoreIsAssociativeArray(result.data) then return {route: invalid, identityMismatch: false}
+            if PorticoServerSessionId(result.data.serverId) <> PorticoServerSessionId(probe.route.serverId) or PorticoCoreSafeText(result.data.serverPublicKeyFingerprint, 256) <> PorticoCoreSafeText(probe.route.serverPublicKeyFingerprint, 256)
+                return {route: invalid, identityMismatch: true}
+            end if
+            if result.data.remoteAccessEnabled = false then return {route: invalid, identityMismatch: false}
+            return {route: probe.route, identityMismatch: false}
+        end if
+    end for
+    return invalid
+end function
+
+sub PorticoServerConnectionExpireRaceRequests(probes as object, clock as object)
+    nowMs = clock.TotalMilliseconds()
+    for each probe in probes
+        if probe.state = "active" and nowMs - probe.startedAtMs >= probe.request.timeoutMs
+            probe.transfer.AsyncCancel()
+            probe.state = "failed"
+        end if
+    end for
+end sub
+
+function PorticoServerConnectionRouteProbesFinished(probes as object) as boolean
+    for each probe in probes
+        if probe.state = "scheduled" or probe.state = "active" then return false
+    end for
+    return true
+end function
+
+sub PorticoServerConnectionStartHostedRace(controller as object, hosted as object, account as object, source as object, port as object, clock as object)
+    if controller.hostedCompatibility = true and controller.hostedCompatibilityGeneration = account.generation
+        hosted.stage = "keys"
+        hosted.request = PorticoServerConnectionStartRaceRequest({method: "GET", url: PorticoServerConnectionHostedBaseUrl() + "/api/signing-keys", body: "", headers: {}, timeoutMs: 10000, expectJson: true}, port, clock)
+    else
+        hosted.stage = "compatibility"
+        hosted.request = PorticoServerConnectionStartRaceRequest({method: "GET", url: PorticoServerConnectionHostedBaseUrl() + "/api/system", body: "", headers: {}, timeoutMs: 10000, expectJson: true}, port, clock)
+    end if
+    if hosted.request = invalid then hosted.finished = true
+end sub
+
+sub PorticoServerConnectionAdvanceHostedRace(controller as object, hosted as object, account as object, source as object, result as object, port as object, clock as object)
+    if not result.ok
+        hosted.failure = result
+        hosted.finished = true
+        return
+    end if
+    if hosted.stage = "compatibility"
+        if not PorticoCoreIsAssociativeArray(result.data) or result.data.name <> "Portico" or result.data.status <> "ok" or result.data.apiVersion <> "v1"
+            hosted.incompatible = true
+            hosted.finished = true
+            return
+        end if
+        controller.hostedCompatibility = true
+        controller.hostedCompatibilityGeneration = account.generation
+        hosted.stage = "keys"
+        hosted.request = PorticoServerConnectionStartRaceRequest({method: "GET", url: PorticoServerConnectionHostedBaseUrl() + "/api/signing-keys", body: "", headers: {}, timeoutMs: 10000, expectJson: true}, port, clock)
+    else if hosted.stage = "keys"
+        keySet = PorticoSignedDocumentKeySet(result.data)
+        if not keySet.ok
+            hosted.trustFailure = true
+            hosted.finished = true
+            return
+        end if
+        hosted.keySet = keySet
+        hosted.stage = "routes"
+        hosted.request = PorticoServerConnectionStartRaceRequest({
+            method: "GET",
+            url: PorticoServerConnectionHostedBaseUrl() + "/api/account/servers/" + source.serverId + "/routes",
+            body: "",
+            headers: {Authorization: "Bearer " + account.accessToken},
+            timeoutMs: 15000,
+            expectJson: true
+        }, port, clock)
+    else if hosted.stage = "routes"
+        verified = PorticoSignedDocumentVerifyRoute(result.data, source.serverId, hosted.keySet.keys)
+        routeGeneration = PorticoSignedDocumentRouteGeneration(result.data)
+        if not verified.ok or routeGeneration = ""
+            hosted.trustFailure = true
+            hosted.finished = true
+            return
+        end if
+        fingerprint = PorticoCoreSafeText(result.data.serverPublicKeyFingerprint, 256)
+        probes = []
+        for each candidate in PorticoServerConnectionRouteCandidates(result.data.routes)
+            candidateGeneration = PorticoServerSessionId(candidate.generation)
+            if candidateGeneration = "" then candidateGeneration = routeGeneration
+            probes.Push({
+                route: {
+                    apiBaseUrl: candidate.url,
+                    routeType: candidate.type,
+                    serverId: source.serverId,
+                    serverName: PorticoCoreSafeText(result.data.serverName, 80),
+                    serverPublicKeyFingerprint: fingerprint,
+                    routeGeneration: candidateGeneration
+                },
+                state: "scheduled",
+                startAfterMs: clock.TotalMilliseconds()
+            })
+        end for
+        hosted.probes = probes
+        PorticoServerConnectionScheduleRouteRace(hosted.probes, clock.TotalMilliseconds())
+        hosted.stage = "probes"
+        hosted.request = invalid
+        if hosted.probes.Count() = 0 then hosted.finished = true
+    end if
+    if hosted.request = invalid and hosted.stage <> "probes" then hosted.finished = true
+end sub
+
+function PorticoServerConnectionStartRaceRequest(rawRequest as object, port as object, clock as object) as dynamic
+    request = PorticoHttpNormalizeRequest(rawRequest)
+    validation = PorticoHttpValidatePrivateRequest(request)
+    if not validation.ok then return invalid
+    transfer = CreateObject("roUrlTransfer")
+    if transfer = invalid then return invalid
+    transfer.SetMessagePort(port)
+    transfer.SetUrl(request.url)
+    transfer.SetRequest(request.method)
+    transfer.RetainBodyOnError(true)
+    transfer.EnableEncodings(true)
+    if Left(LCase(request.url), 8) = "https://"
+        if not transfer.SetCertificatesFile("common:/certs/ca-bundle.crt") then return invalid
+        if not transfer.EnablePeerVerification(true) or not transfer.EnableHostVerification(true) then return invalid
+    end if
+    for each headerName in request.headers
+        if not transfer.AddHeader(headerName, request.headers[headerName]) then return invalid
+    end for
+    issued = false
+    if request.method = "POST"
+        issued = transfer.AsyncPostFromString(request.body)
+    else
+        issued = transfer.AsyncGetToString()
+    end if
+    if not issued then return invalid
+    return {
+        state: "active",
+        transfer: transfer,
+        identity: transfer.GetIdentity(),
+        request: request,
+        startedAtMs: clock.TotalMilliseconds()
+    }
+end function
+
+sub PorticoServerConnectionCancelRouteRace(cached as object, hosted as object)
+    allProbes = []
+    for each probe in cached
+        allProbes.Push(probe)
+    end for
+    for each probe in hosted.probes
+        allProbes.Push(probe)
+    end for
+    for each probe in allProbes
+        if probe.state = "active"
+            probe.transfer.AsyncCancel()
+            probe.state = "cancelled"
+        end if
+    end for
+    if hosted.request <> invalid and hosted.request.state = "active"
+        hosted.request.transfer.AsyncCancel()
+        hosted.request.state = "cancelled"
+    end if
+end sub
 
 function PorticoServerConnectionAdoptStoredRoute(controller as object, source as object, route as object) as boolean
     replacement = {}
