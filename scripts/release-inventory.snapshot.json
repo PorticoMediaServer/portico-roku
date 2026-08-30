@@ -1,8 +1,8 @@
 {
   "version": "0.1.0",
   "artifact": "artifacts/portico-roku-release.zip",
-  "sha256": "c342d3595fcaba92a0db54effc14c9f554cf71237e62d6c33a1bb75efcfb77d2",
-  "compressedBytes": 4827895,
+  "sha256": "e82ea7c10ad95637ede8a3576c018e47b1a724a6595bac6342a890bf95f0952d",
+  "compressedBytes": 4831998,
   "fileCount": 1233,
   "categories": {
     "components": 132,

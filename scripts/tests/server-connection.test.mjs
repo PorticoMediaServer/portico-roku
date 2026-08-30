@@ -199,7 +199,7 @@ assert.match(task, /retryAfter > delayFloor/);
 assert.match(task, /nextRefreshAt = controller\.clock\.TotalSeconds\(\) \+ delayFloor \+ PorticoServerConnectionPositiveJitter/);
 assert.match(task, /hostedCompatibility = true/);
 assert.match(task, /if policyMatches then return true/);
-assert.match(task, /priorities = \["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded"\]/);
+assert.match(task, /priorities = \["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "public_console_origin"\]/);
 for (const code of ["credential_revoked", "refresh_reused", "account_deleted", "profile_deleted", "membership_removed"]) {
   assert.match(task, new RegExp(`code = "${code}"`), `server refresh must recognize ${code} as terminal`);
 }

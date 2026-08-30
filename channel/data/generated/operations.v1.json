@@ -779,29 +779,6 @@
       },
       "method": "GET",
       "mutation": false,
-      "operationId": "getAccountPreferences",
-      "path": "/account/preferences",
-      "permission": "authenticated",
-      "ratePolicy": "interactive-read",
-      "responseSchemas": [
-        "UserPreferences"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "GET",
-      "mutation": false,
       "operationId": "getAccountProfile",
       "path": "/account/profile",
       "permission": "authenticated",
@@ -1798,29 +1775,6 @@
       "ratePolicy": "media-delivery",
       "responseSchemas": [
         "BinaryPayload"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "public",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "GET",
-      "mutation": false,
-      "operationId": "getLocalization",
-      "path": "/localization",
-      "permission": "public",
-      "ratePolicy": "interactive-read",
-      "responseSchemas": [
-        "LocalizationInfo"
       ],
       "service": "server",
       "surfaces": [
@@ -4337,11 +4291,11 @@
   "sources": {
     "hostedOpenApi": {
       "name": "portico-hosted.openapi.json",
-      "sha256": "73481807bb59c76083e6112f66f4b7a792fed418a124bdf6eefd2e6b84ed6c0a"
+      "sha256": "8be16934b178a1933f72c9678728716add11aa90a1f3b5820494af71b506f77d"
     },
     "serverOpenApi": {
       "name": "portico-server.openapi.json",
-      "sha256": "f2d7e37d2fcc093b2381fd5ea4e56021b9794274c0d380228e2226cc927becf7"
+      "sha256": "e4052134f45d79b12dfc5ef93a095f5876be4d5d2541eb7c4681702cac0e297f"
     }
   }
 }

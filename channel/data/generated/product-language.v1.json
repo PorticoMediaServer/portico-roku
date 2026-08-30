@@ -2757,6 +2757,12 @@
         "title": "All tuners are busy",
         "tone": "warning"
       },
+      "live-tv.channels-filter-empty": {
+        "body": "Clear a filter or search for another channel.",
+        "icon": "status.empty",
+        "title": "No channels match",
+        "tone": "neutral"
+      },
       "live-tv.choose-source": {
         "body": "Select the Live TV source you want to watch.",
         "icon": "status.live-tv",
@@ -5470,6 +5476,6 @@
   "schemaVersion": 1,
   "source": {
     "name": "en-US.json",
-    "sha256": "e338724a4eab81d5d25b85b801a05e6aaa9aef235e3d01575efc710b76a78794"
+    "sha256": "28973d7fae47cc9a1c5a5f597ee4ecf19d55236d23605dde5d7e4e35c1cc99c3"
   }
 }

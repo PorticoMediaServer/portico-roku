@@ -783,6 +783,13 @@ sub renderScene()
     PorticoSceneSetVisible(m.profileSelectionScreen, false)
     viewerActive = PorticoSceneVisualFixtureEnabled() or activeViewerPublished()
     if not viewerActive
+        ' Account authentication owns the application shell. A missing server is
+        ' contextual content state, not a signed-out/full-page gate. Keep global
+        ' navigation and account/app settings reachable while the catalog is empty.
+        if signedInShellAvailableWithoutViewer()
+            renderSignedInShellWithoutViewer()
+            return
+        end if
         hideGlobalEngagementSurfaces()
         PorticoSceneReleaseInactiveRouteSurfaces("")
         m.homeCustomizeOpen = false
@@ -1113,6 +1120,87 @@ sub renderScene()
     end if
     renderGlobalImportantNotice()
     PorticoSceneReleaseClosedOverlays()
+end sub
+
+function signedInShellAvailableWithoutViewer() as boolean
+    if runtimeValue("selectedServerId", "") = "" then return true
+
+    serverStatus = LCase(runtimeValue("serverStatus", "not-connected"))
+    if serverStatus = "offline" or serverStatus = "error" or serverStatus = "incompatible" or serverStatus = "identity-mismatch" or serverStatus = "permission-removed" then return true
+
+    profileStatus = LCase(runtimeValue("profileDirectoryStatus", "idle"))
+    if profileStatus = "error" or profileStatus = "profile-error" or profileStatus = "unavailable" then return true
+
+    viewerStatus = LCase(runtimeValue("viewerStatus", "unavailable"))
+    return runtimeValue("selectedProfileId", "") <> "" and (viewerStatus = "unavailable" or viewerStatus = "transition-failed")
+end function
+
+sub renderSignedInShellWithoutViewer()
+    hideGlobalEngagementSurfaces()
+    PorticoSceneReleaseClosedOverlays()
+    PorticoSceneEnsureBaseNodes()
+
+    m.homeCustomizeOpen = false
+    m.detailSeasonOpen = false
+    m.watchWithFriendsOpen = false
+    m.detailMoreOpen = false
+    PorticoSceneSetVisible(m.homeCustomizeOverlay, false)
+    PorticoSceneSetVisible(m.detailSeasonOverlay, false)
+    PorticoSceneSetVisible(m.watchWithFriendsOverlay, false)
+    PorticoSceneSetVisible(m.detailMoreScreen, false)
+    PorticoSceneSetVisible(m.playerScreen, false)
+
+    showProfile = m.route = "profile"
+    showSettings = m.route = "settings"
+    showServerSelection = m.route = "server-selection"
+    if showProfile then m.profileScreen = PorticoSceneEnsureRouteSurface("profile")
+    if showSettings then m.settingsScreen = PorticoSceneEnsureRouteSurface("settings")
+    if showServerSelection then m.serverSelectionScreen = PorticoSceneEnsureOverlaySurface("server-selection")
+
+    m.content.visible = true
+    m.content.translation = [PorticoSceneContentOrigin(), 0]
+    m.railLayer.visible = not showServerSelection
+    PorticoSceneSetVisible(m.homeScreen, false)
+    PorticoSceneSetVisible(m.detailScreen, false)
+    PorticoSceneSetVisible(m.searchScreen, false)
+    PorticoSceneSetVisible(m.personScreen, false)
+    PorticoSceneSetVisible(m.libraryScreen, false)
+    PorticoSceneSetVisible(m.savedScreen, false)
+    PorticoSceneSetVisible(m.channelsScreen, false)
+    PorticoSceneSetVisible(m.profileScreen, showProfile)
+    PorticoSceneSetVisible(m.settingsScreen, showSettings)
+    PorticoSceneSetVisible(m.serverSelectionScreen, showServerSelection)
+    PorticoSceneSetVisible(m.stateScreen, not showProfile and not showSettings and not showServerSelection)
+
+    if showProfile
+        m.profileScreen.viewState = {runtime: m.top.runtimeState, focused: m.focusArea = "profile"}
+    else if showSettings
+        m.settingsScreen.viewState = {runtime: m.top.runtimeState, focused: m.focusArea = "settings"}
+    else if showServerSelection
+        if m.focusArea <> "serverActions" and m.focusArea <> "serverClose" then m.focusArea = "serverActions"
+        m.serverSelectionScreen.viewState = {
+            model: serverSelectionModel(),
+            focusArea: m.focusArea,
+            focusedIndex: m.serverFocusedIndex,
+            offset: m.serverListOffset,
+            focusedAction: m.routeFocusedAction
+        }
+        m.serverSelectionScreen.setFocus(true)
+    else
+        if m.focusArea <> "rail" and m.focusArea <> "routeActions" then m.focusArea = "routeActions"
+        m.stateScreen.viewState = {model: routeStateModel(m.route), focusedAction: m.routeFocusedAction}
+        m.top.setFocus(true)
+    end if
+
+    focusedIndex = -1
+    if m.focusArea = "rail" then focusedIndex = m.focusedRailIndex
+    m.rail.viewState = {
+        model: railModel(),
+        expanded: m.railExpanded,
+        focusedIndex: focusedIndex,
+        selectedIndex: m.selectedRailIndex
+    }
+    m.top.page = m.route
 end sub
 
 function activeEngagementViewState() as dynamic

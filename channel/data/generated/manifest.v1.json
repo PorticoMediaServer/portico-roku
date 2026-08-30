@@ -1,19 +1,19 @@
 {
   "artifacts": [
     {
-      "bytes": 103273,
+      "bytes": 102229,
       "name": "operations.v1.json",
-      "sha256": "13d2e85950b64690e92f4b33b5f3028088bcab1dde8d9126b16de28d74975cb6"
+      "sha256": "e49d3997d3b1eec9428a8115364aa200f004c172ebc6e4ac228419d698b0d4e7"
     },
     {
-      "bytes": 103076,
+      "bytes": 103110,
       "name": "product-contract.v1.json",
-      "sha256": "4bbdfb64f97b531cb6bc8d8cf3b8edcaaece83bc792cfba69b2b6ad8be1594a5"
+      "sha256": "5138af7d53130dc2bd76bb7adedbc01f6a223b0d930ad73a5b69081a7ac1e6dc"
     },
     {
-      "bytes": 175548,
+      "bytes": 175759,
       "name": "product-language.v1.json",
-      "sha256": "ce4c27bf1b7711ab9ed4fb64f3291fe2e35f0524891b06ba0a1440ac2bafd6ca"
+      "sha256": "d63128c4c0c4bf2e28c12305ad1ee1a7b94760489a737de8d3a32f92dcba99dc"
     }
   ],
   "generatorRevision": 1,

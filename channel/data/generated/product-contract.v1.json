@@ -2759,13 +2759,13 @@
           "execution": "per-item",
           "kind": "api",
           "method": "POST",
-          "pathTemplate": "/api/media/{mediaId}/download-grants",
+          "pathTemplate": "/api/download-preparations",
           "requiredInputs": [
             "mediaId"
           ],
-          "resultHandling": "download-grant",
+          "resultHandling": "download-preparation",
           "staticBody": {
-            "profile": "source"
+            "qualityProfile": "source"
           }
         },
         "confirmation": {
@@ -2773,7 +2773,9 @@
           "tone": "none"
         },
         "id": "download",
-        "invalidates": [],
+        "invalidates": [
+          "downloads"
+        ],
         "mutating": false,
         "presentation": {
           "group": "playback",
@@ -4218,11 +4220,11 @@
   "sources": {
     "productContractSchema": {
       "name": "product-contract.schema.json",
-      "sha256": "24dfa1be56c52a65fab6cf3b89c95726cfec2e90e0bec07f56d0e072fc02a321"
+      "sha256": "8b7464e791ef1614f14141f4bf98122bd47a5d6d20ccf58229d62c3ae8d03c62"
     },
     "productLanguage": {
       "name": "en-US.json",
-      "sha256": "e338724a4eab81d5d25b85b801a05e6aaa9aef235e3d01575efc710b76a78794"
+      "sha256": "28973d7fae47cc9a1c5a5f597ee4ecf19d55236d23605dde5d7e4e35c1cc99c3"
     }
   }
 }

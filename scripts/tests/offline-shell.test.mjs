@@ -49,6 +49,20 @@ assert.match(scene, /m\.rail\.viewState/);
 assert.match(rail, /sub applyViewState\(\)/);
 assert.match(stateScreen, /sub applyViewState\(\)/);
 
+// Account authentication owns the shell even before a server/viewer exists.
+// Server-dependent routes render contextual state while global profile,
+// settings, and the explicit server chooser remain reachable from the rail.
+assert.match(scene, /if signedInShellAvailableWithoutViewer\(\)[\s\S]*renderSignedInShellWithoutViewer\(\)/);
+assert.match(scene, /function signedInShellAvailableWithoutViewer\(\)[\s\S]*selectedServerId[\s\S]*serverStatus = "offline"[\s\S]*profileStatus = "unavailable"[\s\S]*viewerStatus = "transition-failed"/);
+const signedInEmptyShell = scene.match(/sub renderSignedInShellWithoutViewer\(\)([\s\S]*?)end sub/)?.[1] ?? '';
+assert.match(signedInEmptyShell, /m\.content\.visible = true/);
+assert.match(signedInEmptyShell, /m\.railLayer\.visible = not showServerSelection/);
+assert.match(signedInEmptyShell, /showProfile = m\.route = "profile"/);
+assert.match(signedInEmptyShell, /showSettings = m\.route = "settings"/);
+assert.match(signedInEmptyShell, /showServerSelection = m\.route = "server-selection"/);
+assert.match(signedInEmptyShell, /m\.stateScreen\.viewState = \{model: routeStateModel\(m\.route\)/);
+assert.doesNotMatch(signedInEmptyShell, /PorticoNavigationTransition\(m\.navigationStore, "server-selection"/);
+
 // Ordinary Home restoration uses destination geometry rather than replacing
 // the signed-in shell with a generic state screen. Empty descriptors remain
 // available to the data layer but never produce visible shelves or focus stops.

@@ -1657,7 +1657,7 @@ function PorticoServerConnectionRouteCandidates(source as dynamic) as object
     if not PorticoCoreIsArray(source) then return result
     ' A healthy identity-pinned LAN route is the default data plane. Signed
     ' public routes remain verified fallbacks for topology changes and outages.
-    priorities = ["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "direct", "direct_ip_encoded"]
+    priorities = ["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "public_console_origin"]
     seen = {}
     for each routeType in priorities
         for each rawRoute in source
