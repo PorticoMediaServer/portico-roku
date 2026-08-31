@@ -73,9 +73,15 @@ expectOperation('server', 'attachPorticoSession', 'POST', '/auth/portico/session
 expectOperation('server', 'createNativeProfileSession', 'POST', '/auth/profile-sessions/native');
 expectOperation('server', 'refreshNativeSession', 'POST', '/auth/sessions/refresh');
 expectOperation('server', 'revokeNativeSession', 'POST', '/auth/sessions/revoke');
-for (const [id, path] of [['getAuthMe', '/auth/me'], ['getProductContract', '/product-contract'], ['getLibraries', '/libraries'], ['getAccountLibraryNavigation', '/account/library-navigation']]) {
+for (const [id, path] of [['getSystem', '/system'], ['getAuthMe', '/auth/me'], ['getProductContract', '/product-contract'], ['getLibraries', '/libraries'], ['getAccountLibraryNavigation', '/account/library-navigation']]) {
   expectOperation('server', id, 'GET', path);
 }
+
+const contentBootstrap = task.match(/function PorticoServerConnectionBootstrapContent\(controller as object\) as boolean([\s\S]*?)\nend function/)?.[1] ?? '';
+assert.ok(contentBootstrap.indexOf('"getSystem"') < contentBootstrap.indexOf('"getProductContract"'), 'System compatibility must be read before Product Contract semantics');
+assert.match(contentBootstrap, /PorticoProductContractSystemSupports\(system\.data, contract\.data\)/);
+assert.match(contentBootstrap, /productContractRevision = PorticoViewerScopeOpaqueId\(contract\.data\.semanticIdentity\.digest, 128\)/);
+assert.match(contentBootstrap, /if system\.retryable[\s\S]*PorticoServerConnectionFail\(controller, "server-offline", true, true\)/);
 
 assert.match(taskXml, /component name="PorticoServerConnectionTask" extends="Task"/);
 assert.doesNotMatch(taskXml, /field id="(?:accessToken|refreshToken|selectionEnvelope|serverPublicKeyFingerprint|apiBaseUrl|viewerScope)"/i);
@@ -193,6 +199,67 @@ const consumeProbe = task.match(/function PorticoServerConnectionConsumeRoutePro
 assert.ok(consumeProbe.indexOf('serverId') < consumeProbe.indexOf('return {route: probe.route'), 'A raced route must prove the pinned server ID before winning');
 assert.ok(consumeProbe.indexOf('serverPublicKeyFingerprint') < consumeProbe.indexOf('return {route: probe.route'), 'A raced route must prove the pinned fingerprint before winning');
 assert.match(task, /rebased\.previousRoute = PorticoServerSessionRouteRecord\(source\)/);
+
+const routeCandidates = task.match(/function PorticoServerConnectionRouteCandidates[\s\S]*?\nend function/)?.[0] ?? '';
+const routeCandidateRank = task.match(/function PorticoServerConnectionRouteCandidateRank[\s\S]*?\nend function/)?.[0] ?? '';
+assert.match(routeCandidates, /for qualityRank = 0 to 1[\s\S]*candidateRank = PorticoServerConnectionRouteCandidateRank\(rawRoute\.quality\)/);
+assert.ok(routeCandidates.indexOf('PorticoServerSessionSecureBaseUrl') < routeCandidates.indexOf('result.Push'), 'Every discovered route must pass the existing secure URL validator before probing');
+assert.match(routeCandidateRank, /if normalized = "identity_mismatch" then return -1[\s\S]*if normalized = "reachable" then return 0[\s\S]*return 1/);
+assert.doesNotMatch(routeCandidates, /quality = "(?:stale|failed|http_failed|tls_failed|repairing|repair_requested)"/, 'Transient route quality must not suppress an identity-pinned probe');
+
+// Mirror the small admission/ordering rule to cover the exact recovery cases.
+// URL syntax remains owned by PorticoServerSessionSecureBaseUrl; this model uses
+// public routes so every non-HTTPS or non-origin-only URL must be rejected.
+function modelPublicRouteCandidates(routes) {
+  const priorities = ['lan', 'lan_ip_encoded', 'lan_discovered', 'public_direct', 'public_direct_ip_encoded', 'public_console_origin'];
+  const rank = quality => quality.toLowerCase() === 'identity_mismatch' ? -1 : quality.toLowerCase() === 'reachable' ? 0 : 1;
+  const secureOrigin = value => {
+    if (typeof value !== 'string' || value.length < 12 || !value.toLowerCase().startsWith('https://')) return '';
+    if (value.includes('\\') || /[?\#]/.test(value) || value.slice(8).includes('@')) return '';
+    const trimmed = value.replace(/\/+$/, '');
+    return trimmed.slice(8).includes('/') ? '' : trimmed;
+  };
+  const result = [];
+  const seen = new Set();
+  for (let qualityRank = 0; qualityRank <= 1; qualityRank++) {
+    for (const routeType of priorities) {
+      for (const route of routes) {
+        if (!route || route.type !== routeType || rank(String(route.quality ?? '')) !== qualityRank) continue;
+        const url = secureOrigin(route.url);
+        if (!url || seen.has(url)) continue;
+        seen.add(url);
+        result.push({type: routeType, url});
+      }
+    }
+  }
+  return result;
+}
+
+{
+  const candidates = modelPublicRouteCandidates([
+    {type: 'lan', quality: 'failed', url: 'https://failed-lan.example.test:32500'},
+    {type: 'public_direct', quality: 'stale', url: 'https://stale.example.test:32500'},
+    {type: 'public_direct', quality: 'reported', url: 'https://reported.example.test:32500'},
+    {type: 'public_direct', quality: 'checking', url: 'https://checking.example.test:32500'},
+    {type: 'public_direct', quality: 'dns_synced', url: 'https://dns-synced.example.test:32500'},
+    {type: 'public_direct', quality: 'repairing', url: 'https://repairing.example.test:32500'},
+    {type: 'public_direct', quality: 'tls_failed', url: 'https://tls-recovery.example.test:32500'},
+    {type: 'public_direct', quality: 'http_failed', url: 'https://http-recovery.example.test:32500'},
+    {type: 'public_direct', quality: 'reachable', url: 'https://reachable.example.test:32500'},
+    {type: 'public_direct', quality: 'identity_mismatch', url: 'https://wrong-server.example.test:32500'},
+    {type: 'public_direct', quality: 'failed', url: 'http://insecure.example.test:32500'},
+    {type: 'public_direct', quality: 'checking', url: 'https://malformed.example.test:32500/path'},
+    {type: 'public_direct', quality: 'dns_synced', url: 'not a URL'},
+  ]);
+  assert.equal(candidates[0].url, 'https://reachable.example.test:32500', 'reachable routes must rank before every recovery candidate, including LAN');
+  for (const url of ['https://failed-lan.example.test:32500', 'https://stale.example.test:32500', 'https://reported.example.test:32500', 'https://checking.example.test:32500', 'https://dns-synced.example.test:32500', 'https://repairing.example.test:32500', 'https://tls-recovery.example.test:32500', 'https://http-recovery.example.test:32500']) {
+    assert.ok(candidates.some(candidate => candidate.url === url), `${url} must remain eligible for an identity-pinned recovery probe`);
+  }
+  assert.ok(!candidates.some(candidate => candidate.url.includes('wrong-server')), 'identity_mismatch must suppress the candidate');
+  assert.ok(!candidates.some(candidate => candidate.url.includes('insecure') || candidate.url.includes('malformed')), 'insecure and malformed public routes must remain rejected');
+  assert.equal(candidates.length, 9);
+}
+
 assert.match(task, /EnableLinkStatusEvent\(true\)/);
 assert.match(task, /nextNetworkRouteRetryAt = controller\.clock\.TotalSeconds\(\) \+ PorticoServerConnectionPositiveJitter/);
 assert.match(task, /retryAfter > delayFloor/);
@@ -246,6 +313,7 @@ const hostedFailure = task.match(/sub PorticoServerConnectionHandleHostedFailure
 assert.match(hostedFailure, /result\.status = 403 or result\.status = 404[\s\S]*"server-access-denied"/);
 assert.doesNotMatch(hostedFailure, /Deauthorize|account-credentials|signed-out/, 'Losing one server membership must retain Hosted account identity');
 const authorityLoss = main.match(/sub PorticoMainFenceServerAuthorityLoss[\s\S]*?\nend sub/)?.[0] ?? '';
+assert.match(authorityLoss, /authorityLost = status = "blocked"[\s\S]*PorticoViewerRuntimeControllerFence\(viewerController, "server-authority-lost"\)/);
 assert.match(authorityLoss, /serverMessageId[\s\S]*profileDirectoryStatus: "error"[\s\S]*profileDirectory: \[\][\s\S]*viewerTransitionReason: failureMessageId/);
 assert.doesNotMatch(authorityLoss, /accountStatus: "signed-out"|PorticoAuthorizationTaskDeauthorize/, 'Server authority loss must not sign out the Hosted account');
 assert.match(scene, /if \(status = "error" or status = "profile-error"\) and requested = "" then messageId = "auth\.profile-selection-failed"/);

@@ -784,7 +784,7 @@ end sub
 sub PorticoPlayerBuildUtilities()
     source = m.playerController.model.source
     m.playerPresenter.dockTargets = []
-    allowQuality = not PorticoPlayerIsLive() and source.streamFormat = "hls" and source.qualities.count() > 1
+    allowQuality = not PorticoPlayerIsLive() and source.streamFormat = "hls" and source.qualityOffers.offers.count() > 1
     allowStreams = not PorticoPlayerIsLive() and source.targetKind = "vod"
     if m.playerController.video.HasField("volume") then m.playerPresenter.dockTargets.push({kind: "volume", iconId: "playback.volume"})
     if allowStreams and (source.audioStreams.count() > 1 or source.subtitleStreams.count() > 0) then m.playerPresenter.dockTargets.push({kind: "subtitles", iconId: "playback.captions"})
@@ -832,13 +832,12 @@ sub PorticoPlayerBuildPanel()
             m.playerPresenter.panelTargets.push({kind: "set-volume", id: volume.ToStr(), label: label, volume: volume, selected: currentVolume = volume})
         end for
     else if m.playerPresenter.panelKind = "quality"
-        hasAutomatic = false
-        for each item in source.qualities
-            if LCase(item.id.ToStr()) = "automatic" then hasAutomatic = true
-        end for
-        if not hasAutomatic then m.playerPresenter.panelTargets.push({kind: "select-quality", id: "automatic", label: "Automatic", selected: source.selectedQualityId = "" or LCase(source.selectedQualityId) = "automatic"})
-        for each item in source.qualities
-            m.playerPresenter.panelTargets.push({kind: "select-quality", id: item.id, label: item.label, selected: item.id = source.selectedQualityId})
+        selectedKey = "automatic"
+        if source.qualitySelection.mode = "explicit" then selectedKey = source.qualitySelection.selectionId
+        for each item in source.qualityOffers.offers
+            itemKey = item.selectionId
+            if item.kind = "automatic" then itemKey = "automatic"
+            m.playerPresenter.panelTargets.push({kind: "select-quality", id: itemKey, label: item.label, selected: itemKey = selectedKey})
         end for
     else if m.playerPresenter.panelKind = "subtitles"
         for each item in source.audioStreams
@@ -855,11 +854,12 @@ sub PorticoPlayerBuildPanel()
             end for
         end if
     else if m.playerPresenter.panelKind = "queue"
+        if source.queue.count() > 1 then m.playerPresenter.panelTargets.push({kind: "queue-shuffle", id: "", label: PorticoPlayerMessage("action.shuffle", "Shuffle", {}).text, selected: false})
         for index = 0 to source.queue.count() - 1
             item = source.queue[index]
             prefix = "Then"
             if index = 0 then prefix = "Up next"
-            m.playerPresenter.panelTargets.push({kind: "next", id: item.id, label: prefix + " · " + item.title, selected: false})
+            m.playerPresenter.panelTargets.push({kind: "next", id: item.entryId, label: prefix + " · " + item.title, selected: false})
         end for
     else if m.playerPresenter.panelKind = "speed"
         speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]

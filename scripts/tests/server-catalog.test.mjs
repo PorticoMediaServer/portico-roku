@@ -90,10 +90,14 @@ assert.match(scene, /availabilityLabel = "Local network only"/);
 assert.doesNotMatch(scene, /availabilityLabel = "Unavailable"/);
 assert.match(scene, /listIsStale[\s\S]*availabilityLabel = "Not checked"/);
 assert.match(scene, /if result\.count\(\) >= 500 then exit for/);
-assert.match(scene, /serverListStatus = "denied"[\s\S]*status = "ACCESS DENIED"/);
+const directoryDisposition = scene.match(/function serverDirectoryDisposition\(\) as string([\s\S]*?)end function/)?.[1] ?? '';
+const catalogState = scene.match(/function serverSelectionCatalogState\(\) as dynamic([\s\S]*?)end function/)?.[1] ?? '';
+assert.match(directoryDisposition, /serverListStatus = "denied" then return "denied"/);
+assert.match(catalogState, /disposition = "denied"[\s\S]*status: "ACCESS DENIED"/);
 assert.match(scene, /id: "empty"[\s\S]*status: "ACCOUNT READY"[\s\S]*statusTone: "account"/);
 assert.match(scene, /Your Portico Account is signed in\. When you create a server or someone shares one with you, it will appear here\./);
-assert.match(scene, /selectedServerId = ""[\s\S]*serverListStatus = "ready"/);
+assert.match(scene, /if selectedServerId = ""[\s\S]*directoryDisposition = serverDirectoryDisposition\(\)/);
+assert.match(directoryDisposition, /if serverSelectionListReady\(\) then return "ready"[\s\S]*return "empty"/);
 assert.doesNotMatch(scene, /Hosted Services/);
 assert.match(scene, /emitActivation\("select-server", server\.id\)[\s\S]*openInternalRoute\("connection"\)/);
 

@@ -1210,34 +1210,6 @@
         "label": "Author"
       }
     ],
-    "compatibility": {
-      "apiContract": {
-        "digest": "",
-        "digestAlgorithm": "",
-        "identity": ""
-      },
-      "build": {
-        "buildNumber": "",
-        "channel": "",
-        "commit": "",
-        "timestamp": null,
-        "version": ""
-      },
-      "capabilities": null,
-      "envelopeRevision": 0,
-      "forwardCompatibility": {
-        "apiContractDigestMismatch": "",
-        "authorizationOnPartialUpgrade": "",
-        "unknownOptionalCapabilities": "",
-        "unknownRequiredSemantics": ""
-      },
-      "requiredSemantics": null,
-      "semanticRevisions": null,
-      "supportedClientProtocol": {
-        "maximum": 0,
-        "minimum": 0
-      }
-    },
     "entityKinds": [
       "movie",
       "show",
@@ -4161,6 +4133,12 @@
         }
       ]
     },
+    "semanticIdentity": {
+      "digest": "b4e5d9085d5bff25a281c7ee5bb1a8a547dda9e52e66b38bdada2745a74cbba9",
+      "digestAlgorithm": "sha256",
+      "id": "portico.product-contract",
+      "revision": "v2"
+    },
     "serverCapabilities": [
       "downloads",
       "home.lazy-rows",
@@ -4220,11 +4198,11 @@
   "sources": {
     "productContractSchema": {
       "name": "product-contract.schema.json",
-      "sha256": "8b7464e791ef1614f14141f4bf98122bd47a5d6d20ccf58229d62c3ae8d03c62"
+      "sha256": "e525ad3de2ac386bcd72efc494243df0d632e2d65e51053e2f6274a13c73e83f"
     },
     "productLanguage": {
       "name": "en-US.json",
-      "sha256": "28973d7fae47cc9a1c5a5f597ee4ecf19d55236d23605dde5d7e4e35c1cc99c3"
+      "sha256": "2f05d4bbfa3534420bf27cac676e077e8696ba80ac661e91aa7a94e0c75dbc53"
     }
   }
 }

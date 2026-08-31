@@ -52,21 +52,78 @@ assert.match(stateScreen, /sub applyViewState\(\)/);
 // Account authentication owns the shell even before a server/viewer exists.
 // Server-dependent routes render contextual state while global profile,
 // settings, and the explicit server chooser remain reachable from the rail.
-assert.match(scene, /if signedInShellAvailableWithoutViewer\(\)[\s\S]*renderSignedInShellWithoutViewer\(\)/);
-assert.match(scene, /function signedInShellAvailableWithoutViewer\(\)[\s\S]*selectedServerId[\s\S]*serverStatus = "offline"[\s\S]*profileStatus = "unavailable"[\s\S]*viewerStatus = "transition-failed"/);
-const signedInEmptyShell = scene.match(/sub renderSignedInShellWithoutViewer\(\)([\s\S]*?)end sub/)?.[1] ?? '';
-assert.match(signedInEmptyShell, /m\.content\.visible = true/);
-assert.match(signedInEmptyShell, /m\.railLayer\.visible = not showServerSelection/);
-assert.match(signedInEmptyShell, /showProfile = m\.route = "profile"/);
-assert.match(signedInEmptyShell, /showSettings = m\.route = "settings"/);
-assert.match(signedInEmptyShell, /showServerSelection = m\.route = "server-selection"/);
-assert.match(signedInEmptyShell, /m\.stateScreen\.viewState = \{model: routeStateModel\(m\.route\)/);
-assert.doesNotMatch(signedInEmptyShell, /PorticoNavigationTransition\(m\.navigationStore, "server-selection"/);
+assert.match(scene, /shellWithoutViewer = not viewerActive and signedInShellAvailableWithoutViewer\(\)/);
+assert.match(scene, /if not viewerActive and not shellWithoutViewer/);
+assert.match(scene, /function signedInShellAvailableWithoutViewer\(\)[\s\S]*selectedServerId[\s\S]*serverStatus = "offline"[\s\S]*serverStatus = "blocked"[\s\S]*profileStatus = "unavailable"[\s\S]*viewerStatus = "transition-failed"/);
+assert.doesNotMatch(scene, /sub renderSignedInShellWithoutViewer\(/, 'viewerless account states must reuse the one shell renderer');
+const renderScene = scene.match(/sub renderScene\(\)([\s\S]*?)end sub/)?.[1] ?? '';
+const viewerlessFence = renderScene.match(/if shellWithoutViewer([\s\S]*?)end if/)?.[1] ?? '';
+assert.match(viewerlessFence, /hideGlobalEngagementSurfaces\(\)/);
+assert.match(viewerlessFence, /PorticoSceneSetVisible\(m\.playerScreen, false\)/);
+assert.doesNotMatch(viewerlessFence, /PorticoNavigationTransition/, 'shell availability must not become a second navigation owner');
+assert.match(renderScene, /showVisualHome = viewerActive and m\.route = "home"/);
+assert.match(renderScene, /showSearch = viewerActive and m\.route = "search"/);
+assert.match(renderScene, /if m\.playerScreen <> invalid and viewerActive[\s\S]*m\.playerScreen\.viewState = activePlaybackModel\(\)/);
+assert.match(renderScene, /showProfile = m\.route = "profile"/);
+assert.match(renderScene, /showSettings = m\.route = "settings"/);
+assert.match(renderScene, /showServerSelection = m\.route = "server-selection"/);
+assert.match(renderScene, /m\.stateScreen\.viewState = \{[\s\S]*model: routeStateModel\(m\.route\)/);
+assert.match(scene, /sub refreshRuntimeLibraries\(\)[\s\S]*m\.libraryItems = \[\][\s\S]*not activeViewerPublished\(\) then return/);
+
+const routeState = scene.match(/function routeStateModel\(route as string\) as object([\s\S]*?)end function/)?.[1] ?? '';
+const directoryDisposition = scene.match(/function serverDirectoryDisposition\(\) as string([\s\S]*?)end function/)?.[1] ?? '';
+assert.match(directoryDisposition, /serverSelectionListReady\(\)[\s\S]*return "ready"/);
+for (const state of ['signed-out', 'loading', 'denied', 'incompatible', 'offline', 'empty']) assert.match(directoryDisposition, new RegExp(`return "${state}"`));
+assert.match(scene, /function serverSelectionCatalogState\(\)[\s\S]*disposition = serverDirectoryDisposition\(\)/);
+assert.match(routeState, /directoryDisposition = serverDirectoryDisposition\(\)/);
+const serverSelectionRoute = routeState.match(/else if route = "server-selection"([\s\S]*?)else if route = "connection"/)?.[1] ?? '';
+assert.match(serverSelectionRoute, /catalogState = serverSelectionCatalogState\(\)/);
+assert.doesNotMatch(serverSelectionRoute, /serverListStatus|hostedStatus/, 'the chooser background must not reclassify directory state');
+assert.match(routeState, /status = "NO SERVERS YET"[\s\S]*Your Portico Account is signed in\. Create a server or accept an invitation to start watching\./);
+assert.match(routeState, /status = "SERVERS TEMPORARILY UNAVAILABLE"[\s\S]*Your Portico Account is still signed in\./);
+assert.match(routeState, /serverStatus = "blocked"[\s\S]*status = "CONNECTION BLOCKED"/);
+assert.match(routeState, /if selectedServerId = ""[\s\S]*return \{route: route,[\s\S]*else if serverStatus = "online"/, 'no-server truth must win over stale server and route projections');
+const connectionRoute = routeState.match(/else if route = "connection"([\s\S]*?)end if\n\n    return/)?.[1] ?? '';
+assert.match(connectionRoute, /serverStatus = "blocked"[\s\S]*status = "CONNECTION BLOCKED"/, 'Connection must not downgrade a safety block to an ordinary offline state');
+
+function directoryState({listReady = false, signedIn = true, serverListStatus = 'unknown', hostedStatus = 'unknown'} = {}) {
+  if (listReady) return 'ready';
+  if (!signedIn) return 'signed-out';
+  if (serverListStatus === 'denied') return 'denied';
+  if (serverListStatus === 'incompatible' || hostedStatus === 'incompatible') return 'incompatible';
+  if (serverListStatus === 'offline' || hostedStatus === 'offline' || hostedStatus === 'throttled') return 'offline';
+  if (serverListStatus === 'loading' || serverListStatus === 'unknown') return 'loading';
+  return 'empty';
+}
+
+assert.equal(directoryState({hostedStatus: 'offline'}), 'offline', 'Hosted failure must not be mislabeled as indefinite loading');
+assert.equal(directoryState({serverListStatus: 'loading', hostedStatus: 'throttled'}), 'offline');
+assert.equal(directoryState({listReady: true, hostedStatus: 'offline'}), 'ready', 'a validated cached directory remains usable');
+assert.equal(directoryState({serverListStatus: 'ready'}), 'empty');
+
+function viewerlessDisposition(state) {
+  const accountSignedIn = ['signed-in', 'refreshing', 'hosted-unavailable'].includes(state.accountStatus);
+  if (!accountSignedIn) return 'auth-gate';
+  if (state.viewerStatus === 'active' && state.viewerAcceptingWrites) return 'viewer-shell';
+  if (!state.selectedServerId) return 'account-shell';
+  if (['offline', 'error', 'blocked', 'incompatible', 'identity-mismatch', 'permission-removed'].includes(state.serverStatus)) return 'account-shell';
+  if (['error', 'profile-error', 'unavailable'].includes(state.profileDirectoryStatus)) return 'account-shell';
+  if (state.selectedProfileId && ['unavailable', 'transition-failed'].includes(state.viewerStatus)) return 'account-shell';
+  return 'profile-gate';
+}
+
+assert.equal(viewerlessDisposition({accountStatus: 'signed-in', selectedServerId: '', viewerStatus: 'unavailable'}), 'account-shell');
+assert.equal(viewerlessDisposition({accountStatus: 'hosted-unavailable', selectedServerId: '', viewerStatus: 'unavailable'}), 'account-shell');
+assert.equal(viewerlessDisposition({accountStatus: 'signed-in', selectedServerId: 'srv_1', serverStatus: 'offline', viewerStatus: 'unavailable'}), 'account-shell');
+assert.equal(viewerlessDisposition({accountStatus: 'signed-in', selectedServerId: 'srv_1', serverStatus: 'blocked', viewerStatus: 'unavailable'}), 'account-shell');
+assert.equal(viewerlessDisposition({accountStatus: 'signed-out', selectedServerId: '', viewerStatus: 'unavailable'}), 'auth-gate');
+assert.equal(viewerlessDisposition({accountStatus: 'signed-in', selectedServerId: 'srv_1', serverStatus: 'online', profileDirectoryStatus: 'loading', viewerStatus: 'unavailable'}), 'profile-gate');
+assert.equal(viewerlessDisposition({accountStatus: 'signed-in', selectedServerId: 'srv_1', serverStatus: 'online', viewerStatus: 'active', viewerAcceptingWrites: true}), 'viewer-shell');
 
 // Ordinary Home restoration uses destination geometry rather than replacing
 // the signed-in shell with a generic state screen. Empty descriptors remain
 // available to the data layer but never produce visible shelves or focus stops.
-assert.match(scene, /showVisualHome = m\.route = "home" and \(homeModel <> invalid or homeShouldReserveContent\(\)\)/);
+assert.match(scene, /showVisualHome = viewerActive and m\.route = "home" and \(homeModel <> invalid or homeShouldReserveContent\(\)\)/);
 assert.match(scene, /function reservedHomeModel\(\)[\s\S]*loadStatus: "restoring"/);
 assert.match(scene, /sceneArray\(row\.items\)\.count\(\) > 0 then result\.push\(row\)/);
 assert.match(home, /m\.rowGroups = \[\]/);

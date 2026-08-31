@@ -60,7 +60,7 @@ assert.match(presentationHandler, /not accountIsSignedIn\(\) or not activeViewer
 assert.ok(presentationHandler.indexOf('not accountIsSignedIn() or not activeViewerPublished() then return') < presentationHandler.indexOf('pushRoute("player"'));
 
 // Previous is an authoritative queue-history handoff, not a seek-to-zero alias.
-assert.match(playbackTask, /function PorticoPlaybackAdvancePrevious[\s\S]*\/queue[\s\S]*data\.history[\s\S]*PorticoPlaybackAdvanceNext\(controller, false, previousId, true\)/);
+assert.match(playbackTask, /function PorticoPlaybackAdvancePrevious[\s\S]*\/queue[\s\S]*PorticoPlaybackQueueHistory\(data\.history\)[\s\S]*previousEntryId = item\.entryId[\s\S]*PorticoPlaybackAdvanceNext\(controller, false, previousEntryId, true\)/);
 assert.match(playbackBridge, /PorticoPlaybackRemotePreviousCommand/);
 assert.match(playbackTask, /playback-remote-stopped/);
 assert.match(player, /playback\.remote-stopped/);

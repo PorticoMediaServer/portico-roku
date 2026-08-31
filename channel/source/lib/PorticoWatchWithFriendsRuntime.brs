@@ -109,10 +109,11 @@ function PorticoWatchWithFriendsGroup(value as dynamic) as dynamic
     if value = invalid or Type(value) <> "roAssociativeArray" then return invalid
     id = PorticoViewerScopeOpaqueId(value.id, 128)
     mediaId = PorticoViewerScopeOpaqueId(value.mediaId, 128)
+    currentEntryId = PorticoViewerScopeOpaqueId(value.currentEntryId, 128)
     name = PorticoWatchWithFriendsText(value.name, 120)
     mediaTitle = PorticoWatchWithFriendsText(value.mediaTitle, 180)
     state = LCase(PorticoCoreSafeText(value.state, 16))
-    if id = "" or mediaId = "" or name = "" or mediaTitle = "" then return invalid
+    if id = "" or mediaId = "" or currentEntryId = "" or name = "" or mediaTitle = "" then return invalid
     if state <> "paused" and state <> "playing" and state <> "stopped" then return invalid
     revision = PorticoWatchWithFriendsNonNegativeInteger(value.revision, -1)
     playbackRevision = PorticoWatchWithFriendsNonNegativeInteger(value.playbackRevision, -1)
@@ -133,6 +134,7 @@ function PorticoWatchWithFriendsGroup(value as dynamic) as dynamic
         name: name,
         ownerName: PorticoWatchWithFriendsText(value.ownerName, 120),
         mediaId: mediaId,
+        currentEntryId: currentEntryId,
         mediaTitle: mediaTitle,
         state: state,
         positionSeconds: position,
@@ -190,13 +192,21 @@ function PorticoWatchWithFriendsQueue(value as dynamic) as dynamic
     for each raw in value
         if result.Count() >= 200 then exit for
         if raw <> invalid and Type(raw) = "roAssociativeArray"
+            entryId = PorticoViewerScopeOpaqueId(raw.entryId, 128)
             mediaId = PorticoViewerScopeOpaqueId(raw.mediaId, 128)
             title = PorticoWatchWithFriendsText(raw.mediaTitle, 180)
             order = PorticoWatchWithFriendsNonNegativeInteger(raw.sortOrder, -1)
-            if mediaId <> "" and title <> "" and order >= 0 then result.Push({mediaId: mediaId, mediaTitle: title, sortOrder: order})
+            if entryId <> "" and mediaId <> "" and title <> "" and order >= 0 and PorticoWatchWithFriendsBoolean(raw.unavailable)
+                result.Push({entryId: entryId, mediaId: mediaId, mediaTitle: title, unavailable: raw.unavailable = true, sortOrder: order})
+            end if
         end if
     end for
     return result
+end function
+
+function PorticoWatchWithFriendsBoolean(value as dynamic) as boolean
+    valueType = LCase(Type(value))
+    return valueType = "boolean" or valueType = "roboolean"
 end function
 
 function PorticoWatchWithFriendsCommand(value as dynamic) as dynamic

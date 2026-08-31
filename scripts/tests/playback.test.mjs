@@ -10,8 +10,13 @@ const task = read('channel/components/PorticoPlaybackTask.brs');
 const taskXml = read('channel/components/PorticoPlaybackTask.xml');
 const models = read('channel/source/lib/PorticoPlaybackModels.brs');
 const runtime = read('channel/source/lib/PorticoPlaybackRuntime.brs');
+const secureRegistry = read('channel/source/lib/PorticoSecureRegistry.brs');
 const bridge = read('channel/source/lib/PorticoPlayback.brs');
 const player = read('channel/components/PorticoPlayer.brs');
+const watchTask = read('channel/components/PorticoWatchWithFriendsTask.brs');
+const watchRuntime = read('channel/source/lib/PorticoWatchWithFriendsRuntime.brs');
+const watchBridge = read('channel/source/lib/PorticoWatchWithFriends.brs');
+const operationPolicy = read('scripts/lib/roku-operation-policy.mjs');
 const main = read('channel/source/main.brs');
 const verifier = read('scripts/verify.mjs');
 const operationsDocument = JSON.parse(read('channel/data/generated/operations.v1.json'));
@@ -41,6 +46,7 @@ for (const [id, method, path] of [
   ['renegotiatePlaybackSession', 'POST', '/playback-sessions/{sessionId}/renegotiate'],
   ['postPlaybackSessionsSessionIdPrepareNext', 'POST', '/playback-sessions/{sessionId}/prepare-next'],
   ['postPlaybackSessionsSessionIdHandoff', 'POST', '/playback-sessions/{sessionId}/handoff'],
+  ['postPlaybackActive', 'POST', '/playback/active'],
   ['getPlaybackSessionsSessionIdQueue', 'GET', '/playback-sessions/{sessionId}/queue'],
   ['patchPlaybackSessionsSessionIdQueue', 'PATCH', '/playback-sessions/{sessionId}/queue'],
 ]) expectServerOperation(id, method, path);
@@ -90,6 +96,17 @@ assert.match(startBody, /if startSeconds <> invalid/);
 assert.match(startBody, /body\.startSeconds = boundedStart/);
 assert.ok(startBody.indexOf('if startSeconds <> invalid') < startBody.indexOf('body.startSeconds = boundedStart'));
 assert.match(task, /PorticoPlaybackStartBodyWithIntent\(targetId, startSeconds, PorticoPlaybackPortableIntent/);
+const startTransition = task.match(/sub PorticoPlaybackStart\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.doesNotMatch(startTransition, /PorticoPlaybackStopActive\(controller/, 'active route selection must not stop and then independently start');
+assert.match(startTransition, /body\.replacement = replacement[\s\S]*PorticoPlaybackPersistPendingMutation[\s\S]*PorticoPlaybackDispatchPendingMutation/, 'active route replacement must durably persist the complete target request before dispatch');
+for (const route of [
+  '/api/playback-sessions',
+  '/api/live-tv/play',
+  '/api/dvr/recordings/',
+  '/api/library-channels/',
+]) assert.ok(startTransition.includes(route), `active replacement route missing: ${route}`);
+for (const field of ['sourceSessionId', 'requestId', 'previousTerminal', 'expectedQueueRevision', 'expectedPlaybackRevision']) assert.match(startTransition, new RegExp(`${field}:`));
+assert.match(startTransition, /controller\.playback <> invalid[\s\S]*controller\.status = controller\.playerState/, 'old actor remains published with its valid status while replacement is pending');
 const portableIntent = models.match(/function PorticoPlaybackPortableIntent\(preferences as dynamic, profile as dynamic\) as object([\s\S]*?)\nend function/)?.[1] ?? '';
 const portableLanguageIntent = models.match(/sub PorticoPlaybackApplyLanguageIntent\(intent as object, preferences as dynamic\)([\s\S]*?)\nend sub/)?.[1] ?? '';
 assert.match(portableIntent, /PorticoPlaybackApplyLanguageIntent\(intent, preferences\)/);
@@ -99,16 +116,33 @@ assert.match(portableLanguageIntent, /intent\.preferredSubtitleMode/);
 assert.doesNotMatch(portableLanguageIntent, /preferredAudioLanguages|preferredSubtitleLanguages|subtitlesEnabled/);
 assert.match(task, /PorticoPlaybackClientProfileForPreferences\(controller\.preferences\)/);
 assert.doesNotMatch(task.match(/sub PorticoPlaybackStart\([\s\S]*?\nend sub/)?.[0] ?? '', /PorticoPlaybackApplyPreferredStreams|PorticoPlaybackRestartSelection/);
-assert.match(models, /qualityProfile: "automatic"/);
+assert.match(models, /quality: \{mode: "automatic"\}/);
+assert.doesNotMatch(portableIntent, /qualityProfile|maxVideoBitrate|maxAudioBitrate|maxVideoHeight|networkClass/);
 assert.match(models, /directPlayPolicy: "prefer"/);
 assert.match(task, /acknowledgement\.mediaGrantExpiresAt/);
 assert.match(task, /acknowledgement\.grantSemantics/);
 assert.doesNotMatch(task + models, /effectiveExpiresAt|effectiveGrantExpiresAt/);
 assert.match(task, /expectedRevision: active\.playbackRevision/);
-assert.match(task, /expectedQueueRevision: (preparedQueueRevision|controller\.preparedNext\.queueRevision)/);
-assert.match(task, /expectedPlaybackRevision: (preparedPlaybackRevision|controller\.preparedNext\.playbackRevision)/);
+assert.match(task, /body\.expectedQueueRevision = prepared\.queueRevision/);
+assert.match(task, /body\.expectedPlaybackRevision = prepared\.playbackRevision/);
+assert.match(task, /if kind = "queue-shuffle" then action = "shuffle"/);
+assert.match(task, /body = \{expectedRevision: controller\.playback\.queueRevision, idempotencyKey: PorticoHttpNewRequestId\(\), action: action\}/);
+assert.match(task, /else if action = "remove"[\s\S]*body\.entryId = entryId/);
+assert.match(task, /body\.entryId = entryId[\s\S]*body\.destinationEntryId = destinationEntryId[\s\S]*body\.placement = placement/);
+assert.doesNotMatch(task.match(/sub PorticoPlaybackQueueMutation[\s\S]*?\nend sub/)?.[0] ?? '', /body\.(?:fromIndex|toIndex)/);
+assert.match(bridge, /"queue-shuffle": true/);
 assert.match(task, /path: "\/api\/playback-sessions\/" \+ active\.sessionId \+ "\/renegotiate"/);
 assert.match(models, /playbackRevision: playbackRevision/);
+assert.match(models, /currentQueueEntryId = PorticoPlaybackSafeId\(data\.currentQueueEntryId\)/);
+assert.match(models, /entryId = PorticoPlaybackSafeId\(raw\.entryId\)[\s\S]*media = raw\.media[\s\S]*mediaId = PorticoPlaybackSafeId\(media\.id\)/);
+assert.match(models, /result\.push\(\{entryId: entryId, mediaId: mediaId, title: title, subtitle: subtitle\}\)/);
+assert.match(models, /historyId: historyId, entryId: entryId, mediaId: mediaId/);
+assert.match(bridge, /currentQueueEntryId: PorticoPlaybackBridgeSafeId\(source\.currentQueueEntryId\)/);
+assert.match(bridge, /result\.push\(\{entryId: entryId, mediaId: mediaId, title: title/);
+assert.match(player, /kind: "next", id: item\.entryId/);
+assert.match(task, /previousEntryId = item\.entryId/);
+assert.doesNotMatch(task.match(/function PorticoPlaybackAdvancePrevious[\s\S]*?\nend function/)?.[0] ?? '', /active\.mediaId|item\.id/);
+assert.match(task.match(/function PorticoPlaybackAdvancePrevious[\s\S]*?\nend function/)?.[0] ?? '', /for index = 0 to history\.Count\(\) - 1/, 'Previous must choose the server-ordered most recent history occurrence');
 assert.match(models, /canPause: timeline\.canPause = true/);
 assert.match(models, /canSeek: timeline\.canSeek = true/);
 assert.match(models, /seekableStartSeconds/);
@@ -124,13 +158,13 @@ assert.match(task, /return sourceGeneration = controller\.sourceGeneration/);
 assert.match(runtime, /PorticoServerSessionRequestProjection\(stored, expected, record\.generation\)/);
 assert.match(task, /grantReplaced = grant\.token <> controller\.playback\.grantToken/);
 assert.match(task, /if grantReplaced or userInitiated or controller\.sourceRecoveryPending then controller\.sourceGeneration = controller\.sourceGeneration \+ 1/);
-assert.match(task, /sub PorticoPlaybackCancelPostplay[\s\S]*controller\.pendingCompletion = true[\s\S]*return[\s\S]*PorticoPlaybackResetActive/);
+assert.match(task, /sub PorticoPlaybackCancelPostplay[\s\S]*PorticoPlaybackBeginTerminal\(controller, controller\.playback, "completed"/);
 assert.match(task, /function PorticoPlaybackNextFailed[\s\S]*controller\.status = controller\.playerState/);
 assert.match(task, /sub PorticoPlaybackSelectionFailed[\s\S]*controller\.status = controller\.playerState/);
-assert.match(task, /terminalProgress/);
-assert.match(task, /PorticoPlaybackFinishTerminalCleanup\(controller\)/);
+assert.doesNotMatch(task, /terminalProgress|pendingCompletion|PorticoPlaybackFinishTerminalCleanup/);
 assert.match(task, /sourceRecoveryStableSince/);
-assert.match(task, /function PorticoPlaybackSelectQuality\([\s\S]*recoveryAttempt/);
+assert.match(task, /function PorticoPlaybackQualitySelectionFor\([\s\S]*qualityOfferRevision: playback\.qualityOffers\.offerRevision/);
+assert.doesNotMatch(task.match(/function PorticoPlaybackSelectQuality\([\s\S]*?\nend function/)?.[0] ?? '', /recoveryAttempt|qualityId/);
 assert.match(task, /allowInsecureLan: session\.allowInsecureLan = true/);
 assert.match(task, /if Left\(LCase\(request\.url\), 8\) = "https:\/\/"/);
 
@@ -144,7 +178,7 @@ assert.doesNotMatch(privateContent, /media_grant=/i);
 for (const request of [
   /requestPath = "\/api\/playback-sessions"[\s\S]*method: "POST"[\s\S]*path: requestPath/,
   /path: "\/api\/playback-sessions\/" \+ controller\.playback\.sessionId \+ "\/media-grant"/,
-  /method: "DELETE", path: "\/api\/playback-sessions\/" \+ activeSessionId/,
+  /if pending\.kind = "terminal" then method = "DELETE"/,
 ]) assert.match(task, request);
 assert.match(task, /PorticoHttpValidatePrivateRequest\(request\)/);
 assert.match(task, /SetCertificatesFile\("common:\/certs\/ca-bundle\.crt"\)/);
@@ -155,38 +189,77 @@ assert.match(task, /AddHeader\("Authorization", "PorticoMedia " \+ token\)/);
 
 const progress = task.match(/sub PorticoPlaybackSendProgress\([\s\S]*?\nend sub/)?.[0] ?? '';
 assert.match(progress, /controller\.progressPending = \{/);
-assert.ok(progress.indexOf('controller.terminalProgress = {') < progress.indexOf('PorticoPlaybackDispatchProgress(controller)'), 'Terminal ownership must precede every synchronous dispatch failure');
-assert.match(progress, /terminalIntent = completed or controller\.pendingStop <> invalid/);
-assert.match(progress, /if completed then controller\.pendingCompletion = true/);
 assert.match(task, /sub PorticoPlaybackDispatchProgress\([\s\S]*?AsyncPostFromString\(request\.body\)/);
 assert.match(task, /sub PorticoPlaybackPollProgress\([\s\S]*?PorticoPlaybackAdoptProgressAcknowledgement/);
 assert.doesNotMatch(progress, /PorticoPlaybackAuthenticatedRequest/, 'Progress reporting must not block the player command loop.');
 for (const field of ['eventSequence', 'recordedAt', 'progressSeconds', 'durationSeconds', 'state']) assert.match(task, new RegExp(`${field}:`));
+assert.doesNotMatch(progress, /completed/);
 assert.match(task, /acknowledgement\.accepted/);
 assert.match(task, /acknowledgement\.duplicate/);
 assert.match(task, /acknowledgement\.stale/);
 const dispatchProgress = task.match(/sub PorticoPlaybackDispatchProgress\([\s\S]*?\nend sub/)?.[0] ?? '';
-assert.ok(dispatchProgress.indexOf('controller.terminalProgress.body = request.body') < dispatchProgress.indexOf('PorticoHttpValidatePrivateRequest(request)'), 'Validation failure must retain a replayable terminal body');
-assert.ok(dispatchProgress.indexOf('controller.terminalProgress.body = request.body') < dispatchProgress.indexOf('CreateObject("roUrlTransfer")'), 'Transfer allocation failure must retain terminal intent');
-assert.ok(dispatchProgress.indexOf('controller.terminalProgress.body = request.body') < dispatchProgress.indexOf('AsyncPostFromString(request.body)'), 'Transfer start failure must retain terminal intent');
+assert.doesNotMatch(dispatchProgress, /completed/);
+assert.match(dispatchProgress, /controller\.pendingMutation <> invalid/, 'pending atomic replacement must fence new old-session progress without discarding it');
+assert.match(dispatchProgress, /generation: controller\.playback\.sessionGeneration/, 'Ordinary progress must carry the validated positive server-session generation');
+assert.match(models, /sessionGeneration < 1[\s\S]*return invalid/, 'Playback parsing must reject non-positive progress generations');
 const progressFailure = task.match(/sub PorticoPlaybackProgressFailure\([\s\S]*?\nend sub/)?.[0] ?? '';
-assert.match(progressFailure, /controller\.terminalProgress\.nextRetryAt = controller\.clock\.TotalSeconds\(\) \+ 1/);
 assert.doesNotMatch(progressFailure, /PorticoPlaybackFinishPendingStop|PorticoPlaybackResetActive/, 'Synchronous and async terminal failures must remain retry-owned');
-const retryTerminal = task.match(/sub PorticoPlaybackRetryTerminalProgress\([\s\S]*?\nend sub/)?.[0] ?? '';
-assert.match(retryTerminal, /terminal\.attempts >= 3/);
-assert.match(retryTerminal, /terminal\.sessionId <> controller\.playback\.sessionId or terminal\.playbackGeneration <> controller\.playbackGeneration/);
-assert.match(retryTerminal, /PorticoPlaybackReplayProgress\(controller, terminal\.body, session, terminal\.completed, terminal\.eventSequence\)/);
+assert.match(progressFailure, /pendingMutation\.kind = "replacement"[\s\S]*PorticoPlaybackPublish[\s\S]*return/, 'late old progress failures cannot clear an ambiguous replacement source');
 const pollProgress = task.match(/sub PorticoPlaybackPollProgress\([\s\S]*?\nend sub/)?.[0] ?? '';
-assert.match(pollProgress, /controller\.pendingCompletion or controller\.pendingStop <> invalid/, 'Completion and cancel/stop must both retain retry ownership after timeout or HTTP failure');
 assert.match(pollProgress, /deadlineAt[\s\S]*AsyncCancel\(\)[\s\S]*PorticoPlaybackProgressFailure\(controller, 0, "timeout"\)/, 'Async timeout must transfer terminal ownership to bounded retry');
 assert.match(pollProgress, /classification\.classification <> "success"[\s\S]*PorticoPlaybackProgressFailure\(controller, status, classification\.classification\)/, 'HTTP failure must transfer terminal ownership to bounded retry');
 assert.match(pollProgress, /PorticoPlaybackAdoptProgressAcknowledgement/, 'Success and duplicate acknowledgements must share the fenced adoption path');
-assert.match(task, /if request\.completed and controller\.pendingCompletion[\s\S]*controller\.terminalProgress = invalid/);
-assert.match(task, /controller\.pendingStop <> invalid and request\.sessionId = controller\.pendingStop\.sessionId[\s\S]*controller\.terminalProgress = invalid[\s\S]*PorticoPlaybackFinishPendingStop/);
 const acknowledgement = task.match(/function PorticoPlaybackAdoptProgressAcknowledgement\([\s\S]*?\nend function/)?.[0] ?? '';
 assert.match(acknowledgement, /acknowledgement\.accepted <> true and acknowledgement\.duplicate <> true and acknowledgement\.stale <> true/, 'A duplicate terminal callback must be idempotently acknowledged');
+
+const terminalRequest = task.match(/function PorticoPlaybackTerminalRequest\([\s\S]*?\nend function/)?.[0] ?? '';
+assert.match(terminalRequest, /generation = PorticoPlaybackBoundedSeconds\(playback\.sessionGeneration, 0\)/);
+assert.match(terminalRequest, /sequence = PorticoPlaybackBoundedSeconds\(playback\.nextEventSequence, 0\)/);
+assert.match(terminalRequest, /playback\.nextEventSequence = sequence \+ 1/);
+for (const field of ['disposition', 'generation', 'eventSequence', 'recordedAt', 'positionSeconds', 'durationSeconds']) assert.match(terminalRequest, new RegExp(`${field}:`));
+assert.doesNotMatch(terminalRequest, /playbackGeneration/);
+const beginTerminal = task.match(/function PorticoPlaybackBeginTerminal\([\s\S]*?\nend function/)?.[0] ?? '';
+assert.ok(beginTerminal.indexOf('PorticoPlaybackPersistPendingMutation') < beginTerminal.indexOf('PorticoPlaybackDispatchPendingMutation'), 'Terminal body must be durable before transmission');
+assert.match(secureRegistry, /recordType <> "playback-mutation"/);
+assert.match(task, /PorticoSecureRegistryCommit\("playback-mutation", mutation\)/);
+assert.match(task, /PorticoSecureRegistryRead\("playback-mutation"\)/);
+assert.match(task, /body: encodedBody/);
+assert.match(task, /body: pending\.body/);
+assert.match(task, /kind: "replacement"[\s\S]*targetKind: targetKind[\s\S]*targetId: targetId/, 'durable replacement records the validated target identity');
+assert.match(task, /pending\.path = restoredPath/, 'restore must reconstruct the allowed route instead of trusting a stored path');
+assert.match(task, /PorticoPlaybackReplacementPath\(targetKind, targetId\)/);
+assert.match(task, /playback_replacement_committed_restore_required[\s\S]*PorticoPlaybackRestoreCommittedReplacement/);
+assert.match(task, /path: "\/api\/playback\/active"[\s\S]*restored\.sessionId <> replacementSessionId/, 'restore-required must verify the exact bounded successor identity');
+assert.match(task, /pending\.committedReplacementSessionId = replacementSessionId[\s\S]*PorticoPlaybackPersistPendingMutation\(controller, pending\)[\s\S]*PorticoPlaybackRestoreCommittedReplacement/, 'committed successor identity must be durable before restore is attempted');
+const restorePendingMutation = task.match(/sub PorticoPlaybackRestorePendingMutation\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.match(restorePendingMutation, /committedReplacementSessionId = PorticoPlaybackSafeId\(pending\.committedReplacementSessionId\)[\s\S]*pending\.committedReplacementSessionId = committedReplacementSessionId/, 'restart must validate and retain the exact committed successor identity');
+const dispatchPendingMutation = task.match(/sub PorticoPlaybackDispatchPendingMutation\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.ok(dispatchPendingMutation.indexOf('PorticoPlaybackRestoreCommittedReplacement(controller, pending, committedReplacementSessionId)') < dispatchPendingMutation.indexOf('PorticoPlaybackAuthenticatedRequest(controller'), 'a restarted committed replacement must restore by exact identity instead of replaying the target request');
+assert.match(task, /PorticoPlaybackReplacementDefinitivelyRejected[\s\S]*PorticoPlaybackRejectRouteReplacement/);
+assert.match(task, /result\.serverCode = "replacement_source_inactive"[\s\S]*PorticoPlaybackDiscardInactiveReplacementSource\(controller\)/, 'authoritative inactive-source rejection must not enter the source-retained branch');
+const discardInactiveReplacement = task.match(/sub PorticoPlaybackDiscardInactiveReplacementSource\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.ok(discardInactiveReplacement.indexOf('PorticoPlaybackDropProgress(controller)') < discardInactiveReplacement.indexOf('PorticoPlaybackResetActive(controller)'), 'inactive source must fence late progress before clearing local playback');
+assert.match(discardInactiveReplacement, /PorticoPlaybackClearPendingMutation\(controller\)/);
+assert.doesNotMatch(discardInactiveReplacement, /PorticoPlaybackScheduleGrantRenewal|PorticoPlaybackDispatchProgress|PorticoPlaybackBeginTerminal/, 'inactive source cannot resume, renew, report progress, or fabricate a terminal receipt');
+assert.match(task, /sub PorticoPlaybackRejectRouteReplacement[\s\S]*PorticoPlaybackClearPendingMutation[\s\S]*controller\.heartbeatScheduled = true/, 'definitive non-commit must clear only replacement state and resume the old actor');
+const acceptRouteReplacement = task.match(/sub PorticoPlaybackAcceptRouteReplacement\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.ok(acceptRouteReplacement.indexOf('PorticoPlaybackDropProgress(controller)') < acceptRouteReplacement.indexOf('PorticoPlaybackClearPendingMutation(controller)'), 'old progress is cancelled only at route replacement acceptance');
+assert.match(task, /if pending\.targetKind = "library-channel"[\s\S]*playbackDocument = playbackDocument\.playback/, 'library tune acceptance must unwrap its playback document');
+assert.match(task, /PorticoPlaybackScheduleMutationRetry\(controller, "playback-response-incompatible"/, 'lost or invalid accepted payload must retain the exact request for retry');
+assert.match(task, /PorticoPlaybackTerminalAcknowledgementMatches\(pending, result\.data\)/);
+assert.match(task, /if not PorticoPlaybackClearPendingMutation\(controller\)[\s\S]*PorticoPlaybackScheduleMutationRetry/);
+assert.match(task, /PorticoPlaybackMutationDefinitivelyRejected/);
+assert.match(task, /not PorticoViewerScopeAuthorizationEquals\(scope, currentScope\)/, 'Durable terminal replay must survive a viewer-generation restart only for the same authorization revision');
+assert.match(task, /PorticoPlaybackFallbackCompletedTerminal/);
+assert.match(task, /PorticoPlaybackRejectExplicitHandoff/);
+assert.match(task, /previousTerminal: terminalRequest\.terminal/);
+assert.match(task, /requestId: terminalRequest\.requestId/);
+assert.match(task, /entryId: prepared\.entryId/);
+assert.doesNotMatch(task, /commitPreviousEnd/);
+const handoff = task.match(/function PorticoPlaybackCommitHandoff\([\s\S]*?\nend function/)?.[0] ?? '';
+assert.doesNotMatch(handoff, /progressSeconds/);
+assert.doesNotMatch(task, /body:\s*""[\s\S]{0,120}method:\s*"DELETE"|method:\s*"DELETE"[\s\S]{0,120}body:\s*""/, 'Playback DELETE must always carry the exact terminal envelope');
 const resetActive = task.match(/sub PorticoPlaybackResetActive\([\s\S]*?\nend sub/)?.[0] ?? '';
-assert.match(resetActive, /controller\.pendingStop = invalid/);
 assert.match(resetActive, /controller\.pendingStart = invalid/);
 assert.match(task, /grantRenewalFailures > 5/);
 assert.match(task, /retrySeconds > 60/);
@@ -197,11 +270,15 @@ assert.doesNotMatch(sourceRecovery, /PorticoPlaybackSelectRecoveryQuality|Portic
 assert.doesNotMatch(task, /PorticoPlaybackRestartForRecovery/, 'Every recovery path must preserve the server-sealed playback tuple');
 assert.ok(sourceRecovery.indexOf('PorticoPlaybackRequestReconnect') < sourceRecovery.indexOf('PorticoPlaybackFatalActive'));
 assert.match(models, /resources\.Count\(\) <> 1/);
-assert.match(models, /selectedResource\.qualityId <> playback\.selectedQualityId/);
+assert.match(models, /qualityOffers = PorticoPlaybackQualityOffers\(data\.qualityOffers\)/);
+assert.match(models, /qualitySelection = PorticoPlaybackQualitySelection\(data\.qualitySelection, qualityOffers\)/);
+assert.match(task, /body\.quality = qualitySelection/);
+assert.doesNotMatch(task + models + bridge, /selectedQualityId|body\.qualityId|resource\.qualityId|data\.qualities|source\.qualities/);
 
-const transition = task.match(/sub PorticoPlaybackApplyTransitionFence\([\s\S]*?\nend sub/)?.[0] ?? '';
-assert.ok(transition.indexOf('PorticoPlaybackResetActive') < transition.indexOf('PorticoPlaybackAuthenticatedRequest'), 'Private state must clear before remote cleanup');
-assert.match(transition, /controller\.watchAuthority = "independent"/);
+const transition = task.match(/sub PorticoPlaybackStageTransitionTerminal\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.ok(transition.indexOf('PorticoPlaybackPersistPendingMutation') < transition.indexOf('PorticoPlaybackResetActive'), 'Transition terminal must be durable before private state is cleared');
+assert.ok(transition.indexOf('PorticoPlaybackResetActive') < transition.indexOf('PorticoPlaybackDispatchPendingMutation'), 'Private state must clear before remote cleanup');
+assert.match(task.match(/sub PorticoPlaybackApplyTransitionFence\([\s\S]*?\nend sub/)?.[0] ?? '', /controller\.watchAuthority = "independent"/);
 assert.match(task, /m\.top\.contentNode = invalid/);
 assert.match(task, /PorticoPlaybackClearTrickplayCache/);
 assert.match(task, /PorticoPlaybackTrimTrickplayCache\(controller, 12\)/);
@@ -223,6 +300,131 @@ function stripCredentialQueries(value) {
 }
 for (const safe of ['https://server.example/api/media/file.m3u8', 'https://server.example/api/media/file.mp4?quality=original']) assert.equal(stripCredentialQueries(safe), true);
 for (const unsafe of ['https://server.example/api/media?media_grant=secret', 'https://server.example/api/media?access_token=secret', 'https://server.example/api/media?access%5ftoken=secret']) assert.equal(stripCredentialQueries(unsafe), false);
+
+// Contract-level protocol cases complement the static BrightScript guards. They
+// make the acceptance boundary and immutable outbox behavior explicit without
+// inventing a second production lifecycle implementation.
+const queueFixture = [
+  {entryId: 'occurrence-a', media: {id: 'episode-1', title: 'Pilot'}},
+  {entryId: 'occurrence-b', media: {id: 'episode-1', title: 'Pilot'}},
+];
+const queueOccurrences = queueFixture.map(item => ({entryId: item.entryId, mediaId: item.media.id}));
+assert.deepEqual(queueOccurrences, [
+  {entryId: 'occurrence-a', mediaId: 'episode-1'},
+  {entryId: 'occurrence-b', mediaId: 'episode-1'},
+], 'duplicate media occurrences must retain distinct queue-entry identity');
+
+assert.match(operationPolicy, /deleteWatchWithFriendsGroupsGroupIdQueueEntryId/);
+assert.doesNotMatch(operationPolicy + watchTask, /deleteWatchWithFriendsGroupsGroupIdQueueMediaId/);
+assert.match(watchRuntime, /currentEntryId = PorticoViewerScopeOpaqueId\(value\.currentEntryId, 128\)/);
+assert.match(watchRuntime, /entryId: entryId, mediaId: mediaId, mediaTitle: title, unavailable:/);
+assert.match(watchTask, /body = \{entryId: entryId, destinationEntryId: destinationEntryId, placement: placement/);
+assert.match(watchTask, /deleteWatchWithFriendsGroupsGroupIdQueueEntryId", \{groupId: controller\.group\.id, entryId: entryId\}/);
+assert.match(watchBridge, /command\.entryId = values\.entryId[\s\S]*command\.destinationEntryId = values\.destinationEntryId[\s\S]*command\.placement = values\.placement/);
+
+const allocateTerminal = (authority, disposition) => {
+  const terminal = {
+    disposition,
+    generation: authority.sessionGeneration,
+    eventSequence: authority.nextEventSequence,
+    recordedAt: '2026-08-30T18:00:00Z',
+    positionSeconds: disposition === 'completed' ? authority.durationSeconds : authority.positionSeconds,
+    durationSeconds: authority.durationSeconds,
+  };
+  return {
+    authority: {...authority, nextEventSequence: authority.nextEventSequence + 1},
+    request: {requestId: 'request-immutable-1', terminal},
+  };
+};
+const initialAuthority = {sessionId: 'old', sessionGeneration: 7, nextEventSequence: 12, positionSeconds: 42, durationSeconds: 600};
+const allocated = allocateTerminal(initialAuthority, 'completed');
+assert.equal(allocated.request.terminal.generation, 7, 'terminal generation comes from the server session, not UI playback generation');
+assert.equal(allocated.request.terminal.eventSequence, 12);
+assert.equal(allocated.authority.nextEventSequence, 13, 'one terminal allocation advances the sole allocator exactly once');
+const handoffBody = JSON.stringify({requestId: allocated.request.requestId, entryId: 'occurrence-b', previousTerminal: allocated.request.terminal});
+const ambiguousRetryBody = handoffBody;
+assert.equal(ambiguousRetryBody, handoffBody, 'ambiguous handoff retries must be byte-equivalent');
+const replacementEnvelope = {
+  sourceSessionId: initialAuthority.sessionId,
+  requestId: 'request-route-replacement-1',
+  previousTerminal: {...allocated.request.terminal, disposition: 'stopped', positionSeconds: initialAuthority.positionSeconds},
+  expectedQueueRevision: 9,
+  expectedPlaybackRevision: 14,
+};
+const routeTargets = [
+  {kind: 'vod', id: 'movie-2', path: '/api/playback-sessions', body: {mediaId: 'movie-2'}},
+  {kind: 'live', id: 'channel-2', path: '/api/live-tv/play', body: {channelId: 'channel-2'}},
+  {kind: 'dvr', id: 'recording-2', path: '/api/dvr/recordings/recording-2/playback', body: {}},
+  {kind: 'library-channel', id: 'library-channel-2', path: '/api/library-channels/library-channel-2/tune', body: {}},
+].map(target => ({...target, body: {...target.body, replacement: replacementEnvelope}}));
+for (const target of routeTargets) {
+  const durable = {targetKind: target.kind, targetId: target.id, path: target.path, body: JSON.stringify(target.body)};
+  const ambiguousRetry = {...durable};
+  assert.equal(ambiguousRetry.body, durable.body, `${target.kind} retry must preserve the exact serialized body`);
+  assert.equal(ambiguousRetry.path, durable.path, `${target.kind} retry must preserve its exact endpoint`);
+  assert.deepEqual(JSON.parse(durable.body).replacement, replacementEnvelope);
+}
+const pendingReplacementState = {playback: initialAuthority, progress: {eventSequence: 11}, grant: 'old-grant', pending: routeTargets[0]};
+assert.equal(pendingReplacementState.playback.sessionId, 'old', 'pending replacement retains the old actor');
+assert.equal(pendingReplacementState.progress.eventSequence, 11, 'pending replacement retains old progress until acceptance');
+assert.equal(pendingReplacementState.grant, 'old-grant', 'pending replacement retains the old grant until acceptance');
+const restoreRequired = {code: 'playback_replacement_committed_restore_required', details: {replacementSessionId: 'successor-exact'}};
+const restoredActive = {active: true, playback: {sessionId: 'successor-exact'}};
+assert.equal(restoredActive.playback.sessionId, restoreRequired.details.replacementSessionId, 'restore-required adoption verifies the exact committed successor');
+assert.notEqual('different-successor', restoreRequired.details.replacementSessionId, 'an unrelated active session cannot satisfy committed replacement restore');
+const naturalFallback = {requestId: 'standalone-terminal-request', terminal: allocated.request.terminal};
+assert.deepEqual(naturalFallback.terminal, allocated.request.terminal, 'definitive natural rejection reuses the unaccepted terminal event');
+assert.notEqual(naturalFallback.requestId, allocated.request.requestId, 'the standalone DELETE owns a new mutation request identity');
+assert.equal(naturalFallback.terminal.eventSequence, allocated.request.terminal.eventSequence, 'fallback must not allocate a second terminal event sequence');
+
+const definitiveHandoffRejection = result => {
+  if (result.interrupted || result.retryable) return false;
+  return new Set([
+    'handoff_request_id_invalid',
+    'previous_terminal_required',
+    'invalid_playback_disposition',
+    'invalid_playback_terminal_authority',
+    'invalid_recorded_at',
+    'invalid_playback_terminal_position',
+    'invalid_start_seconds',
+    'prepared_handoff_not_found',
+    'prepared_handoff_expired',
+    'prepared_handoff_scope_mismatch',
+    'prepared_handoff_entry_mismatch',
+    'handoff_not_supported',
+    'queue_entry_required',
+    'handoff_queue_revision_conflict',
+    'handoff_queue_entry_changed',
+    'handoff_playback_revision_conflict',
+    'playback_generation_stale',
+    'playback_event_sequence_stale',
+  ]).has(result.serverCode);
+};
+assert.equal(definitiveHandoffRejection({status: 409, serverCode: 'handoff_in_progress', retryable: false, interrupted: false}), false, 'a live handoff reservation remains ambiguous');
+assert.equal(definitiveHandoffRejection({status: 404, serverCode: 'playback_session_not_found', retryable: false, interrupted: false}), false, '404 is not a durable non-receipt after a lost response');
+assert.equal(definitiveHandoffRejection({status: 401, serverCode: '', retryable: false, interrupted: false}), false, '401 is not a durable non-receipt after a lost response');
+assert.equal(definitiveHandoffRejection({status: 409, serverCode: 'handoff_queue_revision_conflict', retryable: false, interrupted: false}), true, 'an explicit pre-commit revision rejection is definitive');
+
+assert.match(task, /PorticoPlaybackComplete[\s\S]*PorticoPlaybackBeginTerminal\(controller, controller\.playback, "completed"/, 'no-queue natural end must close through canonical terminal DELETE');
+assert.match(task, /PorticoPlaybackCancelPostplay[\s\S]*PorticoPlaybackBeginTerminal\(controller, controller\.playback, "completed"/, 'postplay cancellation must close through canonical terminal DELETE');
+assert.match(task, /function PorticoPlaybackStopActive[\s\S]*PorticoPlaybackBeginTerminal\(controller, active, "stopped"/, 'direct stop must use the canonical stopped terminal');
+assert.match(task, /sub PorticoPlaybackRemoteStop[\s\S]*PorticoPlaybackBeginTerminal\(controller, controller\.playback, "stopped"/, 'remote stop must use the same terminal owner');
+const acceptHandoff = task.match(/sub PorticoPlaybackAcceptHandoffMutation\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.ok(acceptHandoff.indexOf('PorticoPlaybackDropProgress(controller)') < acceptHandoff.indexOf('PorticoPlaybackClearPendingMutation(controller)'), 'accepted handoff must cancel old events at the server acceptance boundary, even while durable receipt clearing retries');
+assert.ok(acceptHandoff.indexOf('PorticoPlaybackDropProgress(controller)') < acceptHandoff.indexOf('PorticoPlaybackPreflightSource'), 'accepted handoff must drop old events before replacement preflight/adoption');
+assert.match(task, /not preflight\.ok[\s\S]*PorticoPlaybackBeginTerminal\(controller, replacement, "stopped"/, 'replacement preflight failure must terminalize the accepted replacement');
+assert.match(task, /PorticoPlaybackScheduleMutationRetry\(controller, "playback-response-incompatible"/, 'invalid accepted handoff payload must exact-retry instead of guessing cleanup');
+assert.match(task, /if pending\.kind = "handoff" and PorticoPlaybackMutationDefinitivelyRejected[\s\S]*pending\.disposition = "completed"[\s\S]*PorticoPlaybackFallbackCompletedTerminal[\s\S]*PorticoPlaybackRejectExplicitHandoff/, 'natural and explicit definitive rejection must diverge safely');
+const fallbackCompleted = task.match(/sub PorticoPlaybackFallbackCompletedTerminal\([\s\S]*?\nend sub/)?.[0] ?? '';
+assert.match(fallbackCompleted, /requestId = PorticoPlaybackSafeRequestId\(PorticoHttpNewRequestId\(\)\)/, 'standalone fallback must own a distinct request identity');
+assert.doesNotMatch(fallbackCompleted, /PorticoPlaybackTerminalRequest/, 'standalone fallback must reuse the unaccepted terminal event rather than allocate another sequence');
+assert.match(task, /serverCode = LCase\(PorticoCoreSafeText\(result\.serverCode, 80\)\)/, 'handoff rejection classification must use an explicit server problem code');
+assert.doesNotMatch(task.match(/function PorticoPlaybackMutationDefinitivelyRejected\([\s\S]*?\nend function/)?.[0] ?? '', /result\.status\s*=/, 'HTTP status alone cannot prove a handoff was not committed');
+assert.match(task, /failure\.serverCode = LCase\(PorticoCoreSafeText\(parsedError\.value\.code, 80\)\)/, 'HTTP errors must preserve the bounded server problem code for mutation classification');
+assert.match(task, /PorticoPlaybackDropProgress[\s\S]*progressRequest\.transfer\.AsyncCancel/, 'late old heartbeats must be cancelled at handoff acceptance');
+assert.match(task, /PorticoPlaybackHandoffEntry\(controller, controller\.playback\.currentQueueEntryId, "stopped", 0\)/, 'active Replay must use direct atomic handoff with an explicit zero start');
+assert.match(task, /else if controller\.lastTargetId <> ""[\s\S]*startSeconds: 0/, 'Replay after a closed completion must fresh-start at zero');
+assert.doesNotMatch(task, /preparedNext\.sessionId[\s\S]{0,180}method:\s*"DELETE"/, 'prepared capabilities must be discarded locally rather than deleted as playback sessions');
 
 for (const testCase of parityCases.back) {
   let state = testCase.initial;

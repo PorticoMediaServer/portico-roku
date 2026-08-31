@@ -59,12 +59,13 @@ for (const name of required) assert.ok(fileSet.has(name), `Release package is mi
 
 const forbiddenExact = new Set([
   'data/visual-contract.json',
+  'data/generated/foundation-contract.v2.json',
   'development/manifest',
   'development/PorticoScene.xml'
 ]);
 const forbiddenPrefixes = ['images/posters/', 'images/backdrops/', 'development/', 'tests/'];
 for (const name of files) {
-  assert.ok(!forbiddenExact.has(name), `Development fixture ${name} entered the release package.`);
+  assert.ok(!forbiddenExact.has(name), `Source-only or development file ${name} entered the release package.`);
   assert.ok(!forbiddenPrefixes.some(prefix => name.startsWith(prefix)), `Development fixture path ${name} entered the release package.`);
   assert.ok(!name.startsWith('/') && !name.includes('../') && !/^[A-Za-z]:/.test(name), `Unsafe archive path ${name}.`);
   assert.doesNotMatch(name, /(^|\/)(?:\.env(?:\.|$)|\.DS_Store$|Project Architecture\/|artifacts\/|screenshots?\/|docs?\/)/i, `Sensitive or internal path ${name} entered the release package.`);

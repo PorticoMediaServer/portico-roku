@@ -89,11 +89,11 @@ function PorticoPlaybackAutomationCommand(controller as object, kind as string, 
 end function
 
 function PorticoPlaybackQueueCommand(controller as object, kind as string, values = invalid as dynamic) as boolean
-    allowed = {"queue-append": true, "queue-play-next": true, "queue-remove": true, "queue-reorder": true, "queue-clear": true, "set-repeat-mode": true}
+    allowed = {"queue-append": true, "queue-play-next": true, "queue-remove": true, "queue-reorder": true, "queue-shuffle": true, "queue-clear": true, "set-repeat-mode": true}
     if allowed[kind] <> true then return false
     command = {kind: kind}
     if values <> invalid and Type(values) = "roAssociativeArray"
-        for each key in ["mediaId", "fromIndex", "toIndex", "repeatMode"]
+        for each key in ["mediaId", "entryId", "destinationEntryId", "placement", "repeatMode"]
             if values[key] <> invalid then command[key] = values[key]
         end for
     end if
@@ -525,6 +525,7 @@ function PorticoPlaybackBridgeSource(source as dynamic) as dynamic
         sessionGeneration: PorticoHttpInteger(source.sessionGeneration, 0),
         queueRevision: PorticoHttpInteger(source.queueRevision, 0),
         playbackRevision: PorticoHttpInteger(source.playbackRevision, 0),
+        currentQueueEntryId: PorticoPlaybackBridgeSafeId(source.currentQueueEntryId),
         repeatMode: LCase(PorticoPlaybackBridgeSafeLabel(source.repeatMode, "off", 8)),
         timelineType: timelineType,
         canPause: source.canPause = true,
@@ -532,7 +533,8 @@ function PorticoPlaybackBridgeSource(source as dynamic) as dynamic
         seekableStartSeconds: PorticoPlaybackBridgeNumber(source.seekableStartSeconds, 0.0),
         seekableEndSeconds: PorticoPlaybackBridgeNumber(source.seekableEndSeconds, 0.0),
         liveEdgeSeconds: PorticoPlaybackBridgeNumber(source.liveEdgeSeconds, 0.0),
-        qualities: PorticoPlaybackBridgeOptions(source.qualities, "quality"),
+        qualityOffers: PorticoPlaybackBridgeQualityOffers(source.qualityOffers),
+        qualitySelection: PorticoPlaybackBridgeQualitySelection(source.qualitySelection),
         audioStreams: PorticoPlaybackBridgeOptions(source.audioStreams, "audio"),
         subtitleStreams: PorticoPlaybackBridgeOptions(source.subtitleStreams, "subtitle"),
         chapters: PorticoPlaybackBridgeChapters(source.chapters),
@@ -543,10 +545,37 @@ function PorticoPlaybackBridgeSource(source as dynamic) as dynamic
         selectedAudioStreamId: PorticoPlaybackBridgeSafeId(source.selectedAudioStreamId),
         selectedSubtitleStreamId: PorticoPlaybackBridgeSafeId(source.selectedSubtitleStreamId),
         selectedSubtitleMode: PorticoPlaybackBridgeSubtitleMode(source.selectedSubtitleMode),
-        selectedQualityId: PorticoPlaybackBridgeSafeId(source.selectedQualityId),
         selectedVersionId: PorticoPlaybackBridgeSafeId(source.selectedVersionId),
         targetKind: PorticoPlaybackBridgeTargetKind(source.targetKind)
     }
+end function
+
+function PorticoPlaybackBridgeQualityOffers(source as dynamic) as object
+    result = {offerRevision: "", offers: []}
+    if source = invalid or Type(source) <> "roAssociativeArray" then return result
+    result.offerRevision = PorticoPlaybackBridgeSafeId(source.offerRevision)
+    if source.offers = invalid or GetInterface(source.offers, "ifArray") = invalid then return result
+    for each raw in source.offers
+        if result.offers.Count() >= 24 then exit for
+        if raw <> invalid and Type(raw) = "roAssociativeArray"
+            selectionId = PorticoPlaybackBridgeSafeId(raw.selectionId)
+            label = PorticoPlaybackBridgeSafeLabel(raw.label, "", 100)
+            kind = LCase(PorticoPlaybackBridgeSafeLabel(raw.kind, "", 16))
+            if selectionId <> "" and label <> "" and (kind = "automatic" or kind = "original" or kind = "fixed")
+                result.offers.Push({selectionId: selectionId, label: label, kind: kind})
+            end if
+        end if
+    end for
+    return result
+end function
+
+function PorticoPlaybackBridgeQualitySelection(source as dynamic) as object
+    if source = invalid or Type(source) <> "roAssociativeArray" then return {mode: "automatic"}
+    mode = LCase(PorticoPlaybackBridgeSafeLabel(source.mode, "automatic", 16))
+    if mode = "explicit"
+        return {mode: "explicit", selectionId: PorticoPlaybackBridgeSafeId(source.selectionId), qualityOfferRevision: PorticoPlaybackBridgeSafeId(source.qualityOfferRevision)}
+    end if
+    return {mode: "automatic"}
 end function
 
 function PorticoPlaybackBridgeSubtitleMode(value as dynamic) as string
@@ -657,9 +686,10 @@ function PorticoPlaybackBridgeQueue(source as dynamic) as object
     for each raw in source
         if result.count() >= 50 then exit for
         if raw <> invalid and Type(raw) = "roAssociativeArray"
-            id = PorticoPlaybackBridgeSafeId(raw.id)
+            entryId = PorticoPlaybackBridgeSafeId(raw.entryId)
+            mediaId = PorticoPlaybackBridgeSafeId(raw.mediaId)
             title = PorticoPlaybackBridgeSafeLabel(raw.title, "", 140)
-            if id <> "" and title <> "" then result.push({id: id, title: title, subtitle: PorticoPlaybackBridgeSafeLabel(raw.subtitle, "", 100)})
+            if entryId <> "" and mediaId <> "" and title <> "" then result.push({entryId: entryId, mediaId: mediaId, title: title, subtitle: PorticoPlaybackBridgeSafeLabel(raw.subtitle, "", 100)})
         end if
     end for
     return result

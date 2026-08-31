@@ -11,7 +11,8 @@
     "data/runtime-ui-contract.json",
     "data/release-identity.v1.json",
     "data/parity/**/*",
-    "data/generated/**/*"
+    "data/generated/**/*",
+    "!data/generated/foundation-contract.v2.json"
   ],
   "manifest": {
     "bs_const": {

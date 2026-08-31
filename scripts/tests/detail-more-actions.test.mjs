@@ -49,7 +49,7 @@ assert.match(task, /PorticoDiscoveryCacheRemoveViewer\("library-cache", controll
 assert.match(task, /"\/api\/media\/" \+ controller\.detailModel\.id \+ "\/" \+ family/);
 assert.match(task, /rating < 0 or rating > 10/);
 assert.match(task, /reaction <> "like" and reaction <> "dislike" and reaction <> ""/);
-assert.match(task, /body = \{ action: position, expectedRevision: controller\.activeQueueRevision, mediaId: controller\.detailModel\.id \}/);
+assert.match(task, /body = \{ action: position, expectedRevision: controller\.activeQueueRevision, idempotencyKey: PorticoHttpNewRequestId\(\), mediaId: controller\.detailModel\.id \}/);
 assert.match(task, /"PATCH", "\/api\/playback-sessions\/" \+ controller\.activeQueueSessionId \+ "\/queue"/);
 
 for (const command of ['open-detail-targets', 'add-detail-target', 'create-detail-target', 'set-detail-rating', 'set-detail-reaction', 'detail-queue']) assert.match(bridge, new RegExp(`"${command}": true`));

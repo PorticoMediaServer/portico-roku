@@ -40,10 +40,14 @@ assert.match(detailScreen, /client\.media\(mediaId, \{includeRecommendations: tr
 assert.match(mediaAdapters, /\.filter\(row => \(row\.required \|\| !hidden\.has\(row\.id\)\) && \(row\.defaultVisible \|\| order\.has\(row\.id\)\)\)/);
 assert.doesNotMatch(mediaAdapters, /\.filter\(row => row\.items\.length > 0\)/, 'Advertised Home rows must remain available for ordered slot reservation');
 assert.doesNotMatch(mediaAdapters, /continuityRank/, 'Clients must not replace authoritative Home ordering with invented priority');
-assert.match(homeScreen, /reserveOrderedSurfaceSlots/);
-assert.match(homeScreen, /client\.homeRow\(row\.id, \{limit: 24\}, \{signal\}\)/);
-assert.match(homeScreen, /slot\.resolution === 'ready'/);
-assert.match(homeScreen, /slot\.resolution === 'failed'/);
+assert.match(homeScreen, /data=\{advertisedRows\}/);
+assert.match(homeScreen, /keyExtractor=\{homeRowSlotKey\}/);
+assert.match(homeScreen, /function HomeRowSlot\(\{/);
+assert.match(homeScreen, /client\.homeRow\(initialRow\.id, \{limit: 24\}, \{signal\}\)/);
+assert.match(homeScreen, /enabled: initialRow\.items\.length === 0 && Boolean\(initialRow\.endpoint\)/);
+assert.match(homeScreen, /pendingHomeRowSlotMobile/);
+assert.match(homeScreen, /pendingHomeRowSlotTv/);
+assert.doesNotMatch(homeScreen, /reserveOrderedSurfaceSlots/, 'Home has one virtualized row owner, not a parallel slot projection');
 assert.doesNotMatch(homeScreen, /ReservedHomeRow/, 'Empty and pending Home rows must not reserve visible shelf space');
 assert.match(detailAdapter, /episodeItems\(item\)\.map/);
 assert.match(detailAdapter, /item\.recommendationRows/);

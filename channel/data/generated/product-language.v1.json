@@ -3593,6 +3593,12 @@
       "notification.unread-label": {
         "text": "Notifications, {count} unread"
       },
+      "onboarding.claim-code-unavailable": {
+        "body": "This claim code is invalid, expired, or no longer available. Check the code on the server or create a new one, then try again.",
+        "icon": "status.warning",
+        "title": "Check the server claim code",
+        "tone": "warning"
+      },
       "operational-alerts.explainer": {
         "body": "Choose which server health and maintenance events should create owner alerts.",
         "icon": "status.warning",
@@ -5000,6 +5006,24 @@
       "search.view-all-query": {
         "text": "View all results for “{query}”"
       },
+      "server.delete-authorization-required": {
+        "body": "The deletion authorization expired or could not be used. Verify your identity again, then try Delete server again.",
+        "icon": "status.locked",
+        "title": "Verify this deletion again",
+        "tone": "warning"
+      },
+      "server.delete-confirmation-required": {
+        "body": "Refresh the server list, enter the current exact server name, and try again.",
+        "icon": "status.warning",
+        "title": "Server name changed",
+        "tone": "warning"
+      },
+      "server.lifecycle-outcome-pending": {
+        "body": "Do not repeat the action. Refresh the server list in a moment to confirm the result.",
+        "icon": "status.loading",
+        "title": "Still confirming this change",
+        "tone": "neutral"
+      },
       "settings.account.server-description": {
         "text": "Choose another server shared with this account"
       },
@@ -5053,6 +5077,36 @@
       },
       "settings.value.unavailable": {
         "text": "Unavailable"
+      },
+      "sharing.invitation-consumed": {
+        "body": "This invitation has already been used and can't be used again. Ask the server owner to check your access or send a new invitation.",
+        "icon": "status.account",
+        "title": "Invitation already used",
+        "tone": "neutral"
+      },
+      "sharing.invitation-expired": {
+        "body": "This invitation has expired. Ask the server owner for a new invitation.",
+        "icon": "status.warning",
+        "title": "Invitation expired",
+        "tone": "warning"
+      },
+      "sharing.invitation-not-found": {
+        "body": "This invitation is invalid or no longer available. Check the code or ask the server owner for a new invitation.",
+        "icon": "status.warning",
+        "title": "Check the invitation code",
+        "tone": "warning"
+      },
+      "sharing.invitation-revoked": {
+        "body": "This invitation was cancelled and can no longer grant access. Ask the server owner for a new invitation.",
+        "icon": "status.locked",
+        "title": "Invitation cancelled",
+        "tone": "warning"
+      },
+      "sharing.invitation-wrong-recipient": {
+        "body": "This invitation can't be accepted by the Portico Account currently signed in. Sign in with the account that received it, or ask the server owner for a new invitation.",
+        "icon": "status.account",
+        "title": "Use the invited Portico Account",
+        "tone": "warning"
       },
       "state.loading": {
         "body": "Portico is getting this ready.",
@@ -5236,6 +5290,7 @@
     "account_update_failed": "account.save-failed",
     "automatic_profile_trust_expired": "auth.automatic-profile-trust-required",
     "automatic_profile_trust_required": "auth.automatic-profile-trust-required",
+    "claim_conflict": "onboarding.claim-code-unavailable",
     "connection_failed": "problem.connection-failed",
     "credential_verification_unavailable": "problem.hosted-busy",
     "csrf_failed": "problem.request-verification-failed",
@@ -5263,6 +5318,7 @@
     "incompatible_hosted_api_version": "auth.client-update-required",
     "incompatible_server_api_version": "auth.server-update-required",
     "interactive_session_required": "auth.device-session-required",
+    "invalid_claim": "onboarding.claim-code-unavailable",
     "invalid_credentials": "auth.invalid-credentials",
     "invalid_cursor": "problem.invalid-request",
     "invalid_display_name": "account.invalid-display-name",
@@ -5277,6 +5333,11 @@
     "invalid_profile_restrictions": "auth.invalid-profile-restrictions",
     "invalid_refresh_token": "auth.session-expired",
     "invalid_user_field": "problem.invalid-request",
+    "invite_consumed": "sharing.invitation-consumed",
+    "invite_expired": "sharing.invitation-expired",
+    "invite_not_found": "sharing.invitation-not-found",
+    "invite_revoked": "sharing.invitation-revoked",
+    "invite_wrong_recipient": "sharing.invitation-wrong-recipient",
     "library_channel_capacity_unavailable": "library-channel.playback-capacity",
     "library_channel_default_disabled_no_playable_media": "library-channel.default-disabled-no-playable-media",
     "library_channel_generation_in_progress": "library-channel.generation-in-progress",
@@ -5308,6 +5369,8 @@
     "media_children_cursor_failed": "problem.request-failed",
     "media_children_unavailable": "media.detail-unavailable",
     "media_not_found": "problem.not-found",
+    "member_revoke_failed": "problem.hosted-busy",
+    "membership_delete_forbidden": "problem.forbidden",
     "membership_revoked": "problem.forbidden",
     "mfa_invalid": "account.mfa-invalid",
     "mfa_required": "account.mfa-required",
@@ -5362,6 +5425,13 @@
     "request_timeout": "problem.timeout",
     "search_history_unavailable": "search.offline",
     "search_history_update_failed": "problem.request-failed",
+    "server_delete_confirmation_required": "server.delete-confirmation-required",
+    "server_delete_failed": "problem.hosted-busy",
+    "server_deletion_proof_failed": "problem.hosted-busy",
+    "server_deletion_proof_forbidden": "server.delete-authorization-required",
+    "server_deletion_proof_invalid": "server.delete-authorization-required",
+    "server_deletion_proof_required": "server.delete-authorization-required",
+    "server_membership_not_found": "problem.not-found",
     "server_not_found": "problem.server-unavailable",
     "server_unavailable": "problem.server-unavailable",
     "session_expired": "auth.session-expired",
@@ -5476,6 +5546,6 @@
   "schemaVersion": 1,
   "source": {
     "name": "en-US.json",
-    "sha256": "28973d7fae47cc9a1c5a5f597ee4ecf19d55236d23605dde5d7e4e35c1cc99c3"
+    "sha256": "2f05d4bbfa3534420bf27cac676e077e8696ba80ac661e91aa7a94e0c75dbc53"
   }
 }

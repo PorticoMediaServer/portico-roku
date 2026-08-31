@@ -625,7 +625,7 @@
       "permission": "play-media",
       "ratePolicy": "playback-control",
       "responseSchemas": [
-        "SuccessResponse"
+        "PlaybackSessionTerminalAcknowledgement"
       ],
       "service": "server",
       "surfaces": [
@@ -710,8 +710,8 @@
       },
       "method": "DELETE",
       "mutation": true,
-      "operationId": "deleteWatchWithFriendsGroupsGroupIdQueueMediaId",
-      "path": "/watch-with-friends/groups/{groupId}/queue/{mediaId}",
+      "operationId": "deleteWatchWithFriendsGroupsGroupIdQueueEntryId",
+      "path": "/watch-with-friends/groups/{groupId}/queue/{entryId}",
       "permission": "play-media",
       "ratePolicy": "state-mutation",
       "responseSchemas": [
@@ -2094,36 +2094,12 @@
       "operationId": "getPlaybackReceivers",
       "path": "/playback/receivers",
       "permission": "play-media",
-      "ratePolicy": "playback-control",
+      "ratePolicy": "interactive-read",
       "responseSchemas": [
         "GetPlaybackReceiversResponse"
       ],
       "service": "server",
       "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "GET",
-      "mutation": false,
-      "operationId": "getPlaybackReceiversReceiverIdEvents",
-      "path": "/playback/receivers/{receiverId}/events",
-      "permission": "play-media",
-      "ratePolicy": "playback-control",
-      "responseSchemas": [
-        "GetPlaybackReceiversReceiverIdEventsResponse"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
         "mobile",
         "television"
       ]
@@ -2965,29 +2941,6 @@
       },
       "method": "PATCH",
       "mutation": true,
-      "operationId": "patchPlaybackReceiversReceiverId",
-      "path": "/playback/receivers/{receiverId}",
-      "permission": "play-media",
-      "ratePolicy": "playback-control",
-      "responseSchemas": [
-        "PlaybackReceiver"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "PATCH",
-      "mutation": true,
       "operationId": "patchPlaybackSessionsSessionId",
       "path": "/playback-sessions/{sessionId}",
       "permission": "play-media",
@@ -3178,29 +3131,6 @@
       "ratePolicy": "long-poll",
       "responseSchemas": [
         "ApplicationEventLongPollEnvelope"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "GET",
-      "mutation": false,
-      "operationId": "pollPlaybackReceiverEvents",
-      "path": "/playback/receivers/{receiverId}/events/poll",
-      "permission": "play-media",
-      "ratePolicy": "long-poll",
-      "responseSchemas": [
-        "PlaybackReceiverLongPollEnvelope"
       ],
       "service": "server",
       "surfaces": [
@@ -3453,7 +3383,7 @@
       "permission": "play-media",
       "ratePolicy": "media-delivery",
       "responseSchemas": [
-        "SuccessResponse"
+        "PlaybackSessionTerminalAcknowledgement"
       ],
       "service": "server",
       "surfaces": [
@@ -3615,98 +3545,6 @@
       "ratePolicy": "playback-control",
       "responseSchemas": [
         "PlaybackRestoreResponse"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "POST",
-      "mutation": true,
-      "operationId": "postPlaybackNext",
-      "path": "/playback/next",
-      "permission": "play-media",
-      "ratePolicy": "playback-control",
-      "responseSchemas": [
-        "PlaybackNextResponse"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "POST",
-      "mutation": true,
-      "operationId": "postPlaybackQueue",
-      "path": "/playback/queue",
-      "permission": "play-media",
-      "ratePolicy": "playback-control",
-      "responseSchemas": [
-        "PlaybackQueueResponse"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "POST",
-      "mutation": true,
-      "operationId": "postPlaybackReceivers",
-      "path": "/playback/receivers",
-      "permission": "play-media",
-      "ratePolicy": "playback-control",
-      "responseSchemas": [
-        "PlaybackReceiver"
-      ],
-      "service": "server",
-      "surfaces": [
-        "web",
-        "mobile",
-        "television"
-      ]
-    },
-    {
-      "audience": "viewer",
-      "auth": "session",
-      "idempotency": {
-        "location": "none",
-        "required": false
-      },
-      "method": "POST",
-      "mutation": true,
-      "operationId": "postPlaybackReceiversReceiverIdCommand",
-      "path": "/playback/receivers/{receiverId}/command",
-      "permission": "play-media",
-      "ratePolicy": "playback-control",
-      "responseSchemas": [
-        "PlaybackCommand"
       ],
       "service": "server",
       "surfaces": [
@@ -4291,11 +4129,11 @@
   "sources": {
     "hostedOpenApi": {
       "name": "portico-hosted.openapi.json",
-      "sha256": "8be16934b178a1933f72c9678728716add11aa90a1f3b5820494af71b506f77d"
+      "sha256": "4d07da0ef2ca12ae4f6245493f17dd5f88f7c3b32298b81a6c2191dfdbab3e41"
     },
     "serverOpenApi": {
       "name": "portico-server.openapi.json",
-      "sha256": "e4052134f45d79b12dfc5ef93a095f5876be4d5d2541eb7c4681702cac0e297f"
+      "sha256": "499b3c207e9e2f514afcedaa00ceb17f8f05e40dfe40bf97d3acfa1d310fb76d"
     }
   }
 }

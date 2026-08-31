@@ -121,8 +121,6 @@ function PorticoPlaybackOperationId(method as string, path as string) as string
     exact = {
         "POST /playback-sessions": "postPlaybackSessions",
         "POST /playback/active": "postPlaybackActive",
-        "POST /playback/next": "postPlaybackNext",
-        "POST /playback/queue": "postPlaybackQueue",
         "POST /live-tv/play": "postLiveTvPlay"
     }
     direct = exact[method + " " + path]

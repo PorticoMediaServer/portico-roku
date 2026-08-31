@@ -64,7 +64,7 @@ assert.equal(detailSlots.length, 9, "Detail traversal must reuse nine person nod
 
 const player = read("channel/components/PorticoPlayer.brs");
 assert.match(player, /PorticoPlayerReducedMotion/);
-assert.match(player, /label: "Automatic"/);
+assert.match(player, /for each item in source\.qualityOffers\.offers[\s\S]*label: item\.label/);
 const settings = read("channel/source/lib/PorticoSettingsModels.brs");
 assert.match(settings, /id: "playback-quality"[\s\S]*?settings\.value\.automatic[\s\S]*?actionable: false/);
 assert.match(settings, /id: "roku-caption-style"[\s\S]*?Managed by Roku[\s\S]*?actionable: false/);

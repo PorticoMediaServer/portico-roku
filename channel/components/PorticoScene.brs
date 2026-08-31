@@ -782,14 +782,8 @@ sub renderScene()
     PorticoSceneSetVisible(m.localAuthScreen, false)
     PorticoSceneSetVisible(m.profileSelectionScreen, false)
     viewerActive = PorticoSceneVisualFixtureEnabled() or activeViewerPublished()
-    if not viewerActive
-        ' Account authentication owns the application shell. A missing server is
-        ' contextual content state, not a signed-out/full-page gate. Keep global
-        ' navigation and account/app settings reachable while the catalog is empty.
-        if signedInShellAvailableWithoutViewer()
-            renderSignedInShellWithoutViewer()
-            return
-        end if
+    shellWithoutViewer = not viewerActive and signedInShellAvailableWithoutViewer()
+    if not viewerActive and not shellWithoutViewer
         hideGlobalEngagementSurfaces()
         PorticoSceneReleaseInactiveRouteSurfaces("")
         m.homeCustomizeOpen = false
@@ -879,6 +873,22 @@ sub renderScene()
         return
     end if
 
+    ' Account authentication owns the application shell. A missing or unavailable
+    ' server is contextual state, not a signed-out gate. Reuse the one shell
+    ' renderer below, but fence every viewer-owned surface and engagement overlay.
+    if shellWithoutViewer
+        hideGlobalEngagementSurfaces()
+        m.homeCustomizeOpen = false
+        m.detailSeasonOpen = false
+        m.watchWithFriendsOpen = false
+        m.detailMoreOpen = false
+        PorticoSceneSetVisible(m.homeCustomizeOverlay, false)
+        PorticoSceneSetVisible(m.detailSeasonOverlay, false)
+        PorticoSceneSetVisible(m.watchWithFriendsOverlay, false)
+        PorticoSceneSetVisible(m.detailMoreScreen, false)
+        PorticoSceneSetVisible(m.playerScreen, false)
+    end if
+
     ' A profile switch is a transactional overlay over the currently published
     ' viewer. Keep the cached shell and player state intact behind the chooser;
     ' only a successfully proven replacement assertion may fence that viewer.
@@ -905,13 +915,13 @@ sub renderScene()
         m.profileSelectionScreen.setFocus(true)
         return
     end if
-    showPlayer = m.route = "player"
+    showPlayer = viewerActive and m.route = "player"
     if showPlayer
         m.playerScreen = PorticoSceneEnsureOverlaySurface("player")
     end if
-    PorticoSceneEnsureRouteSurface(m.route)
+    if viewerActive or m.route = "profile" or m.route = "settings" then PorticoSceneEnsureRouteSurface(m.route)
     PorticoSceneReleaseInactiveRouteSurfaces(m.route)
-    if m.playerScreen <> invalid
+    if m.playerScreen <> invalid and viewerActive
         m.playerScreen.watchGroupState = activeWatchWithFriendsViewState()
         ' Hidden audio playback remains a live SceneGraph authority and must
         ' receive grant/source-generation replacements while browsing.
@@ -936,7 +946,7 @@ sub renderScene()
 
     m.content.visible = true
     settingsModalOpen = false
-    if m.settingsScreen <> invalid then settingsModalOpen = m.settingsScreen.modalOpen = true
+    if m.settingsScreen <> invalid and (viewerActive or m.route = "settings") then settingsModalOpen = m.settingsScreen.modalOpen = true
     m.railLayer.visible = not m.detailMoreOpen and not m.homeCustomizeOpen and not m.detailSeasonOpen and not m.watchWithFriendsOpen and not m.feedbackOpen and not m.globalNoticeFocused and not settingsModalOpen
     m.top.setFocus(true)
 
@@ -946,13 +956,13 @@ sub renderScene()
 
     homeModel = activeHomeModel()
     detailModel = activeDetailModel()
-    showVisualHome = m.route = "home" and (homeModel <> invalid or homeShouldReserveContent())
-    showVisualDetail = m.route = "detail" and detailModel <> invalid
-    showSearch = m.route = "search" and not PorticoSceneVisualFixtureEnabled()
-    showPerson = m.route = "person" and not PorticoSceneVisualFixtureEnabled()
-    showLibrary = (m.route = "library" or Left(m.route, 8) = "library/") and not PorticoSceneVisualFixtureEnabled()
-    showSaved = m.route = "saved" and not PorticoSceneVisualFixtureEnabled()
-    showChannels = m.route = "channels" and not PorticoSceneVisualFixtureEnabled()
+    showVisualHome = viewerActive and m.route = "home" and (homeModel <> invalid or homeShouldReserveContent())
+    showVisualDetail = viewerActive and m.route = "detail" and detailModel <> invalid
+    showSearch = viewerActive and m.route = "search" and not PorticoSceneVisualFixtureEnabled()
+    showPerson = viewerActive and m.route = "person" and not PorticoSceneVisualFixtureEnabled()
+    showLibrary = viewerActive and (m.route = "library" or Left(m.route, 8) = "library/") and not PorticoSceneVisualFixtureEnabled()
+    showSaved = viewerActive and m.route = "saved" and not PorticoSceneVisualFixtureEnabled()
+    showChannels = viewerActive and m.route = "channels" and not PorticoSceneVisualFixtureEnabled()
     showProfile = m.route = "profile" and not PorticoSceneVisualFixtureEnabled()
     showSettings = m.route = "settings" and not PorticoSceneVisualFixtureEnabled()
     showServerSelection = m.route = "server-selection" and not PorticoSceneVisualFixtureEnabled()
@@ -1126,7 +1136,7 @@ function signedInShellAvailableWithoutViewer() as boolean
     if runtimeValue("selectedServerId", "") = "" then return true
 
     serverStatus = LCase(runtimeValue("serverStatus", "not-connected"))
-    if serverStatus = "offline" or serverStatus = "error" or serverStatus = "incompatible" or serverStatus = "identity-mismatch" or serverStatus = "permission-removed" then return true
+    if serverStatus = "offline" or serverStatus = "error" or serverStatus = "blocked" or serverStatus = "incompatible" or serverStatus = "identity-mismatch" or serverStatus = "permission-removed" then return true
 
     profileStatus = LCase(runtimeValue("profileDirectoryStatus", "idle"))
     if profileStatus = "error" or profileStatus = "profile-error" or profileStatus = "unavailable" then return true
@@ -1134,74 +1144,6 @@ function signedInShellAvailableWithoutViewer() as boolean
     viewerStatus = LCase(runtimeValue("viewerStatus", "unavailable"))
     return runtimeValue("selectedProfileId", "") <> "" and (viewerStatus = "unavailable" or viewerStatus = "transition-failed")
 end function
-
-sub renderSignedInShellWithoutViewer()
-    hideGlobalEngagementSurfaces()
-    PorticoSceneReleaseClosedOverlays()
-    PorticoSceneEnsureBaseNodes()
-
-    m.homeCustomizeOpen = false
-    m.detailSeasonOpen = false
-    m.watchWithFriendsOpen = false
-    m.detailMoreOpen = false
-    PorticoSceneSetVisible(m.homeCustomizeOverlay, false)
-    PorticoSceneSetVisible(m.detailSeasonOverlay, false)
-    PorticoSceneSetVisible(m.watchWithFriendsOverlay, false)
-    PorticoSceneSetVisible(m.detailMoreScreen, false)
-    PorticoSceneSetVisible(m.playerScreen, false)
-
-    showProfile = m.route = "profile"
-    showSettings = m.route = "settings"
-    showServerSelection = m.route = "server-selection"
-    if showProfile then m.profileScreen = PorticoSceneEnsureRouteSurface("profile")
-    if showSettings then m.settingsScreen = PorticoSceneEnsureRouteSurface("settings")
-    if showServerSelection then m.serverSelectionScreen = PorticoSceneEnsureOverlaySurface("server-selection")
-
-    m.content.visible = true
-    m.content.translation = [PorticoSceneContentOrigin(), 0]
-    m.railLayer.visible = not showServerSelection
-    PorticoSceneSetVisible(m.homeScreen, false)
-    PorticoSceneSetVisible(m.detailScreen, false)
-    PorticoSceneSetVisible(m.searchScreen, false)
-    PorticoSceneSetVisible(m.personScreen, false)
-    PorticoSceneSetVisible(m.libraryScreen, false)
-    PorticoSceneSetVisible(m.savedScreen, false)
-    PorticoSceneSetVisible(m.channelsScreen, false)
-    PorticoSceneSetVisible(m.profileScreen, showProfile)
-    PorticoSceneSetVisible(m.settingsScreen, showSettings)
-    PorticoSceneSetVisible(m.serverSelectionScreen, showServerSelection)
-    PorticoSceneSetVisible(m.stateScreen, not showProfile and not showSettings and not showServerSelection)
-
-    if showProfile
-        m.profileScreen.viewState = {runtime: m.top.runtimeState, focused: m.focusArea = "profile"}
-    else if showSettings
-        m.settingsScreen.viewState = {runtime: m.top.runtimeState, focused: m.focusArea = "settings"}
-    else if showServerSelection
-        if m.focusArea <> "serverActions" and m.focusArea <> "serverClose" then m.focusArea = "serverActions"
-        m.serverSelectionScreen.viewState = {
-            model: serverSelectionModel(),
-            focusArea: m.focusArea,
-            focusedIndex: m.serverFocusedIndex,
-            offset: m.serverListOffset,
-            focusedAction: m.routeFocusedAction
-        }
-        m.serverSelectionScreen.setFocus(true)
-    else
-        if m.focusArea <> "rail" and m.focusArea <> "routeActions" then m.focusArea = "routeActions"
-        m.stateScreen.viewState = {model: routeStateModel(m.route), focusedAction: m.routeFocusedAction}
-        m.top.setFocus(true)
-    end if
-
-    focusedIndex = -1
-    if m.focusArea = "rail" then focusedIndex = m.focusedRailIndex
-    m.rail.viewState = {
-        model: railModel(),
-        expanded: m.railExpanded,
-        focusedIndex: focusedIndex,
-        selectedIndex: m.selectedRailIndex
-    }
-    m.top.page = m.route
-end sub
 
 function activeEngagementViewState() as dynamic
     state = m.top.runtimeState
@@ -2209,6 +2151,7 @@ end function
 
 sub refreshRuntimeLibraries()
     m.libraryItems = []
+    if not PorticoSceneVisualFixtureEnabled() and not activeViewerPublished() then return
     state = m.top.runtimeState
     if state = invalid or state.navigationSnapshotVerified <> true or state.libraryItems = invalid then return
 
@@ -2338,39 +2281,37 @@ function serverSelectionModel() as object
 end function
 
 function serverSelectionCatalogState() as dynamic
-    if serverSelectionListReady() then return invalid
-
-    serverListStatus = runtimeValue("serverListStatus", "unknown")
-    hostedStatus = runtimeValue("hostedStatus", "unknown")
-    if not accountIsSignedIn()
+    disposition = serverDirectoryDisposition()
+    if disposition = "ready" then return invalid
+    if disposition = "signed-out"
         return {
             id: "signed-out",
             status: "SIGN IN TO PORTICO",
             statusTone: "account",
             body: "Sign in to see the servers shared with your account."
         }
-    else if serverListStatus = "loading" or serverListStatus = "unknown"
+    else if disposition = "loading"
         return {
             id: "loading",
             status: "LOADING SERVERS",
             statusTone: "account",
             body: ""
         }
-    else if serverListStatus = "denied"
+    else if disposition = "denied"
         return {
             id: "denied",
             status: "ACCESS DENIED",
             statusTone: "danger",
             body: "This Portico Account can't access the server list."
         }
-    else if serverListStatus = "incompatible" or hostedStatus = "incompatible"
+    else if disposition = "incompatible"
         return {
             id: "incompatible",
             status: "UPDATE REQUIRED",
             statusTone: "danger",
             body: "Portico needs to be updated before your servers can load."
         }
-    else if serverListStatus = "offline" or hostedStatus = "offline" or hostedStatus = "throttled"
+    else if disposition = "offline"
         return {
             id: "offline",
             status: "SERVERS UNAVAILABLE",
@@ -2385,6 +2326,19 @@ function serverSelectionCatalogState() as dynamic
         statusTone: "account",
         body: "Your Portico Account is signed in. When you create a server or someone shares one with you, it will appear here."
     }
+end function
+
+function serverDirectoryDisposition() as string
+    if serverSelectionListReady() then return "ready"
+    if not accountIsSignedIn() then return "signed-out"
+
+    serverListStatus = LCase(runtimeValue("serverListStatus", "unknown"))
+    hostedStatus = LCase(runtimeValue("hostedStatus", "unknown"))
+    if serverListStatus = "denied" then return "denied"
+    if serverListStatus = "incompatible" or hostedStatus = "incompatible" then return "incompatible"
+    if serverListStatus = "offline" or hostedStatus = "offline" or hostedStatus = "throttled" then return "offline"
+    if serverListStatus = "loading" or serverListStatus = "unknown" then return "loading"
+    return "empty"
 end function
 
 function serverSelectionActions() as object
@@ -2483,6 +2437,7 @@ function routeStateModel(route as string) as object
     accountStatus = runtimeValue("accountStatus", "signed-out")
     hostedStatus = runtimeValue("hostedStatus", "unknown")
     serverStatus = runtimeValue("serverStatus", "not-connected")
+    selectedServerId = runtimeValue("selectedServerId", "")
     serverName = runtimeValue("selectedServerName", "your server")
 
     status = "SERVER OFFLINE"
@@ -2491,7 +2446,34 @@ function routeStateModel(route as string) as object
     detail = ""
     actions = [{id: "open-connection", label: "Connection", iconId: "navigation.settings", width: 214}]
 
-    if serverStatus = "online"
+    if selectedServerId = ""
+        actions = [{id: "open-server-selection", label: "View Servers", iconId: "navigation.library", width: 214}]
+        directoryDisposition = serverDirectoryDisposition()
+        if directoryDisposition = "empty"
+            status = "NO SERVERS YET"
+            tone = "account"
+            body = "Your Portico Account is signed in. Create a server or accept an invitation to start watching."
+        else if directoryDisposition = "loading"
+            status = "LOADING SERVERS"
+            tone = "account"
+            body = "Your Portico Account is signed in. Portico is loading your servers."
+        else if directoryDisposition = "offline"
+            status = "SERVERS TEMPORARILY UNAVAILABLE"
+            body = "Portico couldn't load your servers right now. Your Portico Account is still signed in."
+        else if directoryDisposition = "incompatible"
+            status = "UPDATE REQUIRED"
+            tone = "danger"
+            body = "Portico needs to be updated before your servers can load."
+        else if directoryDisposition = "denied"
+            status = "SERVERS UNAVAILABLE"
+            tone = "danger"
+            body = "This Portico Account can't access the server list."
+        else
+            status = "NO SERVER SELECTED"
+            body = "Choose a Portico Server to browse your media."
+        end if
+        return {route: route, title: title, status: status, statusTone: tone, body: body, detail: detail, actions: actions}
+    else if serverStatus = "online"
         status = "CONNECTED"
         tone = "healthy"
         body = "Connected to " + serverName + "."
@@ -2499,11 +2481,7 @@ function routeStateModel(route as string) as object
         status = "CONNECTING"
         tone = "account"
         body = "Portico is connecting to " + serverName + "."
-    else if serverStatus = "none" or serverStatus = "not-connected"
-        status = "NO SERVER SELECTED"
-        body = "Choose a Portico Server to browse your media."
-        actions = [{id: "open-server-selection", label: "Choose Server", iconId: "navigation.library", width: 226}]
-    else if serverStatus = "identity-mismatch" or serverStatus = "incompatible" or serverStatus = "permission-removed"
+    else if serverStatus = "blocked" or serverStatus = "identity-mismatch" or serverStatus = "incompatible" or serverStatus = "permission-removed"
         status = "CONNECTION BLOCKED"
         tone = "danger"
         body = "Portico couldn't safely connect to " + serverName + "."
@@ -2630,35 +2608,19 @@ function routeStateModel(route as string) as object
     else if route = "server-selection"
         tone = "warning"
         detail = ""
-        serverListStatus = runtimeValue("serverListStatus", "unknown")
         actions = [
             {id: "refresh-servers", label: "Refresh", iconId: "action.refresh", width: 190},
             {id: "open-profile", label: "Account", iconId: "account.user", width: 190}
         ]
-        if serverListStatus = "loading"
-            status = "LOADING SERVERS"
-            tone = "account"
-            body = "Loading your servers."
+        catalogState = serverSelectionCatalogState()
+        if catalogState <> invalid
+            status = catalogState.status
+            tone = catalogState.statusTone
+            body = catalogState.body
+        end if
+        if catalogState <> invalid and catalogState.id = "loading"
             actions = [{id: "open-profile", label: "Account", iconId: "account.user", width: 190}]
-        else if serverListStatus = "denied"
-            status = "ACCESS DENIED"
-            tone = "danger"
-            body = "This Portico Account can't access the server list."
-        else if serverListStatus = "incompatible" or hostedStatus = "incompatible"
-            status = "UPDATE REQUIRED"
-            tone = "danger"
-            body = "Portico needs to be updated before your servers can load."
-        else if serverListStatus = "offline"
-            status = "SERVERS UNAVAILABLE"
-            body = "Your servers couldn't be loaded."
-        else if hostedStatus = "offline" or hostedStatus = "throttled"
-            status = "SERVERS UNAVAILABLE"
-            body = "Portico couldn't load your servers."
-        else if serverListStatus = "ready" and runtimeServers().count() = 0
-            status = "ACCOUNT READY"
-            tone = "account"
-            body = "Your Portico Account is signed in. When you create a server or someone shares one with you, it will appear here."
-        else
+        else if catalogState = invalid
             status = "CHOOSE A SERVER"
             tone = "account"
             body = "Choose where you want to watch."
@@ -2693,15 +2655,15 @@ function routeStateModel(route as string) as object
             tone = "account"
             body = serverName
             detail = ""
-        else if serverStatus = "identity-mismatch" or serverStatus = "incompatible" or serverStatus = "permission-removed"
+        else if serverStatus = "blocked" or serverStatus = "identity-mismatch" or serverStatus = "incompatible" or serverStatus = "permission-removed"
             status = "CONNECTION BLOCKED"
             tone = "danger"
             body = "Portico couldn't safely connect to " + serverName + "."
             detail = "Choose another server or review the connection."
         else if serverStatus = "none" or serverStatus = "not-connected"
-            status = "NO SERVER SELECTED"
-            tone = "warning"
-            body = "Choose a Portico Server to start watching."
+            ' The shared account-authenticated shell classification above owns
+            ' zero-server, loading, and directory-unavailable truth. Connection
+            ' adds no second interpretation for those states.
             detail = ""
         else
             status = "SERVER OFFLINE"

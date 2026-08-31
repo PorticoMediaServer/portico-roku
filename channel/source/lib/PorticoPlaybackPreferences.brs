@@ -25,7 +25,6 @@ function PorticoPlaybackPreferencesDefaults() as object
         preferredAudioLanguage: "original",
         preferredSubtitleLanguage: "off",
         preferredSubtitleMode: "off",
-        qualityProfile: "automatic",
         directPlayPolicy: "prefer",
         directStreamPolicy: "allow",
         transcodePolicy: "allow",
@@ -90,9 +89,6 @@ function PorticoPlaybackPreferencesSanitize(source as object) as object
     if Type(source.passoutProtection) = "Boolean" or Type(source.passoutProtection) = "roBoolean" then passout = source.passoutProtection = true
     lyrics = defaults.showSyncedLyrics
     if Type(source.showSyncedLyrics) = "Boolean" or Type(source.showSyncedLyrics) = "roBoolean" then lyrics = source.showSyncedLyrics = true
-    quality = LCase(PorticoHttpScalarString(source.qualityProfile, defaults.qualityProfile))
-    if quality = "data-saver" then quality = "data_saver"
-    if quality <> "automatic" and quality <> "original" and quality <> "high" and quality <> "standard" and quality <> "data_saver" then quality = defaults.qualityProfile
     directPlay = LCase(PorticoHttpScalarString(source.directPlayPolicy, defaults.directPlayPolicy))
     if directPlay <> "allow" and directPlay <> "prefer" and directPlay <> "never" then directPlay = defaults.directPlayPolicy
     directStream = LCase(PorticoHttpScalarString(source.directStreamPolicy, defaults.directStreamPolicy))
@@ -107,7 +103,7 @@ function PorticoPlaybackPreferencesSanitize(source as object) as object
         introSkip: intro, creditsSkip: credits,
         seekBackSeconds: seekBack, seekForwardSeconds: seekForward, seekIntervalSeconds: seek,
         defaultSpeed: speed, preferredAudioLanguage: audio, preferredSubtitleLanguage: subtitles, preferredSubtitleMode: subtitleMode,
-        qualityProfile: quality, directPlayPolicy: directPlay, directStreamPolicy: directStream,
+        directPlayPolicy: directPlay, directStreamPolicy: directStream,
         transcodePolicy: transcode, allowHdr: allowHdr,
         showSyncedLyrics: lyrics
     }
@@ -152,7 +148,6 @@ function PorticoPlaybackPreferencesFromViewer(value as dynamic) as object
         end if
         quality = devicePlayback.quality
         if quality <> invalid and Type(quality) = "roAssociativeArray" and quality.unknown <> invalid and Type(quality.unknown) = "roAssociativeArray"
-            mapped.qualityProfile = quality.unknown.mode
             mapped.allowHdr = quality.unknown.allowHDR
         end if
     end if

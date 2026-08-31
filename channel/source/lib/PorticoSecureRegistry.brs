@@ -11,7 +11,7 @@ function PorticoSecureRegistryMaximumCiphertextLength() as integer
 end function
 
 function PorticoSecureRegistrySection(recordType as string) as dynamic
-    if recordType <> "pending-account-authorization" and recordType <> "account-credentials" and recordType <> "account-refresh-rotation" and recordType <> "account-server-catalog" and recordType <> "server-session" and recordType <> "pending-server-session" and recordType <> "server-refresh-rotation" and recordType <> "local-auth-trust" and recordType <> "profile-launch" and recordType <> "pending-deep-link" and recordType <> "profile-selection-handoff" and recordType <> "navigation" and recordType <> "content-cache" and recordType <> "library-cache" and recordType <> "saved-cache" and recordType <> "channels-cache" then return invalid
+    if recordType <> "pending-account-authorization" and recordType <> "account-credentials" and recordType <> "account-refresh-rotation" and recordType <> "account-server-catalog" and recordType <> "server-session" and recordType <> "pending-server-session" and recordType <> "server-refresh-rotation" and recordType <> "local-auth-trust" and recordType <> "profile-launch" and recordType <> "pending-deep-link" and recordType <> "profile-selection-handoff" and recordType <> "playback-mutation" and recordType <> "navigation" and recordType <> "content-cache" and recordType <> "library-cache" and recordType <> "saved-cache" and recordType <> "channels-cache" then return invalid
     return CreateObject("roRegistrySection", "portico.secure." + recordType + ".v1")
 end function
 

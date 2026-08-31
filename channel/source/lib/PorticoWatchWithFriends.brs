@@ -87,6 +87,8 @@ function PorticoWatchWithFriendsControlCommand(controller as object, action as d
     if fields <> invalid and Type(fields) = "roAssociativeArray"
         mediaId = PorticoViewerScopeOpaqueId(fields.mediaId, 128)
         if mediaId <> "" then command.mediaId = mediaId
+        entryId = PorticoViewerScopeOpaqueId(fields.entryId, 128)
+        if entryId <> "" then command.entryId = entryId
         if fields.positionSeconds <> invalid then command.positionSeconds = fields.positionSeconds
         if fields.playbackRate <> invalid then command.playbackRate = fields.playbackRate
     end if
@@ -108,7 +110,9 @@ function PorticoWatchWithFriendsQueueCommand(controller as object, kind as strin
     command = {kind: kind}
     if values <> invalid and Type(values) = "roAssociativeArray"
         if values.mediaId <> invalid then command.mediaId = values.mediaId
-        if values.mediaIds <> invalid then command.mediaIds = values.mediaIds
+        if values.entryId <> invalid then command.entryId = values.entryId
+        if values.destinationEntryId <> invalid then command.destinationEntryId = values.destinationEntryId
+        if values.placement <> invalid then command.placement = values.placement
     end if
     return PorticoWatchWithFriendsViewerCommand(controller, command)
 end function

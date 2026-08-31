@@ -595,7 +595,7 @@ end sub
 
 sub PorticoMainFenceServerAuthorityLoss(viewerController as object, profileController as object, preferencesController as object, localAuth as object, serverConnection as object, scene as object, content as object, search as object, library as object, saved as object, liveTv as object, playback as object, watchWithFriends as object, engagement as object)
     status = LCase(PorticoHttpScalarString(scene.runtimeState.serverStatus, "not-connected"))
-    authorityLost = status = "identity-mismatch" or status = "permission-removed" or status = "not-connected" or status = "incompatible"
+    authorityLost = status = "blocked" or status = "identity-mismatch" or status = "permission-removed" or status = "not-connected" or status = "incompatible"
     if not authorityLost then return
     if PorticoViewerRuntimeAccepting(viewerController.runtime)
         PorticoMainFenceDiscoveryOwners(viewerController, scene, content, search, library, saved, liveTv)

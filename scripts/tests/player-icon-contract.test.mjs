@@ -31,7 +31,7 @@ assert.match(resolver, /return ""[\s\S]*end function\s*$/);
 assert.doesNotMatch(resolver, /info(?:\.png|fallback)/i);
 assert.match(productLanguage, /PorticoIconResolverUri\(document\.iconManifest, iconId, "default"\)/);
 assert.doesNotMatch(productLanguage, /pkg:\/images\/icons\/info\.png/);
-assert.match(contractGenerator, /EXTERNALLY_OWNED_GENERATED_FILES = new Set\(\['roku-icons\.v1\.json'\]\)/);
+assert.match(contractGenerator, /EXTERNALLY_OWNED_GENERATED_FILES = new Set\(\[[\s\S]*'foundation-contract\.v2\.json',[\s\S]*'roku-icons\.v1\.json'[\s\S]*\]\)/);
 assert.match(contractGenerator, /EXTERNALLY_OWNED_GENERATED_FILES\.has\(entry\)/);
 assert.match(contractChecker, /!EXTERNALLY_OWNED_GENERATED_FILES\.has\(name\)/);
 const activeSources = files('channel').filter(path => path.endsWith('.brs') || path.endsWith('.xml'));

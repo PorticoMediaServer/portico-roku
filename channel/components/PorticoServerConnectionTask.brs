@@ -1362,6 +1362,16 @@ function PorticoServerConnectionValidateIdentity(controller as object, allowRevi
 end function
 
 function PorticoServerConnectionBootstrapContent(controller as object) as boolean
+    system = PorticoServerConnectionServerRequest(controller, "GET", "getSystem", invalid, false)
+    if system.interrupted then return false
+    if not system.ok
+        if system.retryable
+            PorticoServerConnectionFail(controller, "server-offline", true, true)
+        else
+            PorticoServerConnectionFail(controller, "product-contract-incompatible", false, false)
+        end if
+        return false
+    end if
     contract = PorticoServerConnectionServerRequest(controller, "GET", "getProductContract", invalid, true)
     if contract.interrupted then return false
     if contract.sessionRefreshFailed = true
@@ -1372,7 +1382,7 @@ function PorticoServerConnectionBootstrapContent(controller as object) as boolea
         end if
         return false
     end if
-    if not contract.ok or not PorticoProductContractValidateLive(contract.data).ok
+    if not contract.ok or not PorticoProductContractValidateLive(contract.data).ok or not PorticoProductContractSystemSupports(system.data, contract.data)
         PorticoServerConnectionFail(controller, "product-contract-incompatible", false, false)
         return false
     end if
@@ -1380,7 +1390,7 @@ function PorticoServerConnectionBootstrapContent(controller as object) as boolea
         eventTransports: contract.data.eventTransports,
         longPoll: contract.data.longPoll
     }
-    controller.productContractRevision = PorticoViewerScopeOpaqueId(contract.data.actionRevision, 128)
+    controller.productContractRevision = PorticoViewerScopeOpaqueId(contract.data.semanticIdentity.digest, 128)
     libraries = PorticoServerConnectionServerRequest(controller, "GET", "getLibraries", invalid, true)
     navigation = PorticoServerConnectionServerRequest(controller, "GET", "getAccountLibraryNavigation", invalid, true)
     if libraries.interrupted or navigation.interrupted then return false
@@ -1655,26 +1665,36 @@ end function
 function PorticoServerConnectionRouteCandidates(source as dynamic) as object
     result = []
     if not PorticoCoreIsArray(source) then return result
-    ' A healthy identity-pinned LAN route is the default data plane. Signed
-    ' public routes remain verified fallbacks for topology changes and outages.
+    ' Hosted reachability is ordering evidence, not a connection authority. A
+    ' currently reachable route probes first; every other coherent candidate is
+    ' still allowed through the same server-ID/fingerprint-pinned health probe.
+    ' Only a proven identity mismatch suppresses a signed candidate pre-probe.
     priorities = ["lan", "lan_ip_encoded", "lan_discovered", "public_direct", "public_direct_ip_encoded", "public_console_origin"]
     seen = {}
-    for each routeType in priorities
-        for each rawRoute in source
-            if result.Count() >= 12 then return result
-            if PorticoCoreIsAssociativeArray(rawRoute) and LCase(PorticoCoreSafeText(rawRoute.type, 48)) = routeType
-                quality = LCase(PorticoCoreSafeText(rawRoute.quality, 48))
-                blocked = quality = "stale" or quality = "failed" or quality = "http_failed" or quality = "tls_failed" or quality = "identity_mismatch" or quality = "repairing" or quality = "repair_requested"
-                url = PorticoServerSessionSecureBaseUrl(rawRoute.url, PorticoServerSessionRouteAllowsInsecureLan(routeType))
-                if not blocked and url <> "" and seen[url] <> true
-                    seen[url] = true
-                    generation = PorticoSignedDocumentPositiveRevision(rawRoute.generation)
-                    result.Push({type: routeType, url: url, generation: generation})
+    for qualityRank = 0 to 1
+        for each routeType in priorities
+            for each rawRoute in source
+                if result.Count() >= 12 then return result
+                if PorticoCoreIsAssociativeArray(rawRoute) and LCase(PorticoCoreSafeText(rawRoute.type, 48)) = routeType
+                    candidateRank = PorticoServerConnectionRouteCandidateRank(rawRoute.quality)
+                    url = PorticoServerSessionSecureBaseUrl(rawRoute.url, PorticoServerSessionRouteAllowsInsecureLan(routeType))
+                    if candidateRank = qualityRank and url <> "" and seen[url] <> true
+                        seen[url] = true
+                        generation = PorticoSignedDocumentPositiveRevision(rawRoute.generation)
+                        result.Push({type: routeType, url: url, generation: generation})
+                    end if
                 end if
-            end if
+            end for
         end for
     end for
     return result
+end function
+
+function PorticoServerConnectionRouteCandidateRank(quality as dynamic) as integer
+    normalized = LCase(PorticoCoreSafeText(quality, 48))
+    if normalized = "identity_mismatch" then return -1
+    if normalized = "reachable" then return 0
+    return 1
 end function
 
 function PorticoServerConnectionLibraryItems(libraryResponse as dynamic, navigation as dynamic) as object

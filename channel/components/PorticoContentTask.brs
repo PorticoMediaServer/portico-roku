@@ -1018,7 +1018,7 @@ sub PorticoContentMutateQueue(controller as object, rawPosition as dynamic)
     controller.moreActionStatus = "working"
     controller.moreActionMessage = ""
     PorticoContentPublish(controller, false)
-    body = { action: position, expectedRevision: controller.activeQueueRevision, mediaId: controller.detailModel.id }
+    body = { action: position, expectedRevision: controller.activeQueueRevision, idempotencyKey: PorticoHttpNewRequestId(), mediaId: controller.detailModel.id }
     result = PorticoContentMutationRequest(controller, session, "PATCH", "/api/playback-sessions/" + controller.activeQueueSessionId + "/queue", body)
     if result.ok
         controller.contentInvalidations = ["playback.queue"]

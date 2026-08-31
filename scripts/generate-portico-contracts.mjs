@@ -165,9 +165,14 @@ export function stableJson(value) {
   return `${JSON.stringify(stableValue(value), null, 2)}\n`;
 }
 
-// The semantic icon synchronizer shares this package directory but owns its
-// manifest independently. Contract generation must preserve that boundary.
-export const EXTERNALLY_OWNED_GENERATED_FILES = new Set(['roku-icons.v1.json']);
+// The semantic icon synchronizer and the approved Foundation compiler share
+// this package directory but own their projections independently. Roku's API
+// contract generator must preserve those boundaries rather than deleting or
+// attempting to validate artifacts it did not produce.
+export const EXTERNALLY_OWNED_GENERATED_FILES = new Set([
+  'foundation-contract.v2.json',
+  'roku-icons.v1.json'
+]);
 
 function own(value, key) {
   return Object.prototype.hasOwnProperty.call(value, key);

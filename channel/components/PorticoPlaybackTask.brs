@@ -27,7 +27,6 @@ sub PorticoPlaybackRun()
         reconnectRequestedSessionGeneration: -1,
         sourceRecoveryPending: false,
         sourceRecoveryAttempts: 0,
-        sourceRecoveryQualityIds: {},
         sourceRecoveryStableSince: 0,
         preferences: PorticoPlaybackPreferencesRead(),
         lastTargetKind: "vod",
@@ -54,10 +53,9 @@ sub PorticoPlaybackRun()
     controller.progressPort = CreateObject("roMessagePort")
     controller.progressRequest = invalid
     controller.progressPending = invalid
-    controller.pendingCompletion = false
-    controller.pendingStop = invalid
     controller.pendingStart = invalid
-    controller.terminalProgress = invalid
+    controller.pendingMutation = invalid
+    controller.pendingMutationRestored = false
     controller.lastPublishedContentSourceGeneration = 0
     controller.lastMeaningfulInteractionAt = clock.TotalSeconds()
     PorticoPlaybackTaskAdopt(controller, PorticoPlaybackTaskState())
@@ -77,7 +75,9 @@ sub PorticoPlaybackHandleCommand(controller as object)
         incomingScope = PorticoViewerScopeNormalize(envelope.viewerScope)
         if controller.envelopeMode and incomingScope <> invalid and not PorticoViewerScopeEquals(controller.viewerScope, incomingScope)
             ' Fence the old source before adopting any identity from a new viewer.
-            PorticoPlaybackResetActive(controller)
+            PorticoPlaybackStageTransitionTerminal(controller, false)
+            controller.pendingMutation = invalid
+            controller.pendingMutationRestored = false
             controller.serverSession = invalid
             controller.serverId = ""
             controller.serverStatus = "not-connected"
@@ -92,8 +92,15 @@ sub PorticoPlaybackHandleCommand(controller as object)
     controller.lastCommandSequence = sequence
     kind = LCase(PorticoHttpScalarString(command.kind, ""))
 
+    if controller.pendingMutation <> invalid and kind <> "viewer-fence" and kind <> "transition-fence" and kind <> "viewer-state" and kind <> "server-state"
+        PorticoPlaybackDispatchPendingMutation(controller)
+        return
+    end if
+
     if kind = "viewer-fence"
-        PorticoPlaybackResetActive(controller)
+        PorticoPlaybackStageTransitionTerminal(controller, false)
+        controller.pendingMutation = invalid
+        controller.pendingMutationRestored = false
         controller.serverSession = invalid
         controller.status = "idle"
         controller.errorCode = ""
@@ -127,7 +134,15 @@ sub PorticoPlaybackHandleCommand(controller as object)
     else if kind = "remote-stop"
         if PorticoPlaybackCommandOwnsActive(controller, command) then PorticoPlaybackRemoteStop(controller, command.message)
     else if kind = "replay"
-        if controller.watchAuthority = "independent" and controller.lastTargetId <> "" then PorticoPlaybackStart(controller, {selectedServerId: controller.serverId, targetKind: controller.lastTargetKind, targetId: controller.lastTargetId, startSeconds: 0})
+        if controller.watchAuthority = "independent"
+            if controller.playback <> invalid and controller.playback.isLive <> true
+                PorticoPlaybackHandoffEntry(controller, controller.playback.currentQueueEntryId, "stopped", 0)
+            else if controller.lastTargetId <> ""
+                ' A session that already has a durable completion receipt has no
+                ' remaining handoff authority. Replay is a fresh zero-position start.
+                PorticoPlaybackStart(controller, {selectedServerId: controller.serverId, targetKind: controller.lastTargetKind, targetId: controller.lastTargetId, startSeconds: 0})
+            end if
+        end if
     else if kind = "select-quality"
         if PorticoPlaybackCommandOwnsActive(controller, command) then PorticoPlaybackSelectQuality(controller, PorticoPlaybackSafeId(command.targetId))
     else if kind = "select-audio"
@@ -177,7 +192,7 @@ sub PorticoPlaybackHandleCommand(controller as object)
             controller.trickplayPreview = invalid
             PorticoPlaybackPublish(controller, false)
         end if
-    else if kind = "queue-append" or kind = "queue-play-next" or kind = "queue-remove" or kind = "queue-reorder" or kind = "queue-clear" or kind = "set-repeat-mode"
+    else if kind = "queue-append" or kind = "queue-play-next" or kind = "queue-remove" or kind = "queue-reorder" or kind = "queue-shuffle" or kind = "queue-clear" or kind = "set-repeat-mode"
         PorticoPlaybackQueueMutation(controller, kind, command)
     else if kind = "reload-playback-preferences"
         controller.preferences = PorticoPlaybackPreferencesProjection()
@@ -211,6 +226,10 @@ sub PorticoPlaybackApplyServerState(controller as object, command as object)
         controller.serverSession = PorticoPlaybackSessionForController(controller)
         if controller.serverSession <> invalid then PorticoPlaybackRenewGrant(controller, true)
     end if
+    if serverStatus = "online"
+        PorticoPlaybackRestorePendingMutation(controller)
+        if controller.pendingMutation <> invalid then PorticoPlaybackDispatchPendingMutation(controller)
+    end if
     if controller.playback = invalid and controller.status <> "error"
         if serverId = ""
             controller.status = "idle"
@@ -230,29 +249,18 @@ sub PorticoPlaybackStart(controller as object, command as object)
     if targetId = "" then targetId = PorticoPlaybackSafeId(command.mediaId)
     requestedServerId = PorticoPlaybackSafeId(command.selectedServerId)
     if targetId = "" or requestedServerId = "" or requestedServerId <> controller.serverId then return
-    controller.lastTargetKind = targetKind
-    controller.lastTargetId = targetId
-    if controller.playback <> invalid
-        if not PorticoPlaybackStopActive(controller, true)
-            controller.pendingStart = command
-            return
-        end if
-    end if
-    controller.playbackGeneration = controller.playbackGeneration + 1
-    controller.status = "preparing"
-    controller.errorCode = ""
-    controller.positionSeconds = 0
-    controller.durationSeconds = 0
-    PorticoPlaybackResetAutomation(controller, true)
-    PorticoPlaybackPublish(controller, false)
-
     if controller.serverId = "" or controller.serverStatus <> "online"
-        PorticoPlaybackFail(controller, "server-offline", false)
+        if controller.playback = invalid then PorticoPlaybackFail(controller, "server-offline", false)
         return
     end if
     session = PorticoPlaybackSessionForController(controller)
     if session = invalid
-        PorticoPlaybackFail(controller, "server-session-required", true)
+        if controller.playback <> invalid
+            controller.errorCode = "server-session-required"
+            PorticoPlaybackPublish(controller, true)
+        else
+            PorticoPlaybackFail(controller, "server-session-required", true)
+        end if
         return
     end if
     controller.serverSession = session
@@ -280,6 +288,44 @@ sub PorticoPlaybackStart(controller as object, command as object)
         }
     end if
     if body.clientInstanceId = "" then body.Delete("clientInstanceId")
+
+    if controller.playback <> invalid
+        active = controller.playback
+        terminalRequest = PorticoPlaybackTerminalRequest(controller, active, "stopped")
+        if terminalRequest = invalid then return
+        replacement = {
+            sourceSessionId: active.sessionId,
+            requestId: terminalRequest.requestId,
+            previousTerminal: terminalRequest.terminal,
+            expectedQueueRevision: active.queueRevision,
+            expectedPlaybackRevision: active.playbackRevision
+        }
+        body.replacement = replacement
+        mutation = PorticoPlaybackPendingReplacement(controller, active, requestPath, body, targetKind, targetId, terminalRequest)
+        if not PorticoPlaybackPersistPendingMutation(controller, mutation)
+            controller.status = controller.playerState
+            controller.errorCode = "playback-terminal-storage-unavailable"
+            PorticoPlaybackPublish(controller, false)
+            return
+        end if
+        controller.pendingMutation = mutation
+        controller.heartbeatScheduled = false
+        controller.status = controller.playerState
+        controller.errorCode = ""
+        PorticoPlaybackPublish(controller, false)
+        PorticoPlaybackDispatchPendingMutation(controller)
+        return
+    end if
+
+    controller.lastTargetKind = targetKind
+    controller.lastTargetId = targetId
+    controller.playbackGeneration = controller.playbackGeneration + 1
+    controller.status = "preparing"
+    controller.errorCode = ""
+    controller.positionSeconds = 0
+    controller.durationSeconds = 0
+    PorticoPlaybackResetAutomation(controller, true)
+    PorticoPlaybackPublish(controller, false)
     result = PorticoPlaybackAuthenticatedRequest(controller, {
         method: "POST",
         path: requestPath,
@@ -303,28 +349,22 @@ sub PorticoPlaybackStart(controller as object, command as object)
     end if
     playback = PorticoPlaybackFromResponse(playbackDocument, controller.serverSession)
     if playback = invalid
-        orphanSessionId = ""
-        if playbackDocument <> invalid and Type(playbackDocument) = "roAssociativeArray" then orphanSessionId = PorticoPlaybackSafeId(playbackDocument.sessionId)
-        if orphanSessionId <> ""
-            PorticoPlaybackAuthenticatedRequest(controller, {
-                method: "DELETE",
-                path: "/api/playback-sessions/" + orphanSessionId,
-                body: "",
-                timeoutMs: 8000,
-                expectJson: true,
-                interruptible: false
-            })
+        authority = PorticoPlaybackAuthorityFromResponse(playbackDocument)
+        if authority <> invalid
+            PorticoPlaybackBeginTerminal(controller, authority, "stopped", "error", "playback-response-incompatible", "")
+        else
+            PorticoPlaybackFail(controller, "playback-response-incompatible", false)
         end if
-        PorticoPlaybackFail(controller, "playback-response-incompatible", false)
         return
     end if
     playback.targetKind = targetKind
     preflight = PorticoPlaybackPreflightSource(controller, playback)
     if not preflight.ok
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + playback.sessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
         failureCode = "playback-source-unavailable"
         if preflight.interrupted then failureCode = "playback-cancelled"
-        PorticoPlaybackFail(controller, failureCode, false)
+        controller.positionSeconds = playback.resumePositionSeconds
+        controller.durationSeconds = playback.durationSeconds
+        PorticoPlaybackBeginTerminal(controller, playback, "stopped", "error", failureCode, "")
         return
     end if
     controller.playback = playback
@@ -340,7 +380,6 @@ sub PorticoPlaybackStart(controller as object, command as object)
     controller.grantRenewalFailures = 0
     controller.sourceRecoveryPending = false
     controller.sourceRecoveryAttempts = 0
-    controller.sourceRecoveryQualityIds = {}
     controller.sourceRecoveryStableSince = 0
     PorticoPlaybackScheduleGrantRenewal(controller)
     PorticoPlaybackPublish(controller, false)
@@ -386,7 +425,7 @@ sub PorticoPlaybackPlayerState(controller as object, command as object, seekEven
     PorticoPlaybackEvaluateSegment(controller)
     immediate = seekEvent or state <> previousState
     if immediate
-        PorticoPlaybackSendProgress(controller, false)
+        PorticoPlaybackSendProgress(controller)
         controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
         controller.heartbeatScheduled = true
     else if not controller.heartbeatScheduled
@@ -407,41 +446,31 @@ sub PorticoPlaybackComplete(controller as object, command as object)
         if controller.durationSeconds > 0 then controller.positionSeconds = controller.durationSeconds
     end if
     if controller.sleepTimerMode = "end-of-item"
-        PorticoPlaybackSendProgress(controller, true)
-        if controller.pendingCompletion then return
-        PorticoPlaybackResetActive(controller)
-        controller.status = "ended"
-        controller.errorCode = ""
-        PorticoPlaybackPublish(controller, false)
+        PorticoPlaybackBeginTerminal(controller, controller.playback, "completed", "ended", "", "")
         return
     end if
     if controller.watchAuthority = "independent" and controller.playback <> invalid and controller.preferences.autoplayNext = true and controller.playback.isLive <> true and controller.playback.queue.count() > 0
         if PorticoPlaybackBeginPostplay(controller) then return
     end if
-    ' A completed progress event closes the server session. Auto-next must prepare
-    ' and hand off while the source session still exists.
-    PorticoPlaybackSendProgress(controller, true)
-    if controller.pendingCompletion then return
-    PorticoPlaybackResetActive(controller)
-    controller.status = "ended"
-    controller.errorCode = ""
-    PorticoPlaybackPublish(controller, false)
+    PorticoPlaybackBeginTerminal(controller, controller.playback, "completed", "ended", "", "")
 end sub
 
-function PorticoPlaybackAdvanceNext(controller as object, autoplay as boolean, targetId as string, allowHistorical = false as boolean) as boolean
-    if controller.playback = invalid or controller.playback.isLive = true or controller.playback.queue.count() = 0 then return false
-    if controller.preparedNext <> invalid and targetId = "" then return PorticoPlaybackHandoffPrepared(controller)
+function PorticoPlaybackAdvanceNext(controller as object, autoplay as boolean, targetEntryId as string, allowHistorical = false as boolean) as boolean
+    if controller.playback = invalid or controller.playback.isLive = true then return false
+    if not allowHistorical and controller.playback.queue.count() = 0 then return false
+    if controller.preparedNext <> invalid and targetEntryId = "" then return PorticoPlaybackHandoffPrepared(controller)
     active = controller.playback
-    if targetId <> "" and not allowHistorical
+    if targetEntryId = "" and active.queue.Count() > 0 then targetEntryId = active.queue[0].entryId
+    if targetEntryId = "" then return false
+    if not allowHistorical
         allowedTarget = false
         for each queued in active.queue
-            if queued.id = targetId then allowedTarget = true
+            if queued.entryId = targetEntryId then allowedTarget = true
         end for
         if not allowedTarget then return false
     end if
     nextProfile = PorticoPlaybackClientProfileForPreferences(controller.preferences)
-    prepareBody = {clientProfile: nextProfile, intent: PorticoPlaybackPortableIntent(controller.preferences, nextProfile), commitPreviousEnd: true}
-    if targetId <> "" then prepareBody.mediaId = targetId
+    prepareBody = {entryId: targetEntryId, clientProfile: nextProfile, intent: PorticoPlaybackPortableIntent(controller.preferences, nextProfile)}
     prepare = PorticoPlaybackAuthenticatedRequest(controller, {method: "POST", path: "/api/playback-sessions/" + active.sessionId + "/prepare-next", body: prepareBody, timeoutMs: 20000, expectJson: true, interruptible: true})
     if prepare.interrupted then return false
     if not prepare.ok or prepare.data = invalid or Type(prepare.data) <> "roAssociativeArray" then return PorticoPlaybackNextFailed(controller, autoplay)
@@ -449,52 +478,10 @@ function PorticoPlaybackAdvanceNext(controller as object, autoplay as boolean, t
     preparedQueueRevision = PorticoPlaybackBoundedSeconds(prepare.data.queueRevision, -1)
     preparedPlaybackRevision = PorticoPlaybackBoundedSeconds(prepare.data.playbackRevision, -1)
     if preparedId = "" or preparedQueueRevision < 0 or preparedPlaybackRevision < 0 then return PorticoPlaybackNextFailed(controller, autoplay)
-    handoffBody = {
-        preparedSessionId: preparedId,
-        requestId: PorticoPlaybackRenegotiationRequestId(controller),
-        expectedQueueRevision: preparedQueueRevision,
-        expectedPlaybackRevision: preparedPlaybackRevision,
-        clientProfile: nextProfile,
-        intent: PorticoPlaybackPortableIntent(controller.preferences, nextProfile),
-        progressSeconds: controller.positionSeconds
-    }
-    handoff = PorticoPlaybackAuthenticatedRequest(controller, {method: "POST", path: "/api/playback-sessions/" + active.sessionId + "/handoff", body: handoffBody, timeoutMs: 20000, expectJson: true, interruptible: true})
-    if handoff.interrupted then return false
-    if not handoff.ok then return PorticoPlaybackNextFailed(controller, autoplay)
-    nextPlayback = PorticoPlaybackFromResponse(handoff.data, controller.serverSession)
-    if nextPlayback = invalid
-        orphanSessionId = ""
-        if handoff.data <> invalid and Type(handoff.data) = "roAssociativeArray" then orphanSessionId = PorticoPlaybackSafeId(handoff.data.sessionId)
-        if orphanSessionId <> ""
-            PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + orphanSessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-        end if
-        PorticoPlaybackFail(controller, "playback-response-incompatible", false)
-        return false
-    end if
-    nextPlayback.targetKind = "vod"
-    preflight = PorticoPlaybackPreflightSource(controller, nextPlayback)
-    if not preflight.ok
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + nextPlayback.sessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-        PorticoPlaybackFail(controller, "playback-source-unavailable", false)
-        return false
-    end if
-    controller.playback = nextPlayback
-    controller.lastTargetKind = "vod"
-    controller.lastTargetId = nextPlayback.mediaId
-    controller.playbackGeneration = controller.playbackGeneration + 1
-    controller.sourceGeneration = controller.sourceGeneration + 1
-    controller.playerState = "paused"
-    controller.positionSeconds = nextPlayback.resumePositionSeconds
-    controller.durationSeconds = nextPlayback.durationSeconds
-    controller.status = "ready"
-    controller.errorCode = ""
-    controller.reconnectRequestedSessionGeneration = -1
-    controller.grantRenewalFailures = 0
-    controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
-    controller.heartbeatScheduled = true
-    PorticoPlaybackScheduleGrantRenewal(controller)
-    PorticoPlaybackPublish(controller, false)
-    return true
+    prepared = {sessionId: preparedId, entryId: targetEntryId, queueRevision: preparedQueueRevision, playbackRevision: preparedPlaybackRevision}
+    disposition = "stopped"
+    if autoplay then disposition = "completed"
+    return PorticoPlaybackCommitHandoff(controller, prepared, disposition, invalid, autoplay)
 end function
 
 function PorticoPlaybackAdvancePrevious(controller as object) as boolean
@@ -507,19 +494,56 @@ function PorticoPlaybackAdvancePrevious(controller as object) as boolean
     if result.interrupted or not result.ok or result.data = invalid or Type(result.data) <> "roAssociativeArray" then return false
     data = result.data
     if PorticoPlaybackSafeId(data.sessionId) <> active.sessionId or data.history = invalid or GetInterface(data.history, "ifArray") = invalid or data.history.Count() < 1 or data.history.Count() > 500 then return false
-    previousId = ""
-    for index = data.history.Count() - 1 to 0 step -1
-        item = data.history[index]
-        if item <> invalid and Type(item) = "roAssociativeArray"
-            candidate = PorticoPlaybackSafeId(item.id)
-            if candidate <> "" and candidate <> active.mediaId
-                previousId = candidate
-                exit for
-            end if
+    previousEntryId = ""
+    history = PorticoPlaybackQueueHistory(data.history)
+    if history.Count() < 1 then return false
+    for index = 0 to history.Count() - 1
+        item = history[index]
+        if item.entryId <> active.currentQueueEntryId
+            previousEntryId = item.entryId
+            exit for
         end if
     end for
-    if previousId = "" then return false
-    return PorticoPlaybackAdvanceNext(controller, false, previousId, true)
+    if previousEntryId = "" then return false
+    return PorticoPlaybackAdvanceNext(controller, false, previousEntryId, true)
+end function
+
+function PorticoPlaybackHandoffEntry(controller as object, entryId as string, disposition as string, startSeconds = invalid as dynamic) as boolean
+    if controller.playback = invalid or entryId = "" then return false
+    direct = {sessionId: "", entryId: entryId, queueRevision: controller.playback.queueRevision, playbackRevision: controller.playback.playbackRevision}
+    return PorticoPlaybackCommitHandoff(controller, direct, disposition, startSeconds, false)
+end function
+
+function PorticoPlaybackCommitHandoff(controller as object, prepared as object, disposition as string, startSeconds as dynamic, autoplay as boolean) as boolean
+    if controller.playback = invalid or controller.pendingMutation <> invalid then return false
+    activeSessionId = controller.playback.sessionId
+    terminalRequest = PorticoPlaybackTerminalRequest(controller, controller.playback, disposition)
+    if terminalRequest = invalid then return false
+    profile = PorticoPlaybackClientProfileForPreferences(controller.preferences)
+    body = {
+        requestId: terminalRequest.requestId,
+        entryId: prepared.entryId,
+        previousTerminal: terminalRequest.terminal,
+        clientProfile: profile,
+        intent: PorticoPlaybackPortableIntent(controller.preferences, profile)
+    }
+    if prepared.sessionId <> "" then body.preparedSessionId = prepared.sessionId
+    if prepared.queueRevision >= 0 then body.expectedQueueRevision = prepared.queueRevision
+    if prepared.playbackRevision >= 0 then body.expectedPlaybackRevision = prepared.playbackRevision
+    if startSeconds <> invalid then body.startSeconds = PorticoPlaybackBoundedSeconds(startSeconds, 0)
+    mutation = PorticoPlaybackPendingMutation(controller, "handoff", activeSessionId, body, terminalRequest, "", "", "", autoplay)
+    if not PorticoPlaybackPersistPendingMutation(controller, mutation)
+        controller.status = "error"
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        PorticoPlaybackPublish(controller, false)
+        return false
+    end if
+    controller.pendingMutation = mutation
+    controller.heartbeatScheduled = false
+    controller.preparedNext = invalid
+    controller.preparedHandoffStarted = true
+    PorticoPlaybackDispatchPendingMutation(controller)
+    return controller.pendingMutation = invalid and controller.playback <> invalid and controller.playback.sessionId <> activeSessionId
 end function
 
 function PorticoPlaybackNextFailed(controller as object, autoplay as boolean) as boolean
@@ -531,16 +555,25 @@ function PorticoPlaybackNextFailed(controller as object, autoplay as boolean) as
     return false
 end function
 
-function PorticoPlaybackSelectQuality(controller as object, qualityId as string, recoveryAttempt = false as boolean) as boolean
+function PorticoPlaybackSelectQuality(controller as object, selectionKey as string) as boolean
     if controller.playback = invalid or controller.playback.isLive = true or controller.playback.streamFormat <> "hls" then return false
-    found = false
-    for each quality in controller.playback.qualities
-        if quality.id = qualityId then found = true
-    end for
-    if not found then return false
-    if PorticoPlaybackRenegotiateSelection(controller, qualityId, controller.playback.selectedAudioStreamId, controller.playback.selectedSubtitleStreamId, controller.playback.selectedSubtitleMode, recoveryAttempt) then return true
-    if not recoveryAttempt then PorticoPlaybackSelectionFailed(controller)
+    selection = PorticoPlaybackQualitySelectionFor(controller.playback, selectionKey)
+    if selection = invalid then return false
+    if PorticoPlaybackRenegotiateSelection(controller, selection, controller.playback.selectedAudioStreamId, controller.playback.selectedSubtitleStreamId, controller.playback.selectedSubtitleMode) then return true
+    PorticoPlaybackSelectionFailed(controller)
     return false
+end function
+
+function PorticoPlaybackQualitySelectionFor(playback as object, selectionKey as string) as dynamic
+    if selectionKey = "" then return invalid
+    for each offer in playback.qualityOffers.offers
+        if offer.kind = "automatic" and selectionKey = "automatic" then return {mode: "automatic"}
+        if offer.selectionId = selectionKey
+            if offer.kind = "automatic" then return {mode: "automatic"}
+            return {mode: "explicit", selectionId: offer.selectionId, qualityOfferRevision: playback.qualityOffers.offerRevision}
+        end if
+    end for
+    return invalid
 end function
 
 sub PorticoPlaybackSelectAudio(controller as object, audioId as string)
@@ -550,7 +583,7 @@ sub PorticoPlaybackSelectAudio(controller as object, audioId as string)
         if stream.id = audioId then found = true
     end for
     if not found or audioId = controller.playback.selectedAudioStreamId then return
-    if not PorticoPlaybackRenegotiateSelection(controller, controller.playback.selectedQualityId, audioId, controller.playback.selectedSubtitleStreamId, controller.playback.selectedSubtitleMode, false)
+    if not PorticoPlaybackRenegotiateSelection(controller, invalid, audioId, controller.playback.selectedSubtitleStreamId, controller.playback.selectedSubtitleMode)
         PorticoPlaybackSelectionFailed(controller)
     end if
 end sub
@@ -558,7 +591,7 @@ end sub
 sub PorticoPlaybackSelectSubtitle(controller as object, subtitleId as string, off as boolean)
     if controller.playback = invalid or controller.playback.isLive = true or controller.playback.targetKind <> "vod" then return
     if off
-        if not PorticoPlaybackRenegotiateSelection(controller, controller.playback.selectedQualityId, controller.playback.selectedAudioStreamId, "", "off", false)
+        if not PorticoPlaybackRenegotiateSelection(controller, invalid, controller.playback.selectedAudioStreamId, "", "off")
             PorticoPlaybackSelectionFailed(controller)
         end if
         return
@@ -570,12 +603,12 @@ sub PorticoPlaybackSelectSubtitle(controller as object, subtitleId as string, of
     if target = invalid then return
     mode = "text"
     if target.sourceUrl = "" then mode = "burn_in"
-    if not PorticoPlaybackRenegotiateSelection(controller, controller.playback.selectedQualityId, controller.playback.selectedAudioStreamId, subtitleId, mode, false)
+    if not PorticoPlaybackRenegotiateSelection(controller, invalid, controller.playback.selectedAudioStreamId, subtitleId, mode)
         PorticoPlaybackSelectionFailed(controller)
     end if
 end sub
 
-function PorticoPlaybackRenegotiateSelection(controller as object, qualityId as string, audioId as string, subtitleId as string, subtitleMode as string, recoveryAttempt = false as boolean) as boolean
+function PorticoPlaybackRenegotiateSelection(controller as object, qualitySelection as dynamic, audioId as string, subtitleId as string, subtitleMode as string) as boolean
     if controller.playback = invalid then return false
     active = controller.playback
     normalizedMode = LCase(subtitleMode)
@@ -586,10 +619,9 @@ function PorticoPlaybackRenegotiateSelection(controller as object, qualityId as 
         requestId: PorticoPlaybackRenegotiationRequestId(controller),
         expectedRevision: active.playbackRevision,
         clientProfile: profile,
-        intent: PorticoPlaybackPortableIntent(controller.preferences, profile),
         subtitleMode: normalizedMode
     }
-    if qualityId <> "" then body.qualityId = qualityId
+    if qualitySelection <> invalid then body.quality = qualitySelection
     if audioId <> "" then body.audioStreamId = audioId
     if subtitleId <> "" then body.subtitleStreamId = subtitleId
     result = PorticoPlaybackAuthenticatedRequest(controller, {
@@ -636,10 +668,12 @@ sub PorticoPlaybackSelectionFailed(controller as object)
 end sub
 
 function PorticoPlaybackBeginPostplay(controller as object) as boolean
-    if controller.playback = invalid or controller.preparedNext <> invalid then return false
+    if controller.playback = invalid or controller.preparedNext <> invalid or controller.playback.queue.Count() = 0 then return false
     active = controller.playback
+    nextEntryId = active.queue[0].entryId
+    if nextEntryId = "" then return false
     nextProfile = PorticoPlaybackClientProfileForPreferences(controller.preferences)
-    prepareBody = {clientProfile: nextProfile, intent: PorticoPlaybackPortableIntent(controller.preferences, nextProfile), commitPreviousEnd: true}
+    prepareBody = {entryId: nextEntryId, clientProfile: nextProfile, intent: PorticoPlaybackPortableIntent(controller.preferences, nextProfile)}
     result = PorticoPlaybackAuthenticatedRequest(controller, {
         method: "POST",
         path: "/api/playback-sessions/" + active.sessionId + "/prepare-next",
@@ -658,7 +692,7 @@ function PorticoPlaybackBeginPostplay(controller as object) as boolean
     preparedPlaybackRevision = PorticoPlaybackBoundedSeconds(result.data.playbackRevision, -1)
     if preparedId = "" or expiresIn = invalid or expiresIn <= 2 or preparedPlayback = invalid or preparedQueueRevision < 0 or preparedPlaybackRevision < 0 then return false
     preparedPlayback.targetKind = "vod"
-    controller.preparedNext = {sessionId: preparedId, expiresAt: expiresAt, playback: preparedPlayback, queueRevision: preparedQueueRevision, playbackRevision: preparedPlaybackRevision}
+    controller.preparedNext = {sessionId: preparedId, entryId: nextEntryId, expiresAt: expiresAt, playback: preparedPlayback, queueRevision: preparedQueueRevision, playbackRevision: preparedPlaybackRevision}
     controller.preparedHandoffStarted = false
     controller.playerState = "paused"
     controller.status = "postplay"
@@ -692,97 +726,21 @@ function PorticoPlaybackHandoffPrepared(controller as object) as boolean
         PorticoPlaybackCancelPostplay(controller)
         return false
     end if
-    controller.preparedHandoffStarted = true
-    active = controller.playback
-    nextProfile = PorticoPlaybackClientProfileForPreferences(controller.preferences)
-    handoff = PorticoPlaybackAuthenticatedRequest(controller, {
-        method: "POST",
-        path: "/api/playback-sessions/" + active.sessionId + "/handoff",
-        body: {
-            preparedSessionId: controller.preparedNext.sessionId,
-            requestId: PorticoPlaybackRenegotiationRequestId(controller),
-            expectedQueueRevision: controller.preparedNext.queueRevision,
-            expectedPlaybackRevision: controller.preparedNext.playbackRevision,
-            clientProfile: nextProfile,
-            intent: PorticoPlaybackPortableIntent(controller.preferences, nextProfile),
-            progressSeconds: controller.positionSeconds
-        },
-        timeoutMs: 20000,
-        expectJson: true,
-        interruptible: true
-    })
-    if handoff.interrupted
-        controller.preparedHandoffStarted = false
-        return false
-    end if
-    if not handoff.ok
-        controller.preparedHandoffStarted = false
-        controller.postplayPhase = "manual"
-        controller.errorCode = "next-playback-unavailable"
-        PorticoPlaybackPublish(controller, false)
-        return false
-    end if
-    replacement = PorticoPlaybackFromResponse(handoff.data, controller.serverSession)
-    if replacement = invalid
-        controller.preparedHandoffStarted = false
-        controller.postplayPhase = "manual"
-        controller.errorCode = "playback-response-incompatible"
-        PorticoPlaybackPublish(controller, false)
-        return false
-    end if
-    replacement.targetKind = "vod"
-    preflight = PorticoPlaybackPreflightSource(controller, replacement)
-    if not preflight.ok
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + replacement.sessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-        controller.preparedHandoffStarted = false
-        controller.postplayPhase = "manual"
-        controller.errorCode = "playback-source-unavailable"
-        PorticoPlaybackPublish(controller, false)
-        return false
-    end if
-    controller.playback = replacement
-    controller.lastTargetKind = "vod"
-    controller.lastTargetId = replacement.mediaId
-    controller.playbackGeneration = controller.playbackGeneration + 1
-    controller.sourceGeneration = controller.sourceGeneration + 1
-    controller.playerState = "paused"
-    controller.positionSeconds = replacement.resumePositionSeconds
-    controller.durationSeconds = replacement.durationSeconds
-    controller.status = "ready"
-    controller.errorCode = ""
-    controller.automaticAdvances = controller.automaticAdvances + 1
-    controller.preparedNext = invalid
-    controller.preparedHandoffStarted = false
-    controller.postplayPhase = "inactive"
-    controller.postplayDeadlineAt = 0
-    controller.stillWatchingRequired = false
-    controller.dismissedSegmentIds = {}
-    controller.segmentDirective = invalid
-    controller.reconnectRequestedSessionGeneration = -1
-    controller.grantRenewalFailures = 0
-    controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
-    controller.heartbeatScheduled = true
-    PorticoPlaybackScheduleGrantRenewal(controller)
-    PorticoPlaybackPublish(controller, false)
-    return true
+    prepared = controller.preparedNext
+    return PorticoPlaybackCommitHandoff(controller, prepared, "completed", invalid, true)
 end function
 
 sub PorticoPlaybackCancelPostplay(controller as object)
-    if controller.preparedNext <> invalid
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + controller.preparedNext.sessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-    end if
+    ' Prepared capabilities are not playback sessions. Discard locally and let
+    ' the short server-issued capability expire.
     controller.preparedNext = invalid
     controller.preparedHandoffStarted = false
     controller.postplayPhase = "cancelled"
     controller.postplayDeadlineAt = 0
     controller.stillWatchingRequired = false
     if controller.playback <> invalid
-        PorticoPlaybackSendProgress(controller, true)
-        if controller.progressRequest <> invalid or controller.progressPending <> invalid or controller.terminalProgress <> invalid
-            controller.pendingCompletion = true
-            PorticoPlaybackPublish(controller, false)
-            return
-        end if
+        PorticoPlaybackBeginTerminal(controller, controller.playback, "completed", "ended", "", "")
+        return
     end if
     PorticoPlaybackResetActive(controller)
     controller.status = "ended"
@@ -791,9 +749,7 @@ sub PorticoPlaybackCancelPostplay(controller as object)
 end sub
 
 sub PorticoPlaybackResetAutomation(controller as object, meaningfulInteraction as boolean)
-    if controller.preparedNext <> invalid
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + controller.preparedNext.sessionId, body: "", timeoutMs: 5000, expectJson: true, interruptible: false})
-    end if
+    ' Preparation is a capability, not an active playback session.
     controller.preparedNext = invalid
     controller.preparedHandoffStarted = false
     controller.postplayPhase = "inactive"
@@ -874,20 +830,27 @@ sub PorticoPlaybackQueueMutation(controller as object, kind as string, command a
     if kind = "queue-play-next" then action = "play_next"
     if kind = "queue-remove" then action = "remove"
     if kind = "queue-reorder" then action = "reorder"
+    if kind = "queue-shuffle" then action = "shuffle"
     if kind = "queue-clear" then action = "clear"
     if kind = "set-repeat-mode" then action = "set_repeat"
     if action = "" then return
-    body = {expectedRevision: controller.playback.queueRevision, action: action}
+    body = {expectedRevision: controller.playback.queueRevision, idempotencyKey: PorticoHttpNewRequestId(), action: action}
     mediaId = PorticoPlaybackSafeId(command.mediaId)
-    if action = "append" or action = "play_next" or action = "remove"
+    if action = "append" or action = "play_next"
         if mediaId = "" then return
         body.mediaId = mediaId
+    else if action = "remove"
+        entryId = PorticoPlaybackSafeId(command.entryId)
+        if entryId = "" then return
+        body.entryId = entryId
     else if action = "reorder"
-        fromIndex = PorticoHttpInteger(command.fromIndex, -1)
-        toIndex = PorticoHttpInteger(command.toIndex, -1)
-        if fromIndex < 0 or toIndex < 0 or fromIndex >= controller.playback.queue.Count() or toIndex >= controller.playback.queue.Count() then return
-        body.fromIndex = fromIndex
-        body.toIndex = toIndex
+        entryId = PorticoPlaybackSafeId(command.entryId)
+        destinationEntryId = PorticoPlaybackSafeId(command.destinationEntryId)
+        placement = LCase(PorticoCoreSafeText(command.placement, 8))
+        if entryId = "" or destinationEntryId = "" or entryId = destinationEntryId or (placement <> "before" and placement <> "after") then return
+        body.entryId = entryId
+        body.destinationEntryId = destinationEntryId
+        body.placement = placement
     else if action = "set_repeat"
         repeatMode = LCase(PorticoCoreSafeText(command.repeatMode, 8))
         if repeatMode <> "off" and repeatMode <> "one" and repeatMode <> "all" then return
@@ -935,9 +898,12 @@ sub PorticoPlaybackAdoptQueueResponse(controller as object, data as dynamic)
     revision = PorticoPlaybackBoundedSeconds(data.revision, -1)
     if revision < controller.playback.queueRevision then return
     queue = PorticoPlaybackQueue(data.items)
+    current = PorticoPlaybackQueue([data.current])
+    if current.Count() <> 1 then return
     repeatMode = LCase(PorticoCoreSafeText(data.repeatMode, 8))
     if repeatMode <> "off" and repeatMode <> "one" and repeatMode <> "all" then return
     controller.playback.queue = queue
+    controller.playback.currentQueueEntryId = current[0].entryId
     controller.playback.queueRevision = revision
     controller.playback.repeatMode = repeatMode
     controller.errorCode = ""
@@ -945,11 +911,14 @@ sub PorticoPlaybackAdoptQueueResponse(controller as object, data as dynamic)
 end sub
 
 sub PorticoPlaybackTick(controller as object)
+    if controller.pendingMutation <> invalid
+        PorticoPlaybackDispatchPendingMutation(controller)
+        return
+    end if
     if controller.playback = invalid then return
     nowSeconds = controller.clock.TotalSeconds()
     if controller.sourceRecoveryAttempts > 0 and controller.sourceRecoveryPending <> true and controller.sourceRecoveryStableSince > 0 and nowSeconds - controller.sourceRecoveryStableSince >= 15
         controller.sourceRecoveryAttempts = 0
-        controller.sourceRecoveryQualityIds = {}
         controller.sourceRecoveryStableSince = 0
     end if
     if controller.postplayPhase = "countdown" and controller.postplayDeadlineAt > 0
@@ -974,19 +943,17 @@ sub PorticoPlaybackTick(controller as object)
         return
     end if
     if controller.heartbeatScheduled and nowSeconds >= controller.nextHeartbeatAtSeconds
-        PorticoPlaybackSendProgress(controller, false)
+        PorticoPlaybackSendProgress(controller)
         controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
         controller.heartbeatScheduled = true
     end if
 end sub
 
-sub PorticoPlaybackSendProgress(controller as object, completed as boolean)
-    if controller.playback = invalid then return
+sub PorticoPlaybackSendProgress(controller as object)
+    if controller.playback = invalid or controller.pendingMutation <> invalid then return
     state = controller.playerState
     if state <> "playing" and state <> "paused" and state <> "buffering" then state = "paused"
-    if controller.progressPending <> invalid and controller.progressPending.completed = true and not completed then return
     controller.progressPending = {
-        completed: completed,
         recordedAt: PorticoPlaybackUTCNowString(),
         progressSeconds: controller.positionSeconds,
         positionSeconds: controller.positionSeconds,
@@ -994,33 +961,14 @@ sub PorticoPlaybackSendProgress(controller as object, completed as boolean)
         state: state,
         isPlaying: state = "playing"
     }
-    terminalIntent = completed or controller.pendingStop <> invalid
-    if terminalIntent
-        if completed then controller.pendingCompletion = true
-        controller.terminalProgress = {
-            body: "",
-            eventSequence: 0,
-            sessionId: controller.playback.sessionId,
-            playbackGeneration: controller.playbackGeneration,
-            sessionGeneration: -1,
-            completed: completed,
-            attempts: 0,
-            nextRetryAt: controller.clock.TotalSeconds(),
-            deadlineAt: controller.clock.TotalSeconds() + 20
-        }
-    end if
     PorticoPlaybackDispatchProgress(controller)
 end sub
 
 sub PorticoPlaybackDispatchProgress(controller as object)
-    if controller.playback = invalid or controller.progressPending = invalid or controller.progressRequest <> invalid then return
+    if controller.playback = invalid or controller.pendingMutation <> invalid or controller.progressPending = invalid or controller.progressRequest <> invalid then return
     session = PorticoPlaybackCurrentServerSession(controller)
     if session = invalid
-        if controller.terminalProgress <> invalid
-            controller.terminalProgress.nextRetryAt = controller.clock.TotalSeconds() + 1
-        else
-            controller.progressPending = invalid
-        end if
+        controller.progressPending = invalid
         PorticoPlaybackRequestReconnect(controller)
         return
     end if
@@ -1030,6 +978,7 @@ sub PorticoPlaybackDispatchProgress(controller as object)
     pending = controller.progressPending
     controller.progressPending = invalid
     body = {
+        generation: controller.playback.sessionGeneration,
         eventSequence: sequence,
         recordedAt: pending.recordedAt,
         progressSeconds: pending.progressSeconds,
@@ -1038,7 +987,6 @@ sub PorticoPlaybackDispatchProgress(controller as object)
         state: pending.state,
         isPlaying: pending.isPlaying
     }
-    if pending.completed then body.completed = true
     request = PorticoHttpNormalizeRequest({
         method: "PATCH",
         url: session.apiBaseUrl + "/api/playback-sessions/" + controller.playback.sessionId,
@@ -1048,11 +996,6 @@ sub PorticoPlaybackDispatchProgress(controller as object)
         expectJson: true,
         allowInsecureLan: session.allowInsecureLan = true
     })
-    if controller.terminalProgress <> invalid
-        controller.terminalProgress.body = request.body
-        controller.terminalProgress.eventSequence = sequence
-        controller.terminalProgress.sessionGeneration = session.generation
-    end if
     validation = PorticoHttpValidatePrivateRequest(request)
     if not validation.ok
         PorticoPlaybackProgressFailure(controller, 0, validation.code)
@@ -1092,7 +1035,6 @@ sub PorticoPlaybackDispatchProgress(controller as object)
         sessionId: controller.playback.sessionId,
         playbackGeneration: controller.playbackGeneration,
         sessionGeneration: session.generation,
-        completed: pending.completed,
         eventSequence: sequence,
         deadlineAt: controller.clock.TotalSeconds() + 10,
         retried: false
@@ -1100,10 +1042,7 @@ sub PorticoPlaybackDispatchProgress(controller as object)
 end sub
 
 sub PorticoPlaybackPollProgress(controller as object)
-    if controller.progressRequest = invalid or controller.progressPort = invalid
-        if controller.terminalProgress <> invalid and (controller.pendingCompletion or controller.pendingStop <> invalid) then PorticoPlaybackRetryTerminalProgress(controller)
-        return
-    end if
+    if controller.progressRequest = invalid or controller.progressPort = invalid then return
     if controller.progressRequest.deadlineAt > 0 and controller.clock.TotalSeconds() >= controller.progressRequest.deadlineAt
         controller.progressRequest.transfer.AsyncCancel()
         controller.progressRequest = invalid
@@ -1121,7 +1060,7 @@ sub PorticoPlaybackPollProgress(controller as object)
             replacement = PorticoPlaybackSessionForController(controller)
             if replacement <> invalid and replacement.generation > request.sessionGeneration and replacement.accessToken <> ""
                 controller.serverSession = replacement
-                PorticoPlaybackReplayProgress(controller, request.body, replacement, request.completed, request.eventSequence)
+                PorticoPlaybackReplayProgress(controller, request.body, replacement, request.eventSequence)
                 return
             end if
         end if
@@ -1145,25 +1084,12 @@ sub PorticoPlaybackPollProgress(controller as object)
             return
         end if
         controller.errorCode = ""
-        if request.completed and controller.pendingCompletion
-            controller.terminalProgress = invalid
-            controller.pendingCompletion = false
-            PorticoPlaybackResetActive(controller)
-            controller.status = "ended"
-            PorticoPlaybackPublish(controller, false)
-            return
-        end if
-        if controller.pendingStop <> invalid and request.sessionId = controller.pendingStop.sessionId and controller.progressPending = invalid
-            controller.terminalProgress = invalid
-            PorticoPlaybackFinishPendingStop(controller)
-            return
-        end if
         PorticoPlaybackDispatchProgress(controller)
         return
     end for
 end sub
 
-sub PorticoPlaybackReplayProgress(controller as object, body as string, session as object, completed as boolean, eventSequence = 0 as integer)
+sub PorticoPlaybackReplayProgress(controller as object, body as string, session as object, eventSequence = 0 as integer)
     request = PorticoHttpNormalizeRequest({method: "PATCH", url: session.apiBaseUrl + "/api/playback-sessions/" + controller.playback.sessionId, body: body, headers: {Authorization: "Bearer " + session.accessToken}, timeoutMs: 10000, expectJson: true, allowInsecureLan: session.allowInsecureLan = true})
     validation = PorticoHttpValidatePrivateRequest(request)
     if not validation.ok
@@ -1196,52 +1122,7 @@ sub PorticoPlaybackReplayProgress(controller as object, body as string, session 
         PorticoPlaybackProgressFailure(controller, 0, "transport_error")
         return
     end if
-    controller.progressRequest = {transfer: transfer, identity: transfer.GetIdentity(), body: request.body, eventSequence: eventSequence, sessionId: controller.playback.sessionId, playbackGeneration: controller.playbackGeneration, sessionGeneration: session.generation, completed: completed, deadlineAt: controller.clock.TotalSeconds() + 10, retried: true}
-end sub
-
-sub PorticoPlaybackRetryTerminalProgress(controller as object)
-    terminal = controller.terminalProgress
-    if terminal = invalid or controller.playback = invalid then return
-    if terminal.sessionId <> controller.playback.sessionId or terminal.playbackGeneration <> controller.playbackGeneration then return
-    if controller.clock.TotalSeconds() < terminal.nextRetryAt then return
-    if controller.clock.TotalSeconds() >= terminal.deadlineAt or terminal.attempts >= 3
-        PorticoPlaybackFinishTerminalCleanup(controller)
-        return
-    end if
-    session = PorticoPlaybackCurrentServerSession(controller)
-    if session = invalid
-        terminal.nextRetryAt = controller.clock.TotalSeconds() + 1
-        PorticoPlaybackRequestReconnect(controller)
-        return
-    end if
-    if terminal.body = "" and controller.progressPending <> invalid
-        PorticoPlaybackDispatchProgress(controller)
-        return
-    end if
-    terminal.attempts = terminal.attempts + 1
-    terminal.nextRetryAt = controller.clock.TotalSeconds() + (2 ^ (terminal.attempts - 1))
-    terminal.sessionGeneration = session.generation
-    PorticoPlaybackReplayProgress(controller, terminal.body, session, terminal.completed, terminal.eventSequence)
-end sub
-
-sub PorticoPlaybackFinishTerminalCleanup(controller as object)
-    terminal = controller.terminalProgress
-    if terminal <> invalid and terminal.completed <> true and controller.pendingStop <> invalid
-        controller.errorCode = "progress-report-delayed"
-        PorticoPlaybackFinishPendingStop(controller)
-        return
-    end if
-    activeSessionId = ""
-    if controller.playback <> invalid then activeSessionId = controller.playback.sessionId
-    controller.terminalProgress = invalid
-    controller.pendingCompletion = false
-    if activeSessionId <> "" and controller.serverStatus = "online"
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + activeSessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-    end if
-    PorticoPlaybackResetActive(controller)
-    controller.status = "ended"
-    controller.errorCode = "progress-report-delayed"
-    PorticoPlaybackPublish(controller, false)
+    controller.progressRequest = {transfer: transfer, identity: transfer.GetIdentity(), body: request.body, eventSequence: eventSequence, sessionId: controller.playback.sessionId, playbackGeneration: controller.playbackGeneration, sessionGeneration: session.generation, deadlineAt: controller.clock.TotalSeconds() + 10, retried: true}
 end sub
 
 function PorticoPlaybackAdoptProgressAcknowledgement(controller as object, request as object, acknowledgement as dynamic) as boolean
@@ -1267,10 +1148,9 @@ function PorticoPlaybackAdoptProgressAcknowledgement(controller as object, reque
 end function
 
 sub PorticoPlaybackProgressFailure(controller as object, status as integer, code as string)
-    if controller.terminalProgress <> invalid and (controller.pendingCompletion or controller.pendingStop <> invalid)
-        controller.terminalProgress.nextRetryAt = controller.clock.TotalSeconds() + 1
-        controller.errorCode = "progress-report-delayed"
-        PorticoPlaybackPublish(controller, false)
+    if controller.pendingMutation <> invalid and controller.pendingMutation.kind = "replacement"
+        controller.errorCode = "playback-terminal-delayed"
+        PorticoPlaybackPublish(controller, status = 401)
         return
     end if
     if status = 401
@@ -1283,6 +1163,568 @@ sub PorticoPlaybackProgressFailure(controller as object, status as integer, code
         PorticoPlaybackPublish(controller, false)
     end if
     PorticoPlaybackDispatchProgress(controller)
+end sub
+
+function PorticoPlaybackTerminalRequest(controller as object, playback as object, disposition as string) as dynamic
+    if playback = invalid or (disposition <> "stopped" and disposition <> "completed") then return invalid
+    generation = PorticoPlaybackBoundedSeconds(playback.sessionGeneration, 0)
+    sequence = PorticoPlaybackBoundedSeconds(playback.nextEventSequence, 0)
+    recordedAt = PorticoPlaybackUTCNowString()
+    if generation < 1 or sequence < 1 or recordedAt = "" then return invalid
+    positionSeconds = PorticoPlaybackClampToTimeline(playback, controller.positionSeconds, 0)
+    durationSeconds = PorticoPlaybackBoundedSeconds(controller.durationSeconds, PorticoPlaybackBoundedSeconds(playback.durationSeconds, 0))
+    if disposition = "completed"
+        if durationSeconds < 1 then return invalid
+        positionSeconds = durationSeconds
+    end if
+    requestId = PorticoHttpNewRequestId()
+    if Len(requestId) < 8 then return invalid
+    playback.nextEventSequence = sequence + 1
+    return {
+        requestId: requestId,
+        terminal: {
+            disposition: disposition,
+            generation: generation,
+            eventSequence: sequence,
+            recordedAt: recordedAt,
+            positionSeconds: positionSeconds,
+            durationSeconds: durationSeconds
+        }
+    }
+end function
+
+function PorticoPlaybackPendingReplacement(controller as object, playback as object, path as string, body as object, targetKind as string, targetId as string, terminalRequest as object) as dynamic
+    scope = PorticoViewerScopeNormalize(controller.viewerScope)
+    safePath = PorticoPlaybackReplacementPath(targetKind, targetId)
+    if scope = invalid or playback = invalid or safePath = "" or path <> safePath then return invalid
+    encodedBody = FormatJson(body)
+    if encodedBody = "" then return invalid
+    return {
+        version: 1,
+        purpose: "playback-ordered-mutation",
+        kind: "replacement",
+        viewerScope: scope,
+        sessionId: playback.sessionId,
+        path: safePath,
+        body: encodedBody,
+        requestId: terminalRequest.requestId,
+        terminal: terminalRequest.terminal,
+        disposition: "stopped",
+        targetKind: targetKind,
+        targetId: targetId,
+        attempts: 0,
+        nextRetryAt: controller.clock.TotalSeconds()
+    }
+end function
+
+function PorticoPlaybackReplacementPath(targetKind as string, targetId as string) as string
+    safeId = PorticoPlaybackSafeId(targetId)
+    if safeId = "" or safeId <> targetId then return ""
+    if targetKind = "vod" then return "/api/playback-sessions"
+    if targetKind = "live" then return "/api/live-tv/play"
+    if targetKind = "dvr" then return "/api/dvr/recordings/" + safeId + "/playback"
+    if targetKind = "library-channel" then return "/api/library-channels/" + safeId + "/tune"
+    return ""
+end function
+
+function PorticoPlaybackPendingMutation(controller as object, kind as string, sessionId as string, body as object, terminalRequest as object, finalStatus as string, finalError as string, remoteMessage as string, autoplay as boolean) as dynamic
+    scope = PorticoViewerScopeNormalize(controller.viewerScope)
+    if scope = invalid or sessionId = "" or (kind <> "terminal" and kind <> "handoff") then return invalid
+    path = "/api/playback-sessions/" + sessionId
+    if kind = "handoff" then path = path + "/handoff"
+    encodedBody = FormatJson(body)
+    if encodedBody = "" then return invalid
+    return {
+        version: 1,
+        purpose: "playback-ordered-mutation",
+        kind: kind,
+        viewerScope: scope,
+        sessionId: sessionId,
+        path: path,
+        body: encodedBody,
+        requestId: terminalRequest.requestId,
+        terminal: terminalRequest.terminal,
+        disposition: terminalRequest.terminal.disposition,
+        finalStatus: finalStatus,
+        finalError: finalError,
+        remoteMessage: remoteMessage,
+        autoplay: autoplay,
+        attempts: 0,
+        nextRetryAt: controller.clock.TotalSeconds()
+    }
+end function
+
+function PorticoPlaybackPersistPendingMutation(controller as object, mutation as dynamic) as boolean
+    if mutation = invalid or Type(mutation) <> "roAssociativeArray" then return false
+    return PorticoSecureRegistryCommit("playback-mutation", mutation).ok
+end function
+
+sub PorticoPlaybackRestorePendingMutation(controller as object)
+    if controller.pendingMutation <> invalid or controller.pendingMutationRestored then return
+    controller.pendingMutationRestored = true
+    record = PorticoSecureRegistryRead("playback-mutation")
+    if not record.ok
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        return
+    end if
+    if record.payload = invalid then return
+    pending = record.payload
+    scope = PorticoViewerScopeNormalize(pending.viewerScope)
+    currentScope = PorticoViewerScopeNormalize(controller.viewerScope)
+    kind = LCase(PorticoCoreSafeText(pending.kind, 16))
+    sessionId = PorticoPlaybackSafeId(pending.sessionId)
+    requestId = PorticoPlaybackSafeRequestId(pending.requestId)
+    body = PorticoHttpScalarString(pending.body, "")
+    if pending.version <> 1 or pending.purpose <> "playback-ordered-mutation" or scope = invalid or currentScope = invalid or not PorticoViewerScopeAuthorizationEquals(scope, currentScope) then return
+    if (kind <> "terminal" and kind <> "handoff" and kind <> "replacement") or sessionId = "" or requestId = "" or Len(body) < 2 or Len(body) > PorticoHttpLimits().maximumBodyBytes
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        return
+    end if
+    parsedBody = PorticoHttpParseJson(body)
+    if not parsedBody.ok or parsedBody.value = invalid or Type(parsedBody.value) <> "roAssociativeArray"
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        return
+    end if
+    parsedRequestId = PorticoPlaybackSafeRequestId(parsedBody.value.requestId)
+    if kind = "replacement" and parsedBody.value.replacement <> invalid then parsedRequestId = PorticoPlaybackSafeRequestId(parsedBody.value.replacement.requestId)
+    if parsedRequestId <> requestId
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        return
+    end if
+    bodyTerminal = parsedBody.value.terminal
+    if kind = "handoff" then bodyTerminal = parsedBody.value.previousTerminal
+    if kind = "replacement"
+        targetKind = LCase(PorticoCoreSafeText(pending.targetKind, 32))
+        targetId = PorticoPlaybackSafeId(pending.targetId)
+        committedReplacementSessionId = ""
+        if pending.committedReplacementSessionId <> invalid
+            committedReplacementSessionId = PorticoPlaybackSafeId(pending.committedReplacementSessionId)
+            if committedReplacementSessionId = ""
+                controller.errorCode = "playback-terminal-storage-unavailable"
+                return
+            end if
+        end if
+        restoredPath = PorticoPlaybackReplacementPath(targetKind, targetId)
+        envelope = parsedBody.value.replacement
+        if restoredPath = "" or envelope = invalid or Type(envelope) <> "roAssociativeArray" or PorticoPlaybackSafeId(envelope.sourceSessionId) <> sessionId or PorticoPlaybackSafeRequestId(envelope.requestId) <> requestId
+            controller.errorCode = "playback-terminal-storage-unavailable"
+            return
+        end if
+        if PorticoPlaybackBoundedSeconds(envelope.expectedQueueRevision, -1) < 0 or PorticoPlaybackBoundedSeconds(envelope.expectedPlaybackRevision, -1) < 0
+            controller.errorCode = "playback-terminal-storage-unavailable"
+            return
+        end if
+        targetMatches = true
+        if targetKind = "vod" and PorticoPlaybackSafeId(parsedBody.value.mediaId) <> targetId then targetMatches = false
+        if targetKind = "live" and PorticoPlaybackSafeId(parsedBody.value.channelId) <> targetId then targetMatches = false
+        if not targetMatches
+            controller.errorCode = "playback-terminal-storage-unavailable"
+            return
+        end if
+        bodyTerminal = envelope.previousTerminal
+        pending.targetKind = targetKind
+        pending.targetId = targetId
+        pending.path = restoredPath
+        if committedReplacementSessionId <> "" then pending.committedReplacementSessionId = committedReplacementSessionId
+    end if
+    if not PorticoPlaybackTerminalEventsEqual(pending.terminal, bodyTerminal)
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        return
+    end if
+    pending.kind = kind
+    pending.sessionId = sessionId
+    pending.requestId = requestId
+    if kind <> "replacement"
+        pending.path = "/api/playback-sessions/" + sessionId
+        if kind = "handoff" then pending.path = pending.path + "/handoff"
+    end if
+    pending.attempts = 0
+    pending.nextRetryAt = controller.clock.TotalSeconds()
+    controller.pendingMutation = pending
+end sub
+
+function PorticoPlaybackSafeRequestId(value as dynamic) as string
+    id = PorticoCoreSafeText(value, 128)
+    if Len(id) < 8 then return ""
+    allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._:-"
+    for index = 1 to Len(id)
+        if Instr(1, allowed, Mid(id, index, 1)) = 0 then return ""
+    end for
+    return id
+end function
+
+function PorticoPlaybackBeginTerminal(controller as object, playback as object, disposition as string, finalStatus as string, finalError as string, remoteMessage as string) as boolean
+    if playback = invalid or controller.pendingMutation <> invalid then return false
+    terminalRequest = PorticoPlaybackTerminalRequest(controller, playback, disposition)
+    if terminalRequest = invalid then return false
+    mutation = PorticoPlaybackPendingMutation(controller, "terminal", playback.sessionId, terminalRequest, terminalRequest, finalStatus, finalError, remoteMessage, false)
+    if not PorticoPlaybackPersistPendingMutation(controller, mutation)
+        controller.status = "error"
+        controller.errorCode = "playback-terminal-storage-unavailable"
+        PorticoPlaybackPublish(controller, false)
+        return false
+    end if
+    controller.pendingMutation = mutation
+    controller.heartbeatScheduled = false
+    controller.status = "stopping"
+    PorticoPlaybackPublish(controller, false)
+    PorticoPlaybackDispatchPendingMutation(controller)
+    return controller.pendingMutation = invalid
+end function
+
+sub PorticoPlaybackDispatchPendingMutation(controller as object)
+    pending = controller.pendingMutation
+    if pending = invalid or controller.clock.TotalSeconds() < pending.nextRetryAt then return
+    if pending.kind = "replacement"
+        committedReplacementSessionId = PorticoPlaybackSafeId(pending.committedReplacementSessionId)
+        if committedReplacementSessionId <> ""
+            PorticoPlaybackRestoreCommittedReplacement(controller, pending, committedReplacementSessionId)
+            return
+        end if
+    end if
+    method = "POST"
+    if pending.kind = "terminal" then method = "DELETE"
+    result = PorticoPlaybackAuthenticatedRequest(controller, {
+        method: method,
+        path: pending.path,
+        body: pending.body,
+        timeoutMs: 20000,
+        expectJson: true,
+        interruptible: false
+    })
+    if result.ok
+        if pending.kind = "terminal"
+            if PorticoPlaybackTerminalAcknowledgementMatches(pending, result.data)
+                PorticoPlaybackAcceptTerminalMutation(controller, pending)
+                return
+            end if
+        else if pending.kind = "handoff"
+            replacement = PorticoPlaybackFromResponse(result.data, PorticoPlaybackCurrentServerSession(controller))
+            if replacement <> invalid
+                PorticoPlaybackAcceptHandoffMutation(controller, pending, replacement)
+                return
+            end if
+        else
+            playbackDocument = result.data
+            if pending.targetKind = "library-channel" and playbackDocument <> invalid and Type(playbackDocument) = "roAssociativeArray" then playbackDocument = playbackDocument.playback
+            replacement = PorticoPlaybackFromResponse(playbackDocument, PorticoPlaybackCurrentServerSession(controller))
+            if replacement <> invalid
+                PorticoPlaybackAcceptRouteReplacement(controller, pending, replacement)
+                return
+            end if
+        end if
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-response-incompatible", false)
+        return
+    end if
+    if pending.kind = "replacement" and result.serverCode = "playback_replacement_committed_restore_required"
+        replacementSessionId = PorticoPlaybackSafeId(result.details.replacementSessionId)
+        if replacementSessionId <> ""
+            pending.committedReplacementSessionId = replacementSessionId
+            if not PorticoPlaybackPersistPendingMutation(controller, pending)
+                pending.Delete("committedReplacementSessionId")
+                PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+                return
+            end if
+            PorticoPlaybackRestoreCommittedReplacement(controller, pending, replacementSessionId)
+            return
+        end if
+    end if
+    if pending.kind = "replacement" and result.serverCode = "replacement_source_inactive"
+        PorticoPlaybackDiscardInactiveReplacementSource(controller)
+        return
+    end if
+    if pending.kind = "replacement" and PorticoPlaybackReplacementDefinitivelyRejected(result)
+        PorticoPlaybackRejectRouteReplacement(controller)
+        return
+    end if
+    if pending.kind = "handoff" and PorticoPlaybackMutationDefinitivelyRejected(result)
+        if pending.disposition = "completed"
+            PorticoPlaybackFallbackCompletedTerminal(controller, pending)
+        else
+            PorticoPlaybackRejectExplicitHandoff(controller)
+        end if
+        return
+    end if
+    PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-delayed", result.missingSession = true or result.status = 401)
+end sub
+
+sub PorticoPlaybackDiscardInactiveReplacementSource(controller as object)
+    ' The authenticated Server has proved that the proposed source no longer
+    ' owns playback. Fence it immediately; no terminal receipt may be invented.
+    PorticoPlaybackDropProgress(controller)
+    PorticoPlaybackResetActive(controller)
+    controller.status = "error"
+    controller.errorCode = "playback-source-inactive"
+    if not PorticoPlaybackClearPendingMutation(controller)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    PorticoPlaybackPublish(controller, false)
+end sub
+
+function PorticoPlaybackReplacementDefinitivelyRejected(result as object) as boolean
+    if result.interrupted or result.retryable or result.status = 401 or result.status = 404 or result.status = 408 then return false
+    if result.status < 400 or result.status >= 500 then return false
+    ambiguousCodes = {playback_terminal_request_conflict: true, playback_stopping: true, handoff_in_progress: true, prepared_handoff_in_progress: true}
+    return ambiguousCodes[LCase(PorticoCoreSafeText(result.serverCode, 80))] <> true
+end function
+
+sub PorticoPlaybackRestoreCommittedReplacement(controller as object, pending as object, replacementSessionId as string)
+    profile = PorticoPlaybackClientProfileForPreferences(controller.preferences)
+    body = {clientInstanceId: PorticoInstallationId(), clientProfile: profile}
+    if body.clientInstanceId = "" then body.Delete("clientInstanceId")
+    result = PorticoPlaybackAuthenticatedRequest(controller, {method: "POST", path: "/api/playback/active", body: body, timeoutMs: 20000, expectJson: true, interruptible: false})
+    if not result.ok or result.data = invalid or Type(result.data) <> "roAssociativeArray" or result.data.active <> true
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-replacement-restore-delayed", result.status = 401)
+        return
+    end if
+    restored = PorticoPlaybackFromResponse(result.data.playback, PorticoPlaybackCurrentServerSession(controller))
+    if restored = invalid or restored.sessionId <> replacementSessionId
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-response-incompatible", false)
+        return
+    end if
+    PorticoPlaybackAcceptRouteReplacement(controller, pending, restored)
+end sub
+
+function PorticoPlaybackMutationDefinitivelyRejected(result as object) as boolean
+    if result.interrupted or result.retryable then return false
+    serverCode = LCase(PorticoCoreSafeText(result.serverCode, 80))
+    definitiveNonCommitCodes = {
+        handoff_request_id_invalid: true,
+        previous_terminal_required: true,
+        invalid_playback_disposition: true,
+        invalid_playback_terminal_authority: true,
+        invalid_recorded_at: true,
+        invalid_playback_terminal_position: true,
+        invalid_start_seconds: true,
+        prepared_handoff_not_found: true,
+        prepared_handoff_expired: true,
+        prepared_handoff_scope_mismatch: true,
+        prepared_handoff_entry_mismatch: true,
+        handoff_not_supported: true,
+        queue_entry_required: true,
+        handoff_queue_revision_conflict: true,
+        handoff_queue_entry_changed: true,
+        handoff_playback_revision_conflict: true,
+        playback_generation_stale: true,
+        playback_event_sequence_stale: true
+    }
+    return definitiveNonCommitCodes[serverCode] = true
+end function
+
+sub PorticoPlaybackScheduleMutationRetry(controller as object, code as string, reconnectRequired as boolean)
+    if controller.pendingMutation = invalid then return
+    controller.pendingMutation.attempts = PorticoHttpInteger(controller.pendingMutation.attempts, 0) + 1
+    exponent = controller.pendingMutation.attempts - 1
+    if exponent > 4 then exponent = 4
+    delaySeconds = 2 ^ exponent
+    if delaySeconds > 30 then delaySeconds = 30
+    controller.pendingMutation.nextRetryAt = controller.clock.TotalSeconds() + delaySeconds
+    controller.errorCode = code
+    PorticoPlaybackPublish(controller, reconnectRequired)
+end sub
+
+function PorticoPlaybackTerminalAcknowledgementMatches(pending as object, acknowledgement as dynamic) as boolean
+    if acknowledgement = invalid or Type(acknowledgement) <> "roAssociativeArray" then return false
+    if acknowledgement.accepted <> true or not PorticoPlaybackIsBoolean(acknowledgement.duplicate) then return false
+    if PorticoPlaybackSafeRequestId(acknowledgement.requestId) <> pending.requestId or PorticoPlaybackSafeId(acknowledgement.sessionId) <> pending.sessionId then return false
+    return PorticoPlaybackTerminalEventsEqual(pending.terminal, acknowledgement.terminal)
+end function
+
+function PorticoPlaybackTerminalEventsEqual(expected as dynamic, actual as dynamic) as boolean
+    if expected = invalid or actual = invalid or Type(expected) <> "roAssociativeArray" or Type(actual) <> "roAssociativeArray" then return false
+    if LCase(PorticoCoreSafeText(actual.disposition, 16)) <> expected.disposition then return false
+    if PorticoHttpInteger(actual.generation, -1) <> expected.generation or PorticoHttpInteger(actual.eventSequence, -1) <> expected.eventSequence then return false
+    if PorticoHttpScalarString(actual.recordedAt, "") <> expected.recordedAt then return false
+    if PorticoPlaybackBoundedSeconds(actual.positionSeconds, -1) <> expected.positionSeconds then return false
+    return PorticoPlaybackBoundedSeconds(actual.durationSeconds, -1) = expected.durationSeconds
+end function
+
+function PorticoPlaybackClearPendingMutation(controller as object) as boolean
+    if not PorticoSecureRegistryClear("playback-mutation") then return false
+    controller.pendingMutation = invalid
+    return true
+end function
+
+sub PorticoPlaybackAcceptTerminalMutation(controller as object, pending as object)
+    PorticoPlaybackDropProgress(controller)
+    if not PorticoPlaybackClearPendingMutation(controller)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    pendingStart = controller.pendingStart
+    PorticoPlaybackResetActive(controller)
+    controller.status = pending.finalStatus
+    if controller.status = "" then controller.status = "idle"
+    controller.errorCode = pending.finalError
+    controller.remoteStopMessage = pending.remoteMessage
+    PorticoPlaybackPublish(controller, false)
+    if pendingStart <> invalid then PorticoPlaybackStart(controller, pendingStart)
+end sub
+
+sub PorticoPlaybackAcceptHandoffMutation(controller as object, pending as object, replacement as object)
+    PorticoPlaybackDropProgress(controller)
+    if not PorticoPlaybackClearPendingMutation(controller)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    replacement.targetKind = "vod"
+    preflight = PorticoPlaybackPreflightSource(controller, replacement)
+    if not preflight.ok
+        controller.playback = replacement
+        controller.positionSeconds = replacement.resumePositionSeconds
+        controller.durationSeconds = replacement.durationSeconds
+        controller.preparedHandoffStarted = false
+        PorticoPlaybackBeginTerminal(controller, replacement, "stopped", "error", "playback-source-unavailable", "")
+        return
+    end if
+    PorticoPlaybackAdoptHandoffReplacement(controller, replacement, pending.autoplay = true)
+end sub
+
+sub PorticoPlaybackAcceptRouteReplacement(controller as object, pending as object, replacement as object)
+    PorticoPlaybackDropProgress(controller)
+    if not PorticoPlaybackClearPendingMutation(controller)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    replacement.targetKind = pending.targetKind
+    preflight = PorticoPlaybackPreflightSource(controller, replacement)
+    if not preflight.ok
+        controller.playback = replacement
+        controller.positionSeconds = replacement.resumePositionSeconds
+        controller.durationSeconds = replacement.durationSeconds
+        PorticoPlaybackBeginTerminal(controller, replacement, "stopped", "error", "playback-source-unavailable", "")
+        return
+    end if
+    PorticoPlaybackAdoptRouteReplacement(controller, replacement, pending.targetKind, pending.targetId)
+end sub
+
+sub PorticoPlaybackAdoptRouteReplacement(controller as object, replacement as object, targetKind as string, targetId as string)
+    controller.playback = replacement
+    controller.lastTargetKind = targetKind
+    controller.lastTargetId = targetId
+    controller.playbackGeneration = controller.playbackGeneration + 1
+    controller.sourceGeneration = controller.sourceGeneration + 1
+    controller.playerState = "paused"
+    controller.positionSeconds = replacement.resumePositionSeconds
+    controller.durationSeconds = replacement.durationSeconds
+    controller.status = "ready"
+    controller.errorCode = ""
+    controller.reconnectRequestedSessionGeneration = -1
+    controller.grantRenewalFailures = 0
+    controller.sourceRecoveryPending = false
+    controller.sourceRecoveryAttempts = 0
+    controller.sourceRecoveryStableSince = 0
+    controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
+    controller.heartbeatScheduled = true
+    PorticoPlaybackResetAutomation(controller, true)
+    PorticoPlaybackScheduleGrantRenewal(controller)
+    PorticoPlaybackPublish(controller, false)
+end sub
+
+sub PorticoPlaybackRejectRouteReplacement(controller as object)
+    pending = controller.pendingMutation
+    retained = invalid
+    if controller.playback = invalid and pending <> invalid
+        profile = PorticoPlaybackClientProfileForPreferences(controller.preferences)
+        body = {clientInstanceId: PorticoInstallationId(), clientProfile: profile}
+        if body.clientInstanceId = "" then body.Delete("clientInstanceId")
+        restore = PorticoPlaybackAuthenticatedRequest(controller, {method: "POST", path: "/api/playback/active", body: body, timeoutMs: 20000, expectJson: true, interruptible: false})
+        if restore.ok and restore.data <> invalid and Type(restore.data) = "roAssociativeArray" and restore.data.active = true
+            candidate = PorticoPlaybackFromResponse(restore.data.playback, PorticoPlaybackCurrentServerSession(controller))
+            if candidate <> invalid and candidate.sessionId = pending.sessionId then retained = candidate
+        end if
+    end if
+    if not PorticoPlaybackClearPendingMutation(controller)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    if retained <> invalid
+        retainedKind = "vod"
+        if retained.isLive = true then retainedKind = "live"
+        retained.targetKind = retainedKind
+        preflight = PorticoPlaybackPreflightSource(controller, retained)
+        if preflight.ok
+            PorticoPlaybackAdoptRouteReplacement(controller, retained, retainedKind, retained.mediaId)
+            controller.errorCode = "playback-replacement-rejected"
+            PorticoPlaybackPublish(controller, false)
+            return
+        end if
+    end if
+    controller.status = controller.playerState
+    controller.errorCode = "playback-replacement-rejected"
+    controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
+    controller.heartbeatScheduled = true
+    PorticoPlaybackScheduleGrantRenewal(controller)
+    PorticoPlaybackPublish(controller, false)
+    PorticoPlaybackDispatchProgress(controller)
+end sub
+
+sub PorticoPlaybackAdoptHandoffReplacement(controller as object, replacement as object, autoplay as boolean)
+    controller.playback = replacement
+    controller.lastTargetKind = "vod"
+    controller.lastTargetId = replacement.mediaId
+    controller.playbackGeneration = controller.playbackGeneration + 1
+    controller.sourceGeneration = controller.sourceGeneration + 1
+    controller.playerState = "paused"
+    controller.positionSeconds = replacement.resumePositionSeconds
+    controller.durationSeconds = replacement.durationSeconds
+    controller.status = "ready"
+    controller.errorCode = ""
+    if autoplay then controller.automaticAdvances = controller.automaticAdvances + 1
+    controller.preparedNext = invalid
+    controller.preparedHandoffStarted = false
+    controller.postplayPhase = "inactive"
+    controller.postplayDeadlineAt = 0
+    controller.stillWatchingRequired = false
+    controller.dismissedSegmentIds = {}
+    controller.segmentDirective = invalid
+    controller.reconnectRequestedSessionGeneration = -1
+    controller.grantRenewalFailures = 0
+    controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
+    controller.heartbeatScheduled = true
+    PorticoPlaybackScheduleGrantRenewal(controller)
+    PorticoPlaybackPublish(controller, false)
+end sub
+
+sub PorticoPlaybackFallbackCompletedTerminal(controller as object, handoff as object)
+    requestId = PorticoPlaybackSafeRequestId(PorticoHttpNewRequestId())
+    if requestId = ""
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-delayed", false)
+        return
+    end if
+    body = {requestId: requestId, terminal: handoff.terminal}
+    replacement = PorticoPlaybackPendingMutation(controller, "terminal", handoff.sessionId, body, {requestId: requestId, terminal: handoff.terminal}, "ended", "next-playback-unavailable", "", false)
+    if not PorticoPlaybackPersistPendingMutation(controller, replacement)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    controller.pendingMutation = replacement
+    controller.preparedNext = invalid
+    controller.preparedHandoffStarted = false
+    PorticoPlaybackDispatchPendingMutation(controller)
+end sub
+
+sub PorticoPlaybackRejectExplicitHandoff(controller as object)
+    if not PorticoPlaybackClearPendingMutation(controller)
+        PorticoPlaybackScheduleMutationRetry(controller, "playback-terminal-storage-unavailable", false)
+        return
+    end if
+    controller.preparedNext = invalid
+    controller.preparedHandoffStarted = false
+    controller.postplayPhase = "manual"
+    controller.status = controller.playerState
+    controller.errorCode = "next-playback-unavailable"
+    controller.nextHeartbeatAtSeconds = controller.clock.TotalSeconds() + 10
+    controller.heartbeatScheduled = true
+    PorticoPlaybackPublish(controller, false)
+end sub
+
+sub PorticoPlaybackDropProgress(controller as object)
+    if controller.progressRequest <> invalid and controller.progressRequest.transfer <> invalid then controller.progressRequest.transfer.AsyncCancel()
+    controller.progressRequest = invalid
+    controller.progressPending = invalid
+    m.top.contentNode = invalid
 end sub
 
 sub PorticoPlaybackRenewGrant(controller as object, userInitiated as boolean)
@@ -1557,106 +1999,59 @@ function PorticoPlaybackStopActive(controller as object, reportFinalProgress as 
         return true
     end if
     active = controller.playback
-    controller.status = "stopping"
-    PorticoPlaybackPublish(controller, false)
-    if reportFinalProgress
-        controller.pendingStop = {sessionId: active.sessionId, remoteMessage: ""}
-        PorticoPlaybackSendProgress(controller, false)
-        if controller.pendingStop <> invalid then return false
-    end if
-    if controller.playback <> invalid
-        PorticoPlaybackAuthenticatedRequest(controller, {
-            method: "DELETE",
-            path: "/api/playback-sessions/" + active.sessionId,
-            body: "",
-            timeoutMs: 8000,
-            expectJson: true,
-            interruptible: false
-        })
-    end if
-    PorticoPlaybackResetActive(controller)
-    controller.status = "idle"
-    controller.errorCode = ""
-    PorticoPlaybackPublish(controller, false)
-    return true
+    return PorticoPlaybackBeginTerminal(controller, active, "stopped", "idle", "", "")
 end function
 
 sub PorticoPlaybackRemoteStop(controller as object, rawMessage as dynamic)
     if controller.playback = invalid then return
     message = PorticoCoreSafeText(rawMessage, 500)
-    activeSessionId = controller.playback.sessionId
-    controller.status = "stopping"
-    PorticoPlaybackPublish(controller, false)
-    controller.pendingStop = {sessionId: activeSessionId, remoteMessage: message}
-    PorticoPlaybackSendProgress(controller, false)
-    if controller.pendingStop <> invalid then return
-    if controller.playback <> invalid
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + activeSessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-    end if
-    PorticoPlaybackResetActive(controller)
+    finalStatus = "idle"
+    finalError = ""
     if message <> ""
-        controller.status = "error"
-        controller.errorCode = "playback-remote-stopped"
-        controller.remoteStopMessage = message
-    else
-        controller.status = "idle"
-        controller.errorCode = ""
+        finalStatus = "error"
+        finalError = "playback-remote-stopped"
     end if
-    PorticoPlaybackPublish(controller, false)
-end sub
-
-sub PorticoPlaybackFinishPendingStop(controller as object)
-    pending = controller.pendingStop
-    if pending = invalid then return
-    controller.pendingStop = invalid
-    if controller.serverStatus = "online"
-        PorticoPlaybackAuthenticatedRequest(controller, {method: "DELETE", path: "/api/playback-sessions/" + pending.sessionId, body: "", timeoutMs: 8000, expectJson: true, interruptible: false})
-    end if
-    pendingStart = controller.pendingStart
-    controller.pendingStart = invalid
-    PorticoPlaybackResetActive(controller)
-    if pending.remoteMessage <> ""
-        controller.status = "error"
-        controller.errorCode = "playback-remote-stopped"
-        controller.remoteStopMessage = pending.remoteMessage
-    else
-        controller.status = "idle"
-        controller.errorCode = ""
-    end if
-    PorticoPlaybackPublish(controller, false)
-    if pendingStart <> invalid then PorticoPlaybackStart(controller, pendingStart)
+    PorticoPlaybackBeginTerminal(controller, controller.playback, "stopped", finalStatus, finalError, message)
 end sub
 
 sub PorticoPlaybackApplyTransitionFence(controller as object)
-    activeSessionId = ""
-    if controller.playback <> invalid then activeSessionId = PorticoPlaybackSafeId(controller.playback.sessionId)
     controller.watchAuthority = "independent"
-    ' Revoke the private source and all local playback state before attempting
-    ' remote cleanup. Viewer teardown must never wait on the server.
+    PorticoPlaybackStageTransitionTerminal(controller, true)
+end sub
+
+sub PorticoPlaybackStageTransitionTerminal(controller as object, dispatch as boolean)
+    storageFailure = false
+    if controller.playback <> invalid and controller.pendingMutation = invalid
+        terminalRequest = PorticoPlaybackTerminalRequest(controller, controller.playback, "stopped")
+        if terminalRequest <> invalid
+            mutation = PorticoPlaybackPendingMutation(controller, "terminal", controller.playback.sessionId, terminalRequest, terminalRequest, "idle", "", "", false)
+            if PorticoPlaybackPersistPendingMutation(controller, mutation)
+                controller.pendingMutation = mutation
+            else
+                storageFailure = true
+            end if
+        else
+            storageFailure = true
+        end if
+    end if
+    ' Private media authority is revoked locally at the viewer boundary. The
+    ' exact persisted terminal remains independently retryable.
     PorticoPlaybackResetActive(controller)
     controller.status = "idle"
     controller.errorCode = ""
-    PorticoPlaybackPublish(controller, false)
-    if activeSessionId <> "" and controller.serverStatus = "online"
-        PorticoPlaybackAuthenticatedRequest(controller, {
-            method: "DELETE",
-            path: "/api/playback-sessions/" + activeSessionId,
-            body: "",
-            timeoutMs: 3000,
-            expectJson: true,
-            interruptible: false
-        })
+    if storageFailure
+        controller.status = "error"
+        controller.errorCode = "playback-terminal-storage-unavailable"
     end if
+    PorticoPlaybackPublish(controller, false)
+    if dispatch and controller.pendingMutation <> invalid then PorticoPlaybackDispatchPendingMutation(controller)
 end sub
 
 sub PorticoPlaybackResetActive(controller as object)
     if controller.progressRequest <> invalid and controller.progressRequest.transfer <> invalid then controller.progressRequest.transfer.AsyncCancel()
     controller.progressRequest = invalid
     controller.progressPending = invalid
-    controller.pendingCompletion = false
-    controller.pendingStop = invalid
     controller.pendingStart = invalid
-    controller.terminalProgress = invalid
     if controller.preparedNext <> invalid then controller.preparedNext = invalid
     controller.playback = invalid
     controller.playerState = "paused"
@@ -1687,18 +2082,11 @@ sub PorticoPlaybackFail(controller as object, code as string, reconnectRequired 
 end sub
 
 sub PorticoPlaybackFatalActive(controller as object, code as string)
-    if controller.playback <> invalid
-        activeSessionId = controller.playback.sessionId
-        PorticoPlaybackAuthenticatedRequest(controller, {
-            method: "DELETE",
-            path: "/api/playback-sessions/" + activeSessionId,
-            body: "",
-            timeoutMs: 5000,
-            expectJson: true,
-            interruptible: false
-        })
+    if controller.playback = invalid
+        PorticoPlaybackFail(controller, code, false)
+        return
     end if
-    PorticoPlaybackFail(controller, code, false)
+    PorticoPlaybackBeginTerminal(controller, controller.playback, "stopped", "error", code, "")
 end sub
 
 sub PorticoPlaybackRequestReconnect(controller as object)
@@ -1852,10 +2240,21 @@ function PorticoPlaybackHttp(controller as object, session as object, rawRequest
         if message <> invalid and Type(message) = "roUrlEvent" and message.GetSourceIdentity() = identity
             status = message.GetResponseCode()
             if status < 0 then return PorticoPlaybackHttpFailure(status, true, "transport_error", false)
-            classification = PorticoHttpClassifyStatus(status)
-            if classification.classification <> "success" then return PorticoPlaybackHttpFailure(status, classification.retryable, classification.classification, false)
             payload = message.GetString()
             if Len(payload) > PorticoHttpLimits().maximumResponseBytes then return PorticoPlaybackHttpFailure(status, false, "response_too_large", false)
+            classification = PorticoHttpClassifyStatus(status)
+            if classification.classification <> "success"
+                failure = PorticoPlaybackHttpFailure(status, classification.retryable, classification.classification, false)
+                parsedError = PorticoHttpParseJson(payload)
+                if parsedError.ok and parsedError.value <> invalid and Type(parsedError.value) = "roAssociativeArray"
+                    failure.serverCode = LCase(PorticoCoreSafeText(parsedError.value.code, 80))
+                    if parsedError.value.details <> invalid and Type(parsedError.value.details) = "roAssociativeArray"
+                        replacementSessionId = PorticoPlaybackSafeId(parsedError.value.details.replacementSessionId)
+                        if replacementSessionId <> "" then failure.details.replacementSessionId = replacementSessionId
+                    end if
+                end if
+                return failure
+            end if
             parsed = PorticoHttpParseJson(payload)
             if request.expectJson and not parsed.ok then return PorticoPlaybackHttpFailure(status, false, "parse_error", false)
             return { interrupted: false, ok: true, status: status, retryable: false, data: parsed.value, missingSession: false }
@@ -1866,7 +2265,7 @@ function PorticoPlaybackHttp(controller as object, session as object, rawRequest
 end function
 
 function PorticoPlaybackHttpFailure(status as integer, retryable as boolean, code as string, missingSession as boolean) as object
-    return { interrupted: false, ok: false, status: status, retryable: retryable, data: invalid, code: code, missingSession: missingSession }
+    return { interrupted: false, ok: false, status: status, retryable: retryable, data: invalid, code: code, serverCode: "", details: {}, missingSession: missingSession }
 end function
 
 function PorticoPlaybackInterrupted(controller as object) as boolean

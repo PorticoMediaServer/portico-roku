@@ -194,10 +194,12 @@ sub PorticoWatchWithFriendsControl(controller as object, command as object)
     }
     position = PorticoWatchWithFriendsNonNegativeInteger(command.positionSeconds, -1)
     mediaId = PorticoViewerScopeOpaqueId(command.mediaId, 128)
+    entryId = PorticoViewerScopeOpaqueId(command.entryId, 128)
     if action = "seek" and position < 0 then return
-    if action = "load" and mediaId = "" then return
+    if action = "load" and ((mediaId = "" and entryId = "") or (mediaId <> "" and entryId <> "")) then return
     if position >= 0 then body.positionSeconds = position
     if mediaId <> "" then body.mediaId = mediaId
+    if entryId <> "" then body.entryId = entryId
     rate = PorticoWatchWithFriendsRate(command.playbackRate)
     if rate <> invalid then body.playbackRate = rate
     PorticoWatchWithFriendsMutate(controller, "patchWatchWithFriendsGroupsGroupIdState", {groupId: controller.group.id}, body, "", "control-failed", true)
@@ -234,18 +236,20 @@ end sub
 
 sub PorticoWatchWithFriendsQueueReorder(controller as object, command as object)
     if controller.group = invalid or controller.group.permissions.canManageQueue <> true then return
-    mediaIds = PorticoWatchWithFriendsMediaIds(command.mediaIds)
-    if mediaIds = invalid then return
-    body = {mediaIds: mediaIds, expectedRevision: controller.group.revision, idempotencyKey: PorticoWatchWithFriendsIdempotencyKey(controller, "queue-order")}
+    entryId = PorticoViewerScopeOpaqueId(command.entryId, 128)
+    destinationEntryId = PorticoViewerScopeOpaqueId(command.destinationEntryId, 128)
+    placement = LCase(PorticoCoreSafeText(command.placement, 8))
+    if entryId = "" or destinationEntryId = "" or entryId = destinationEntryId or (placement <> "before" and placement <> "after") then return
+    body = {entryId: entryId, destinationEntryId: destinationEntryId, placement: placement, expectedRevision: controller.group.revision, idempotencyKey: PorticoWatchWithFriendsIdempotencyKey(controller, "queue-order")}
     PorticoWatchWithFriendsMutate(controller, "patchWatchWithFriendsGroupsGroupIdQueue", {groupId: controller.group.id}, body, "", "queue-failed", true)
 end sub
 
 sub PorticoWatchWithFriendsQueueRemove(controller as object, command as object)
     if controller.group = invalid or controller.group.permissions.canManageQueue <> true then return
-    mediaId = PorticoViewerScopeOpaqueId(command.mediaId, 128)
-    if mediaId = "" then return
+    entryId = PorticoViewerScopeOpaqueId(command.entryId, 128)
+    if entryId = "" then return
     query = PorticoWatchWithFriendsRevisionQuery(controller, "queue-remove")
-    PorticoWatchWithFriendsMutate(controller, "deleteWatchWithFriendsGroupsGroupIdQueueMediaId", {groupId: controller.group.id, mediaId: mediaId}, invalid, query, "queue-failed", true)
+    PorticoWatchWithFriendsMutate(controller, "deleteWatchWithFriendsGroupsGroupIdQueueEntryId", {groupId: controller.group.id, entryId: entryId}, invalid, query, "queue-failed", true)
 end sub
 
 sub PorticoWatchWithFriendsLocalPlayback(controller as object, command as object)
@@ -458,8 +462,8 @@ function PorticoWatchWithFriendsLatestEventGroup(events as dynamic, expectedGrou
 end function
 
 function PorticoWatchWithFriendsEventGroupExact(value as dynamic) as boolean
-    if value = invalid or Type(value) <> "roAssociativeArray" or value.Count() <> 22 then return false
-    allowed = {id: true, name: true, ownerProfileId: true, ownerName: true, mediaId: true, mediaTitle: true, state: true, positionSeconds: true, positionUpdatedAt: true, serverTime: true, playbackRate: true, revision: true, playbackRevision: true, reconnectGeneration: true, permissions: true, shuffleEnabled: true, repeatMode: true, command: true, members: true, queue: true, createdAt: true, updatedAt: true}
+    if value = invalid or Type(value) <> "roAssociativeArray" or value.Count() <> 23 then return false
+    allowed = {id: true, name: true, ownerProfileId: true, ownerName: true, mediaId: true, currentEntryId: true, mediaTitle: true, state: true, positionSeconds: true, positionUpdatedAt: true, serverTime: true, playbackRate: true, revision: true, playbackRevision: true, reconnectGeneration: true, permissions: true, shuffleEnabled: true, repeatMode: true, command: true, members: true, queue: true, createdAt: true, updatedAt: true}
     for each key in value
         if allowed[key] <> true then return false
     end for
@@ -673,19 +677,6 @@ function PorticoWatchWithFriendsRevisionQuery(controller as object, operation as
     if transfer = invalid or controller.group = invalid then return ""
     key = PorticoWatchWithFriendsIdempotencyKey(controller, operation)
     return "?expectedRevision=" + controller.group.revision.ToStr() + "&idempotencyKey=" + transfer.Escape(key)
-end function
-
-function PorticoWatchWithFriendsMediaIds(value as dynamic) as dynamic
-    if value = invalid or GetInterface(value, "ifArray") = invalid or value.Count() > 200 then return invalid
-    result = []
-    seen = {}
-    for each raw in value
-        id = PorticoViewerScopeOpaqueId(raw, 128)
-        if id = "" or seen[id] = true then return invalid
-        seen[id] = true
-        result.Push(id)
-    end for
-    return result
 end function
 
 sub PorticoWatchWithFriendsFailure(controller as object, response as object, fallback as string)

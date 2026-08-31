@@ -23,12 +23,11 @@ const expectedOperations = [
   ['pollApplicationEvents', '/events/poll', 'authenticated', 'ApplicationEventLongPollEnvelope'],
   ['pollViewerNotificationInvalidations', '/notifications/events/poll', 'authenticated', 'NotificationInvalidationLongPollEnvelope'],
   ['pollPlaybackSessionCommands', '/playback-sessions/{sessionId}/command/events/poll', 'play-media', 'PlaybackCommandLongPollEnvelope'],
-  ['pollPlaybackReceiverEvents', '/playback/receivers/{receiverId}/events/poll', 'play-media', 'PlaybackReceiverLongPollEnvelope'],
   ['pollWatchWithFriendsGroupEvents', '/watch-with-friends/groups/{groupId}/events/poll', 'play-media', 'WatchWithFriendsLongPollEnvelope'],
 ];
 
 const pollOperations = operations.filter(operation => operation.service === 'server' && operation.path.endsWith('/poll'));
-assert.equal(pollOperations.length, expectedOperations.length, 'Roku contract must expose exactly the five approved v1 long-poll operations');
+assert.equal(pollOperations.length, expectedOperations.length, 'Roku contract must expose exactly the four approved v1 long-poll operations');
 for (const [operationId, path, permission, responseSchema] of expectedOperations) {
   const operation = pollOperations.find(candidate => candidate.operationId === operationId);
   assert.ok(operation, `${operationId} is missing from the generated Roku Operation Contract`);
@@ -44,14 +43,42 @@ for (const [operationId, path, permission, responseSchema] of expectedOperations
   assert.match(runtime, new RegExp(`\\b${operationId}\\b`), `${operationId} has no Roku runtime consumer`);
 }
 
+// The old Server-relayed receiver command stream was superseded by key-bound,
+// direct receiver authorization. Roku must stay fail-closed until it implements
+// that protocol; retaining a generated legacy operation would falsely advertise
+// a route the Server no longer publishes.
+for (const removed of [
+  'postPlaybackReceivers',
+  'patchPlaybackReceiversReceiverId',
+  'postPlaybackReceiversReceiverIdCommand',
+  'pollPlaybackReceiverEvents',
+]) {
+  assert.equal(operations.some(operation => operation.operationId === removed), false, `${removed} must not be advertised`);
+}
+
 assert.deepEqual(productContract.eventTransports, ['sse', 'long-poll']);
 assert.deepEqual(productContract.longPoll, {
   defaultWaitSeconds: 20,
   maximumConcurrentStreams: 4,
   maximumWaitSeconds: 25,
 });
+assert.deepEqual(productContract.semanticIdentity, {
+  digest: 'b4e5d9085d5bff25a281c7ee5bb1a8a547dda9e52e66b38bdada2745a74cbba9',
+  digestAlgorithm: 'sha256',
+  id: 'portico.product-contract',
+  revision: 'v2',
+});
+assert.deepEqual(productContract.applicationEvents.eventTypes, ['data.changed', 'library.scan.completed']);
+assert.deepEqual(productContract.applicationEvents.authoritativeResetErrorCodes, ['invalid_poll_cursor']);
+assert.equal(productContract.applicationEvents.longPollResetField, 'resetRequired');
 assert.match(productContractValidator, /eventTransports: true/);
 assert.match(productContractValidator, /longPoll: true/);
+assert.match(productContractValidator, /semanticIdentity: true/);
+assert.match(productContractValidator, /applicationEvents: true/);
+assert.match(productContractValidator, /PorticoProductContractSemanticIdentityValid/);
+assert.match(productContractValidator, /PorticoProductContractSystemSupports/);
+assert.match(productContractValidator, /PorticoProductContractValidateApplicationEvents/);
+assert.match(productContractValidator, /productContractRevision: contract\.semanticIdentity\.digest/);
 assert.match(productContractValidator, /PorticoProductContractValidateEventTransports/);
 assert.match(productContractValidator, /PorticoProductContractValidateLongPoll/);
 assert.match(productContractValidator, /PorticoProductContractStringArrayValid\(transports, 2, 9, true, allowed, true\)/);

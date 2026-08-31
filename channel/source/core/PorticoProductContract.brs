@@ -45,7 +45,7 @@ function PorticoProductContractDiscoveryEnvelope() as object
     end if
     contract = contractResult.value.contract
     return {
-        ok: true, code: "", productContractRevision: contract.actionRevision,
+        ok: true, code: "", productContractRevision: contract.semanticIdentity.digest,
         apiVersion: contract.apiVersion, languageRevision: contract.language.revision
     }
 end function
@@ -80,8 +80,9 @@ end function
 
 function PorticoProductContractValidate(contract as dynamic) as object
     if not PorticoCoreIsAssociativeArray(contract) then return { ok: false, code: "invalid_product_contract" }
-    if not PorticoProductContractKeysAllowed(contract, {apiVersion: true, actionRevision: true, language: true, libraryKinds: true, entityKinds: true, entitySemantics: true, artworkRoles: true, browseFields: true, browseSorts: true, browseOperators: true, presentationFields: true, queryLimits: true, search: true, mediaActions: true, serverCapabilities: true, eventTransports: true, longPoll: true}, 17) then return {ok: false, code: "invalid_product_contract"}
+    if not PorticoProductContractKeysAllowed(contract, {apiVersion: true, actionRevision: true, semanticIdentity: true, language: true, libraryKinds: true, entityKinds: true, entitySemantics: true, artworkRoles: true, browseFields: true, browseSorts: true, browseOperators: true, presentationFields: true, queryLimits: true, search: true, mediaActions: true, serverCapabilities: true, eventTransports: true, longPoll: true, applicationEvents: true}, 19) then return {ok: false, code: "invalid_product_contract"}
     if contract.apiVersion <> "v1" or contract.actionRevision <> "v1" then return { ok: false, code: "incompatible_product_contract" }
+    if not PorticoProductContractSemanticIdentityValid(contract.semanticIdentity) then return {ok: false, code: "incompatible_product_contract_semantics"}
     if not PorticoProductContractLanguageValid(contract.language) then return {ok: false, code: "incompatible_product_language_reference"}
 
     if not PorticoProductContractStringArrayValid(contract.entityKinds, 128, 80, true, invalid, true) then return {ok: false, code: "invalid_product_contract_entity_kinds"}
@@ -89,6 +90,7 @@ function PorticoProductContractValidate(contract as dynamic) as object
     if not PorticoProductContractStringArrayValid(contract.serverCapabilities, 256, 120, true, invalid, false) then return {ok: false, code: "invalid_product_contract_capabilities"}
     if not PorticoProductContractValidateEventTransports(contract.eventTransports) then return {ok: false, code: "invalid_product_contract_event_transport"}
     if not PorticoProductContractValidateLongPoll(contract.longPoll) then return {ok: false, code: "invalid_product_contract_long_poll"}
+    if not PorticoProductContractValidateApplicationEvents(contract.applicationEvents) then return {ok: false, code: "invalid_product_contract_application_events"}
     entityKinds = PorticoProductContractStringSet(contract.entityKinds)
     presentationFields = PorticoProductContractStringSet(contract.presentationFields)
     if entityKinds = invalid or presentationFields = invalid then return {ok: false, code: "invalid_product_contract"}
@@ -114,6 +116,42 @@ function PorticoProductContractValidate(contract as dynamic) as object
     return { ok: true, code: "" }
 end function
 
+' Product semantics are identified independently from build and endpoint API
+' revisions. The System document and Product Contract must name the exact same
+' immutable semantic payload before any contract-derived behavior is published.
+function PorticoProductContractSemanticIdentityValid(value as dynamic) as boolean
+    if not PorticoCoreIsAssociativeArray(value) then return false
+    if not PorticoProductContractKeysAllowed(value, {id: true, revision: true, digestAlgorithm: true, digest: true}, 4) then return false
+    if value.Count() <> 4 then return false
+    if value.id <> "portico.product-contract" or value.revision <> "v2" or value.digestAlgorithm <> "sha256" then return false
+    digest = PorticoProductContractRequiredText(value.digest, 64)
+    if Len(digest) <> 64 or digest <> LCase(digest) then return false
+    hexadecimal = {"0": true, "1": true, "2": true, "3": true, "4": true, "5": true, "6": true, "7": true, "8": true, "9": true, a: true, b: true, c: true, d: true, e: true, f: true}
+    for index = 1 to 64
+        if hexadecimal[Mid(digest, index, 1)] <> true then return false
+    end for
+    return true
+end function
+
+function PorticoProductContractSemanticIdentityEquals(left as dynamic, right as dynamic) as boolean
+    if not PorticoProductContractSemanticIdentityValid(left) or not PorticoProductContractSemanticIdentityValid(right) then return false
+    return left.id = right.id and left.revision = right.revision and left.digestAlgorithm = right.digestAlgorithm and left.digest = right.digest
+end function
+
+function PorticoProductContractSystemSupports(system as dynamic, contract as dynamic) as boolean
+    if not PorticoCoreIsAssociativeArray(system) or system.apiVersion <> "v1" then return false
+    compatibility = system.compatibility
+    if not PorticoCoreIsAssociativeArray(compatibility) then return false
+    if not PorticoProductContractIntegerInRange(compatibility.envelopeRevision, 2, 2) then return false
+    protocol = compatibility.supportedClientProtocol
+    if not PorticoCoreIsAssociativeArray(protocol) then return false
+    if not PorticoProductContractIntegerInRange(protocol.minimum, 1, 1) then return false
+    if not PorticoProductContractIntegerInRange(protocol.maximum, 1, 2147483647) then return false
+    semanticDocuments = compatibility.semanticDocuments
+    if not PorticoCoreIsAssociativeArray(semanticDocuments) then return false
+    return PorticoProductContractSemanticIdentityEquals(semanticDocuments.productContract, contract.semanticIdentity)
+end function
+
 function PorticoProductContractValidateEventTransports(transports as dynamic) as boolean
     allowed = {sse: true, "long-poll": true}
     return PorticoProductContractStringArrayValid(transports, 2, 9, true, allowed, true)
@@ -126,6 +164,19 @@ function PorticoProductContractValidateLongPoll(longPoll as dynamic) as boolean
     if not PorticoProductContractIntegerInRange(longPoll.defaultWaitSeconds, 20, 20) then return false
     if not PorticoProductContractIntegerInRange(longPoll.maximumWaitSeconds, 25, 25) then return false
     return PorticoProductContractIntegerInRange(longPoll.maximumConcurrentStreams, 4, 4)
+end function
+
+function PorticoProductContractValidateApplicationEvents(value as dynamic) as boolean
+    if not PorticoCoreIsAssociativeArray(value) then return false
+    if not PorticoProductContractKeysAllowed(value, {revision: true, eventTypes: true, tags: true, authoritativeResetErrorCodes: true, longPollResetField: true}, 5) then return false
+    if value.Count() <> 5 or value.revision <> "v1" or value.longPollResetField <> "resetRequired" then return false
+    eventTypes = {"data.changed": true, "library.scan.completed": true}
+    if not PorticoProductContractStringArrayValid(value.eventTypes, 2, 80, true, eventTypes, true) then return false
+    if value.eventTypes.Count() <> 2 then return false
+    if not PorticoProductContractStringArrayValid(value.tags, 64, 120, true, invalid, true) then return false
+    resetCodes = {invalid_poll_cursor: true}
+    if not PorticoProductContractStringArrayValid(value.authoritativeResetErrorCodes, 1, 80, true, resetCodes, true) then return false
+    return value.authoritativeResetErrorCodes.Count() = 1
 end function
 
 function PorticoProductContractLanguageValid(value as dynamic) as boolean

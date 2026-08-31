@@ -22,9 +22,8 @@ end function
 
 function PorticoPlaybackPortableIntent(preferences as dynamic, profile as dynamic) as object
     intent = {
-        networkClass: "unknown",
         transportClass: "unknown",
-        qualityProfile: "automatic",
+        quality: {mode: "automatic"},
         directPlayPolicy: "prefer",
         directStreamPolicy: "allow",
         transcodePolicy: "allow",
@@ -32,19 +31,13 @@ function PorticoPlaybackPortableIntent(preferences as dynamic, profile as dynami
     }
     PorticoPlaybackApplyLanguageIntent(intent, preferences)
     if preferences <> invalid and Type(preferences) = "roAssociativeArray"
-        quality = LCase(PorticoHttpScalarString(preferences.qualityProfile, "automatic"))
-        if quality = "automatic" or quality = "original" or quality = "high" or quality = "standard" or quality = "data_saver" then intent.qualityProfile = quality
         directPlay = LCase(PorticoHttpScalarString(preferences.directPlayPolicy, intent.directPlayPolicy))
         if directPlay = "allow" or directPlay = "prefer" or directPlay = "never" then intent.directPlayPolicy = directPlay
         directStream = LCase(PorticoHttpScalarString(preferences.directStreamPolicy, intent.directStreamPolicy))
         if directStream = "allow" or directStream = "prefer" or directStream = "never" then intent.directStreamPolicy = directStream
         transcode = LCase(PorticoHttpScalarString(preferences.transcodePolicy, intent.transcodePolicy))
         if transcode = "allow" or transcode = "prefer" or transcode = "require" or transcode = "never" then intent.transcodePolicy = transcode
-        intent.networkClass = PorticoPlaybackIntentEnum(preferences.networkClass, ["local", "wifi", "cellular", "unknown"], intent.networkClass)
         intent.transportClass = PorticoPlaybackIntentEnum(preferences.transportClass, ["wifi", "cellular", "wired", "unknown"], intent.transportClass)
-        if preferences.maxVideoBitrateMbps <> invalid then intent.maxVideoBitrateMbps = PorticoPlaybackBoundedSeconds(preferences.maxVideoBitrateMbps, 0)
-        if preferences.maxAudioBitrateKbps <> invalid then intent.maxAudioBitrateKbps = PorticoPlaybackBoundedSeconds(preferences.maxAudioBitrateKbps, 0)
-        if preferences.maxVideoHeight <> invalid then intent.maxVideoHeight = PorticoPlaybackBoundedSeconds(preferences.maxVideoHeight, 0)
         allowHdrType = LCase(Type(preferences.allowHdr))
         if allowHdrType = "boolean" or allowHdrType = "roboolean" then intent.allowHdr = preferences.allowHdr = true
     end if
@@ -204,10 +197,16 @@ function PorticoPlaybackFromResponse(data as dynamic, serverSession as object) a
     ' declared default resource must resolve to that same server-issued URL.
     if selectedResource.sourceUrl <> source.sourceUrl then return invalid
 
+    qualityOffers = PorticoPlaybackQualityOffers(data.qualityOffers)
+    if qualityOffers = invalid or qualityOffers.mediaId <> mediaId then return invalid
+    qualitySelection = PorticoPlaybackQualitySelection(data.qualitySelection, qualityOffers)
+    if qualitySelection = invalid then return invalid
+
     sessionGeneration = PorticoPlaybackBoundedSeconds(data.generation, -1)
     queueRevision = PorticoPlaybackBoundedSeconds(data.queueRevision, -1)
     playbackRevision = PorticoPlaybackBoundedSeconds(data.playbackRevision, -1)
-    if sessionGeneration < 0 or queueRevision < 0 or playbackRevision < 0 then return invalid
+    currentQueueEntryId = PorticoPlaybackSafeId(data.currentQueueEntryId)
+    if sessionGeneration < 1 or queueRevision < 0 or playbackRevision < 0 or currentQueueEntryId = "" then return invalid
     repeatMode = LCase(PorticoHttpScalarString(data.repeatMode, "off"))
     if repeatMode <> "off" and repeatMode <> "one" and repeatMode <> "all" then return invalid
 
@@ -229,6 +228,7 @@ function PorticoPlaybackFromResponse(data as dynamic, serverSession as object) a
         sessionGeneration: sessionGeneration,
         queueRevision: queueRevision,
         playbackRevision: playbackRevision,
+        currentQueueEntryId: currentQueueEntryId,
         repeatMode: repeatMode,
         isLive: isLive,
         timelineType: timelineType,
@@ -240,7 +240,8 @@ function PorticoPlaybackFromResponse(data as dynamic, serverSession as object) a
         mediaType: LCase(PorticoPlaybackSafeLabel(media.type, "video", 40)),
         decision: PorticoPlaybackDecision(data.decision),
         resources: resources,
-        qualities: PorticoPlaybackQualities(data.qualities),
+        qualityOffers: qualityOffers,
+        qualitySelection: qualitySelection,
         audioStreams: PorticoPlaybackStreams(data.audioStreams, "audio", ""),
         subtitleStreams: PorticoPlaybackStreams(data.subtitleStreams, "subtitle", grantToken),
         chapters: PorticoPlaybackChapters(data.chapters),
@@ -251,17 +252,46 @@ function PorticoPlaybackFromResponse(data as dynamic, serverSession as object) a
         selectedAudioStreamId: PorticoPlaybackSafeId(data.selectedAudioStreamId),
         selectedSubtitleStreamId: PorticoPlaybackSafeId(data.selectedSubtitleStreamId),
         selectedSubtitleMode: LCase(PorticoHttpScalarString(data.selectedSubtitleMode, "off")),
-        selectedQualityId: PorticoPlaybackSafeId(data.selectedQualityId),
         selectedVersionId: PorticoPlaybackSafeId(data.selectedVersionId),
         apiBaseUrl: serverSession.apiBaseUrl,
         allowInsecureLan: allowInsecureLan
     }
     if playback.selectedSubtitleMode <> "off" and playback.selectedSubtitleMode <> "text" and playback.selectedSubtitleMode <> "burn_in" then return invalid
-    if selectedResource.qualityId <> playback.selectedQualityId then return invalid
     if selectedResource.audioStreamId <> playback.selectedAudioStreamId then return invalid
     if selectedResource.subtitleMode <> playback.selectedSubtitleMode then return invalid
     if selectedResource.subtitleStreamId <> playback.selectedSubtitleStreamId then return invalid
     return playback
+end function
+
+function PorticoPlaybackAuthorityFromResponse(data as dynamic) as dynamic
+    if data = invalid or Type(data) <> "roAssociativeArray" then return invalid
+    sessionId = PorticoPlaybackSafeId(data.sessionId)
+    generation = PorticoPlaybackBoundedSeconds(data.generation, 0)
+    nextEventSequence = PorticoPlaybackBoundedSeconds(data.nextEventSequence, 0)
+    if sessionId = "" or generation < 1 or nextEventSequence < 1 then return invalid
+    timeline = data.timeline
+    isLive = false
+    durationSeconds = 0
+    seekableStartSeconds = 0
+    seekableEndSeconds = 0
+    liveEdgeSeconds = 0
+    if timeline <> invalid and Type(timeline) = "roAssociativeArray"
+        isLive = LCase(PorticoHttpScalarString(timeline.type, "")) = "live"
+        durationSeconds = PorticoPlaybackBoundedSeconds(timeline.durationSeconds, 0)
+        seekableStartSeconds = PorticoPlaybackBoundedSeconds(timeline.seekableStartSeconds, 0)
+        seekableEndSeconds = PorticoPlaybackBoundedSeconds(timeline.seekableEndSeconds, 0)
+        liveEdgeSeconds = PorticoPlaybackBoundedSeconds(timeline.liveEdgeSeconds, 0)
+    end if
+    return {
+        sessionId: sessionId,
+        sessionGeneration: generation,
+        nextEventSequence: nextEventSequence,
+        durationSeconds: durationSeconds,
+        isLive: isLive,
+        seekableStartSeconds: seekableStartSeconds,
+        seekableEndSeconds: seekableEndSeconds,
+        liveEdgeSeconds: liveEdgeSeconds
+    }
 end function
 
 function PorticoPlaybackGrantFromResponse(data as dynamic, apiBaseUrl as string, sourcePath as string, allowInsecureLan = false as boolean) as dynamic
@@ -291,6 +321,7 @@ function PorticoPlaybackProjectionSource(playback as object) as object
         sessionGeneration: playback.sessionGeneration,
         queueRevision: playback.queueRevision,
         playbackRevision: playback.playbackRevision,
+        currentQueueEntryId: playback.currentQueueEntryId,
         repeatMode: playback.repeatMode,
         timelineType: playback.timelineType,
         canPause: playback.canPause,
@@ -298,7 +329,8 @@ function PorticoPlaybackProjectionSource(playback as object) as object
         seekableStartSeconds: playback.seekableStartSeconds,
         seekableEndSeconds: playback.seekableEndSeconds,
         liveEdgeSeconds: playback.liveEdgeSeconds,
-        qualities: playback.qualities,
+        qualityOffers: playback.qualityOffers,
+        qualitySelection: playback.qualitySelection,
         audioStreams: playback.audioStreams,
         subtitleStreams: PorticoPlaybackProjectionSubtitleStreams(playback),
         chapters: playback.chapters,
@@ -309,7 +341,6 @@ function PorticoPlaybackProjectionSource(playback as object) as object
         selectedAudioStreamId: playback.selectedAudioStreamId,
         selectedSubtitleStreamId: playback.selectedSubtitleStreamId,
         selectedSubtitleMode: playback.selectedSubtitleMode,
-        selectedQualityId: playback.selectedQualityId,
         selectedVersionId: playback.selectedVersionId,
         targetKind: playback.targetKind
     }
@@ -356,7 +387,6 @@ function PorticoPlaybackResources(value as dynamic, apiBaseUrl as string, allowI
                     sourceUrl: issued.sourceUrl,
                     streamFormat: format,
                     default: raw.default = true,
-                    qualityId: PorticoPlaybackSafeId(raw.qualityId),
                     audioStreamId: PorticoPlaybackSafeId(raw.audioStreamId),
                     subtitleMode: subtitleMode,
                     subtitleStreamId: PorticoPlaybackSafeId(raw.subtitleStreamId)
@@ -384,21 +414,6 @@ function PorticoPlaybackDefaultResource(resources as object) as dynamic
     end for
     if selected = invalid and resources.Count() = 1 then selected = resources[0]
     return selected
-end function
-
-function PorticoPlaybackResourceFor(playback as object, qualityId as string, audioId as string, subtitleMode as string, subtitleId as string) as dynamic
-    match = invalid
-    for each resource in playback.resources
-        qualityMatches = qualityId = "" or resource.qualityId = qualityId
-        audioMatches = audioId = "" or resource.audioStreamId = audioId
-        subtitleMatches = resource.subtitleMode = subtitleMode and resource.subtitleStreamId = subtitleId
-        if qualityMatches and audioMatches and subtitleMatches
-            if match <> invalid and resource.default <> true then return invalid
-            match = resource
-            if resource.default = true then return resource
-        end if
-    end for
-    return match
 end function
 
 function PorticoPlaybackDecision(value as dynamic) as object
@@ -464,18 +479,49 @@ function PorticoPlaybackProjectionSubtitleStreams(playback as object) as object
     return result
 end function
 
-function PorticoPlaybackQualities(source as dynamic) as object
-    result = []
-    if source = invalid or GetInterface(source, "ifArray") = invalid then return result
-    for each raw in source
-        if result.count() >= 12 then exit for
-        if raw <> invalid and Type(raw) = "roAssociativeArray"
-            id = PorticoPlaybackSafeId(raw.id)
-            label = PorticoPlaybackSafeLabel(raw.label, id, 80)
-            if id <> "" and raw.available <> false then result.push({id: id, label: label, description: PorticoPlaybackSafeLabel(raw.description, "", 120)})
-        end if
+function PorticoPlaybackQualityOffers(source as dynamic) as dynamic
+    if source = invalid or Type(source) <> "roAssociativeArray" then return invalid
+    if PorticoHttpScalarString(source.contractId, "") <> "PC-PLAYBACK" then return invalid
+    if PorticoHttpScalarString(source.schemaVersion, "") <> "quality-offers.v1" then return invalid
+    mediaId = PorticoPlaybackSafeLabel(source.mediaId, "", 256)
+    versionId = PorticoPlaybackSafeLabel(source.versionId, "", 256)
+    sourceRevision = PorticoPlaybackSafeLabel(source.sourceRevision, "", 256)
+    offerRevision = PorticoPlaybackSafeId(source.offerRevision)
+    if mediaId = "" or versionId = "" or sourceRevision = "" or offerRevision = "" then return invalid
+    if source.offers = invalid or GetInterface(source.offers, "ifArray") = invalid or source.offers.Count() < 2 or source.offers.Count() > 24 then return invalid
+    offers = []
+    seen = {}
+    automaticCount = 0
+    for each raw in source.offers
+        if raw = invalid or Type(raw) <> "roAssociativeArray" then return invalid
+        selectionId = PorticoPlaybackSafeId(raw.selectionId)
+        label = PorticoPlaybackSafeLabel(raw.label, "", 80)
+        kind = LCase(PorticoHttpScalarString(raw.kind, ""))
+        if selectionId = "" or label = "" or (kind <> "automatic" and kind <> "original" and kind <> "fixed") then return invalid
+        if seen[selectionId] = true then return invalid
+        seen[selectionId] = true
+        if kind = "automatic" then automaticCount = automaticCount + 1
+        offers.Push({selectionId: selectionId, label: label, kind: kind})
     end for
-    return result
+    if automaticCount <> 1 then return invalid
+    return {offerRevision: offerRevision, offers: offers, mediaId: mediaId, versionId: versionId, sourceRevision: sourceRevision}
+end function
+
+function PorticoPlaybackQualitySelection(source as dynamic, qualityOffers as object) as dynamic
+    if source = invalid or Type(source) <> "roAssociativeArray" then return invalid
+    mode = LCase(PorticoHttpScalarString(source.mode, ""))
+    if mode = "automatic"
+        if source.DoesExist("selectionId") or source.DoesExist("qualityOfferRevision") then return invalid
+        return {mode: "automatic"}
+    end if
+    if mode <> "explicit" then return invalid
+    selectionId = PorticoPlaybackSafeId(source.selectionId)
+    offerRevision = PorticoPlaybackSafeId(source.qualityOfferRevision)
+    if selectionId = "" or offerRevision = "" or offerRevision <> qualityOffers.offerRevision then return invalid
+    for each offer in qualityOffers.offers
+        if offer.selectionId = selectionId and offer.kind <> "automatic" then return {mode: "explicit", selectionId: selectionId, qualityOfferRevision: offerRevision}
+    end for
+    return invalid
 end function
 
 function PorticoPlaybackStreams(source as dynamic, expectedKind as string, expectedGrant as string) as object
@@ -523,9 +569,36 @@ function PorticoPlaybackQueue(source as dynamic) as object
     for each raw in source
         if result.count() >= 50 then exit for
         if raw <> invalid and Type(raw) = "roAssociativeArray"
-            id = PorticoPlaybackSafeId(raw.id)
-            title = PorticoPlaybackSafeLabel(raw.title, "", 140)
-            if id <> "" and title <> "" then result.push({id: id, title: title, subtitle: PorticoPlaybackSafeLabel(raw.parentTitle, "", 100)})
+            entryId = PorticoPlaybackSafeId(raw.entryId)
+            media = raw.media
+            if entryId <> "" and media <> invalid and Type(media) = "roAssociativeArray"
+                mediaId = PorticoPlaybackSafeId(media.id)
+                title = PorticoPlaybackSafeLabel(media.title, "", 140)
+                subtitle = PorticoPlaybackSafeLabel(media.parentTitle, "", 100)
+                if subtitle = "" then subtitle = PorticoPlaybackSafeLabel(media.grandparentTitle, "", 100)
+                if mediaId <> "" and title <> "" then result.push({entryId: entryId, mediaId: mediaId, title: title, subtitle: subtitle})
+            end if
+        end if
+    end for
+    return result
+end function
+
+function PorticoPlaybackQueueHistory(source as dynamic) as object
+    result = []
+    if source = invalid or GetInterface(source, "ifArray") = invalid then return result
+    for each raw in source
+        if result.count() >= 50 then exit for
+        if raw <> invalid and Type(raw) = "roAssociativeArray"
+            historyId = PorticoPlaybackSafeId(raw.historyId)
+            entryId = PorticoPlaybackSafeId(raw.entryId)
+            media = raw.media
+            if historyId <> "" and entryId <> "" and media <> invalid and Type(media) = "roAssociativeArray"
+                mediaId = PorticoPlaybackSafeId(media.id)
+                title = PorticoPlaybackSafeLabel(media.title, "", 140)
+                subtitle = PorticoPlaybackSafeLabel(media.parentTitle, "", 100)
+                if subtitle = "" then subtitle = PorticoPlaybackSafeLabel(media.grandparentTitle, "", 100)
+                if mediaId <> "" and title <> "" then result.push({historyId: historyId, entryId: entryId, mediaId: mediaId, title: title, subtitle: subtitle})
+            end if
         end if
     end for
     return result

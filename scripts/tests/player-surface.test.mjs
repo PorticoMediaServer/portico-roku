@@ -79,6 +79,7 @@ for (const id of ['playback.previous', 'playback.seek-back', 'playback.play', 'p
 assert.match(player, /focusedControl = 0[\s\S]*PorticoPlayerEmit\("previous"/);
 assert.doesNotMatch(player, /focusedControl = 0[\s\S]{0,120}PorticoPlayerSeekTo\(0\)/);
 assert.match(player, /kind: "volume"[\s\S]*kind: "subtitles"[\s\S]*kind: "quality"[\s\S]*kind: "speed"[\s\S]*kind: "sleep"[\s\S]*kind: "queue"/);
+assert.match(player, /panelKind = "queue"[\s\S]*kind: "queue-shuffle"[\s\S]*PorticoPlayerMessage\("action\.shuffle", "Shuffle"/);
 assert.doesNotMatch(player.match(/sub PorticoPlayerBuildUtilities\(\)[\s\S]*?\nend sub/)?.[0] ?? '', /kind: "(?:chapters|settings|lyrics|watch|streams)"/);
 assert.match(transportXml, /PorticoIconResolver\.brs/);
 assert.doesNotMatch(transport, /pkg:\/images\/icons\//);

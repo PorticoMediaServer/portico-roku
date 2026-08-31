@@ -12,7 +12,7 @@ const main = read('channel/source/main.brs');
 // Only the validated, non-private capability projection can enter runtimeState.
 assert.match(task, /PorticoProductContractValidateLive\(contract\.data\)\.ok/);
 assert.match(task, /eventCapabilities = \{[\s\S]*eventTransports: contract\.data\.eventTransports,[\s\S]*longPoll: contract\.data\.longPoll/);
-assert.match(task, /productContractRevision = PorticoViewerScopeOpaqueId\(contract\.data\.actionRevision, 128\)/);
+assert.match(task, /productContractRevision = PorticoViewerScopeOpaqueId\(contract\.data\.semanticIdentity\.digest, 128\)/);
 assert.match(task, /controller\.eventCapabilities = invalid[\s\S]*controller\.productContractRevision = ""/);
 assert.match(bridge, /allowed = \{[\s\S]*productContractRevision: true,[\s\S]*eventCapabilities: true/);
 assert.match(bridge, /result = \{eventTransports: transports\}/);
