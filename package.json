@@ -58,7 +58,7 @@
     "test": "npm run assets && npm run compile && npm run render && npm run test:behavior && npm run compare && npm run verify"
   },
   "devDependencies": {
-    "brighterscript": "0.73.0"
+    "brighterscript": "0.73.1"
   },
   "overrides": {
     "postman-request": {
