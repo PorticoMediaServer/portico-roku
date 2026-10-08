@@ -610,7 +610,7 @@ const write = (name, value) => {
   // The toolbar. `fieldLabel` and `valueText` live in the Apple app beside React Native imports,
   // so they are repeated here from apps/native/src/app/browse.ts and screens/BrowseFilters.tsx;
   // the tables they read are the ones scripts/generate.mjs extracts from that file.
-  const browseSource = readFileSync(join(app, '..', 'native', 'src', 'app', 'browse.ts'), 'utf8');
+  const browseSource = readFileSync(join(process.env.PORTICO_REACT_NATIVE_ROOT ?? join(app, '..', 'portico-react-native'), 'apps', 'native', 'src', 'app', 'browse.ts'), 'utf8');
   const table = pattern => Function(`return (${pattern.exec(browseSource)[1]})`)();
   const fieldNames = table(/const fieldNames: Record<string, string> = (\{[^}]*\});/);
   const quickNames = table(/const names: Record<string, string> = (\{[^}]*\});/);

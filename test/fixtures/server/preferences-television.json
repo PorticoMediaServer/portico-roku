@@ -1053,17 +1053,6 @@
     },
     {
      "consumer": "client.region",
-     "key": "region.timeZone",
-     "type": "timeZone",
-     "default": "auto",
-     "scopes": [
-      "profile-server"
-     ],
-     "group": "region",
-     "labelKey": "preferences.region.timeZone"
-    },
-    {
-     "consumer": "client.region",
      "key": "region.hourCycle",
      "type": "string",
      "default": "auto",
@@ -1239,7 +1228,6 @@
    "quality.wifi.mode": "automatic",
    "region.hourCycle": "auto",
    "region.locale": "auto",
-   "region.timeZone": "auto",
    "search.rememberHistory": true
   },
   "effectiveSource": {
@@ -1301,7 +1289,6 @@
    "quality.wifi.mode": "default",
    "region.hourCycle": "default",
    "region.locale": "profile-server",
-   "region.timeZone": "default",
    "search.rememberHistory": "default"
   },
   "clampedFields": [],

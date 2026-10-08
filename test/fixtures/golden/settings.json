@@ -139,8 +139,6 @@
   "locale.en-US": "English (United States)",
   "locale.en-CA": "English (Canada)",
   "locale.en-GB": "English (United Kingdom)",
-  "preferences.timeZoneUTC": "Coordinated Universal Time (UTC)",
-  "preferences.regionOnWeb": "Change the language and time zone in Portico on the web.",
   "preferences.none": "None",
   "preferences.editOnWeb": "Change this in Portico on the web.",
   "preferences.hide": "Hide",
@@ -352,7 +350,6 @@
   "pref.label.privacy.includeInWatchTogether": "Include me in Watch Together activity",
   "pref.label.search.rememberHistory": "Remember recent searches",
   "pref.label.region.locale": "Language and region",
-  "pref.label.region.timeZone": "Time zone",
   "pref.label.region.hourCycle": "Clock",
   "pref.value.region.hourCycle.auto": "Follow system",
   "pref.value.region.hourCycle.h12": "12-hour",
@@ -11615,7 +11612,6 @@
       "privacy.includeInWatchTogether",
       "search.rememberHistory",
       "region.locale",
-      "region.timeZone",
       "region.hourCycle",
       "home.rowOrder",
       "home.hiddenRowIds",
@@ -12723,8 +12719,8 @@
       "music.crossfadeSeconds",
       "privacy.showActivityToMembers",
       "region.locale",
-      "home.rowOrder",
-      "appearance.cardSizePercent"
+      "home.hiddenRowIds",
+      "appearance.reduceMotion"
      ]
     }
    },
@@ -21581,17 +21577,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -21767,7 +21752,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -21829,7 +21813,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -21896,7 +21879,6 @@
      "privacy.includeInWatchTogether",
      "search.rememberHistory",
      "region.locale",
-     "region.timeZone",
      "region.hourCycle",
      "home.rowOrder",
      "home.hiddenRowIds",
@@ -21977,7 +21959,6 @@
      "quality.wifi.mode": "automatic",
      "region.hourCycle": "auto",
      "region.locale": "auto",
-     "region.timeZone": "auto",
      "search.rememberHistory": true
     },
     "defaults": {
@@ -22033,7 +22014,6 @@
      "privacy.includeInWatchTogether": true,
      "search.rememberHistory": true,
      "region.locale": "auto",
-     "region.timeZone": "auto",
      "region.hourCycle": "auto",
      "home.rowOrder": [],
      "home.hiddenRowIds": [],
@@ -22197,9 +22177,6 @@
       "profile-server"
      ],
      "region.locale": [
-      "profile-server"
-     ],
-     "region.timeZone": [
       "profile-server"
      ],
      "region.hourCycle": [
@@ -23283,17 +23260,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -23469,7 +23435,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -23531,7 +23496,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -23649,7 +23613,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -23711,7 +23674,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -24782,17 +24744,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -24968,7 +24919,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -25030,7 +24980,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -25096,7 +25045,6 @@
      "privacy.includeInWatchTogether",
      "search.rememberHistory",
      "region.locale",
-     "region.timeZone",
      "region.hourCycle",
      "home.rowOrder",
      "home.hiddenRowIds",
@@ -25176,7 +25124,6 @@
      "quality.wifi.mode": "automatic",
      "region.hourCycle": "auto",
      "region.locale": "auto",
-     "region.timeZone": "auto",
      "search.rememberHistory": true
     },
     "defaults": {
@@ -25231,7 +25178,6 @@
      "privacy.includeInWatchTogether": true,
      "search.rememberHistory": true,
      "region.locale": "auto",
-     "region.timeZone": "auto",
      "region.hourCycle": "auto",
      "home.rowOrder": [],
      "home.hiddenRowIds": [],
@@ -25392,9 +25338,6 @@
       "profile-server"
      ],
      "region.locale": [
-      "profile-server"
-     ],
-     "region.timeZone": [
       "profile-server"
      ],
      "region.hourCycle": [
@@ -26478,17 +26421,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -26682,7 +26614,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -26744,7 +26675,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -27815,17 +27745,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -27994,7 +27913,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -28056,7 +27974,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -29127,17 +29044,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -29313,7 +29219,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -29375,7 +29280,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -30446,17 +30350,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -30632,7 +30525,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -30694,7 +30586,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
@@ -31765,17 +31656,6 @@
        },
        {
         "consumer": "client.region",
-        "key": "region.timeZone",
-        "type": "timeZone",
-        "default": "auto",
-        "scopes": [
-         "profile-server"
-        ],
-        "group": "region",
-        "labelKey": "preferences.region.timeZone"
-       },
-       {
-        "consumer": "client.region",
         "key": "region.hourCycle",
         "type": "string",
         "default": "auto",
@@ -31950,7 +31830,6 @@
       "quality.wifi.mode": "automatic",
       "region.hourCycle": "auto",
       "region.locale": "auto",
-      "region.timeZone": "auto",
       "search.rememberHistory": true
      },
      "effectiveSource": {
@@ -32012,7 +31891,6 @@
       "quality.wifi.mode": "default",
       "region.hourCycle": "default",
       "region.locale": "profile-server",
-      "region.timeZone": "default",
       "search.rememberHistory": "default"
      },
      "clampedFields": [],
