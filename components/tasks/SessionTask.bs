@@ -1,0 +1,52 @@
+' Runs one session step in a Task thread and reports its result. The steps themselves, and what
+' each returns, are in source/core/Session.bs and source/core/Hosted.bs.
+import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/Hosted.bs"
+
+sub init()
+    m.top.functionName = "work"
+end sub
+
+sub work()
+    job = m.top.job
+    ctx = SessionContextNew()
+    result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
+    kind = job.kind
+    if kind = "restore" then
+        result = SessionRestore(ctx)
+        result.hosted = HostedLoad(ctx)
+    else if kind = "connect" then
+        result = SessionConnect(ctx, job.address, job.pin)
+    else if kind = "signIn" then
+        result = SessionSignIn(ctx, job.connection, job.username, job.password)
+    else if kind = "challenge" then
+        result = SessionCompleteChallenge(ctx, job.connection, job.token, job.code, job.username)
+    else if kind = "changePassword" then
+        result = SessionChangeRequiredPassword(ctx, job.connection, job.accountSession, job.currentPassword, job.newPassword)
+        ' The password just set is the current one: sign in again with it.
+        if result.ok then result = SessionSignIn(ctx, job.connection, job.username, job.newPassword)
+    else if kind = "chooseProfile" then
+        result = SessionChooseProfile(ctx, job.connection, job.pending, job.profileId, job.pin, job.details)
+    else if kind = "profiles" then
+        result = SessionProfiles(ctx, job.connection, job.token)
+    else if kind = "accountNotices" then
+        result = HostedAccountNotices(ctx, job.ask)
+        result.asked = job.ask.kind
+    else if kind = "avatars" then
+        result = SessionAvatars(ctx, job.connection, job.token)
+    else if kind = "signOut" then
+        SessionSignOut(ctx)
+        result = { ok: true }
+    else if kind = "servers" then
+        result = HostedServers(ctx)
+        result.lastServer = ctx.store.read("portico", "lastHostedServer")
+    else if kind = "openServer" then
+        result = HostedOpen(ctx, job.server)
+    else if kind = "signOutAccount" then
+        SessionSignOut(ctx)
+        HostedSignOut(ctx)
+        result = { ok: true }
+    end if
+    result.kindOfJob = kind
+    m.top.result = result
+end sub

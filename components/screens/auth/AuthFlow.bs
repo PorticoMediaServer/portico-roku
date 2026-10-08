@@ -1,0 +1,130 @@
+' apps/native/src/screens/auth/AuthFlow.tsx, for television. Steps: "welcome" (the activation
+' code), "direct" (a server by address: the address, then its Quick Connect code, or a password)
+' and "landing" (a signed-in Portico Account whose server is opening, being chosen, or failed).
+' A direct account with several profiles lands on the profile picker. Back walks back one step
+' instead of leaving the app; at "welcome" and "landing" it leaves.
+import "pkg:/source/Theme.bs"
+
+sub init()
+    m.session = m.global.session
+    m.step = "welcome"
+    m.directView = "form"
+    m.directStep = "address"
+    m.screen = invalid
+    m.shown = ""
+    for each name in ["hasPending", "hasAccount", "directStep", "phase", "switching"]
+        m.session.observeField(name, "onFlowChange")
+    end for
+end sub
+
+sub enter()
+    ' A sign-in that ended opens where it can be renewed: the direct form with the address filled in.
+    if m.session.note <> "" and m.session.origin <> "" and not m.session.hasAccount then
+        m.step = "direct"
+        m.directView = "form"
+        m.directStep = "password"
+    end if
+    onFlowChange()
+end sub
+
+sub leave()
+    FlowClose()
+end sub
+
+sub FlowClose()
+    if m.screen <> invalid then
+        m.screen.callFunc("leave")
+        m.top.removeChild(m.screen)
+        m.screen = invalid
+    end if
+    m.shown = ""
+end sub
+
+' Which screen the session's state and this flow's step call for.
+function FlowWanted() as string
+    if m.session.hasPending then return "ScreenDirectProfiles"
+    if m.session.hasAccount and m.step <> "landing" and m.step <> "direct" then m.step = "landing"
+    if not m.session.hasAccount and m.step = "landing" then m.step = "welcome"
+    if m.step = "landing" then
+        ' A two-step code or a new password for this server is its own form.
+        stopped = m.session.directStep
+        if stopped = "challenge" or stopped = "password-change" then return "ScreenDirectSignIn"
+        return "ScreenPorticoLanding"
+    end if
+    if m.step = "direct" then
+        if m.directView = "code" and m.session.connection <> invalid and m.session.directStep = "" then return "ScreenQuickConnect"
+        return "ScreenDirectSignIn"
+    end if
+    return "ScreenActivation"
+end function
+
+sub onFlowChange()
+    if m.session.phase = "ready" and not m.session.hasPending and not m.session.switching then return
+    wanted = FlowWanted()
+    if wanted = m.shown then return
+    FlowClose()
+    m.shown = wanted
+    m.screen = m.top.createChild(wanted)
+    if wanted = "ScreenActivation" then
+        m.screen.observeField("directPressed", "onFlowDirect")
+        m.screen.observeField("savedServerPressed", "onFlowSavedServer")
+    else if wanted = "ScreenDirectSignIn" then
+        m.screen.step = m.directStep
+        m.screen.observeField("codeWanted", "onFlowCode")
+    else if wanted = "ScreenQuickConnect" then
+        m.screen.observeField("passwordPressed", "onFlowPassword")
+    else if wanted = "ScreenPorticoLanding" then
+        m.screen.observeField("directPressed", "onFlowDirect")
+    end if
+    m.screen.callFunc("enter")
+end sub
+
+sub onFlowDirect()
+    m.session.callFunc("clearError")
+    m.step = "direct"
+    m.directView = "form"
+    m.directStep = "address"
+    onFlowChange()
+end sub
+
+sub onFlowSavedServer()
+    m.session.callFunc("restore")
+end sub
+
+sub onFlowCode()
+    m.directView = "code"
+    onFlowChange()
+end sub
+
+sub onFlowPassword()
+    m.directView = "form"
+    m.directStep = "password"
+    onFlowChange()
+end sub
+
+function back() as boolean
+    if m.session.hasPending then
+        m.session.callFunc("cancelPending")
+        return true
+    end if
+    if m.step = "welcome" then return false
+    if m.step = "landing" then
+        if m.screen <> invalid and m.shown = "ScreenDirectSignIn" then return m.screen.callFunc("back")
+        return false
+    end if
+    ' "direct": one sub-step at a time.
+    if m.shown = "ScreenQuickConnect" then
+        m.directView = "form"
+        m.directStep = "address"
+        onFlowChange()
+        return true
+    end if
+    if m.screen <> invalid and m.screen.callFunc("back") then return true
+    m.session.callFunc("clearError")
+    m.step = "welcome"
+    if m.session.hasAccount then m.step = "landing"
+    m.directView = "form"
+    m.directStep = "address"
+    onFlowChange()
+    return true
+end function

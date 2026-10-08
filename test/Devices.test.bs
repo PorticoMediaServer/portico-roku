@@ -1,0 +1,55 @@
+' Devices against the real TypeScript (scripts/golden.mjs `devices`): identity-devices.ts
+' `parseDevices`, and what Security.tsx `DevicesSection` says and offers for each.
+import "pkg:/source/core/Devices.bs"
+
+sub Test_Devices_parse()
+    fixture = TestFixture("golden/devices.json")
+    if fixture = invalid then return
+    for each item in fixture.cases
+        parsed = ParseDevices(item.document)
+        AssertEqual(parsed.ok, item.ok, "the devices, " + item.name)
+        if parsed.ok and item.ok then AssertSame(parsed.devices, item.expected, "what each device holds, " + item.name)
+    end for
+    AssertTrue(not ParseDevices(invalid).ok, "no document")
+end sub
+
+sub Test_Devices_rows()
+    GetGlobalAA().messageCatalogue = { "devices.lastSeen": "{platform} · last seen {when}", "device.platform.web": "Web browser", "device.thisDevice": "This device", "device.waiting": "Waiting", "device.signedIn": "Signed in", "device.signedOut": "Signed out", "device.approve": "Approve", "device.deny": "Deny", "device.trust": "Trust", "device.untrust": "Stop trusting", "device.signOutThis": "Sign out of this device", "device.signOutOther": "Sign out", "device.remove": "Remove", "confirm.removeDevice.title": "Remove {device}?", "confirm.removeDevice.body": "It will need to sign in again.", "confirm.signOutThisDevice.title": "Sign out of this device?", "confirm.signOutThisDevice.body": "You’ll need to sign in again.", "confirm.signOutDevice.title": "Sign out {device}?", "action.removeShort": "Remove", "action.signOut": "Sign out" }
+    here = { id: "d1", name: "Living Room", platform: "roku", ip: "192.168.1.20", lastSeen: 0, trusted: true, approvalState: "approved", current: true, sessions: 1 }
+    waiting = { id: "d2", name: "Justin's iPad", platform: "ipados", ip: "", lastSeen: 0, trusted: false, approvalState: "pending", current: false, sessions: 0 }
+    browser = { id: "d3", name: "Browser", platform: "web", ip: "fe80::1", lastSeen: 0, trusted: false, approvalState: "approved", current: false, sessions: 2 }
+    row = DeviceRow(here, "now")
+    AssertEqual(row.badge, "this", "this device is badged")
+    AssertEqual(row.subtitle, "roku · last seen now", "a platform without a name of its own is said as the server names it")
+    AssertEqual(row.icon, "tvDevice", "a Roku is a television")
+    AssertEqual(DeviceRow(waiting, "now").badge, "waiting", "a device waiting for approval says so")
+    AssertEqual(DeviceRow(waiting, "now").icon, "tablet", "an iPad is a tablet")
+    AssertEqual(DeviceRow(browser, "2 hours ago").meta, "Signed in", "a device with sessions is signed in")
+    AssertEqual(DeviceRow(browser, "2 hours ago").subtitle, "Web browser · last seen 2 hours ago", "a known platform in words")
+    AssertEqual(DeviceGlyph("", "Kitchen tablet"), "tablet", "a name that says tablet")
+    AssertEqual(DeviceGlyph("", "Something"), "browser", "anything else is a browser")
+    ids = []
+    for each action in DeviceActions(waiting)
+        ids.push(action.id)
+    end for
+    AssertSame(ids, ["approve", "deny", "trust", "remove"], "a waiting device can be approved, denied, trusted or removed")
+    ids = []
+    for each action in DeviceActions(here)
+        ids.push(action.id)
+    end for
+    AssertSame(ids, ["trust", "signOut"], "this device can be signed out but not removed")
+    AssertEqual(DeviceActions(here)[0].label, "Stop trusting", "a trusted device can stop being trusted")
+    AssertEqual(DeviceMenuLine(browser), "Web browser · fe80::1", "a device's platform and address")
+    AssertEqual(DeviceMenuLine(waiting), "ipados", "no address, no separator")
+    AssertSame(DeviceRequest(waiting, "approve"), { path: "/v1/devices/d2/approval", method: "POST", body: { approved: true } }, "approving")
+    AssertSame(DeviceRequest(waiting, "deny").body, { approved: false }, "denying")
+    AssertSame(DeviceRequest(here, "trust").body, { trusted: false }, "trust is turned over")
+    AssertEqual(DeviceRequest(browser, "signOutConfirmed").path, "/v1/devices/d3/sessions", "signing a device out ends its sessions")
+    AssertEqual(DeviceRequest(browser, "removeConfirmed").method, "DELETE", "removing deletes the device")
+    AssertEqual(DeviceRequest(browser, "remove"), invalid, "removing asks first")
+    AssertEqual(DeviceConfirmWords(browser, "remove").title, "Remove Browser?", "the question before a device is removed")
+    AssertEqual(DeviceConfirmWords(here, "signOut").title, "Sign out of this device?", "the question before this device is signed out")
+    AssertEqual(DeviceConfirmWords(browser, "signOut").body, "", "signing another device out needs no warning")
+    AssertEqual(DevicesPath("in st"), "/v1/devices?installationId=in%20st", "the devices as this installation sees them")
+    GetGlobalAA().messageCatalogue = invalid
+end sub

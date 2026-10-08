@@ -1,0 +1,116 @@
+{
+ "pivot": "authors",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ]
+ },
+ "entries": [
+  {
+   "id": "NHBNPWPZgktSfmYT1B6V-A",
+   "kind": "author",
+   "title": "Andy Weir",
+   "addedAt": null,
+   "count": 2,
+   "navigation": {
+    "view": "author",
+    "entityId": "NHBNPWPZgktSfmYT1B6V-A"
+   }
+  },
+  {
+   "id": "nwIuxcQORVllIvtGHcVwLw",
+   "kind": "author",
+   "title": "Frank Herbert",
+   "addedAt": null,
+   "count": 1,
+   "navigation": {
+    "view": "author",
+    "entityId": "nwIuxcQORVllIvtGHcVwLw"
+   }
+  },
+  {
+   "id": "njv5RVri2nIF-HRV2nF5eQ",
+   "kind": "author",
+   "title": "J. R. R. Tolkien",
+   "addedAt": null,
+   "count": 1,
+   "navigation": {
+    "view": "author",
+    "entityId": "njv5RVri2nIF-HRV2nF5eQ"
+   }
+  },
+  {
+   "id": "7dMuXuSOM2HmuWIeAZrBFw",
+   "kind": "author",
+   "title": "J.K. Rowling",
+   "addedAt": null,
+   "count": 1,
+   "navigation": {
+    "view": "author",
+    "entityId": "7dMuXuSOM2HmuWIeAZrBFw"
+   }
+  },
+  {
+   "id": "GxMNA3KC_Jx_iL5LKxw93A",
+   "kind": "author",
+   "title": "James Clear",
+   "addedAt": null,
+   "count": 1,
+   "navigation": {
+    "view": "author",
+    "entityId": "GxMNA3KC_Jx_iL5LKxw93A"
+   }
+  },
+  {
+   "id": "5zHMH6l7tFBBFudET0KBTw",
+   "kind": "author",
+   "title": "Jane Austen",
+   "addedAt": null,
+   "count": 1,
+   "navigation": {
+    "view": "author",
+    "entityId": "5zHMH6l7tFBBFudET0KBTw"
+   }
+  },
+  {
+   "id": "2BSktW9Nvo4ghrTCi4YHQQ",
+   "kind": "author",
+   "title": "Suzanne Collins",
+   "addedAt": null,
+   "count": 1,
+   "navigation": {
+    "view": "author",
+    "entityId": "2BSktW9Nvo4ghrTCi4YHQQ"
+   }
+  }
+ ],
+ "pageInfo": {
+  "start": 0,
+  "total": 7,
+  "revision": "browse_2b56235e1dc1462a4e8bac1f5155982138fc4115a0e6d4d13d1b1095dec2f645",
+  "hasMore": false,
+  "nextCursor": ""
+ },
+ "positionIndex": [
+  {
+   "key": "A",
+   "index": 0
+  },
+  {
+   "key": "F",
+   "index": 1
+  },
+  {
+   "key": "J",
+   "index": 2
+  },
+  {
+   "key": "S",
+   "index": 6
+  }
+ ]
+}

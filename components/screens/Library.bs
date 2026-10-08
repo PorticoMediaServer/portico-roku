@@ -1,0 +1,1302 @@
+' apps/native/src/screens/Library.tsx (with BrowseFilters.tsx and LibraryTabs.tsx). One library.
+' Its tabs are authored in client-core (core/LibraryTabs.bs): Discover first, then the kind's own.
+' Discover reads the server's rows; every other tab reads the browse engine, except Playlists (the
+' viewer's own). Television layout: the title, then one row with the tabs, Sort, Filter and Jump
+' to, so the tabs are one Up from the grid and nothing sits between the header and the cards.
+'
+' The channel ranks, filters and sorts nothing. The grid is a window over the server's order
+' (core/BrowseWindow.bs): at most five chunks of whole rows are held whatever the library's size,
+' slots that have not arrived are placeholders, and Jump to moves the window to the position the
+' server computed for a letter.
+'
+' Differences from the Apple TV app: on an engine tab the title and the tab row stay above the
+' grid while it scrolls (a MarkupGrid has no header that scrolls away with it).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Content.bs"
+import "pkg:/source/core/Home.bs"
+import "pkg:/source/core/LibraryTabs.bs"
+import "pkg:/source/core/BrowseToolbar.bs"
+import "pkg:/source/core/BrowseWindow.bs"
+import "pkg:/source/core/ContentProjection.bs"
+import "pkg:/source/core/Retry.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    m.engine = m.top.createChild("Group")
+    m.engine.visible = false
+    m.gridHolder = m.engine.createChild("Group")
+    m.head = m.page.body.createChild("Group")
+    m.header = m.head.createChild("UiPageHeader")
+    m.header.headerWidth = m.width
+    m.tabs = m.head.createChild("UiTabs")
+    m.tabs.observeField("chosen", "onLibraryTab")
+    m.bar = m.head.createChild("Group")
+    m.sections = m.page.body.createChild("Group")
+    m.sortMenu = invalid
+    m.filters = invalid
+    m.jump = invalid
+    m.retry = m.top.createChild("Timer")
+    m.retry.duration = RetryPlan(0).seconds
+    m.retry.observeField("fire", "onLibraryRetry")
+
+    m.libraryId = ""
+    m.library = invalid
+    m.tabId = "discover"
+    m.sort = invalid
+    m.published = invalid
+    m.chosen = []
+    m.capabilities = invalid
+    m.capabilityCache = {}
+    m.capabilityCache.setModeCaseSensitive()
+    m.capabilityTask = invalid
+    m.pageTask = invalid
+    m.paging = {}
+    m.rows = []
+    m.shelves = []
+    m.projection = invalid
+    m.loadedAt = 0
+    m.generation = 0
+    m.window = invalid
+    m.grid = invalid
+    m.state = invalid
+    m.notice = invalid
+    m.tasks = {}
+    m.firstTask = invalid
+    m.revision = ""
+    m.anchors = []
+    m.total = -1
+    m.focusAt = 0
+    m.resumeAt = 0
+    m.letter = ""
+    m.covers = {}
+    m.covers.setModeCaseSensitive()
+    m.coverTasks = 0
+    m.claimed = false
+    m.headHeight = 0
+    m.shifting = false
+    m.changes = 0
+    m.wantGrid = false
+    m.barButtons = []
+end sub
+
+' ---- Route and tabs ----------------------------------------------------------------------------
+
+sub enter()
+    route = m.top.route
+    m.libraryId = route.libraryId
+    m.library = LibraryFind(m.libraryId)
+    m.tabId = "discover"
+    if route.tab <> invalid then m.tabId = route.tab
+    m.category = ""
+    if route.category <> invalid then m.category = route.category
+    m.chosen = []
+    ' A genre pressed on a title page opens the grid filtered to it.
+    if route.genre <> invalid then
+        m.tabId = "browse"
+        m.chosen = [GenreFilter(route.genre)]
+    end if
+    LibraryShow()
+end sub
+
+sub resume()
+    changed = PersonalChanges() <> m.changes
+    m.changes = PersonalChanges()
+    if not LibraryIsEngine() and m.pageTask = invalid and LibraryTab(LibraryKind(), m.tabId, LibraryOwner(), true).shows = "rows" and (changed or NowSeconds() - m.loadedAt > HomeStaleSeconds()) then LibraryPageLoad()
+end sub
+
+sub leave()
+    m.retry.control = "stop"
+    m.pageTask = invalid
+    m.capabilityTask = invalid
+    m.firstTask = invalid
+    m.tasks = {}
+    m.paging = {}
+end sub
+
+sub focusEntry()
+    if m.engine.visible then
+        if m.grid <> invalid and m.grid.visible then
+            m.grid.callFunc("focusGrid")
+        else if not FocusFirst(m.tabs) then
+            m.top.setFocus(true)
+        end if
+        return
+    end if
+    if m.shelves.count() > 0 then
+        m.shelves[0].active = true
+        m.shelves[0].callFunc("focusList")
+        m.page.callFunc("follow")
+    else if not FocusFirst(m.tabs) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function LibraryFind(id as string) as dynamic
+    if not m.global.hasField("libraries") or m.global.libraries = invalid then return invalid
+    for each library in m.global.libraries
+        if library.id = id then return library
+    end for
+    return invalid
+end function
+
+function LibraryKind() as string
+    if m.library <> invalid then return m.library.kind
+    return ""
+end function
+
+function LibraryOwner() as boolean
+    viewer = m.global.session.viewer
+    return viewer <> invalid and viewer.viewer <> invalid and viewer.viewer.role = "owner"
+end function
+
+function LibraryServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function LibraryActive() as object
+    return LibraryTab(LibraryKind(), m.tabId, LibraryOwner(), true)
+end function
+
+function LibraryPivot() as string
+    active = LibraryActive()
+    if m.library = invalid or active.shows = "playlists" or active.pivot = invalid then return ""
+    return active.pivot
+end function
+
+function LibraryIsEngine() as boolean
+    return LibraryPivot() <> "" and m.category = ""
+end function
+
+' The published See all in force: a row's own query, on the tab that browses its pivot.
+function LibraryPublished() as dynamic
+    if m.published <> invalid and m.published.pivot = LibraryPivot() then return m.published
+    return invalid
+end function
+
+sub onLibraryTab()
+    id = m.tabs.chosen
+    if id = "" or id = m.tabId then return
+    m.published = invalid
+    LibrarySetTab(id, [])
+end sub
+
+sub LibrarySetTab(id as string, predicates as object)
+    m.tabId = id
+    m.chosen = predicates
+    m.sort = invalid
+    m.letter = ""
+    LibraryShow()
+end sub
+
+' Draws the tab in force: the header, then the page (Discover, Playlists) or the engine's grid.
+sub LibraryShow()
+    m.retry.control = "stop"
+    m.generation = m.generation + 1
+    m.pageTask = invalid
+    m.capabilityTask = invalid
+    m.firstTask = invalid
+    m.tasks = {}
+    m.paging = {}
+    active = LibraryActive()
+    m.tabId = active.id
+    items = []
+    for each candidate in LibraryTabs(LibraryKind(), LibraryOwner(), true)
+        items.push({ id: candidate.id, label: T(candidate.label) })
+    end for
+    m.tabItems = items
+    engine = LibraryIsEngine()
+    m.capabilities = invalid
+    if engine and m.capabilityCache.doesExist(LibraryPivot()) then m.capabilities = m.capabilityCache[LibraryPivot()]
+    m.total = -1
+    m.anchors = []
+    ' The header moves between the page (it scrolls with Discover's rows) and the engine's fixed
+    ' top: a tab that held focus holds it again once it has moved.
+    onTabs = m.tabs.isInFocusChain()
+    inside = m.top.isInFocusChain()
+    LibraryHead()
+    top = Theme.apple.pageTopInset - Theme.space.lg
+    if engine then
+        m.page.visible = false
+        m.engine.visible = true
+        if not m.head.getParent().isSameNode(m.engine) then m.engine.appendChild(m.head)
+        Place(m.head, 0, top)
+        LibraryEngineClear()
+        if m.capabilities = invalid then
+            LibraryCapabilitiesLoad()
+        else
+            LibraryQuery(0)
+        end if
+    else
+        m.engine.visible = false
+        m.page.visible = true
+        if not m.head.getParent().isSameNode(m.page.body) then m.page.body.appendChild(m.head)
+        Place(m.head, 0, top)
+        m.page.callFunc("scrollToTop")
+        LibraryPageClear()
+        LibrarySkeleton(m.sections, top + m.headHeight)
+        if active.shows = "playlists" then
+            LibraryPlaylistsLoad()
+        else
+            LibraryPageLoad()
+        end if
+    end if
+    if onTabs or (inside and not m.top.isInFocusChain()) then FocusFirst(m.tabs)
+end sub
+
+' ---- The header: the title, then the tabs with Sort, Filter and Jump to ------------------------
+
+sub LibraryHead()
+    viewer = m.global.session.viewer
+    server = ""
+    if viewer <> invalid and viewer.serverName <> invalid then server = viewer.serverName
+    eyebrow = server
+    if LibraryIsEngine() and m.total >= 0 then
+        pivot = LibraryPivot()
+        if m.capabilities <> invalid and m.capabilities.resolvedPivot <> invalid then pivot = m.capabilities.resolvedPivot.id
+        counted = T("lib.count", { count: m.total, pivot: pivot })
+        if server <> "" then
+            eyebrow = server + " · " + counted
+        else
+            eyebrow = counted
+        end if
+    end if
+    title = T("lib.fallbackTitle")
+    if m.library <> invalid then
+        title = m.library.name
+    else if m.projection <> invalid and m.projection.heading <> "" then
+        title = m.projection.heading
+    end if
+    m.header.eyebrow = eyebrow
+    m.header.title = title
+
+    ' The row under the title: the tabs take what the buttons leave. Buttons are kept while the
+    ' same ones are wanted, so the one that opened a sheet is still there to take focus back.
+    wanted = []
+    active = LibraryActive()
+    if LibraryIsEngine() then
+        if LibraryPublished() <> invalid then
+            wanted.push({ id: "clear", label: T("library.clearFilters"), icon: "", selected: false })
+        else if m.capabilities <> invalid and active.shows <> "genres" then
+            if active.fixedSort = invalid then wanted.push({ id: "sort", label: SortControlLabel(m.capabilities, LibraryEngineSort()), icon: "sort", selected: false })
+            label = T("filter.title")
+            if m.chosen.count() > 0 then label = T("lib.activeFilters", { count: m.chosen.count() })
+            wanted.push({ id: "filter", label: label, icon: "filter", selected: m.chosen.count() > 0 })
+        end if
+        if LibraryShowsJump() then
+            label = T("lib.jumpTo")
+            if m.letter <> "" then label = T("lib.jumpToLetter", { letter: FormatBrowseAnchor(m.letter, LibrarySortField(), T("library.anchorNoValue")) })
+            wanted.push({ id: "jump", label: label, icon: "search", selected: false })
+        end if
+    end if
+    same = wanted.count() = m.barButtons.count()
+    if same then
+        for index = 0 to wanted.count() - 1
+            if m.barButtons[index].barId <> wanted[index].id then same = false
+        end for
+    end if
+    if same then
+        for index = 0 to wanted.count() - 1
+            button = m.barButtons[index]
+            if button.label <> wanted[index].label then button.label = wanted[index].label
+            if button.selected <> wanted[index].selected then button.selected = wanted[index].selected
+        end for
+    else
+        focused = ""
+        current = FocusCurrent(m.bar)
+        if current <> invalid and current.hasField("barId") then focused = current.barId
+        m.bar.removeChildrenIndex(m.bar.getChildCount(), 0)
+        m.barButtons = []
+        for each item in wanted
+            button = LibraryBarButton(item.id, item.label, item.icon, item.selected)
+            m.barButtons.push(button)
+            if item.id = focused then FocusOn(button)
+        end for
+        ' The focused button is gone (Clear filters gives way to Sort and Filter): the row keeps focus.
+        if focused <> "" and FocusCurrent(m.bar) = invalid then
+            if not FocusFirst(m.bar) then FocusFirst(m.tabs)
+        end if
+    end if
+    buttons = m.barButtons
+    right = m.width - Theme.space.page
+    x = right
+    for index = buttons.count() - 1 to 0 step -1
+        button = buttons[index]
+        x = x - button.controlWidth
+        button.barX = x
+        x = x - Theme.space.sm
+    end for
+    tabsWidth = m.width
+    if buttons.count() > 0 then tabsWidth = x + Theme.space.sm - Theme.space.md
+    if m.tabs.tabsWidth <> tabsWidth then m.tabs.tabsWidth = tabsWidth
+    if LibraryTabsChanged() then m.tabs.items = m.tabItems
+    if m.tabs.selected <> m.tabId then m.tabs.selected = m.tabId
+    rowHeight = m.tabs.tabsHeight
+    for each button in buttons
+        if button.controlHeight > rowHeight then rowHeight = button.controlHeight
+    end for
+    y = m.header.headerHeight
+    Place(m.tabs, 0, y + (rowHeight - m.tabs.tabsHeight) / 2)
+    for each button in buttons
+        Place(button, button.barX, y + (rowHeight - button.controlHeight) / 2)
+    end for
+    m.headHeight = y + rowHeight + Theme.space.lg
+end sub
+
+function LibraryTabsChanged() as boolean
+    shown = m.tabs.items
+    if shown = invalid or shown.count() <> m.tabItems.count() then return true
+    for index = 0 to shown.count() - 1
+        if shown[index].id <> m.tabItems[index].id or shown[index].label <> m.tabItems[index].label then return true
+    end for
+    return false
+end function
+
+function LibraryBarButton(id as string, label as string, icon as string, selected as boolean) as object
+    button = m.bar.createChild("UiButton")
+    button.addFields({ barId: id, barX: 0 })
+    button.size = "sm"
+    button.variant = "secondary"
+    if icon <> "" then button.icon = icon
+    button.label = label
+    button.selected = selected
+    button.observeField("pressed", "onLibraryBar")
+    return button
+end function
+
+sub onLibraryBar(event as object)
+    button = event.getRoSGNode()
+    id = button.barId
+    if id = "clear" then
+        m.published = invalid
+        LibraryHead()
+        LibraryQuery(0)
+    else if id = "sort" then
+        LibrarySortOpen()
+    else if id = "filter" then
+        LibraryFiltersOpen()
+    else if id = "jump" then
+        LibraryJumpOpen()
+    end if
+end sub
+
+' ---- Sort, Filter, Jump to ---------------------------------------------------------------------
+
+function LibraryEngineSort() as object
+    active = LibraryActive()
+    if active.fixedSort <> invalid then return active.fixedSort
+    if m.capabilities <> invalid then
+        if m.sort <> invalid then
+            for each candidate in m.capabilities.sorts
+                if candidate.id = m.sort.field then return m.sort
+            end for
+        end if
+        if m.capabilities.resolvedPivot <> invalid and m.capabilities.resolvedPivot.defaultSort.count() > 0 then return m.capabilities.resolvedPivot.defaultSort[0]
+    end if
+    return { field: "title", direction: "asc" }
+end function
+
+' The sort the grid is in: a published See all's own, else the engine's.
+function LibrarySortField() as string
+    published = LibraryPublished()
+    if published <> invalid and published.sort.count() > 0 then return published.sort[0].field
+    return LibraryEngineSort().field
+end function
+
+function LibraryFiltered() as boolean
+    published = LibraryPublished()
+    return (published <> invalid and published.query <> invalid) or m.chosen.count() > 0
+end function
+
+' The position anchors ride the Jump to control for default browsing: by title, unfiltered.
+function LibraryShowsJump() as boolean
+    active = LibraryActive()
+    return m.anchors.count() >= Theme.apple.jumpMinAnchors and not LibraryFiltered() and LibrarySortField() = "title" and active.fixedSort = invalid and active.shows <> "genres"
+end function
+
+' The tab's own conditions (Unmatched) come before the viewer's and are not shown as filters.
+function LibraryPredicates() as object
+    active = LibraryActive()
+    out = []
+    if active.fixedFilter <> invalid then out.append(active.fixedFilter)
+    out.append(m.chosen)
+    return out
+end function
+
+sub LibrarySortOpen()
+    if m.capabilities = invalid then return
+    sort = LibraryEngineSort()
+    model = ToolbarModel(m.capabilities, m.capabilities.library.kind, m.chosen, sort, LibraryOwner())
+    items = []
+    for each candidate in model.sorts
+        item = { id: candidate.id, label: BrowseFieldLabel(candidate.id, candidate.labelKey), selected: candidate.id = sort.field }
+        if candidate.id = sort.field then
+            if model.sort.flippable then item.detail = SortDirectionLabel(sort.field, sort.direction)
+            item.icon = "chevronUp"
+            if sort.direction = "desc" then item.icon = "chevronDown"
+        end if
+        items.push(item)
+    end for
+    if m.sortMenu = invalid then
+        m.sortMenu = m.top.createChild("UiMenu")
+        m.sortMenu.observeField("chosen", "onLibrarySort")
+    end if
+    m.sortMenu.title = T("sort.title")
+    m.sortMenu.items = items
+    m.sortMenu.callFunc("open")
+end sub
+
+sub onLibrarySort()
+    if m.capabilities = invalid then return
+    m.sort = NextToolbarSort(m.capabilities, LibraryEngineSort(), m.sortMenu.chosen)
+    m.letter = ""
+    LibraryHead()
+    LibraryQuery(0)
+end sub
+
+sub LibraryFiltersOpen()
+    if m.capabilities = invalid then return
+    if m.filters = invalid then
+        m.filters = m.top.createChild("LibraryFilters")
+        m.filters.observeField("changed", "onLibraryFilters")
+        m.filters.observeField("closed", "onLibraryFiltersClosed")
+    end if
+    m.filters.libraryId = m.libraryId
+    m.filters.capabilities = m.capabilities
+    m.filters.owner = LibraryOwner()
+    m.filters.predicates = m.chosen
+    m.filters.callFunc("open")
+end sub
+
+' Each choice in the panel applies at once: the grid behind is asked again.
+sub onLibraryFilters()
+    m.chosen = m.filters.changed
+    m.letter = ""
+    LibraryQuery(0)
+end sub
+
+sub onLibraryFiltersClosed()
+    LibraryHead()
+    for each button in m.barButtons
+        if button.barId = "filter" then FocusOn(button)
+    end for
+end sub
+
+sub LibraryJumpOpen()
+    if m.jump = invalid then
+        m.jump = m.top.createChild("LibraryJumpTo")
+        m.jump.observeField("picked", "onLibraryJump")
+    end if
+    m.jump.anchors = m.anchors
+    m.jump.current = m.letter
+    m.jump.sortField = LibrarySortField()
+    m.jump.callFunc("open")
+end sub
+
+sub onLibraryJump()
+    key = m.jump.chosen
+    index = BrowseAnchorIndex(m.anchors, key)
+    if index < 0 or m.window = invalid or m.grid = invalid then return
+    m.letter = key
+    LibraryHead()
+    LibraryMoveTo(index)
+    m.grid.callFunc("focusGrid")
+end sub
+
+' ---- The engine: capabilities, then a window over the server's order ---------------------------
+
+sub LibraryCapabilitiesLoad()
+    pivot = LibraryPivot()
+    path = "/v1/libraries/" + m.libraryId.encodeUriComponent() + "/browse-capabilities?pivot=" + pivot.encodeUriComponent()
+    m.capabilityTask = ApiStart({ path: path, reader: "capabilities" }, "onLibraryCapabilities")
+    m.capabilityTask.addFields({ pivot: pivot })
+    LibrarySkeleton(m.gridHolder, Theme.apple.pageTopInset - Theme.space.lg + m.headHeight)
+end sub
+
+sub onLibraryCapabilities(event as object)
+    task = event.getRoSGNode()
+    if m.capabilityTask = invalid or not task.isSameNode(m.capabilityTask) then return
+    m.capabilityTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        ' The library's filters could not load, so no results are coming: the header says why.
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        LibraryEngineClear()
+        m.notice = m.gridHolder.createChild("UiNotice")
+        m.notice.tone = "error"
+        m.notice.title = T("lib.optionsLoadFailed")
+        m.notice.message = PresentError(failure, "library").body
+        m.notice.action = T("action.tryAgain")
+        m.notice.noticeWidth = m.width - Theme.space.page * 2
+        m.notice.observeField("actionPressed", "onLibraryCapabilitiesRetry")
+        Place(m.notice, Theme.space.page, Theme.apple.pageTopInset - Theme.space.lg + m.headHeight)
+        LibraryClaim()
+        return
+    end if
+    m.capabilities = result.value.capabilities
+    m.capabilityCache[task.pivot] = m.capabilities
+    if m.library = invalid then
+        ' Opened before the library list arrived: the capabilities name the library and its kind.
+        m.library = m.capabilities.library
+        LibraryShow()
+        return
+    end if
+    LibraryHead()
+    LibraryQuery(0)
+end sub
+
+sub onLibraryCapabilitiesRetry()
+    LibraryEngineClear()
+    LibraryCapabilitiesLoad()
+end sub
+
+sub LibraryEngineClear()
+    m.gridHolder.removeChildrenIndex(m.gridHolder.getChildCount(), 0)
+    m.grid = invalid
+    m.state = invalid
+    m.notice = invalid
+    m.window = invalid
+end sub
+
+function LibraryContext() as object
+    active = LibraryActive()
+    shape = ""
+    if m.grid <> invalid and m.window <> invalid then shape = m.grid.shape
+    return { origin: ViewerOrigin(), shows: active.shows, family: LibraryKind(), shape: shape }
+end function
+
+function LibraryBrowsePath() as string
+    return "/v1/libraries/" + m.libraryId.encodeUriComponent() + "/browse"
+end function
+
+' A new query (a tab, a sort, a filter, a refresh): the first page says how many there are, their
+' order's revision and the position anchors. The grid on screen stays until it arrives, so a
+' change never flashes to empty. `resumeAt` is the position to return to (a new revision).
+sub LibraryQuery(resumeAt as integer)
+    m.retry.control = "stop"
+    m.generation = m.generation + 1
+    m.tasks = {}
+    m.revision = ""
+    m.resumeAt = resumeAt
+    m.window = invalid
+    body = BrowseRequestBody(LibraryPivot(), LibraryPredicates(), LibraryEngineSort(), 0, BrowseWindowPageSize(), "", LibraryPublished())
+    m.firstTask = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "browse", context: LibraryContext() }, "onLibraryFirst")
+    m.firstTask.addFields({ generation: m.generation })
+    if m.grid = invalid and m.state = invalid and m.notice = invalid and m.gridHolder.getChildCount() = 0 then LibrarySkeleton(m.gridHolder, Theme.apple.pageTopInset - Theme.space.lg + m.headHeight)
+end sub
+
+sub onLibraryFirst(event as object)
+    task = event.getRoSGNode()
+    if m.firstTask = invalid or not task.isSameNode(m.firstTask) or task.generation <> m.generation then return
+    m.firstTask = invalid
+    result = event.getData()
+    top = Theme.apple.pageTopInset - Theme.space.lg + m.headHeight
+    held = m.grid <> invalid and m.grid.hasGridFocus
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        LibraryEngineClear()
+        LibraryState(m.gridHolder, top, "error", T("lib.viewLoadFailed"), PresentError(failure, "library").body, T("action.tryAgain"), "onLibraryRefresh")
+        LibraryAfterGrid(held)
+        return
+    end if
+    value = result.value
+    m.total = value.total
+    m.revision = value.revision
+    m.anchors = value.positionIndex
+    active = LibraryActive()
+    LibraryHead()
+    if value.total = 0 then
+        LibraryEngineClear()
+        LibraryEmpty(top)
+        LibraryAfterGrid(held)
+        return
+    end if
+    mode = "cards"
+    if active.shows = "tracks" then mode = "rows"
+    if m.grid = invalid or m.grid.shape <> value.shape or m.grid.mode <> mode or m.grid.titleLines <> value.titleLines then
+        m.gridHolder.removeChildrenIndex(m.gridHolder.getChildCount(), 0)
+        m.state = invalid
+        m.notice = invalid
+        m.grid = m.gridHolder.createChild("UiGrid")
+        m.grid.mode = mode
+        m.grid.shape = value.shape
+        m.grid.titleLines = value.titleLines
+        m.grid.gridWidth = m.width
+        m.grid.gridHeight = Theme.screen.height - top
+        m.grid.observeField("itemFocused", "onLibraryFocus")
+        m.grid.observeField("itemSelected", "onLibrarySelected")
+        m.grid.observeField("itemMenu", "onLibraryMenu")
+        m.grid.observeField("visibleRange", "onLibraryRange")
+    end if
+    Place(m.grid, 0, top)
+    limit = 0
+    if m.capabilities <> invalid then limit = m.capabilities.maximumLimit
+    m.window = BrowseWindowNew(m.grid.columns, limit)
+    BrowseWindowTotal(m.window, value.total)
+    at = m.resumeAt
+    if at >= value.total then at = value.total - 1
+    if at < 0 then at = 0
+    m.resumeAt = 0
+    BrowseWindowJump(m.window, at)
+    m.focusAt = at
+    ' The first page covers the first chunk; what it holds past that is asked for again with its chunk.
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(LibraryPlaceholders(BrowseWindowLength(m.window)))
+    BrowseWindowAsked(m.window, 0)
+    slot = BrowseWindowArrived(m.window, 0)
+    if slot >= 0 then
+        cards = task.content.getChildren(Min(m.window.chunk, value.shown), 0)
+        content.replaceChildren(cards, slot)
+    end if
+    m.shifting = true
+    m.grid.items = content
+    m.grid.callFunc("jumpTo", at - BrowseWindowBase(m.window))
+    m.shifting = false
+    LibraryFetch()
+    ' The grid takes focus when it held it before, or when a See all or a genre asked for it and
+    ' the viewer has not moved off the tabs since.
+    if held or (m.wantGrid and m.tabs.isInFocusChain()) then
+        m.grid.callFunc("focusGrid")
+    else
+        LibraryClaim()
+    end if
+    m.wantGrid = false
+end sub
+
+' The grid gave way to a message: focus it held goes to the message's action, else to the tabs.
+sub LibraryAfterGrid(held as boolean)
+    m.wantGrid = false
+    if held then
+        if not FocusFirst(m.gridHolder) then FocusFirst(m.tabs)
+        return
+    end if
+    LibraryClaim()
+end sub
+
+' The screen's one claim on focus, once what should hold it is ready.
+sub LibraryClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onLibraryRefresh()
+    LibraryEngineClear()
+    LibraryQuery(0)
+end sub
+
+function LibraryPlaceholders(count as integer) as object
+    out = []
+    shape = "poster"
+    lines = 1
+    if m.grid <> invalid then
+        shape = m.grid.shape
+        lines = m.grid.titleLines
+    end if
+    for index = 1 to count
+        node = CreateObject("roSGNode", "ContentNode")
+        node.addFields({ placeholder: true, shape: shape, titleLines: lines, title: "", entryId: "" })
+        out.push(node)
+    end for
+    return out
+end function
+
+' Focus moved to a slot: the window follows it, and the chunks around it are asked for.
+sub onLibraryFocus()
+    if m.window = invalid or m.grid = invalid or m.shifting then return
+    index = m.grid.itemFocused
+    if index < 0 then return
+    at = BrowseWindowBase(m.window) + index
+    if at = m.focusAt and m.tasks.count() > 0 then return
+    m.focusAt = at
+    moved = BrowseWindowFocus(m.window, at)
+    if moved <> 0 then
+        ' While the slots move under it the grid reports focus that is not the viewer's.
+        m.shifting = true
+        LibraryShift(moved, index)
+        m.shifting = false
+    end if
+    LibraryFetch()
+end sub
+
+' The window moved by whole chunks: slots that left it are dropped, the new ones start as
+' placeholders, and the focused card stays the same card (the grid is told its new slot).
+sub LibraryShift(moved as integer, index as integer)
+    items = m.grid.items
+    slots = BrowseWindowLength(m.window)
+    if Abs(moved) >= m.window.maxChunks then
+        content = CreateObject("roSGNode", "ContentNode")
+        content.appendChildren(LibraryPlaceholders(slots))
+        m.grid.items = content
+        m.grid.callFunc("jumpTo", m.focusAt - BrowseWindowBase(m.window))
+        return
+    end if
+    if moved > 0 then
+        gone = moved * m.window.chunk
+        items.removeChildrenIndex(gone, 0)
+        missing = slots - items.getChildCount()
+        if missing > 0 then items.appendChildren(LibraryPlaceholders(missing))
+        m.grid.callFunc("jumpTo", index - gone)
+    else
+        added = -moved * m.window.chunk
+        items.insertChildren(LibraryPlaceholders(added), 0)
+        extra = items.getChildCount() - slots
+        if extra > 0 then items.removeChildrenIndex(extra, slots)
+        m.grid.callFunc("jumpTo", index + added)
+    end if
+end sub
+
+' Jump to: the window moves to hold a position in the whole list.
+sub LibraryMoveTo(index as integer)
+    m.shifting = true
+    if BrowseWindowJump(m.window, index) then
+        BrowseWindowReset(m.window)
+        content = CreateObject("roSGNode", "ContentNode")
+        content.appendChildren(LibraryPlaceholders(BrowseWindowLength(m.window)))
+        m.grid.items = content
+    end if
+    m.focusAt = index
+    m.grid.callFunc("jumpTo", index - BrowseWindowBase(m.window))
+    m.shifting = false
+    LibraryFetch()
+end sub
+
+' At most two chunks are asked for at a time, nearest to focus first.
+sub LibraryFetch()
+    if m.window = invalid then return
+    room = 2 - m.tasks.count()
+    if room <= 0 then return
+    for each chunk in BrowseWindowWanted(m.window, m.focusAt, room)
+        range = BrowseWindowRange(m.window, chunk)
+        body = BrowseRequestBody(LibraryPivot(), LibraryPredicates(), LibraryEngineSort(), range.start, range.limit, m.revision, LibraryPublished())
+        task = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "browse", context: LibraryContext() }, "onLibraryChunk")
+        task.addFields({ generation: m.generation, chunk: chunk })
+        m.tasks[chunk.toStr()] = task
+        BrowseWindowAsked(m.window, chunk)
+    end for
+end sub
+
+sub onLibraryChunk(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.window = invalid then return
+    key = task.chunk.toStr()
+    held = m.tasks[key]
+    if held = invalid or not held.isSameNode(task) then return
+    m.tasks.delete(key)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        code = ""
+        if result.error <> invalid and result.error.code <> invalid then code = result.error.code
+        if code = "stale_continuation" then
+            ' The library changed since the first page: the order is read again from where the viewer is.
+            LibraryQuery(m.focusAt)
+            return
+        end if
+        BrowseWindowFailed(m.window, task.chunk)
+        m.retry.control = "start"
+        return
+    end if
+    value = result.value
+    if value.revision <> m.revision or value.total <> m.window.total then
+        LibraryQuery(m.focusAt)
+        return
+    end if
+    slot = BrowseWindowArrived(m.window, task.chunk)
+    if slot >= 0 and m.grid <> invalid then
+        cards = task.content.getChildren(-1, 0)
+        if cards.count() > 0 and slot + cards.count() <= m.grid.items.getChildCount() then m.grid.items.replaceChildren(cards, slot)
+    end if
+    LibraryFetch()
+end sub
+
+sub onLibraryRetry()
+    if LibraryIsEngine() then
+        LibraryFetch()
+    else if m.pageTask = invalid and m.rows.count() = 0 then
+        LibraryShow()
+    end if
+end sub
+
+function LibraryEntryAt(index as integer) as dynamic
+    if m.grid = invalid or m.grid.items = invalid or index < 0 or index >= m.grid.items.getChildCount() then return invalid
+    node = m.grid.items.getChild(index)
+    if node.hasField("placeholder") and node.placeholder = true then return invalid
+    return node.entry
+end function
+
+sub onLibrarySelected()
+    index = m.grid.itemSelected
+    entry = LibraryEntryAt(index)
+    if entry = invalid then return
+    active = LibraryActive()
+    if active.shows = "genres" then
+        ' A genre opens the tab it groups (Albums), filtered to it.
+        if active.opens = invalid then return
+        m.published = invalid
+        LibrarySetTab(active.opens.tabId, [{ "field": active.opens.field, "operator": "in", "value": [entry.title] }])
+        FocusFirst(m.tabs)
+        m.wantGrid = true
+        return
+    end if
+    if active.shows = "tracks" and entry.playback <> invalid then
+        ' A song plays on through the list in the order shown: the songs already loaded after it are the queue.
+        queue = []
+        for at = index to index + Theme.apple.trackQueueMax - 1
+            following = LibraryEntryAt(at)
+            if following = invalid then exit for
+            if following.playback <> invalid then queue.push(following)
+        end for
+        scene = m.top.getScene()
+        if queue.count() > 0 and scene <> invalid then scene.callFunc("play", { itemId: queue[0].playback.itemId, startSeconds: 0, entry: queue[0], queue: queue, index: 0 })
+        return
+    end if
+    OpenEntry(entry, "open", m.libraryId)
+end sub
+
+sub onLibraryMenu()
+    entry = LibraryEntryAt(m.grid.itemMenu)
+    active = LibraryActive()
+    if entry = invalid or active.shows = "genres" then return
+    OpenEntry(entry, "more", m.libraryId)
+end sub
+
+' Genre cards read their cover (the genre's newest album) as they come on screen.
+sub onLibraryRange()
+    active = LibraryActive()
+    if active.shows <> "genres" or m.grid = invalid or m.grid.items = invalid then return
+    range = m.grid.visibleRange
+    if range = invalid or range.count() < 2 then return
+    items = m.grid.items
+    last = Min(range[1], items.getChildCount() - 1)
+    for index = range[0] to last
+        node = items.getChild(index)
+        if m.coverTasks < 2 and node.hasField("genre") and node.artUri = "" and not m.covers.doesExist(node.title) then
+            m.covers[node.title] = ""
+            body = { "pivot": "albums", "query": { "all": [{ "field": "genre", "operator": "in", "value": [node.title] }] }, "sort": [{ "field": "added", "direction": "desc" }], "limit": 1 }
+            task = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "cover", context: { origin: ViewerOrigin() } }, "onLibraryCover")
+            task.addFields({ generation: m.generation, genre: node.title })
+            m.coverTasks = m.coverTasks + 1
+            m.tasks["cover:" + node.title] = task
+        end if
+    end for
+end sub
+
+sub onLibraryCover(event as object)
+    task = event.getRoSGNode()
+    m.coverTasks = m.coverTasks - 1
+    m.tasks.delete("cover:" + task.genre)
+    result = event.getData()
+    if task.generation = m.generation and m.grid <> invalid and result.ok and result.value.ok = true and result.value.artUri <> "" then
+        items = m.grid.items
+        for index = 0 to items.getChildCount() - 1
+            node = items.getChild(index)
+            if node.hasField("genre") and node.title = task.genre then
+                fresh = CreateObject("roSGNode", "ContentNode")
+                fields = node.getFields()
+                fresh.addFields({ title: node.title, caption: node.caption, artUri: result.value.artUri, shape: node.shape, progress: 0, watched: false, icon: "", titleLines: 1, entryId: node.entryId, entry: fields.entry, genre: true })
+                items.replaceChild(fresh, index)
+            end if
+        end for
+    end if
+    onLibraryRange()
+end sub
+
+' APL-LIB-02: "No titles match" only when filters are on; otherwise the tab's own empty state.
+sub LibraryEmpty(top as dynamic)
+    active = LibraryActive()
+    pivot = LibraryPivot()
+    icon = MediaFamilyIcon(LibraryKind())
+    if icon = invalid then icon = "film"
+    if LibraryFiltered() then
+        LibraryState(m.gridHolder, top, "filter", T("library.noMatch"), T("library.noMatchBody"), T("library.clearFilters"), "onLibraryClearFilters")
+    else if pivot = "collections" then
+        LibraryState(m.gridHolder, top, "collection", T("library.emptyCollections"), T("library.emptyCollectionsBody"), "", "")
+    else if active.shows = "genres" then
+        LibraryState(m.gridHolder, top, "category", T("library.genres.empty"), T("library.genres.emptyBody"), "", "")
+    else if pivot = "series" then
+        LibraryState(m.gridHolder, top, "collection", T("library.emptySeries"), T("library.emptySeriesBody"), "", "")
+    else
+        LibraryState(m.gridHolder, top, icon, T("library.emptyLibrary"), LibraryEmptyBody(), "", "")
+    end if
+end sub
+
+function LibraryEmptyBody() as string
+    if LibraryOwner() then return T("web.empty.libraryOwnerBody")
+    return T("web.empty.libraryMemberBody")
+end function
+
+sub onLibraryClearFilters()
+    m.published = invalid
+    m.chosen = []
+    LibraryHead()
+    LibraryEngineClear()
+    LibraryQuery(0)
+    FocusFirst(m.tabs)
+end sub
+
+sub LibraryState(parent as object, top as dynamic, icon as string, title as string, message as string, action as string, handler as string)
+    m.state = parent.createChild("UiStateView")
+    m.state.icon = icon
+    m.state.title = title
+    m.state.message = message
+    m.state.action = action
+    m.state.stateWidth = m.width
+    if handler <> "" then m.state.observeField("actionPressed", handler)
+    Place(m.state, 0, top + Theme.space.xl)
+end sub
+
+' screens/Library.tsx `LoadingGrid`: two rows of poster skeletons.
+sub LibrarySkeleton(parent as object, top as dynamic)
+    width = Theme.metrics.posterWidth
+    height = Int(width / ArtworkRatio("poster") + 0.5)
+    columns = Max(2, Int((m.width - Theme.space.page * 2) / (width + Theme.space.gutter)))
+    for index = 0 to columns * Theme.apple.librarySkeletonRows - 1
+        block = parent.createChild("UiSkeleton")
+        block.blockHeight = height
+        block.blockWidth = width
+        Place(block, Theme.space.page + (index mod columns) * (width + Theme.space.gutter), top + (index \ columns) * (height + Theme.space.gutter))
+    end for
+end sub
+
+' ---- The page: Discover's rows, and the viewer's playlists -------------------------------------
+
+sub LibraryPageClear()
+    m.sections.removeChildrenIndex(m.sections.getChildCount(), 0)
+    m.shelves = []
+    m.rows = []
+    m.state = invalid
+    m.page.contentHeight = Theme.screen.height
+end sub
+
+function LibraryRoute() as object
+    route = { libraryId: m.libraryId, view: m.tabId }
+    if m.category <> "" then route.category = m.category
+    return route
+end function
+
+sub LibraryPageLoad()
+    route = LibraryRoute()
+    m.pageTask = ApiStart({ path: ContentPath(route), reader: "projection", context: { origin: ViewerOrigin(), route: route, serverId: LibraryServerId() } }, "onLibraryPage")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub onLibraryPage(event as object)
+    task = event.getRoSGNode()
+    if m.pageTask = invalid or not task.isSameNode(m.pageTask) or task.generation <> m.generation then return
+    m.pageTask = invalid
+    result = event.getData()
+    top = Theme.apple.pageTopInset - Theme.space.lg + m.headHeight
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        if RetryIsTransient(PresentErrorFacts(failure, "library").category) and m.rows.count() > 0 then return
+        LibraryPageClear()
+        LibraryState(m.sections, top, "error", T("lib.loadFailed"), PresentError(failure, "library").body, T("action.tryAgain"), "onLibraryPageRetry")
+        m.page.contentHeight = top + Theme.screen.height / 2
+        LibraryClaim()
+        return
+    end if
+    m.loadedAt = NowSeconds()
+    value = result.value
+    m.projection = value
+    if m.library = invalid then
+        ' Opened before the library list arrived: the page's scope says what kind of library this is.
+        m.library = { id: m.libraryId, name: value.heading, kind: value.scope.libraryKind }
+        LibraryHead()
+    end if
+    had = LibraryShelfState()
+    LibraryPageClear()
+    m.rows = value.sections
+    y = top
+    kind = LibraryKind()
+    for index = 0 to m.rows.count() - 1
+        row = m.rows[index]
+        if row.type = "list" then
+            y = y + LibraryList(row, task.content.getChild(index), y)
+        else
+            shelf = m.sections.createChild("UiShelf")
+            shelf.addFields({ rowIndex: index })
+            shelf.shelfWidth = m.width
+            shelf.shape = row.shape
+            shelf.titleLines = row.titleLines
+            if not (m.tabId = "browse" and m.rows.count() = 1) then shelf.title = row.title
+            shelf.seeAllLabel = row.seeAllLabel
+            shelf.seeAll = row.type = "rail" and row.seeAll <> invalid and LibraryTabForPivot(kind, row.seeAll.pivot) <> invalid
+            shelf.active = false
+            shelf.items = task.content.getChild(index)
+            shelf.observeField("itemSelected", "onLibraryShelfSelected")
+            shelf.observeField("itemMenu", "onLibraryShelfMenu")
+            shelf.observeField("endReached", "onLibraryShelfEnd")
+            shelf.observeField("seeAllPressed", "onLibraryShelfSeeAll")
+            Place(shelf, 0, y)
+            y = y + shelf.shelfHeight
+            m.shelves.push(shelf)
+        end if
+    end for
+    if m.rows.count() = 0 then
+        icon = MediaFamilyIcon(kind)
+        if icon = invalid then icon = "film"
+        title = T("library.emptyLibrary")
+        if value.emptyTitle <> "" then title = value.emptyTitle
+        LibraryState(m.sections, y, icon, title, LibraryEmptyBody(), "", "")
+        y = y + Theme.screen.height / 2
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    if had <> invalid and LibraryRestoreShelf(had) then return
+    LibraryClaim()
+end sub
+
+sub onLibraryPageRetry()
+    LibraryShow()
+    FocusFirst(m.tabs)
+end sub
+
+' A list section (screens/Home.tsx `SectionView`, type "list"): the heading, then a row per entry.
+function LibraryList(row as object, content as object, top as dynamic) as float
+    y = top
+    heading = MakeText(m.sections, "heading", "primary", row.title)
+    Place(heading, Theme.space.page, y)
+    y = y + heading.height + Theme.space.sm
+    for index = 0 to content.getChildCount() - 1
+        item = content.getChild(index)
+        line = m.sections.createChild("UiListRow")
+        line.addFields({ rowIndex: index, entry: item.entry, sectionId: row.id })
+        line.media = true
+        line.shape = item.shape
+        line.title = item.title
+        line.subtitle = item.caption
+        line.meta = item.meta
+        line.artUri = item.artUri
+        line.progress = item.progress
+        line.watched = item.watched
+        line.rowWidth = m.width - Theme.space.page * 2
+        line.observeField("pressed", "onLibraryListPressed")
+        line.observeField("menuRequested", "onLibraryListMenu")
+        Place(line, Theme.space.page, y)
+        y = y + line.rowHeight
+    end for
+    return y - top + Theme.space.xl
+end function
+
+' A track plays, with the rest of the list queued after it; anything else opens.
+sub onLibraryListPressed(event as object)
+    line = event.getRoSGNode()
+    entry = line.entry
+    if (entry.kind = "song" or entry.kind = "audiobook_file") and entry.playback <> invalid then
+        queue = []
+        index = 0
+        for each sibling in m.sections.getChildren(-1, 0)
+            if sibling.hasField("sectionId") and sibling.sectionId = line.sectionId and sibling.entry.playback <> invalid then
+                if sibling.isSameNode(line) then index = queue.count()
+                queue.push(sibling.entry)
+            end if
+        end for
+        scene = m.top.getScene()
+        if scene <> invalid then scene.callFunc("play", { itemId: entry.playback.itemId, startSeconds: 0, entry: entry, queue: queue, index: index })
+        return
+    end if
+    OpenEntry(entry, "open", m.libraryId)
+end sub
+
+sub onLibraryListMenu(event as object)
+    line = event.getRoSGNode()
+    OpenEntry(line.entry, "more", m.libraryId)
+end sub
+
+function LibraryShelfState() as dynamic
+    for each shelf in m.shelves
+        if shelf.hasListFocus and shelf.rowIndex < m.rows.count() then return { rowId: m.rows[shelf.rowIndex].id, index: shelf.focusedIndex }
+    end for
+    return invalid
+end function
+
+function LibraryRestoreShelf(state as object) as boolean
+    for each shelf in m.shelves
+        if m.rows[shelf.rowIndex].id = state.rowId then
+            shelf.active = true
+            shelf.callFunc("jumpTo", state.index)
+            shelf.callFunc("focusList")
+            m.page.callFunc("follow")
+            return true
+        end if
+    end for
+    return false
+end function
+
+function LibraryShelfEntry(shelf as object, index as integer) as dynamic
+    items = shelf.items
+    if items = invalid or index < 0 or index >= items.getChildCount() then return invalid
+    return items.getChild(index).entry
+end function
+
+sub onLibraryShelfSelected(event as object)
+    entry = LibraryShelfEntry(event.getRoSGNode(), event.getData())
+    if entry <> invalid then OpenEntry(entry, "open", m.libraryId)
+end sub
+
+sub onLibraryShelfMenu(event as object)
+    shelf = event.getRoSGNode()
+    entry = LibraryShelfEntry(shelf, event.getData())
+    if entry = invalid then return
+    origin = ""
+    row = m.rows[shelf.rowIndex]
+    if m.tabId = "discover" and row.recommendation then origin = "recommendation"
+    OpenEntry(entry, "more", m.libraryId, origin)
+end sub
+
+' A row's own See all: the tab that browses its pivot, with the row's complete query and sort.
+sub onLibraryShelfSeeAll(event as object)
+    shelf = event.getRoSGNode()
+    own = m.rows[shelf.rowIndex].seeAll
+    if own = invalid then return
+    target = LibraryTabForPivot(LibraryKind(), own.pivot)
+    if target = invalid then return
+    m.published = own
+    LibrarySetTab(target.id, [])
+    FocusFirst(m.tabs)
+    m.wantGrid = true
+end sub
+
+' The row's next page, by its own cursor, once per cursor; a row holds at most HomeRowMaxEntries.
+sub onLibraryShelfEnd(event as object)
+    shelf = event.getRoSGNode()
+    row = m.rows[shelf.rowIndex]
+    if row.nextCursor = "" or m.paging[row.id] <> invalid or m.projection = invalid then return
+    route = LibraryRoute()
+    context = { origin: ViewerOrigin(), route: route, serverId: LibraryServerId(), fence: { scope: m.projection.scope, revision: m.projection.revision }, sectionId: row.id, cursor: row.nextCursor }
+    task = ApiStart({ path: ContentPath(route, row.nextCursor), reader: "projection", context: context }, "onLibraryShelfPage")
+    task.addFields({ generation: m.generation, rowIndex: shelf.rowIndex, cursor: row.nextCursor })
+    m.paging[row.id] = task
+end sub
+
+sub onLibraryShelfPage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or task.rowIndex >= m.rows.count() then return
+    row = m.rows[task.rowIndex]
+    held = m.paging[row.id]
+    if held = invalid or not held.isSameNode(task) then return
+    m.paging.delete(row.id)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        ' A refused continuation means the library changed under the viewer: the page is read again.
+        code = ""
+        if result.ok then
+            code = result.value.code
+        else if result.error <> invalid and result.error.code <> invalid then
+            code = result.error.code
+        end if
+        if code = "stale_continuation" or code = "invalid_cursor" then LibraryPageLoad()
+        return
+    end if
+    if row.nextCursor <> task.cursor or result.value.sections.count() <> 1 then return
+    page = result.value.sections[0]
+    shelf = invalid
+    for each candidate in m.shelves
+        if candidate.rowIndex = task.rowIndex then shelf = candidate
+    end for
+    if shelf = invalid then return
+    items = shelf.items
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each card in items.getChildren(-1, 0)
+        seen[card.entryId] = true
+    end for
+    fresh = []
+    limit = HomeRowMaxEntries()
+    for each card in task.content.getChild(0).getChildren(-1, 0)
+        if not seen.doesExist(card.entryId) and items.getChildCount() + fresh.count() < limit then fresh.push(card)
+    end for
+    items.appendChildren(fresh)
+    row.nextCursor = page.nextCursor
+    if items.getChildCount() >= limit then row.nextCursor = ""
+    m.rows[task.rowIndex] = row
+end sub
+
+' screens/LibraryTabs.tsx `LibraryPlaylists`: the viewer's playlists, as on Saved.
+sub LibraryPlaylistsLoad()
+    m.pageTask = ApiStart({ path: "/v1/content?view=playlists&limit=" + ContentPageSize().toStr(), reader: "playlists", context: { serverId: LibraryServerId() } }, "onLibraryPlaylists")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub onLibraryPlaylists(event as object)
+    task = event.getRoSGNode()
+    if m.pageTask = invalid or not task.isSameNode(m.pageTask) or task.generation <> m.generation then return
+    m.pageTask = invalid
+    result = event.getData()
+    top = Theme.apple.pageTopInset - Theme.space.lg + m.headHeight
+    LibraryPageClear()
+    if not result.ok or result.value.ok <> true then
+        notice = m.sections.createChild("UiNotice")
+        notice.tone = "error"
+        notice.message = T("library.playlists.loadFailed")
+        notice.action = T("action.tryAgain")
+        notice.noticeWidth = m.width - Theme.space.page * 2
+        notice.observeField("actionPressed", "onLibraryPageRetry")
+        Place(notice, Theme.space.page, top)
+        m.page.contentHeight = top + notice.noticeHeight + Theme.space.xxxl
+        LibraryClaim()
+        return
+    end if
+    cards = result.value.cards
+    y = top
+    if cards.count() = 0 then
+        LibraryState(m.sections, y, "queue", T("web.saved.empty.playlists"), T("web.saved.empty.playlistsBody"), "", "")
+        y = y + Theme.screen.height / 2
+    end if
+    previous = false
+    for each card in cards
+        if previous then
+            line = MakeRect(m.sections, m.width - Theme.space.page * 2, 1, Theme.colors.line)
+            Place(line, Theme.space.page, y)
+            y = y + 1
+        end if
+        row = m.sections.createChild("UiListRow")
+        row.addFields({ playlistId: card.id })
+        row.title = card.title
+        row.subtitle = card.subtitle
+        if card.total >= 0 then row.meta = T("count.items", { count: card.total })
+        row.icon = "queue"
+        row.trailingIcon = "forward"
+        row.rowWidth = m.width - (Theme.space.page - Theme.space.sm) * 2
+        row.observeField("pressed", "onLibraryPlaylist")
+        Place(row, Theme.space.page - Theme.space.sm, y)
+        y = y + row.rowHeight
+        previous = true
+    end for
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    LibraryClaim()
+end sub
+
+sub onLibraryPlaylist(event as object)
+    row = event.getRoSGNode()
+    NavPush("ScreenPlaylist", { playlistId: row.playlistId, title: row.title })
+end sub
+
+' On an engine tab focus moves by geometry between the header's row and the grid; Up from the
+' grid's first row goes to the tabs (the tab last used), never past them.
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press or not m.engine.visible then return false
+    direction = FocusDirection(key)
+    if direction = "" then return false
+    if direction = "up" and m.grid <> invalid and m.grid.hasGridFocus then return FocusFirst(m.tabs)
+    if direction = "down" and m.grid <> invalid and m.grid.visible and (m.tabs.isInFocusChain() or m.bar.isInFocusChain()) then
+        m.grid.callFunc("focusGrid")
+        return true
+    end if
+    return FocusMove(m.engine, direction)
+end function

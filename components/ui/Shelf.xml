@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Shelf.tsx: a horizontal row with its header (title, See all). -->
+<component name="UiShelf" extends="Group">
+    <interface>
+        <field id="title" type="string" value="" onChange="onShelfLayout" />
+        <field id="subtitle" type="string" value="" onChange="onShelfLayout" />
+        <field id="seeAll" type="boolean" value="false" onChange="onShelfLayout" />
+        <field id="seeAllLabel" type="string" value="" onChange="onShelfLayout" />
+        <!-- poster | landscape | square | person. A row is one shape, never mixed. -->
+        <field id="shape" type="string" value="poster" onChange="onShelfLayout" />
+        <field id="itemWidth" type="float" value="0" onChange="onShelfLayout" />
+        <field id="titleLines" type="integer" value="1" onChange="onShelfLayout" />
+        <field id="captionless" type="boolean" value="false" onChange="onShelfLayout" />
+        <!-- The width the row may use (the screen beside the rail when 0). -->
+        <field id="shelfWidth" type="float" value="0" onChange="onShelfLayout" />
+        <!-- A ContentNode whose children are the cards loaded so far (windowed by the server's pages). -->
+        <field id="items" type="node" onChange="onShelfItems" />
+        <!-- Only a shelf near the viewport holds its cards (the page activates it). -->
+        <field id="active" type="boolean" value="true" onChange="onShelfItems" />
+        <field id="shelfHeight" type="float" value="0" />
+        <field id="focusedIndex" type="integer" value="0" />
+        <field id="itemFocused" type="integer" value="-1" alwaysNotify="true" />
+        <field id="itemSelected" type="integer" value="-1" alwaysNotify="true" />
+        <field id="itemMenu" type="integer" value="-1" alwaysNotify="true" />
+        <field id="endReached" type="boolean" value="false" alwaysNotify="true" />
+        <field id="seeAllPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="hasListFocus" type="boolean" value="false" />
+        <function name="focusList" />
+        <function name="jumpTo" />
+    </interface>
+</component>

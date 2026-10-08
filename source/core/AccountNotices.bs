@@ -1,0 +1,137 @@
+' packages/client-core/src/account-notifications.ts (the Portico Account's own notices, on the
+' account service) and apps/native/src/screens/AccountFeed.tsx (`describe`: what each one says).
+' Strict about shapes and lenient about kinds: a newer account service can add one, and it shows
+' as a generic row.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Time.bs"
+
+function AccountNoticesPath(cursor = "" as string) as string
+    if cursor = "" then return "/v1/account/notifications"
+    return "/v1/account/notifications?cursor=" + cursor.encodeUriComponent()
+end function
+
+function AccountNoticeKinds() as object
+    return ["server_offline", "storage_nearly_full", "invitation_accepted", "new_device", "security_event", "account_export_ready", "signing_key_expiring"]
+end function
+
+function AccountSecurityEvents() as object
+    return ["password_changed", "password_reset", "recovery_codes_replaced", "sign_in_method_removed", "provider_linked", "two_step_enabled", "two_step_disabled", "contact_email_changed", "contact_email_verified"]
+end function
+
+function IsNoticeText(value as dynamic, limit as integer) as boolean
+    return IsString(value) and value <> "" and Len(value) <= limit
+end function
+
+' `parseAccountNotification`: {id, kind ("other" for one this build does not know), occurredAt
+' (seconds), read, server: {id, name}, detail: {key: text}}, or invalid.
+function ParseAccountNotice(v as dynamic) as dynamic
+    if not IsObject(v) or not IsNoticeText(v.id, 128) or not IsNoticeText(v.kind, 64) or not IsBoolean(v.read) then return invalid
+    occurred = invalid
+    if IsString(v.occurredAt) and Len(v.occurredAt) <= 64 then occurred = IsoToSeconds(v.occurredAt)
+    if occurred = invalid then return invalid
+    notice = { id: v.id, kind: "other", occurredAt: occurred, read: v.read, detail: {} }
+    if ArrayIncludes(AccountNoticeKinds(), v.kind) then notice.kind = v.kind
+    if v.server <> invalid then
+        if not IsObject(v.server) or not IsNoticeText(v.server.id, 128) or not IsString(v.server.name) or Len(v.server.name) > 200 then return invalid
+        notice.server = { id: v.server.id, name: v.server.name }
+    end if
+    if v.detail <> invalid then
+        if not IsObject(v.detail) then return invalid
+        for each key in v.detail.keys()
+            value = v.detail[key]
+            if IsString(value) and Len(key) <= 64 and Len(value) <= 500 then notice.detail[key] = value
+        end for
+    end if
+    return notice
+end function
+
+' `parseAccountNotificationPage`: {ok, items, unread, nextCursor}.
+function ParseAccountNotices(v as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(v) or not IsArray(FieldOf(v, "items")) or FieldOf(v, "items").count() > 200 or not IsNatural(v.unread) then return bad
+    cursor = ""
+    if v.nextCursor <> invalid then
+        if not IsString(v.nextCursor) or Len(v.nextCursor) > 2048 then return bad
+        cursor = v.nextCursor
+    end if
+    items = []
+    for each entry in FieldOf(v, "items")
+        notice = ParseAccountNotice(entry)
+        if notice = invalid then return bad
+        items.push(notice)
+    end for
+    return { ok: true, items: items, unread: v.unread, nextCursor: cursor }
+end function
+
+' `parseNotificationPreferences`: {serverOffline, storageNearlyFull, invitationAccepted}, or invalid.
+function ParseAccountNoticePreferences(v as dynamic) as dynamic
+    if not IsObject(v) or not IsBoolean(v.serverOffline) or not IsBoolean(v.storageNearlyFull) or not IsBoolean(v.invitationAccepted) then return invalid
+    return { serverOffline: v.serverOffline, storageNearlyFull: v.storageNearlyFull, invitationAccepted: v.invitationAccepted }
+end function
+
+function AccountNoticePreferencesBody(prefs as object) as object
+    return { "serverOffline": prefs.serverOffline, "storageNearlyFull": prefs.storageNearlyFull, "invitationAccepted": prefs.invitationAccepted }
+end function
+
+' `markRead`: the notices named, or every one (`ids` invalid).
+function AccountNoticesReadBody(ids as dynamic) as object
+    if ids = invalid then return { "all": true }
+    return { "ids": ids }
+end function
+
+' AccountFeed.tsx `describe`: {title, body, icon} from a notice's kind and detail.
+function AccountNoticeWords(notice as object) as object
+    server = ""
+    if notice.server <> invalid then server = notice.server.name
+    detail = notice.detail
+    kind = notice.kind
+    if kind = "server_offline" then return { title: T("web.account.notif.serverOffline", { server: server }), body: T("web.account.notif.serverOfflineBody"), icon: "server" }
+    if kind = "storage_nearly_full" then return { title: T("web.account.notif.storage", { server: server }), body: T("web.account.notif.storageBody"), icon: "warning" }
+    if kind = "invitation_accepted" then return { title: T("web.account.notif.joined", { server: server }), body: T("web.account.notif.joinedBody"), icon: "people" }
+    if kind = "new_device" then
+        name = ""
+        for each key in ["name", "app", "platform"]
+            if name = "" and detail[key] <> invalid then name = detail[key]
+        end for
+        return { title: T("web.account.notif.newDevice", { name: name }), body: T("web.account.notif.newDeviceBody"), icon: "phone" }
+    end if
+    if kind = "security_event" then
+        title = T("web.account.notif.security")
+        if detail["event"] <> invalid and ArrayIncludes(AccountSecurityEvents(), detail["event"]) then title = T(AccountNoticeEventId(detail["event"]))
+        return { title: title, body: T("web.account.notif.securityBody"), icon: "shield" }
+    end if
+    if kind = "account_export_ready" then return { title: T("web.account.notif.exportReady"), body: "", icon: "download" }
+    if kind = "signing_key_expiring" then
+        key = ""
+        if detail["keyId"] <> invalid then key = detail["keyId"]
+        day = ""
+        if detail["expiresAt"] <> invalid then day = FormatDate(detail["expiresAt"], "medium")
+        return { title: T("web.account.notif.keyExpiring"), body: T("web.account.notif.keyExpiringBody", { key: key, date: day }), icon: "warning" }
+    end if
+    return { title: T("web.account.notif.other"), body: "", icon: "bell" }
+end function
+
+function AccountNoticeEventId(event as string) as string
+    ' The message id of a named security event (every one is carried: scripts/generate.mjs).
+    return ["web", "account", "notif", "event", event].join(".")
+end function
+
+' AccountFeed.tsx `read`: the list and the unread count as they read at once. `id` is "" for all.
+function AccountNoticesMarked(items as object, unread as integer, id as string) as object
+    out = []
+    left = unread
+    for each notice in items
+        copy = {}
+        copy.append(notice)
+        if (id = "" or notice.id = id) and not copy.read then
+            copy.read = true
+            if id <> "" then left = left - 1
+        end if
+        out.push(copy)
+    end for
+    if id = "" or left < 0 then left = 0
+    return { items: out, unread: left }
+end function

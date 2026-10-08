@@ -1,0 +1,718 @@
+' apps/native/src/screens/Together.tsx. Watch Together: the lobby (start a group, or join one
+' with a code; the groups this viewer is in) and the room (what is on and where it is, who is
+' here and how they are doing, the invitation, the queue, leaving and ending). The room itself is
+' kept by the scene's TogetherHost; this screen draws it and sends what the viewer chooses.
+'
+' Differences from the Apple TV app: an invitation's code is shown, not shared (a television has
+' no share sheet). The clock beside what is on moves when the room is read, not every second.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Together.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.header = body.createChild("UiPageHeader")
+    m.header.headerWidth = m.width
+    m.header.title = T("entry.group.together")
+    m.area = body.createChild("Group")
+    m.together = m.global.together
+    m.session = m.global.session
+    m.titles = {}
+    m.titles.setModeCaseSensitive()
+    m.titleTasks = []
+    m.sheet = invalid
+    m.sheetKind = ""
+    m.form = { code: "", name: "", who: "", authority: "host-only" }
+    m.menu = invalid
+    m.menuFor = invalid
+    m.confirm = invalid
+    m.confirmKind = ""
+    m.focusables = {}
+end sub
+
+sub enter()
+    viewer = m.session.viewer
+    if viewer <> invalid and viewer.profileName <> invalid then m.form.who = viewer.profileName
+    route = m.top.route
+    if route <> invalid and route.code <> invalid then m.form.code = UCase(route.code)
+    m.together.observeField("changed", "onTogetherChanged")
+    m.together.callFunc("refreshDirectory")
+    TogetherLayout("")
+    ' A link from an invitation fills the code in; joining is still the viewer's choice.
+    if m.form.code <> "" then TogetherSheet("join")
+end sub
+
+sub resume()
+    TogetherLayout(TogetherHeld())
+end sub
+
+sub leave()
+    m.together.unobserveField("changed")
+    m.titleTasks = []
+end sub
+
+sub focusEntry()
+    if not FocusFirst(m.area) then m.top.setFocus(true)
+    m.page.callFunc("follow")
+end sub
+
+sub onTogetherChanged()
+    ' While a sheet or a menu is open the page under it keeps its rows (they are what focus returns to).
+    if (m.sheet <> invalid and m.sheet.isOpen) or (m.menu <> invalid and m.menu.isInFocusChain()) or (m.confirm <> invalid and m.confirm.isOpen) then
+        if m.sheet <> invalid and m.sheet.isOpen then
+            m.sheet.primaryLoading = m.together.busy
+            ' Entering the room closes the sheet that asked for it.
+            if m.together.phase = "live" then m.sheet.callFunc("close")
+        end if
+        m.stale = true
+        return
+    end if
+    TogetherLayout(TogetherHeld())
+end sub
+
+sub onTogetherOverlayClosed()
+    if m.stale = true then
+        m.stale = false
+        TogetherLayout(TogetherHeld())
+    end if
+end sub
+
+function TogetherInRoom() as boolean
+    return m.together.group <> invalid and (m.together.phase = "live" or m.together.phase = "ended")
+end function
+
+function TogetherHeld() as string
+    for each key in m.focusables.keys()
+        if m.focusables[key].isInFocusChain() then return key
+    end for
+    return ""
+end function
+
+function TogetherKeep(key as string, node as object) as object
+    m.focusables[key] = node
+    return node
+end function
+
+' ---- Titles: a group never sends them, because what each member may see differs --------------------
+
+function TogetherTitle(itemId as string) as dynamic
+    if itemId = "" then return invalid
+    known = m.titles[itemId]
+    if known <> invalid then return known
+    m.titles[itemId] = { state: "loading" }
+    task = ApiStart({ path: "/v1/items/" + itemId.encodeUriComponent() + "/detail", reader: "itemEntry" }, "onTogetherTitle")
+    task.addFields({ titleFor: itemId })
+    m.titleTasks.push(task)
+    return m.titles[itemId]
+end function
+
+sub onTogetherTitle(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.titles[task.titleFor] = { state: "known", title: result.value.entry.title, duration: result.value.entry.duration }
+    else
+        m.titles[task.titleFor] = { state: "hidden" }
+    end if
+    onTogetherChanged()
+end sub
+
+' ---- Layout ----------------------------------------------------------------------------------------
+
+sub TogetherLayout(held as string)
+    area = m.area
+    inside = area.isInFocusChain() or held <> ""
+    area.removeChildrenIndex(area.getChildCount(), 0)
+    m.focusables = {}
+    inset = Theme.space.page
+    width = m.width - inset * 2
+    group = m.together.group
+    if TogetherInRoom() then
+        m.header.eyebrow = group.name
+    else
+        m.header.eyebrow = T("web.together.eyebrowFallback")
+    end if
+    y = m.header.headerHeight
+    if m.together.error <> "" then
+        notice = area.createChild("UiNotice")
+        notice.tone = "warning"
+        notice.message = m.together.error
+        ' Only the host may go ahead although someone cannot see the title.
+        if m.together.refused <> invalid and group <> invalid and group.permissions.isHost then
+            notice.action = T("web.together.goAhead")
+            notice.observeField("actionPressed", "onTogetherGoAhead")
+        end if
+        notice.noticeWidth = width
+        Place(notice, inset, y)
+        y = y + notice.noticeHeight + Theme.space.md
+    end if
+    if TogetherInRoom() then
+        y = TogetherRoom(y, inset, width)
+    else
+        y = TogetherLobby(y, inset, width)
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    if inside then
+        node = m.focusables[held]
+        if node <> invalid then
+            FocusOn(node)
+        else if not FocusFirst(area) then
+            m.top.setFocus(true)
+        end if
+        m.page.callFunc("follow")
+    end if
+end sub
+
+function TogetherSurface(y as dynamic, inset as dynamic, width as dynamic, height as dynamic) as object
+    plate = MakeShape(m.area, width, height, Theme.metrics.radius.panel, Theme.colors.raised)
+    Place(plate, inset, y)
+    return plate
+end function
+
+function TogetherButton(key as string, variant as string, label as string, icon as string, handler as string) as object
+    button = m.area.createChild("UiButton")
+    button.variant = variant
+    if icon <> "" then button.icon = icon
+    button.label = label
+    button.observeField("pressed", handler)
+    return TogetherKeep(key, button)
+end function
+
+function TogetherLobby(y as dynamic, inset as dynamic, width as dynamic) as float
+    pad = Theme.space.lg
+    ' One clear invitation to start or join, each in its own sheet.
+    tagline = MakeText(m.area, "heading", "primary", T("web.together.tagline"))
+    words = MakeText(m.area, "body", "secondary", T("web.together.taglineBody"))
+    words.lines = 0
+    words.maxWidth = width - pad * 2
+    start = TogetherButton("start", "primary", T("web.together.startTitle"), "people", "onTogetherStart")
+    start.size = "lg"
+    code = TogetherButton("join", "secondary", T("web.together.joinWithCode"), "keypad", "onTogetherJoin")
+    code.size = "lg"
+    height = pad + tagline.height + Theme.space.md + TextHeight(words) + Theme.space.md + start.controlHeight + pad
+    plate = TogetherSurface(y, inset, width, height)
+    for each node in [tagline, words, start, code]
+        m.area.removeChild(node)
+        m.area.appendChild(node)
+    end for
+    top = y + pad
+    Place(tagline, inset + pad, top)
+    top = top + tagline.height + Theme.space.md
+    Place(words, inset + pad, top)
+    top = top + TextHeight(words) + Theme.space.md
+    Place(start, inset + pad, top)
+    Place(code, inset + pad + start.controlWidth + Theme.space.sm, top)
+    y = y + height + Theme.space.xl
+    directory = m.together.directory
+    if directory <> invalid and directory.count() > 0 then
+        rows = []
+        for each group in directory
+            said = GroupDirectoryRow(group)
+            row = CreateObject("roSGNode", "UiListRow")
+            row.addFields({ groupId: group.id })
+            row.icon = "people"
+            row.title = said.title
+            row.subtitle = said.subtitle
+            row.meta = said.meta
+            row.trailingIcon = "forward"
+            row.observeField("pressed", "onTogetherOpen")
+            rows.push(TogetherKeep("group:" + group.id, row))
+        end for
+        y = TogetherGroup(y, inset, width, T("web.together.yourGroups"), rows) + Theme.space.xl
+    else if m.together.directoryError <> "" then
+        notice = m.area.createChild("UiNotice")
+        notice.tone = "info"
+        notice.message = m.together.directoryError
+        notice.noticeWidth = width
+        Place(notice, inset, y)
+        y = y + notice.noticeHeight + Theme.space.xl
+    end if
+    return y
+end function
+
+function TogetherGroup(y as dynamic, inset as dynamic, width as dynamic, title as string, rows as object) as float
+    group = m.area.createChild("UiRowGroup")
+    if title <> "" then group.title = title
+    group.groupWidth = width
+    group.callFunc("setRows", rows)
+    Place(group, inset, y)
+    return y + group.groupHeight
+end function
+
+function TogetherRoom(y as dynamic, inset as dynamic, width as dynamic) as float
+    group = m.together.group
+    if m.together.phase = "ended" then
+        state = m.area.createChild("UiStateView")
+        state.stateWidth = m.width
+        state.icon = "people"
+        state.title = T("web.together.endedTitle")
+        state.message = GroupEndedWords(group.endedReason)
+        state.action = T("web.together.backToLobby")
+        state.observeField("actionPressed", "onTogetherDismiss")
+        Place(state, 0, y)
+        return y + state.boundingRect().height
+    end if
+    can = group.permissions
+    playing = group.timeline.state = "playing"
+    members = GroupJoined(group)
+    now = m.together.callFunc("serverNowMs")
+    ' The host is away: when the group pauses or ends unless they return, and taking over.
+    if group.host.presence <> "connected" then
+        notice = m.area.createChild("UiNotice")
+        notice.tone = "warning"
+        words = T("web.together.hostDropped")
+        deadline = GroupHostDeadline(group, now)
+        if deadline <> invalid then
+            left = FormatClock(Max(0, (deadline.at - now) / 1000))
+            if deadline.kind = "pauses" then
+                words = words + " " + T("web.together.pausesIn", { time: left })
+            else
+                words = words + " " + T("web.together.endsIn", { time: left })
+            end if
+        end if
+        notice.message = words
+        if not can.isHost then
+            notice.action = T("web.together.becomeHost")
+            notice.observeField("actionPressed", "onTogetherBecomeHost")
+        end if
+        notice.noticeWidth = width
+        Place(notice, inset, y)
+        y = y + notice.noticeHeight + Theme.space.md
+    end if
+    ' What is on, and where the group is in it.
+    pad = Theme.space.lg
+    badge = m.area.createChild("UiBadge")
+    badge.label = GroupStateLabel(group.state)
+    if playing then badge.tone = "accent"
+    itemId = group.timeline.itemId
+    known = TogetherTitle(itemId)
+    clockLine = ""
+    heading = T("web.together.nothingChosen")
+    line = T("web.together.hostPicks")
+    if can.canManageQueue then line = T("web.together.pickHelp")
+    if itemId <> "" then
+        clockLine = FormatClock(GroupTargetSeconds(group.timeline, now))
+        heading = T("web.together.loadingTitle")
+        if known.state = "hidden" then heading = T("web.together.hiddenTitle")
+        if known.state = "known" then
+            heading = known.title
+            if known.duration <> invalid and known.duration > 0 then clockLine = T("web.together.positionOf", { position: clockLine, duration: FormatClock(known.duration) })
+        end if
+        line = GroupReadinessLine(group)
+    end if
+    clock = MakeText(m.area, "caption", "tertiary", clockLine)
+    title = MakeText(m.area, "heading", "primary", heading)
+    title.maxWidth = width - pad * 2
+    status = MakeText(m.area, "caption", "tertiary", line)
+    status.maxWidth = width - pad * 2
+    control = invalid
+    if can.canControl and itemId <> "" then
+        label = T("web.together.playAnyway")
+        if group.readiness.aggregate = "ready" then label = T("web.together.playAll")
+        icon = "play"
+        if playing then
+            label = T("web.together.pauseAll")
+            icon = "pause"
+        end if
+        control = TogetherButton("control", "primary", label, icon, "onTogetherControl")
+        control.disabled = m.together.busy
+    end if
+    ' The player was closed while the group's title is on: it can be opened again.
+    reopen = invalid
+    scene = m.top.getScene()
+    if itemId <> "" and scene <> invalid and scene.callFunc("playerState").itemId <> itemId then reopen = TogetherButton("reopen", "secondary", T("web.together.openPlayer"), "play", "onTogetherReopen")
+    height = pad + Max(badge.boundingRect().height, clock.height) + Theme.space.sm + title.height + Theme.space.sm + status.height + pad
+    if control <> invalid or reopen <> invalid then
+        row = 0
+        if control <> invalid then row = control.controlHeight
+        if reopen <> invalid and reopen.controlHeight > row then row = reopen.controlHeight
+        height = height + Theme.space.md + row
+    end if
+    plate = TogetherSurface(y, inset, width, height)
+    nodes = [badge, clock, title, status]
+    if control <> invalid then nodes.push(control)
+    if reopen <> invalid then nodes.push(reopen)
+    for each node in nodes
+        m.area.removeChild(node)
+        m.area.appendChild(node)
+    end for
+    top = y + pad
+    Place(badge, inset + pad, top)
+    Place(clock, inset + pad + badge.boundingRect().width + Theme.space.sm, top)
+    top = top + Max(badge.boundingRect().height, clock.height) + Theme.space.sm
+    Place(title, inset + pad, top)
+    top = top + title.height + Theme.space.sm
+    Place(status, inset + pad, top)
+    left = inset + pad
+    if control <> invalid then
+        Place(control, left, top + status.height + Theme.space.md)
+        left = left + control.controlWidth + Theme.space.sm
+    end if
+    if reopen <> invalid then Place(reopen, left, top + status.height + Theme.space.md)
+    y = y + height + Theme.space.xl
+
+    ' Who is here.
+    rows = []
+    for each member in members
+        said = GroupMemberRow(group, member)
+        row = CreateObject("roSGNode", "UiListRow")
+        row.addFields({ memberId: member.id, memberName: member.displayName })
+        row.icon = "profile"
+        row.title = said.title
+        row.subtitle = said.subtitle
+        if can.isHost and member.role <> "host" then
+            row.trailingIcon = "more"
+            row.observeField("pressed", "onTogetherMember")
+        else
+            row.readable = true
+        end if
+        rows.push(TogetherKeep("member:" + member.id, row))
+    end for
+    people = T("web.together.justYou")
+    if members.count() <> 1 then people = T("web.together.people", { count: members.count() })
+    y = TogetherGroup(y, inset, width, people, rows) + Theme.space.xl
+
+    ' The invitation (the host's).
+    if can.isHost then
+        heading = MakeText(m.area, "label", "tertiary", T("web.together.invite"))
+        Place(heading, inset, y)
+        y = y + heading.height + Theme.space.sm
+        invite = m.together.invite
+        if invite <> invalid and invite.ok = true and IsoToMilliseconds(invite.expiresAt) <> invalid and IsoToMilliseconds(invite.expiresAt) > now then
+            shown = MakeText(m.area, "display", "primary", GroupCodeShown(invite.inviteCode))
+            help = MakeText(m.area, "caption", "tertiary", T("web.together.inviteHelpJoin", { uses: invite.maxUses, time: FormatTime(invite.expiresAt) }))
+            help.lines = 0
+            help.maxWidth = width - pad * 2
+            again = TogetherButton("invite", "ghost", T("web.together.newCode"), "", "onTogetherInvite")
+            again.disabled = m.together.busy
+            height = pad + shown.height + Theme.space.sm + TextHeight(help) + Theme.space.sm + again.controlHeight + pad
+            plate = TogetherSurface(y, inset, width, height)
+            for each node in [shown, help, again]
+                m.area.removeChild(node)
+                m.area.appendChild(node)
+            end for
+            Place(shown, inset + pad, y + pad)
+            Place(help, inset + pad, y + pad + shown.height + Theme.space.sm)
+            Place(again, inset + pad, y + pad + shown.height + Theme.space.sm + TextHeight(help) + Theme.space.sm)
+            y = y + height + Theme.space.xl
+        else
+            help = MakeText(m.area, "caption", "tertiary", T("web.together.codeHelp"))
+            help.maxWidth = width - pad * 2
+            getCode = TogetherButton("invite", "secondary", T("web.together.getCode"), "", "onTogetherInvite")
+            getCode.loading = m.together.busy
+            height = pad + help.height + Theme.space.sm + getCode.controlHeight + pad
+            plate = TogetherSurface(y, inset, width, height)
+            for each node in [help, getCode]
+                m.area.removeChild(node)
+                m.area.appendChild(node)
+            end for
+            Place(help, inset + pad, y + pad)
+            Place(getCode, inset + pad, y + pad + help.height + Theme.space.sm)
+            y = y + height + Theme.space.xl
+        end if
+    end if
+
+    ' The queue.
+    heading = MakeText(m.area, "label", "tertiary", T("player.queue"))
+    Place(heading, inset, y)
+    y = y + heading.height + Theme.space.sm
+    queue = m.together.queue
+    if queue <> invalid and queue.blocked.count() > 0 then
+        notice = m.area.createChild("UiNotice")
+        notice.tone = "warning"
+        notice.message = T("web.together.blockedSome", { names: queue.blocked.join(", ") })
+        notice.noticeWidth = width
+        Place(notice, inset, y)
+        y = y + notice.noticeHeight + Theme.space.md
+    end if
+    if queue <> invalid and queue.entries.count() > 0 then
+        rows = []
+        for each entry in queue.entries
+            row = CreateObject("roSGNode", "UiListRow")
+            row.addFields({ entryId: entry.entryId })
+            row.ordinal = (entry.position + 1).toStr()
+            named = invalid
+            if entry.itemId <> "" then named = TogetherTitle(entry.itemId)
+            row.title = T("web.together.loadingTitle")
+            if entry.unavailable or (named <> invalid and named.state = "hidden") then
+                row.title = T("web.together.notAvailable")
+                row.opacity = Theme.apple.busyOpacity
+            else if named <> invalid and named.state = "known" then
+                row.title = named.title
+            end if
+            if entry.entryId = group.timeline.currentEntryId then
+                row.subtitle = T("web.live.onNow")
+                row.selected = true
+            else if entry.unavailable then
+                row.subtitle = T("web.together.hiddenEntry")
+            end if
+            if can.canManageQueue then
+                row.trailingIcon = "more"
+                row.observeField("pressed", "onTogetherEntry")
+            else
+                row.readable = true
+            end if
+            rows.push(TogetherKeep("entry:" + entry.entryId, row))
+        end for
+        y = TogetherGroup(y, inset, width, "", rows) + Theme.space.xl
+    else
+        words = T("web.together.emptyQueue")
+        if can.canManageQueue then words = T("web.together.emptyQueueHost")
+        empty = MakeText(m.area, "caption", "tertiary", words)
+        empty.maxWidth = width
+        Place(empty, inset, y)
+        y = y + empty.height + Theme.space.xl
+    end if
+
+    ' Leaving, and ending for everyone.
+    out = TogetherButton("leave", "ghost", T("web.together.leave"), "", "onTogetherLeave")
+    Place(out, inset, y)
+    rowHeight = out.controlHeight
+    if can.isHost then
+        finish = TogetherButton("end", "ghost", T("web.together.endAll"), "", "onTogetherEnd")
+        Place(finish, inset + out.controlWidth + Theme.space.sm, y)
+    end if
+    return y + rowHeight
+end function
+
+' ---- The lobby's sheets ----------------------------------------------------------------------------
+
+sub onTogetherStart()
+    TogetherSheet("start")
+end sub
+
+sub onTogetherJoin()
+    TogetherSheet("join")
+end sub
+
+sub TogetherSheet(kind as string)
+    if m.sheet = invalid then
+        m.sheet = m.top.createChild("UiSheet")
+        m.sheet.kind = "form"
+        m.sheet.observeField("primaryPressed", "onTogetherSheetPrimary")
+        m.sheet.observeField("closed", "onTogetherOverlayClosed")
+    end if
+    m.sheetKind = kind
+    TogetherSheetBody()
+    m.sheet.callFunc("open")
+end sub
+
+sub TogetherSheetBody()
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    y = 0
+    m.fields = {}
+    first = invalid
+    fields = [["name", T("profile.name"), ""], ["who", T("web.together.yourName"), ""]]
+    if m.sheetKind = "join" then
+        m.sheet.title = T("web.together.joinWithCode")
+        m.sheet.primaryLabel = T("web.together.join")
+        m.sheet.primaryDisabled = not GroupCodeReady(m.form.code)
+        fields = [["code", T("web.together.hostCode"), T("web.together.codeExample")], ["who", T("web.together.yourName"), ""]]
+    else
+        m.sheet.title = T("web.together.startTitle")
+        m.sheet.primaryLabel = T("web.together.start")
+        m.sheet.primaryDisabled = false
+    end if
+    m.sheet.primaryLoading = m.together.busy
+    for each item in fields
+        field = body.createChild("UiField")
+        field.addFields({ formKey: item[0] })
+        field.label = item[1]
+        if item[2] <> "" then field.placeholder = item[2]
+        field.value = m.form[item[0]]
+        field.fieldWidth = width
+        field.observeField("submitted", "onTogetherField")
+        Place(field, 0, y)
+        y = y + field.fieldHeight + Theme.space.md
+        m.fields[item[0]] = field
+        if first = invalid then first = field
+    end for
+    if m.sheetKind = "start" then
+        ' Who can play, pause and choose what is on.
+        label = MakeText(body, "label", "tertiary", T("web.together.whoControls"))
+        Place(label, 0, y)
+        y = y + label.height + Theme.space.xs
+        m.authority = body.createChild("UiTabs")
+        m.authority.mode = "segmented"
+        m.authority.items = [{ id: "host-only", label: T("web.together.onlyMe") }, { id: "anyone", label: T("web.together.everyone") }]
+        m.authority.selected = m.form.authority
+        m.authority.observeField("chosen", "onTogetherAuthority")
+        Place(m.authority, 0, y)
+        y = y + m.authority.tabsHeight
+    end if
+    m.sheet.callFunc("setBody", body, y)
+    if first <> invalid and m.sheet.isOpen then m.sheet.callFunc("focusBody", first)
+end sub
+
+sub onTogetherField(event as object)
+    field = event.getRoSGNode()
+    value = field.value
+    if field.formKey = "code" then value = UCase(value)
+    m.form[field.formKey] = value
+    if m.sheetKind = "join" then m.sheet.primaryDisabled = not GroupCodeReady(m.form.code)
+end sub
+
+sub onTogetherAuthority()
+    m.form.authority = m.authority.chosen
+    m.authority.selected = m.form.authority
+end sub
+
+sub onTogetherSheetPrimary()
+    if m.together.busy then return
+    if m.sheetKind = "join" then
+        if not GroupCodeReady(m.form.code) then return
+        m.together.callFunc("join", { code: m.form.code, displayName: m.form.who })
+    else
+        name = m.form.name.trim()
+        ' A group with no name is named for who started it.
+        if name = "" then name = T("web.together.defaultName", { name: m.form.who })
+        m.together.callFunc("create", { name: name, displayName: m.form.who, hostAuthority: m.form.authority })
+    end if
+    m.sheet.primaryLoading = true
+end sub
+
+sub onTogetherOpen(event as object)
+    m.together.callFunc("openGroup", event.getRoSGNode().groupId)
+end sub
+
+' ---- The room's controls ---------------------------------------------------------------------------
+
+sub onTogetherControl()
+    group = m.together.group
+    if group = invalid or m.together.busy then return
+    command = "play"
+    if group.timeline.state = "playing" then command = "pause"
+    m.together.callFunc("transport", { command: command })
+end sub
+
+sub onTogetherReopen()
+    m.together.callFunc("rejoin")
+end sub
+
+sub onTogetherGoAhead()
+    refused = m.together.refused
+    if refused = invalid then return
+    input = {}
+    if refused.input <> invalid then input.append(refused.input)
+    input.allowUnavailable = true
+    m.together.callFunc("transport", { command: refused.command, input: input })
+end sub
+
+sub onTogetherBecomeHost()
+    group = m.together.group
+    if group <> invalid then m.together.callFunc("makeHost", group.viewerMemberId)
+end sub
+
+sub onTogetherInvite()
+    m.together.callFunc("makeInvite")
+end sub
+
+sub onTogetherDismiss()
+    m.together.callFunc("dismiss")
+    m.together.callFunc("refreshDirectory")
+end sub
+
+sub TogetherMenu(subject as object, title as string, items as object)
+    if m.menu = invalid then
+        m.menu = m.top.createChild("UiMenu")
+        m.menu.observeField("chosen", "onTogetherChoice")
+        m.menu.observeField("closed", "onTogetherOverlayClosed")
+    end if
+    m.menuFor = subject
+    m.menu.title = title
+    m.menu.items = items
+    m.menu.callFunc("open")
+end sub
+
+sub onTogetherMember(event as object)
+    row = event.getRoSGNode()
+    TogetherMenu({ kind: "member", id: row.memberId }, row.memberName, [{ id: "host", label: T("web.together.makeHost"), icon: "profile" }])
+end sub
+
+sub onTogetherEntry(event as object)
+    row = event.getRoSGNode()
+    group = m.together.group
+    queue = m.together.queue
+    if group = invalid or queue = invalid then return
+    for each entry in queue.entries
+        if entry.entryId = row.entryId then TogetherMenu({ kind: "entry", id: entry.entryId }, row.title, GroupEntryActions(group, entry))
+    end for
+end sub
+
+sub onTogetherChoice()
+    subject = m.menuFor
+    if subject = invalid then return
+    chosen = m.menu.chosen
+    if subject.kind = "member" then
+        m.together.callFunc("makeHost", subject.id)
+    else if chosen = "load" then
+        m.together.callFunc("transport", { command: "load", input: { entryId: subject.id } })
+    else if chosen = "remove" then
+        m.together.callFunc("queueRemove", subject.id)
+    end if
+end sub
+
+sub onTogetherLeave()
+    group = m.together.group
+    if group = invalid then return
+    ' A host with company is asked first: the group needs a host.
+    if group.permissions.isHost and GroupJoined(group).count() > 1 then
+        TogetherConfirm("leave")
+    else
+        m.together.callFunc("leaveGroup")
+    end if
+end sub
+
+sub onTogetherEnd()
+    TogetherConfirm("end")
+end sub
+
+sub TogetherConfirm(kind as string)
+    if m.confirm = invalid then
+        m.confirm = m.top.createChild("UiSheet")
+        m.confirm.kind = "form"
+        m.confirm.primaryTone = "destructive"
+        m.confirm.observeField("primaryPressed", "onTogetherConfirmed")
+        m.confirm.observeField("closed", "onTogetherOverlayClosed")
+    end if
+    m.confirmKind = kind
+    words = ""
+    if kind = "end" then
+        m.confirm.title = T("confirm.endGroup.title")
+        m.confirm.primaryLabel = T("confirm.endGroup.action")
+        words = T("confirm.endGroup.body")
+    else
+        m.confirm.title = T("confirm.leaveAsHost.title")
+        m.confirm.primaryLabel = T("confirm.leaveAsHost.action")
+        words = T("confirm.leaveAsHost.body")
+    end if
+    body = CreateObject("roSGNode", "Group")
+    text = MakeText(body, "body", "secondary")
+    text.lines = 0
+    text.maxWidth = m.confirm.bodyWidth - Theme.space.md * 2
+    text.value = words
+    Place(text, Theme.space.md, 0)
+    m.confirm.callFunc("setBody", body, TextHeight(text))
+    m.confirm.callFunc("open")
+end sub
+
+sub onTogetherConfirmed()
+    m.confirm.callFunc("close")
+    if m.confirmKind = "end" then
+        m.together.callFunc("endGroup")
+    else
+        m.together.callFunc("leaveGroup")
+    end if
+end sub

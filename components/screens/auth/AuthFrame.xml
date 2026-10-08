@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/AuthFrame.tsx: the shared frame of every screen before sign-in. -->
+<component name="AuthFrame" extends="Group">
+    <interface>
+        <field id="title" type="string" value="" onChange="onFrameLayout" />
+        <field id="lead" type="string" value="" onChange="onFrameLayout" />
+        <!-- A sign-in that ended says so quietly here. -->
+        <field id="note" type="string" value="" onChange="onFrameLayout" />
+        <field id="error" type="string" value="" onChange="onFrameLayout" />
+        <!-- A television landing that needs the width of the screen. -->
+        <field id="wide" type="boolean" value="false" onChange="onFrameLayout" />
+        <field id="centered" type="boolean" value="false" onChange="onFrameLayout" />
+        <field id="dismissable" type="boolean" value="true" onChange="onFrameLayout" />
+        <!-- The width a screen lays its content out in. -->
+        <field id="contentWidth" type="float" value="0" />
+        <field id="errorDismissed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="setContent" />
+        <function name="focusContent" />
+    </interface>
+</component>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Feedback.tsx `Ring`: the thin ring Portico waits with. -->
+<component name="UiSpinner" extends="Group">
+    <interface>
+        <!-- inline | region | screen (componentSpec.feedback.spinner.size), or an explicit size. -->
+        <field id="kind" type="string" value="screen" onChange="onSpinnerLayout" />
+        <field id="size" type="float" value="0" onChange="onSpinnerLayout" />
+        <!-- A palette colour for both track and arc (a button's foreground). -->
+        <field id="tint" type="string" value="" onChange="onSpinnerLayout" />
+        <field id="spinning" type="boolean" value="true" onChange="onSpinnerRun" />
+    </interface>
+</component>

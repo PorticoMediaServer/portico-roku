@@ -1,0 +1,2365 @@
+{
+ "now": 1791028800,
+ "regions": [
+  {
+   "locale": "en-US",
+   "hour12": true,
+   "catalogue": {
+    "duration.hoursMinutes": "{hours}h {minutes}m",
+    "duration.hours": "{hours}h",
+    "duration.minutes": "{minutes}m",
+    "duration.seconds": "{seconds}s",
+    "duration.long.hoursMinutes": "{hours, plural, one {# hour} other {# hours}} {minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.hours": "{hours, plural, one {# hour} other {# hours}}",
+    "duration.long.minutes": "{minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.seconds": "{seconds, plural, one {# second} other {# seconds}}",
+    "duration.remaining": "{duration} left",
+    "relative.justNow": "Just now",
+    "relative.minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+    "relative.hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+    "relative.daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "relative.yesterday": "Yesterday",
+    "list.and": "{first} and {second}"
+   },
+   "dates": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "medium",
+     "text": "Oct 3, 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "dayMonth",
+     "text": "Oct 3"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "monthYear",
+     "text": "October 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "weekday",
+     "text": "Saturday, Oct 3"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "medium",
+     "text": "Sep 1, 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "dayMonth",
+     "text": "Sep 1"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "monthYear",
+     "text": "September 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "weekday",
+     "text": "Tuesday, Sep 1"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "medium",
+     "text": "Jan 9, 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "dayMonth",
+     "text": "Jan 9"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "monthYear",
+     "text": "January 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "weekday",
+     "text": "Friday, Jan 9"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "medium",
+     "text": "Dec 31, 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "dayMonth",
+     "text": "Dec 31"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "monthYear",
+     "text": "December 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "year",
+     "text": "2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "weekday",
+     "text": "Wednesday, Dec 31"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "medium",
+     "text": "May 17, 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "dayMonth",
+     "text": "May 17"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "monthYear",
+     "text": "May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "weekday",
+     "text": "Sunday, May 17"
+    }
+   ],
+   "times": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "text": "12:00 PM"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "text": "12:05 AM"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "text": "9:41 PM"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "text": "11:59 PM"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "text": "8:07 AM"
+    }
+   ],
+   "durations": [
+    {
+     "seconds": 0,
+     "style": "short",
+     "text": ""
+    },
+    {
+     "seconds": 0,
+     "style": "long",
+     "text": ""
+    },
+    {
+     "seconds": 5,
+     "style": "short",
+     "text": "5s"
+    },
+    {
+     "seconds": 5,
+     "style": "long",
+     "text": "5 seconds"
+    },
+    {
+     "seconds": 59,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 59,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 60,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 60,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 61,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 61,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 90,
+     "style": "short",
+     "text": "2m"
+    },
+    {
+     "seconds": 90,
+     "style": "long",
+     "text": "2 minutes"
+    },
+    {
+     "seconds": 3599,
+     "style": "short",
+     "text": "60m"
+    },
+    {
+     "seconds": 3599,
+     "style": "long",
+     "text": "60 minutes"
+    },
+    {
+     "seconds": 3600,
+     "style": "short",
+     "text": "1h"
+    },
+    {
+     "seconds": 3600,
+     "style": "long",
+     "text": "1 hour"
+    },
+    {
+     "seconds": 3660,
+     "style": "short",
+     "text": "1h 1m"
+    },
+    {
+     "seconds": 3660,
+     "style": "long",
+     "text": "1 hour 1 minute"
+    },
+    {
+     "seconds": 6120,
+     "style": "short",
+     "text": "1h 42m"
+    },
+    {
+     "seconds": 6120,
+     "style": "long",
+     "text": "1 hour 42 minutes"
+    },
+    {
+     "seconds": 86400,
+     "style": "short",
+     "text": "24h"
+    },
+    {
+     "seconds": 86400,
+     "style": "long",
+     "text": "24 hours"
+    },
+    {
+     "seconds": 90061,
+     "style": "short",
+     "text": "25h 1m"
+    },
+    {
+     "seconds": 90061,
+     "style": "long",
+     "text": "25 hours 1 minute"
+    }
+   ],
+   "clocks": [
+    {
+     "seconds": 0,
+     "text": "0:00"
+    },
+    {
+     "seconds": 5,
+     "text": "0:05"
+    },
+    {
+     "seconds": 65,
+     "text": "1:05"
+    },
+    {
+     "seconds": 245,
+     "text": "4:05"
+    },
+    {
+     "seconds": 3600,
+     "text": "1:00:00"
+    },
+    {
+     "seconds": 3723,
+     "text": "1:02:03"
+    },
+    {
+     "seconds": 36000,
+     "text": "10:00:00"
+    },
+    {
+     "seconds": -4,
+     "text": "0:00"
+    }
+   ],
+   "relative": [
+    {
+     "value": "2026-10-03T11:59:50.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:16.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:15.000Z",
+     "text": "1 minute ago"
+    },
+    {
+     "value": "2026-10-03T11:55:00.000Z",
+     "text": "5 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:05:00.000Z",
+     "text": "55 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:00:00.000Z",
+     "text": "1 hour ago"
+    },
+    {
+     "value": "2026-10-03T10:00:00.000Z",
+     "text": "2 hours ago"
+    },
+    {
+     "value": "2026-10-02T13:46:40.000Z",
+     "text": "22 hours ago"
+    },
+    {
+     "value": "2026-10-02T12:00:00.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-10-02T08:13:20.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-09-30T00:40:00.000Z",
+     "text": "3 days ago"
+    },
+    {
+     "value": "2026-09-26T13:20:00.000Z",
+     "text": "Sep 26"
+    },
+    {
+     "value": "2026-07-26T01:20:00.000Z",
+     "text": "Jul 26"
+    },
+    {
+     "value": "2025-10-21T06:40:00.000Z",
+     "text": "Oct 21, 2025"
+    }
+   ],
+   "bytes": [
+    {
+     "value": 0,
+     "text": "0 B"
+    },
+    {
+     "value": 512,
+     "text": "512 B"
+    },
+    {
+     "value": 1023,
+     "text": "1,023 B"
+    },
+    {
+     "value": 1024,
+     "text": "1 KB"
+    },
+    {
+     "value": 1536,
+     "text": "1.5 KB"
+    },
+    {
+     "value": 10240,
+     "text": "10 KB"
+    },
+    {
+     "value": 1048576,
+     "text": "1 MB"
+    },
+    {
+     "value": 1500000000,
+     "text": "1.4 GB"
+    },
+    {
+     "value": 5368709120,
+     "text": "5 GB"
+    },
+    {
+     "value": 3298534883328,
+     "text": "3 TB"
+    }
+   ],
+   "lists": [
+    {
+     "items": [],
+     "text": ""
+    },
+    {
+     "items": [
+      "A"
+     ],
+     "text": "A"
+    },
+    {
+     "items": [
+      "A",
+      "B"
+     ],
+     "text": "A and B"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C"
+     ],
+     "text": "A, B, and C"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "text": "A, B, C, and D"
+    }
+   ]
+  },
+  {
+   "locale": "en-GB",
+   "hour12": false,
+   "catalogue": {
+    "duration.hoursMinutes": "{hours}h {minutes}m",
+    "duration.hours": "{hours}h",
+    "duration.minutes": "{minutes}m",
+    "duration.seconds": "{seconds}s",
+    "duration.long.hoursMinutes": "{hours, plural, one {# hour} other {# hours}} {minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.hours": "{hours, plural, one {# hour} other {# hours}}",
+    "duration.long.minutes": "{minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.seconds": "{seconds, plural, one {# second} other {# seconds}}",
+    "duration.remaining": "{duration} left",
+    "relative.justNow": "Just now",
+    "relative.minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+    "relative.hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+    "relative.daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "relative.yesterday": "Yesterday",
+    "list.and": "{first} and {second}"
+   },
+   "dates": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "medium",
+     "text": "3 Oct 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "dayMonth",
+     "text": "3 Oct"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "monthYear",
+     "text": "October 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "weekday",
+     "text": "Saturday 3 Oct"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "medium",
+     "text": "1 Sept 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "dayMonth",
+     "text": "1 Sept"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "monthYear",
+     "text": "September 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "weekday",
+     "text": "Tuesday 1 Sept"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "medium",
+     "text": "9 Jan 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "dayMonth",
+     "text": "9 Jan"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "monthYear",
+     "text": "January 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "weekday",
+     "text": "Friday 9 Jan"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "medium",
+     "text": "31 Dec 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "dayMonth",
+     "text": "31 Dec"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "monthYear",
+     "text": "December 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "year",
+     "text": "2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "weekday",
+     "text": "Wednesday 31 Dec"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "medium",
+     "text": "17 May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "dayMonth",
+     "text": "17 May"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "monthYear",
+     "text": "May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "weekday",
+     "text": "Sunday 17 May"
+    }
+   ],
+   "times": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "text": "12:00"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "text": "0:05"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "text": "21:41"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "text": "23:59"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "text": "8:07"
+    }
+   ],
+   "durations": [
+    {
+     "seconds": 0,
+     "style": "short",
+     "text": ""
+    },
+    {
+     "seconds": 0,
+     "style": "long",
+     "text": ""
+    },
+    {
+     "seconds": 5,
+     "style": "short",
+     "text": "5s"
+    },
+    {
+     "seconds": 5,
+     "style": "long",
+     "text": "5 seconds"
+    },
+    {
+     "seconds": 59,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 59,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 60,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 60,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 61,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 61,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 90,
+     "style": "short",
+     "text": "2m"
+    },
+    {
+     "seconds": 90,
+     "style": "long",
+     "text": "2 minutes"
+    },
+    {
+     "seconds": 3599,
+     "style": "short",
+     "text": "60m"
+    },
+    {
+     "seconds": 3599,
+     "style": "long",
+     "text": "60 minutes"
+    },
+    {
+     "seconds": 3600,
+     "style": "short",
+     "text": "1h"
+    },
+    {
+     "seconds": 3600,
+     "style": "long",
+     "text": "1 hour"
+    },
+    {
+     "seconds": 3660,
+     "style": "short",
+     "text": "1h 1m"
+    },
+    {
+     "seconds": 3660,
+     "style": "long",
+     "text": "1 hour 1 minute"
+    },
+    {
+     "seconds": 6120,
+     "style": "short",
+     "text": "1h 42m"
+    },
+    {
+     "seconds": 6120,
+     "style": "long",
+     "text": "1 hour 42 minutes"
+    },
+    {
+     "seconds": 86400,
+     "style": "short",
+     "text": "24h"
+    },
+    {
+     "seconds": 86400,
+     "style": "long",
+     "text": "24 hours"
+    },
+    {
+     "seconds": 90061,
+     "style": "short",
+     "text": "25h 1m"
+    },
+    {
+     "seconds": 90061,
+     "style": "long",
+     "text": "25 hours 1 minute"
+    }
+   ],
+   "clocks": [
+    {
+     "seconds": 0,
+     "text": "0:00"
+    },
+    {
+     "seconds": 5,
+     "text": "0:05"
+    },
+    {
+     "seconds": 65,
+     "text": "1:05"
+    },
+    {
+     "seconds": 245,
+     "text": "4:05"
+    },
+    {
+     "seconds": 3600,
+     "text": "1:00:00"
+    },
+    {
+     "seconds": 3723,
+     "text": "1:02:03"
+    },
+    {
+     "seconds": 36000,
+     "text": "10:00:00"
+    },
+    {
+     "seconds": -4,
+     "text": "0:00"
+    }
+   ],
+   "relative": [
+    {
+     "value": "2026-10-03T11:59:50.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:16.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:15.000Z",
+     "text": "1 minute ago"
+    },
+    {
+     "value": "2026-10-03T11:55:00.000Z",
+     "text": "5 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:05:00.000Z",
+     "text": "55 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:00:00.000Z",
+     "text": "1 hour ago"
+    },
+    {
+     "value": "2026-10-03T10:00:00.000Z",
+     "text": "2 hours ago"
+    },
+    {
+     "value": "2026-10-02T13:46:40.000Z",
+     "text": "22 hours ago"
+    },
+    {
+     "value": "2026-10-02T12:00:00.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-10-02T08:13:20.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-09-30T00:40:00.000Z",
+     "text": "3 days ago"
+    },
+    {
+     "value": "2026-09-26T13:20:00.000Z",
+     "text": "26 Sept"
+    },
+    {
+     "value": "2026-07-26T01:20:00.000Z",
+     "text": "26 Jul"
+    },
+    {
+     "value": "2025-10-21T06:40:00.000Z",
+     "text": "21 Oct 2025"
+    }
+   ],
+   "bytes": [
+    {
+     "value": 0,
+     "text": "0 B"
+    },
+    {
+     "value": 512,
+     "text": "512 B"
+    },
+    {
+     "value": 1023,
+     "text": "1,023 B"
+    },
+    {
+     "value": 1024,
+     "text": "1 KB"
+    },
+    {
+     "value": 1536,
+     "text": "1.5 KB"
+    },
+    {
+     "value": 10240,
+     "text": "10 KB"
+    },
+    {
+     "value": 1048576,
+     "text": "1 MB"
+    },
+    {
+     "value": 1500000000,
+     "text": "1.4 GB"
+    },
+    {
+     "value": 5368709120,
+     "text": "5 GB"
+    },
+    {
+     "value": 3298534883328,
+     "text": "3 TB"
+    }
+   ],
+   "lists": [
+    {
+     "items": [],
+     "text": ""
+    },
+    {
+     "items": [
+      "A"
+     ],
+     "text": "A"
+    },
+    {
+     "items": [
+      "A",
+      "B"
+     ],
+     "text": "A and B"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C"
+     ],
+     "text": "A, B and C"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "text": "A, B, C and D"
+    }
+   ]
+  },
+  {
+   "locale": "en-CA",
+   "hour12": true,
+   "catalogue": {
+    "duration.hoursMinutes": "{hours}h {minutes}m",
+    "duration.hours": "{hours}h",
+    "duration.minutes": "{minutes}m",
+    "duration.seconds": "{seconds}s",
+    "duration.long.hoursMinutes": "{hours, plural, one {# hour} other {# hours}} {minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.hours": "{hours, plural, one {# hour} other {# hours}}",
+    "duration.long.minutes": "{minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.seconds": "{seconds, plural, one {# second} other {# seconds}}",
+    "duration.remaining": "{duration} left",
+    "relative.justNow": "Just now",
+    "relative.minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+    "relative.hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+    "relative.daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "relative.yesterday": "Yesterday",
+    "list.and": "{first} and {second}"
+   },
+   "dates": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "medium",
+     "text": "Oct 3, 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "dayMonth",
+     "text": "Oct 3"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "monthYear",
+     "text": "October 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "weekday",
+     "text": "Saturday, Oct 3"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "medium",
+     "text": "Sep 1, 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "dayMonth",
+     "text": "Sep 1"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "monthYear",
+     "text": "September 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "weekday",
+     "text": "Tuesday, Sep 1"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "medium",
+     "text": "Jan 9, 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "dayMonth",
+     "text": "Jan 9"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "monthYear",
+     "text": "January 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "weekday",
+     "text": "Friday, Jan 9"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "medium",
+     "text": "Dec 31, 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "dayMonth",
+     "text": "Dec 31"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "monthYear",
+     "text": "December 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "year",
+     "text": "2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "weekday",
+     "text": "Wednesday, Dec 31"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "medium",
+     "text": "May 17, 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "dayMonth",
+     "text": "May 17"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "monthYear",
+     "text": "May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "weekday",
+     "text": "Sunday, May 17"
+    }
+   ],
+   "times": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "text": "12:00 p.m."
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "text": "12:05 a.m."
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "text": "9:41 p.m."
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "text": "11:59 p.m."
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "text": "8:07 a.m."
+    }
+   ],
+   "durations": [
+    {
+     "seconds": 0,
+     "style": "short",
+     "text": ""
+    },
+    {
+     "seconds": 0,
+     "style": "long",
+     "text": ""
+    },
+    {
+     "seconds": 5,
+     "style": "short",
+     "text": "5s"
+    },
+    {
+     "seconds": 5,
+     "style": "long",
+     "text": "5 seconds"
+    },
+    {
+     "seconds": 59,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 59,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 60,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 60,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 61,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 61,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 90,
+     "style": "short",
+     "text": "2m"
+    },
+    {
+     "seconds": 90,
+     "style": "long",
+     "text": "2 minutes"
+    },
+    {
+     "seconds": 3599,
+     "style": "short",
+     "text": "60m"
+    },
+    {
+     "seconds": 3599,
+     "style": "long",
+     "text": "60 minutes"
+    },
+    {
+     "seconds": 3600,
+     "style": "short",
+     "text": "1h"
+    },
+    {
+     "seconds": 3600,
+     "style": "long",
+     "text": "1 hour"
+    },
+    {
+     "seconds": 3660,
+     "style": "short",
+     "text": "1h 1m"
+    },
+    {
+     "seconds": 3660,
+     "style": "long",
+     "text": "1 hour 1 minute"
+    },
+    {
+     "seconds": 6120,
+     "style": "short",
+     "text": "1h 42m"
+    },
+    {
+     "seconds": 6120,
+     "style": "long",
+     "text": "1 hour 42 minutes"
+    },
+    {
+     "seconds": 86400,
+     "style": "short",
+     "text": "24h"
+    },
+    {
+     "seconds": 86400,
+     "style": "long",
+     "text": "24 hours"
+    },
+    {
+     "seconds": 90061,
+     "style": "short",
+     "text": "25h 1m"
+    },
+    {
+     "seconds": 90061,
+     "style": "long",
+     "text": "25 hours 1 minute"
+    }
+   ],
+   "clocks": [
+    {
+     "seconds": 0,
+     "text": "0:00"
+    },
+    {
+     "seconds": 5,
+     "text": "0:05"
+    },
+    {
+     "seconds": 65,
+     "text": "1:05"
+    },
+    {
+     "seconds": 245,
+     "text": "4:05"
+    },
+    {
+     "seconds": 3600,
+     "text": "1:00:00"
+    },
+    {
+     "seconds": 3723,
+     "text": "1:02:03"
+    },
+    {
+     "seconds": 36000,
+     "text": "10:00:00"
+    },
+    {
+     "seconds": -4,
+     "text": "0:00"
+    }
+   ],
+   "relative": [
+    {
+     "value": "2026-10-03T11:59:50.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:16.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:15.000Z",
+     "text": "1 minute ago"
+    },
+    {
+     "value": "2026-10-03T11:55:00.000Z",
+     "text": "5 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:05:00.000Z",
+     "text": "55 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:00:00.000Z",
+     "text": "1 hour ago"
+    },
+    {
+     "value": "2026-10-03T10:00:00.000Z",
+     "text": "2 hours ago"
+    },
+    {
+     "value": "2026-10-02T13:46:40.000Z",
+     "text": "22 hours ago"
+    },
+    {
+     "value": "2026-10-02T12:00:00.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-10-02T08:13:20.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-09-30T00:40:00.000Z",
+     "text": "3 days ago"
+    },
+    {
+     "value": "2026-09-26T13:20:00.000Z",
+     "text": "Sep 26"
+    },
+    {
+     "value": "2026-07-26T01:20:00.000Z",
+     "text": "Jul 26"
+    },
+    {
+     "value": "2025-10-21T06:40:00.000Z",
+     "text": "Oct 21, 2025"
+    }
+   ],
+   "bytes": [
+    {
+     "value": 0,
+     "text": "0 B"
+    },
+    {
+     "value": 512,
+     "text": "512 B"
+    },
+    {
+     "value": 1023,
+     "text": "1,023 B"
+    },
+    {
+     "value": 1024,
+     "text": "1 KB"
+    },
+    {
+     "value": 1536,
+     "text": "1.5 KB"
+    },
+    {
+     "value": 10240,
+     "text": "10 KB"
+    },
+    {
+     "value": 1048576,
+     "text": "1 MB"
+    },
+    {
+     "value": 1500000000,
+     "text": "1.4 GB"
+    },
+    {
+     "value": 5368709120,
+     "text": "5 GB"
+    },
+    {
+     "value": 3298534883328,
+     "text": "3 TB"
+    }
+   ],
+   "lists": [
+    {
+     "items": [],
+     "text": ""
+    },
+    {
+     "items": [
+      "A"
+     ],
+     "text": "A"
+    },
+    {
+     "items": [
+      "A",
+      "B"
+     ],
+     "text": "A and B"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C"
+     ],
+     "text": "A, B and C"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "text": "A, B, C and D"
+    }
+   ]
+  },
+  {
+   "locale": "en-GB",
+   "hour12": true,
+   "catalogue": {
+    "duration.hoursMinutes": "{hours}h {minutes}m",
+    "duration.hours": "{hours}h",
+    "duration.minutes": "{minutes}m",
+    "duration.seconds": "{seconds}s",
+    "duration.long.hoursMinutes": "{hours, plural, one {# hour} other {# hours}} {minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.hours": "{hours, plural, one {# hour} other {# hours}}",
+    "duration.long.minutes": "{minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.seconds": "{seconds, plural, one {# second} other {# seconds}}",
+    "duration.remaining": "{duration} left",
+    "relative.justNow": "Just now",
+    "relative.minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+    "relative.hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+    "relative.daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "relative.yesterday": "Yesterday",
+    "list.and": "{first} and {second}"
+   },
+   "dates": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "medium",
+     "text": "3 Oct 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "dayMonth",
+     "text": "3 Oct"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "monthYear",
+     "text": "October 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "weekday",
+     "text": "Saturday 3 Oct"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "medium",
+     "text": "1 Sept 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "dayMonth",
+     "text": "1 Sept"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "monthYear",
+     "text": "September 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "weekday",
+     "text": "Tuesday 1 Sept"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "medium",
+     "text": "9 Jan 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "dayMonth",
+     "text": "9 Jan"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "monthYear",
+     "text": "January 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "weekday",
+     "text": "Friday 9 Jan"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "medium",
+     "text": "31 Dec 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "dayMonth",
+     "text": "31 Dec"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "monthYear",
+     "text": "December 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "year",
+     "text": "2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "weekday",
+     "text": "Wednesday 31 Dec"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "medium",
+     "text": "17 May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "dayMonth",
+     "text": "17 May"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "monthYear",
+     "text": "May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "weekday",
+     "text": "Sunday 17 May"
+    }
+   ],
+   "times": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "text": "12:00 pm"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "text": "12:05 am"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "text": "9:41 pm"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "text": "11:59 pm"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "text": "8:07 am"
+    }
+   ],
+   "durations": [
+    {
+     "seconds": 0,
+     "style": "short",
+     "text": ""
+    },
+    {
+     "seconds": 0,
+     "style": "long",
+     "text": ""
+    },
+    {
+     "seconds": 5,
+     "style": "short",
+     "text": "5s"
+    },
+    {
+     "seconds": 5,
+     "style": "long",
+     "text": "5 seconds"
+    },
+    {
+     "seconds": 59,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 59,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 60,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 60,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 61,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 61,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 90,
+     "style": "short",
+     "text": "2m"
+    },
+    {
+     "seconds": 90,
+     "style": "long",
+     "text": "2 minutes"
+    },
+    {
+     "seconds": 3599,
+     "style": "short",
+     "text": "60m"
+    },
+    {
+     "seconds": 3599,
+     "style": "long",
+     "text": "60 minutes"
+    },
+    {
+     "seconds": 3600,
+     "style": "short",
+     "text": "1h"
+    },
+    {
+     "seconds": 3600,
+     "style": "long",
+     "text": "1 hour"
+    },
+    {
+     "seconds": 3660,
+     "style": "short",
+     "text": "1h 1m"
+    },
+    {
+     "seconds": 3660,
+     "style": "long",
+     "text": "1 hour 1 minute"
+    },
+    {
+     "seconds": 6120,
+     "style": "short",
+     "text": "1h 42m"
+    },
+    {
+     "seconds": 6120,
+     "style": "long",
+     "text": "1 hour 42 minutes"
+    },
+    {
+     "seconds": 86400,
+     "style": "short",
+     "text": "24h"
+    },
+    {
+     "seconds": 86400,
+     "style": "long",
+     "text": "24 hours"
+    },
+    {
+     "seconds": 90061,
+     "style": "short",
+     "text": "25h 1m"
+    },
+    {
+     "seconds": 90061,
+     "style": "long",
+     "text": "25 hours 1 minute"
+    }
+   ],
+   "clocks": [
+    {
+     "seconds": 0,
+     "text": "0:00"
+    },
+    {
+     "seconds": 5,
+     "text": "0:05"
+    },
+    {
+     "seconds": 65,
+     "text": "1:05"
+    },
+    {
+     "seconds": 245,
+     "text": "4:05"
+    },
+    {
+     "seconds": 3600,
+     "text": "1:00:00"
+    },
+    {
+     "seconds": 3723,
+     "text": "1:02:03"
+    },
+    {
+     "seconds": 36000,
+     "text": "10:00:00"
+    },
+    {
+     "seconds": -4,
+     "text": "0:00"
+    }
+   ],
+   "relative": [
+    {
+     "value": "2026-10-03T11:59:50.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:16.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:15.000Z",
+     "text": "1 minute ago"
+    },
+    {
+     "value": "2026-10-03T11:55:00.000Z",
+     "text": "5 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:05:00.000Z",
+     "text": "55 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:00:00.000Z",
+     "text": "1 hour ago"
+    },
+    {
+     "value": "2026-10-03T10:00:00.000Z",
+     "text": "2 hours ago"
+    },
+    {
+     "value": "2026-10-02T13:46:40.000Z",
+     "text": "22 hours ago"
+    },
+    {
+     "value": "2026-10-02T12:00:00.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-10-02T08:13:20.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-09-30T00:40:00.000Z",
+     "text": "3 days ago"
+    },
+    {
+     "value": "2026-09-26T13:20:00.000Z",
+     "text": "26 Sept"
+    },
+    {
+     "value": "2026-07-26T01:20:00.000Z",
+     "text": "26 Jul"
+    },
+    {
+     "value": "2025-10-21T06:40:00.000Z",
+     "text": "21 Oct 2025"
+    }
+   ],
+   "bytes": [
+    {
+     "value": 0,
+     "text": "0 B"
+    },
+    {
+     "value": 512,
+     "text": "512 B"
+    },
+    {
+     "value": 1023,
+     "text": "1,023 B"
+    },
+    {
+     "value": 1024,
+     "text": "1 KB"
+    },
+    {
+     "value": 1536,
+     "text": "1.5 KB"
+    },
+    {
+     "value": 10240,
+     "text": "10 KB"
+    },
+    {
+     "value": 1048576,
+     "text": "1 MB"
+    },
+    {
+     "value": 1500000000,
+     "text": "1.4 GB"
+    },
+    {
+     "value": 5368709120,
+     "text": "5 GB"
+    },
+    {
+     "value": 3298534883328,
+     "text": "3 TB"
+    }
+   ],
+   "lists": [
+    {
+     "items": [],
+     "text": ""
+    },
+    {
+     "items": [
+      "A"
+     ],
+     "text": "A"
+    },
+    {
+     "items": [
+      "A",
+      "B"
+     ],
+     "text": "A and B"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C"
+     ],
+     "text": "A, B and C"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "text": "A, B, C and D"
+    }
+   ]
+  },
+  {
+   "locale": "en-US",
+   "hour12": false,
+   "catalogue": {
+    "duration.hoursMinutes": "{hours}h {minutes}m",
+    "duration.hours": "{hours}h",
+    "duration.minutes": "{minutes}m",
+    "duration.seconds": "{seconds}s",
+    "duration.long.hoursMinutes": "{hours, plural, one {# hour} other {# hours}} {minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.hours": "{hours, plural, one {# hour} other {# hours}}",
+    "duration.long.minutes": "{minutes, plural, one {# minute} other {# minutes}}",
+    "duration.long.seconds": "{seconds, plural, one {# second} other {# seconds}}",
+    "duration.remaining": "{duration} left",
+    "relative.justNow": "Just now",
+    "relative.minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+    "relative.hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+    "relative.daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+    "relative.yesterday": "Yesterday",
+    "list.and": "{first} and {second}"
+   },
+   "dates": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "medium",
+     "text": "Oct 3, 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "dayMonth",
+     "text": "Oct 3"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "monthYear",
+     "text": "October 2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "style": "weekday",
+     "text": "Saturday, Oct 3"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "medium",
+     "text": "Sep 1, 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "dayMonth",
+     "text": "Sep 1"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "monthYear",
+     "text": "September 2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "style": "weekday",
+     "text": "Tuesday, Sep 1"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "medium",
+     "text": "Jan 9, 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "dayMonth",
+     "text": "Jan 9"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "monthYear",
+     "text": "January 2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "style": "weekday",
+     "text": "Friday, Jan 9"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "medium",
+     "text": "Dec 31, 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "dayMonth",
+     "text": "Dec 31"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "monthYear",
+     "text": "December 2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "year",
+     "text": "2025"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "style": "weekday",
+     "text": "Wednesday, Dec 31"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "medium",
+     "text": "May 17, 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "dayMonth",
+     "text": "May 17"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "monthYear",
+     "text": "May 2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "year",
+     "text": "2026"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "style": "weekday",
+     "text": "Sunday, May 17"
+    }
+   ],
+   "times": [
+    {
+     "value": "2026-10-03T12:00:00Z",
+     "text": "12:00"
+    },
+    {
+     "value": "2026-09-01T00:05:00Z",
+     "text": "00:05"
+    },
+    {
+     "value": "2026-01-09T21:41:30Z",
+     "text": "21:41"
+    },
+    {
+     "value": "2025-12-31T23:59:59Z",
+     "text": "23:59"
+    },
+    {
+     "value": "2026-05-17T08:07:00Z",
+     "text": "08:07"
+    }
+   ],
+   "durations": [
+    {
+     "seconds": 0,
+     "style": "short",
+     "text": ""
+    },
+    {
+     "seconds": 0,
+     "style": "long",
+     "text": ""
+    },
+    {
+     "seconds": 5,
+     "style": "short",
+     "text": "5s"
+    },
+    {
+     "seconds": 5,
+     "style": "long",
+     "text": "5 seconds"
+    },
+    {
+     "seconds": 59,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 59,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 60,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 60,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 61,
+     "style": "short",
+     "text": "1m"
+    },
+    {
+     "seconds": 61,
+     "style": "long",
+     "text": "1 minute"
+    },
+    {
+     "seconds": 90,
+     "style": "short",
+     "text": "2m"
+    },
+    {
+     "seconds": 90,
+     "style": "long",
+     "text": "2 minutes"
+    },
+    {
+     "seconds": 3599,
+     "style": "short",
+     "text": "60m"
+    },
+    {
+     "seconds": 3599,
+     "style": "long",
+     "text": "60 minutes"
+    },
+    {
+     "seconds": 3600,
+     "style": "short",
+     "text": "1h"
+    },
+    {
+     "seconds": 3600,
+     "style": "long",
+     "text": "1 hour"
+    },
+    {
+     "seconds": 3660,
+     "style": "short",
+     "text": "1h 1m"
+    },
+    {
+     "seconds": 3660,
+     "style": "long",
+     "text": "1 hour 1 minute"
+    },
+    {
+     "seconds": 6120,
+     "style": "short",
+     "text": "1h 42m"
+    },
+    {
+     "seconds": 6120,
+     "style": "long",
+     "text": "1 hour 42 minutes"
+    },
+    {
+     "seconds": 86400,
+     "style": "short",
+     "text": "24h"
+    },
+    {
+     "seconds": 86400,
+     "style": "long",
+     "text": "24 hours"
+    },
+    {
+     "seconds": 90061,
+     "style": "short",
+     "text": "25h 1m"
+    },
+    {
+     "seconds": 90061,
+     "style": "long",
+     "text": "25 hours 1 minute"
+    }
+   ],
+   "clocks": [
+    {
+     "seconds": 0,
+     "text": "0:00"
+    },
+    {
+     "seconds": 5,
+     "text": "0:05"
+    },
+    {
+     "seconds": 65,
+     "text": "1:05"
+    },
+    {
+     "seconds": 245,
+     "text": "4:05"
+    },
+    {
+     "seconds": 3600,
+     "text": "1:00:00"
+    },
+    {
+     "seconds": 3723,
+     "text": "1:02:03"
+    },
+    {
+     "seconds": 36000,
+     "text": "10:00:00"
+    },
+    {
+     "seconds": -4,
+     "text": "0:00"
+    }
+   ],
+   "relative": [
+    {
+     "value": "2026-10-03T11:59:50.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:16.000Z",
+     "text": "Just now"
+    },
+    {
+     "value": "2026-10-03T11:59:15.000Z",
+     "text": "1 minute ago"
+    },
+    {
+     "value": "2026-10-03T11:55:00.000Z",
+     "text": "5 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:05:00.000Z",
+     "text": "55 minutes ago"
+    },
+    {
+     "value": "2026-10-03T11:00:00.000Z",
+     "text": "1 hour ago"
+    },
+    {
+     "value": "2026-10-03T10:00:00.000Z",
+     "text": "2 hours ago"
+    },
+    {
+     "value": "2026-10-02T13:46:40.000Z",
+     "text": "22 hours ago"
+    },
+    {
+     "value": "2026-10-02T12:00:00.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-10-02T08:13:20.000Z",
+     "text": "Yesterday"
+    },
+    {
+     "value": "2026-09-30T00:40:00.000Z",
+     "text": "3 days ago"
+    },
+    {
+     "value": "2026-09-26T13:20:00.000Z",
+     "text": "Sep 26"
+    },
+    {
+     "value": "2026-07-26T01:20:00.000Z",
+     "text": "Jul 26"
+    },
+    {
+     "value": "2025-10-21T06:40:00.000Z",
+     "text": "Oct 21, 2025"
+    }
+   ],
+   "bytes": [
+    {
+     "value": 0,
+     "text": "0 B"
+    },
+    {
+     "value": 512,
+     "text": "512 B"
+    },
+    {
+     "value": 1023,
+     "text": "1,023 B"
+    },
+    {
+     "value": 1024,
+     "text": "1 KB"
+    },
+    {
+     "value": 1536,
+     "text": "1.5 KB"
+    },
+    {
+     "value": 10240,
+     "text": "10 KB"
+    },
+    {
+     "value": 1048576,
+     "text": "1 MB"
+    },
+    {
+     "value": 1500000000,
+     "text": "1.4 GB"
+    },
+    {
+     "value": 5368709120,
+     "text": "5 GB"
+    },
+    {
+     "value": 3298534883328,
+     "text": "3 TB"
+    }
+   ],
+   "lists": [
+    {
+     "items": [],
+     "text": ""
+    },
+    {
+     "items": [
+      "A"
+     ],
+     "text": "A"
+    },
+    {
+     "items": [
+      "A",
+      "B"
+     ],
+     "text": "A and B"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C"
+     ],
+     "text": "A, B, and C"
+    },
+    {
+     "items": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "text": "A, B, C, and D"
+    }
+   ]
+  }
+ ],
+ "passwords": [
+  {
+   "password": "",
+   "acceptable": false
+  },
+  {
+   "password": "short",
+   "acceptable": false
+  },
+  {
+   "password": "1234567",
+   "acceptable": false
+  },
+  {
+   "password": "12345678",
+   "acceptable": true
+  },
+  {
+   "password": "correct horse battery staple",
+   "acceptable": true
+  },
+  {
+   "password": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+   "acceptable": true
+  },
+  {
+   "password": "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+   "acceptable": false
+  },
+  {
+   "password": "pässwörd",
+   "acceptable": true
+  },
+  {
+   "password": "éééééééééééééééééééééééééééééééééééé",
+   "acceptable": true
+  },
+  {
+   "password": "ééééééééééééééééééééééééééééééééééééé",
+   "acceptable": false
+  },
+  {
+   "password": "😀😀😀😀😀😀😀😀",
+   "acceptable": true
+  },
+  {
+   "password": "😀😀😀😀😀😀😀",
+   "acceptable": false
+  }
+ ]
+}

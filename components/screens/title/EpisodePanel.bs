@@ -1,0 +1,438 @@
+' apps/native/src/screens/title/EpisodePanel.tsx (Spec — Title Pages §3): the episode view is a
+' light layer over the show page, never a page with its own hero. On television it is a panel at
+' the side: the still (or the episode's code on the show's colour), "S2 E4 · Title", the air
+' date and runtime, Play/Resume, Play from start, Mark as watched, ⋯, the synopsis, the episode's
+' own director and writers, its cast (See all reads the rest), its files, and previous / next
+' episode. Its facts are read when it opens (the title's own detail document).
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/components/screens/title/Common.bs"
+
+sub init()
+    m.sheet = m.top.createChild("UiSheet")
+    m.sheet.kind = "picker"
+    m.sheet.placement = "side"
+    m.sheet.sheetWidth = Theme.apple.episodePanelWidth
+    m.sheet.observeField("closed", "onPanelClosed")
+    m.width = m.sheet.bodyWidth
+    m.request = invalid
+    m.data = invalid
+    m.content = invalid
+    m.task = invalid
+    m.commandTask = invalid
+    m.castTask = invalid
+    m.allCast = invalid
+    m.castCursors = {}
+    m.saveError = ""
+    m.pending = invalid
+    m.primary = invalid
+end sub
+
+sub open(request as object)
+    m.request = request
+    m.data = invalid
+    m.content = invalid
+    m.allCast = invalid
+    m.castTask = invalid
+    m.saveError = ""
+    m.pending = invalid
+    PanelBuild(true)
+    if not m.sheet.isOpen then m.sheet.callFunc("open")
+    m.top.isOpen = true
+    PanelFocus()
+    entry = request.entry
+    target = { libraryId: m.top.libraryId, itemId: entry.id }
+    m.task = ApiStart({ path: "/v1/items/" + entry.id.encodeUriComponent() + "/detail?related=all", reader: "detail", context: { origin: ViewerOrigin(), serverId: PanelServerId(), target: target } }, "onPanelDetail")
+end sub
+
+sub close()
+    m.sheet.callFunc("close")
+end sub
+
+function PanelServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+sub onPanelClosed()
+    m.task = invalid
+    m.castTask = invalid
+    m.top.isOpen = false
+    action = m.pending
+    m.pending = invalid
+    if action <> invalid then
+        m.top.action = action
+    else
+        m.top.action = { kind: "closed" }
+    end if
+end sub
+
+sub onPanelDetail(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then return
+    if result.value.detail.item.id <> m.request.entry.id then return
+    held = FocusCurrent(m.sheet)
+    m.data = result.value
+    m.content = task.content
+    PanelBuild(held = invalid)
+end sub
+
+' What the panel knows now: the list's entry at first, then the title's own document.
+function PanelState() as object
+    entry = m.request.entry
+    state = { progress: 0, watched: entry.watched = true, duration: entry.duration, canMark: false, playable: entry.playback <> invalid, start: 0, overview: entry.overview }
+    if entry.progressSeconds <> invalid then state.progress = entry.progressSeconds
+    if entry.playback <> invalid and entry.playback.startSeconds <> invalid then
+        state.start = entry.playback.startSeconds
+    else
+        state.start = state.progress
+    end if
+    if m.data <> invalid then
+        detail = m.data.detail
+        state.progress = detail.item.progressSeconds
+        state.watched = detail.personal.watched
+        state.duration = detail.item.duration
+        if detail.item.overview <> invalid then state.overview = detail.item.overview
+        for each action in detail.actions
+            if action.enabled then
+                if action.id = "watched" then state.canMark = true
+                if action.playback <> invalid and action.id <> "start_over" then
+                    state.playable = true
+                    state.start = action.playback.startSeconds
+                end if
+            end if
+        end for
+    end if
+    state.resuming = state.progress > 0 and not state.watched
+    return state
+end function
+
+sub PanelBuild(refocus as boolean)
+    entry = m.request.entry
+    state = PanelState()
+    width = m.width
+    pad = Theme.space.md
+    inner = width - pad * 2
+    body = CreateObject("roSGNode", "Group")
+    y = 0
+
+    ' The episode's own still, else its code on the show's colour: never the show's backdrop.
+    stillWidth = Theme.apple.episodePanelWidth - Theme.space.md * 2 * 2
+    if stillWidth > inner then stillWidth = inner
+    stillHeight = Int(stillWidth / ArtworkRatio("landscape") + 0.5)
+    stillUrl = entry.stillUrl
+    if stillUrl = invalid and m.data <> invalid then stillUrl = m.data.detail.item.stillUrl
+    still = body.createChild("UiArtwork")
+    still.shape = "landscape"
+    still.artWidth = stillWidth
+    if stillUrl <> invalid and stillUrl <> "" then
+        still.title = entry.title
+        still.uri = MediaUrl(ViewerOrigin(), stillUrl)
+    else
+        still.title = TitleEpisodeCode(entry)
+    end if
+    Place(still, pad, y)
+    y = y + stillHeight + pad
+    if m.top.showTitle <> "" then
+        show = MakeText(body, "label", "tertiary", m.top.showTitle)
+        show.maxWidth = inner
+        Place(show, pad, y)
+        y = y + show.height + Theme.space.xs
+    end if
+    title = MakeText(body, "title")
+    title.lines = 2
+    title.maxWidth = inner
+    title.value = EpisodeTitle(entry)
+    Place(title, pad, y)
+    y = y + TextHeight(title)
+    meta = EpisodeMeta(entry, state.duration)
+    if meta <> "" then
+        line = MakeText(body, "body", "secondary", meta)
+        line.maxWidth = inner
+        Place(line, pad, y + Theme.space.xs)
+        y = y + Theme.space.xs + line.height
+    end if
+    if state.resuming and state.duration <> invalid and state.duration > 0 then
+        bar = body.createChild("UiProgressBar")
+        bar.barHeight = Theme.apple.episodeProgressHeight
+        bar.barWidth = Min(Theme.apple.episodePanelProgressMax, inner)
+        bar.value = Clamp(state.progress / state.duration, 0, 1)
+        Place(bar, pad, y + Theme.space.xs * 2)
+        y = y + Theme.space.xs * 2 + Theme.apple.episodeProgressHeight
+    end if
+    y = y + pad
+
+    ' The actions, wrapped.
+    buttons = []
+    m.primary = invalid
+    if state.playable then
+        label = T("entry.play")
+        if state.resuming then
+            label = T("entry.resume")
+            if state.duration <> invalid and state.duration > 0 then label = T("title.resumeRemaining", { remaining: FormatDuration(Max(0, state.duration - state.progress)) })
+        end if
+        m.primary = PanelButton(body, "play", "primary", "play", label, false)
+        buttons.push(m.primary)
+        if state.resuming then buttons.push(PanelButton(body, "restart", "secondary", "restart", T("title.playFromStart"), false))
+    end if
+    if state.canMark then
+        if state.watched then
+            buttons.push(PanelButton(body, "watched", "secondary", "watched", T("entry.markUnwatched"), true))
+        else
+            buttons.push(PanelButton(body, "watched", "secondary", "check", T("entry.markWatched"), false))
+        end if
+    end if
+    buttons.push(PanelButton(body, "more", "secondary", "more", "", false))
+    x = pad
+    rowHeight = 0
+    for each button in buttons
+        if x > pad and x + button.controlWidth > pad + inner then
+            x = pad
+            y = y + rowHeight + Theme.space.sm
+        end if
+        Place(button, x, y)
+        x = x + button.controlWidth + Theme.space.sm
+        rowHeight = button.controlHeight
+    end for
+    y = y + rowHeight + Theme.space.lg
+    if m.saveError <> "" then
+        notice = body.createChild("UiNotice")
+        notice.tone = "error"
+        notice.message = m.saveError
+        notice.noticeWidth = inner
+        Place(notice, pad, y)
+        y = y + notice.noticeHeight + Theme.space.lg
+    end if
+    if state.overview <> invalid and state.overview <> "" then
+        overview = MakeText(body, "body", "secondary")
+        overview.lines = 0
+        overview.maxWidth = inner
+        overview.value = state.overview
+        Place(overview, pad, y)
+        y = y + TextHeight(overview) + Theme.space.lg
+    else if m.data = invalid then
+        block = body.createChild("UiSkeleton")
+        block.blockHeight = Theme.apple.heroSkeletonLineHeight
+        block.blockWidth = inner * Theme.apple.heroSkeletonLineFraction
+        Place(block, pad, y)
+        y = y + Theme.apple.heroSkeletonLineHeight + Theme.space.lg
+    end if
+    if m.data <> invalid then
+        lines = []
+        if m.data.panel.directors.count() > 0 then lines.push(T("title.directedBy", { names: FormatList(m.data.panel.directors) }))
+        if m.data.panel.writers.count() > 0 then lines.push(T("title.writtenBy", { names: FormatList(m.data.panel.writers) }))
+        for each text in lines
+            credit = MakeText(body, "caption", "secondary", text)
+            credit.maxWidth = inner
+            Place(credit, pad, y)
+            y = y + credit.height + Theme.space.xxs
+        end for
+        if lines.count() > 0 then y = y - Theme.space.xxs + Theme.space.lg
+        cast = PanelCast()
+        if cast <> invalid then
+            heading = MakeText(body, "subheading", "primary", T("title.cast"))
+            Place(heading, pad, y)
+            if m.allCast = invalid and cast.more then
+                all = PanelButton(body, "allCast", "ghost", "", T("action.seeAll"), false)
+                all.size = "sm"
+                all.loading = m.castTask <> invalid
+                Place(all, pad + inner - all.controlWidth, y + (heading.height - all.controlHeight) / 2)
+            end if
+            y = y + heading.height + Theme.space.sm
+            shelf = body.createChild("UiShelf")
+            shelf.shelfWidth = width
+            shelf.shape = "person"
+            shelf.items = cast.items
+            shelf.observeField("itemSelected", "onPanelPerson")
+            Place(shelf, pad - Theme.space.page, y)
+            y = y + shelf.shelfHeight
+        end if
+        if m.data.files.count() > 0 then
+            label = MakeText(body, "label", "tertiary", T("title.files"))
+            Place(label, pad, y)
+            y = y + label.height + Theme.space.sm
+            for each file in m.data.files
+                group = body.createChild("UiRowGroup")
+                row = CreateObject("roSGNode", "UiListRow")
+                row.interactive = false
+                row.readable = true
+                row.icon = "film"
+                row.subtitleLines = Theme.apple.fileSubtitleLines
+                row.title = file.title
+                row.subtitle = file.body
+                group.groupWidth = inner
+                group.callFunc("setRows", [row])
+                Place(group, pad, y)
+                y = y + group.groupHeight + Theme.space.sm
+            end for
+            y = y - Theme.space.sm + Theme.space.lg
+        end if
+    end if
+    if m.request.hasPrevious = true or m.request.hasNext = true then
+        height = 0
+        if m.request.hasPrevious = true then
+            previous = PanelButton(body, "previous", "ghost", "previous", T("title.previousEpisode"), false)
+            previous.size = "md"
+            Place(previous, pad, y)
+            height = previous.controlHeight
+        end if
+        if m.request.hasNext = true then
+            following = body.createChild("UiButton")
+            following.addFields({ panelId: "next" })
+            following.variant = "ghost"
+            following.trailingIcon = "next"
+            following.label = T("title.nextEpisode")
+            following.observeField("pressed", "onPanelButton")
+            Place(following, pad + inner - following.controlWidth, y)
+            height = following.controlHeight
+        end if
+        y = y + height + Theme.space.md
+    end if
+    m.sheet.callFunc("setBody", body, y)
+    if refocus then PanelFocus()
+end sub
+
+sub PanelFocus()
+    if m.primary <> invalid then m.sheet.callFunc("focusBody", m.primary)
+end sub
+
+function PanelButton(parent as object, id as string, variant as string, icon as string, label as string, selected as boolean) as object
+    button = parent.createChild("UiButton")
+    button.addFields({ panelId: id })
+    button.variant = variant
+    button.size = "lg"
+    if icon <> "" then button.icon = icon
+    button.label = label
+    button.selected = selected
+    button.observeField("pressed", "onPanelButton")
+    return button
+end function
+
+' The episode's cast: the first page from its document, or all of it once read.
+function PanelCast() as dynamic
+    if m.allCast <> invalid then return { items: m.allCast, more: false }
+    if m.content = invalid then return invalid
+    sections = m.data.sections
+    for index = 0 to sections.count() - 1
+        if sections[index].kind = "allCast" then return { items: m.content.getChild(index), more: true }
+    end for
+    for index = 0 to sections.count() - 1
+        if sections[index].kind = "cast" then return { items: m.content.getChild(index), more: true }
+    end for
+    return invalid
+end function
+
+sub onPanelButton(event as object)
+    button = event.getRoSGNode()
+    id = button.panelId
+    entry = m.request.entry
+    state = PanelState()
+    if id = "play" then
+        start = 0
+        if state.resuming then start = state.start
+        PanelLeave({ kind: "play", entry: entry, index: m.request.index, startSeconds: start })
+    else if id = "restart" then
+        PanelLeave({ kind: "play", entry: entry, index: m.request.index, startSeconds: 0 })
+    else if id = "more" then
+        PanelLeave({ kind: "more", entry: entry })
+    else if id = "watched" then
+        PanelMark(not state.watched)
+    else if id = "allCast" then
+        PanelAllCast("")
+    else if id = "previous" then
+        m.top.action = { kind: "navigate", index: m.request.index - 1 }
+    else if id = "next" then
+        m.top.action = { kind: "navigate", index: m.request.index + 1 }
+    end if
+end sub
+
+' Closes the panel, then reports what was chosen (so what follows opens over a settled page).
+sub PanelLeave(action as object)
+    m.pending = action
+    m.sheet.callFunc("close")
+end sub
+
+sub onPanelPerson(event as object)
+    shelf = event.getRoSGNode()
+    card = shelf.items.getChild(event.getData())
+    if card = invalid or card.personId = "" then return
+    PanelLeave({ kind: "person", personId: card.personId, name: card.title })
+end sub
+
+sub PanelMark(watched as boolean)
+    if m.data = invalid or m.commandTask <> invalid then return
+    detail = m.data.detail
+    operationId = NewRequestId()
+    body = PersonalStateBody(operationId, detail.personal.revision, "watched", watched)
+    m.commandTask = ApiStart({ path: "/v1/items/" + detail.item.id.encodeUriComponent() + "/personal-state", method: "PUT", body: body, reader: "receipt", context: { operationId: operationId, scope: detail.scope } }, "onPanelReceipt")
+end sub
+
+sub onPanelReceipt(event as object)
+    task = event.getRoSGNode()
+    if m.commandTask = invalid or not task.isSameNode(m.commandTask) then return
+    m.commandTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        m.saveError = PresentError(failure, "detail", { operation: "save" }).body
+        PanelBuild(false)
+        return
+    end if
+    m.saveError = ""
+    detail = m.data.detail
+    detail.personal = result.value.personal
+    detail.item.progressSeconds = result.value.personal.progressSeconds
+    m.data.detail = detail
+    PanelBuild(true)
+    ' The list's tick and bar follow.
+    m.top.action = { kind: "changed" }
+end sub
+
+' See all: the cast's pages, read to the end (a few pages at most for one episode).
+sub PanelAllCast(cursor as string)
+    entry = m.request.entry
+    path = "/v1/items/" + entry.id.encodeUriComponent() + "/credits?group=cast"
+    if cursor <> "" then path = path + "&cursor=" + cursor.encodeUriComponent()
+    if cursor = "" then
+        m.castCursors = {}
+        m.castCursors.setModeCaseSensitive()
+        m.castFound = CreateObject("roSGNode", "ContentNode")
+    end if
+    m.castTask = ApiStart({ path: path, reader: "credits", context: { origin: ViewerOrigin(), itemId: entry.id } }, "onPanelCast")
+    m.castTask.addFields({ itemId: entry.id })
+end sub
+
+sub onPanelCast(event as object)
+    task = event.getRoSGNode()
+    if m.castTask = invalid or not task.isSameNode(m.castTask) or task.itemId <> m.request.entry.id then return
+    m.castTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        m.saveError = PresentError(failure, "detail").body
+        PanelBuild(false)
+        return
+    end if
+    found = task.content.getChildren(-1, 0)
+    m.castFound.appendChildren(found)
+    ' The pages are read until the cast is whole; a cursor that repeats or runs out early is a failure.
+    if m.castFound.getChildCount() < result.value.total then
+        cursor = result.value.nextCursor
+        if found.count() = 0 or cursor = "" or m.castCursors.doesExist(cursor) then
+            m.saveError = PresentError({ code: "invalid_response", status: 0 }, "detail").body
+            PanelBuild(false)
+            return
+        end if
+        m.castCursors[cursor] = true
+        PanelAllCast(cursor)
+        return
+    end if
+    m.allCast = m.castFound
+    PanelBuild(false)
+end sub

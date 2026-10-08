@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/ListRow.tsx `RowGroup`: one raised surface per group, never a border per row. -->
+<component name="UiRowGroup" extends="Group">
+    <interface>
+        <field id="title" type="string" value="" onChange="onGroupLayout" />
+        <field id="footer" type="string" value="" onChange="onGroupLayout" />
+        <field id="groupWidth" type="float" value="0" onChange="onGroupLayout" />
+        <field id="groupHeight" type="float" value="0" />
+        <!-- Remembers the row last focused inside it (FocusGroup). -->
+        <field id="focusGroup" type="boolean" value="true" />
+        <field id="lastFocus" type="node" />
+        <function name="setRows" />
+    </interface>
+</component>

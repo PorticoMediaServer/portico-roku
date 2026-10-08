@@ -1,0 +1,5450 @@
+{
+ "options": [
+  {
+   "name": "item-movie-playback-options.json: as read",
+   "raw": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "resume": null,
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "edition": null,
+      "container": "mp4",
+      "durationMs": 45000,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000
+       }
+      ],
+      "video": [
+       "v0"
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "language": "und",
+        "title": null,
+        "atmos": false,
+        "isDefault": true
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-movie-playback-options.json: an item id with a space",
+   "raw": {
+    "itemId": "a b",
+    "kind": "movie",
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-movie-playback-options.json: a version without an id",
+   "raw": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "versions": [
+     {
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-movie-playback-options.json: tracks and markers",
+   "raw": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "truehd",
+        "channels": 8,
+        "layout": "7.1",
+        "atmos": true,
+        "language": "en",
+        "title": "English",
+        "default": true
+       },
+       {
+        "id": "a2",
+        "codec": "ac3",
+        "channels": 6,
+        "language": "fr",
+        "commentary": true
+       }
+      ],
+      "subtitles": [
+       {
+        "id": "s1",
+        "format": "pgs",
+        "source": "embedded",
+        "language": "en",
+        "sdh": true
+       },
+       {
+        "id": "s2",
+        "format": "srt",
+        "source": "elsewhere",
+        "forced": true,
+        "default": true
+       }
+      ]
+     }
+    ],
+    "chapters": [
+     {
+      "startMs": 0,
+      "title": "One"
+     },
+     {
+      "startMs": 60000,
+      "title": "Two",
+      "thumbnail": "/v1/x"
+     }
+    ],
+    "markers": [
+     {
+      "id": "m1",
+      "type": "intro",
+      "startMs": 30000,
+      "endMs": 90000,
+      "confidence": "detected",
+      "automaticSafe": true
+     },
+     {
+      "id": "m2",
+      "type": "bumper",
+      "startMs": 1,
+      "endMs": 2
+     }
+    ],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    },
+    "resume": {
+     "positionMs": 1234000,
+     "partIndex": 0
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "resume": {
+     "positionMs": 1234000,
+     "partIndex": 0
+    },
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "edition": null,
+      "container": "mp4",
+      "durationMs": 45000,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000
+       }
+      ],
+      "video": [
+       "v0"
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "truehd",
+        "channels": 8,
+        "language": "en",
+        "title": "English",
+        "atmos": true,
+        "isDefault": true
+       },
+       {
+        "id": "a2",
+        "codec": "ac3",
+        "channels": 6,
+        "language": "fr",
+        "title": null,
+        "atmos": false,
+        "isDefault": false
+       }
+      ],
+      "subtitles": [
+       {
+        "id": "s1",
+        "format": "pgs",
+        "source": "embedded",
+        "language": "en",
+        "forced": false,
+        "sdh": true,
+        "isDefault": false
+       },
+       {
+        "id": "s2",
+        "format": "srt",
+        "source": "other",
+        "language": null,
+        "forced": true,
+        "sdh": false,
+        "isDefault": true
+       }
+      ]
+     }
+    ],
+    "chapters": [
+     {
+      "startMs": 0,
+      "title": "One"
+     },
+     {
+      "startMs": 60000,
+      "title": "Two"
+     }
+    ],
+    "markers": [
+     {
+      "id": "m1",
+      "type": "intro",
+      "startMs": 30000,
+      "endMs": 90000,
+      "confidence": "detected",
+      "automaticSafe": true
+     },
+     {
+      "id": "m2",
+      "type": "other",
+      "startMs": 1,
+      "endMs": 2,
+      "confidence": "other",
+      "automaticSafe": false
+     }
+    ],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-movie-playback-options.json: a preferred audio that is not an id",
+   "raw": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a b",
+     "reason": "x"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-movie-playback-options.json: a plan in an unknown mode",
+   "raw": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "teleport",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "beam",
+       "reasons": [
+        "x",
+        3
+       ]
+      }
+     ]
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "resume": null,
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "edition": null,
+      "container": "mp4",
+      "durationMs": 45000,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000
+       }
+      ],
+      "video": [
+       "v0"
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "language": "und",
+        "title": null,
+        "atmos": false,
+        "isDefault": true
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "stream",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "other",
+       "reasons": [
+        "x"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-movie-playback-options.json: trickplay from elsewhere",
+   "raw": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "versions": [
+     {
+      "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727618,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727618
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    },
+    "trickplay": {
+     "url": "ftp://x",
+     "intervalMs": 1
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-episode-playback-options.json: as read",
+   "raw": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "resume": null,
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "edition": null,
+      "container": "mp4",
+      "durationMs": 45000,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000
+       }
+      ],
+      "video": [
+       "v0"
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "language": "und",
+        "title": null,
+        "atmos": false,
+        "isDefault": true
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-episode-playback-options.json: an item id with a space",
+   "raw": {
+    "itemId": "a b",
+    "kind": "episode",
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-episode-playback-options.json: a version without an id",
+   "raw": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "versions": [
+     {
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-episode-playback-options.json: tracks and markers",
+   "raw": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "truehd",
+        "channels": 8,
+        "layout": "7.1",
+        "atmos": true,
+        "language": "en",
+        "title": "English",
+        "default": true
+       },
+       {
+        "id": "a2",
+        "codec": "ac3",
+        "channels": 6,
+        "language": "fr",
+        "commentary": true
+       }
+      ],
+      "subtitles": [
+       {
+        "id": "s1",
+        "format": "pgs",
+        "source": "embedded",
+        "language": "en",
+        "sdh": true
+       },
+       {
+        "id": "s2",
+        "format": "srt",
+        "source": "elsewhere",
+        "forced": true,
+        "default": true
+       }
+      ]
+     }
+    ],
+    "chapters": [
+     {
+      "startMs": 0,
+      "title": "One"
+     },
+     {
+      "startMs": 60000,
+      "title": "Two",
+      "thumbnail": "/v1/x"
+     }
+    ],
+    "markers": [
+     {
+      "id": "m1",
+      "type": "intro",
+      "startMs": 30000,
+      "endMs": 90000,
+      "confidence": "detected",
+      "automaticSafe": true
+     },
+     {
+      "id": "m2",
+      "type": "bumper",
+      "startMs": 1,
+      "endMs": 2
+     }
+    ],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    },
+    "resume": {
+     "positionMs": 1234000,
+     "partIndex": 0
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "resume": {
+     "positionMs": 1234000,
+     "partIndex": 0
+    },
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "edition": null,
+      "container": "mp4",
+      "durationMs": 45000,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000
+       }
+      ],
+      "video": [
+       "v0"
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "truehd",
+        "channels": 8,
+        "language": "en",
+        "title": "English",
+        "atmos": true,
+        "isDefault": true
+       },
+       {
+        "id": "a2",
+        "codec": "ac3",
+        "channels": 6,
+        "language": "fr",
+        "title": null,
+        "atmos": false,
+        "isDefault": false
+       }
+      ],
+      "subtitles": [
+       {
+        "id": "s1",
+        "format": "pgs",
+        "source": "embedded",
+        "language": "en",
+        "forced": false,
+        "sdh": true,
+        "isDefault": false
+       },
+       {
+        "id": "s2",
+        "format": "srt",
+        "source": "other",
+        "language": null,
+        "forced": true,
+        "sdh": false,
+        "isDefault": true
+       }
+      ]
+     }
+    ],
+    "chapters": [
+     {
+      "startMs": 0,
+      "title": "One"
+     },
+     {
+      "startMs": 60000,
+      "title": "Two"
+     }
+    ],
+    "markers": [
+     {
+      "id": "m1",
+      "type": "intro",
+      "startMs": 30000,
+      "endMs": 90000,
+      "confidence": "detected",
+      "automaticSafe": true
+     },
+     {
+      "id": "m2",
+      "type": "other",
+      "startMs": 1,
+      "endMs": 2,
+      "confidence": "other",
+      "automaticSafe": false
+     }
+    ],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-episode-playback-options.json: a preferred audio that is not an id",
+   "raw": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a b",
+     "reason": "x"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-episode-playback-options.json: a plan in an unknown mode",
+   "raw": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "teleport",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "beam",
+       "reasons": [
+        "x",
+        3
+       ]
+      }
+     ]
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "resume": null,
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "edition": null,
+      "container": "mp4",
+      "durationMs": 45000,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000
+       }
+      ],
+      "video": [
+       "v0"
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "language": "und",
+        "title": null,
+        "atmos": false,
+        "isDefault": true
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "stream",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "other",
+       "reasons": [
+        "x"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-episode-playback-options.json: trickplay from elsewhere",
+   "raw": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "kind": "episode",
+    "versions": [
+     {
+      "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+      "label": "SD · MP4",
+      "container": "mp4",
+      "sizeBytes": 6727611,
+      "durationMs": 45000,
+      "bitrateKbps": 1196,
+      "parts": [
+       {
+        "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+        "index": 0,
+        "durationMs": 45000,
+        "sizeBytes": 6727611
+       }
+      ],
+      "video": [
+       {
+        "id": "v0",
+        "codec": "h264",
+        "profile": "constrained baseline",
+        "level": 30,
+        "bitDepth": 8,
+        "width": 640,
+        "height": 360,
+        "fps": 24,
+        "bitrateKbps": 1127
+       }
+      ],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "audioId": "a1",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "direct",
+       "reasons": []
+      },
+      {
+       "id": "a1",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    },
+    "trickplay": {
+     "url": "ftp://x",
+     "intervalMs": 1
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-song-playback-options.json: as read",
+   "raw": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "resume": null,
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "edition": null,
+      "container": "m4a",
+      "durationMs": 60000,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "language": "und",
+        "title": null,
+        "atmos": false,
+        "isDefault": true
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-song-playback-options.json: an item id with a space",
+   "raw": {
+    "itemId": "a b",
+    "kind": "track",
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-song-playback-options.json: a version without an id",
+   "raw": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "versions": [
+     {
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-song-playback-options.json: tracks and markers",
+   "raw": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "truehd",
+        "channels": 8,
+        "layout": "7.1",
+        "atmos": true,
+        "language": "en",
+        "title": "English",
+        "default": true
+       },
+       {
+        "id": "a2",
+        "codec": "ac3",
+        "channels": 6,
+        "language": "fr",
+        "commentary": true
+       }
+      ],
+      "subtitles": [
+       {
+        "id": "s1",
+        "format": "pgs",
+        "source": "embedded",
+        "language": "en",
+        "sdh": true
+       },
+       {
+        "id": "s2",
+        "format": "srt",
+        "source": "elsewhere",
+        "forced": true,
+        "default": true
+       }
+      ]
+     }
+    ],
+    "chapters": [
+     {
+      "startMs": 0,
+      "title": "One"
+     },
+     {
+      "startMs": 60000,
+      "title": "Two",
+      "thumbnail": "/v1/x"
+     }
+    ],
+    "markers": [
+     {
+      "id": "m1",
+      "type": "intro",
+      "startMs": 30000,
+      "endMs": 90000,
+      "confidence": "detected",
+      "automaticSafe": true
+     },
+     {
+      "id": "m2",
+      "type": "bumper",
+      "startMs": 1,
+      "endMs": 2
+     }
+    ],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    },
+    "resume": {
+     "positionMs": 1234000,
+     "partIndex": 0
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "resume": {
+     "positionMs": 1234000,
+     "partIndex": 0
+    },
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "edition": null,
+      "container": "m4a",
+      "durationMs": 60000,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a1",
+        "codec": "truehd",
+        "channels": 8,
+        "language": "en",
+        "title": "English",
+        "atmos": true,
+        "isDefault": true
+       },
+       {
+        "id": "a2",
+        "codec": "ac3",
+        "channels": 6,
+        "language": "fr",
+        "title": null,
+        "atmos": false,
+        "isDefault": false
+       }
+      ],
+      "subtitles": [
+       {
+        "id": "s1",
+        "format": "pgs",
+        "source": "embedded",
+        "language": "en",
+        "forced": false,
+        "sdh": true,
+        "isDefault": false
+       },
+       {
+        "id": "s2",
+        "format": "srt",
+        "source": "other",
+        "language": null,
+        "forced": true,
+        "sdh": false,
+        "isDefault": true
+       }
+      ]
+     }
+    ],
+    "chapters": [
+     {
+      "startMs": 0,
+      "title": "One"
+     },
+     {
+      "startMs": 60000,
+      "title": "Two"
+     }
+    ],
+    "markers": [
+     {
+      "id": "m1",
+      "type": "intro",
+      "startMs": 30000,
+      "endMs": 90000,
+      "confidence": "detected",
+      "automaticSafe": true
+     },
+     {
+      "id": "m2",
+      "type": "other",
+      "startMs": 1,
+      "endMs": 2,
+      "confidence": "other",
+      "automaticSafe": false
+     }
+    ],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-song-playback-options.json: a preferred audio that is not an id",
+   "raw": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a b",
+     "reason": "x"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "item-song-playback-options.json: a plan in an unknown mode",
+   "raw": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "teleport",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "beam",
+       "reasons": [
+        "x",
+        3
+       ]
+      }
+     ]
+    }
+   },
+   "ok": true,
+   "value": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "resume": null,
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "edition": null,
+      "container": "m4a",
+      "durationMs": 60000,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "language": "und",
+        "title": null,
+        "atmos": false,
+        "isDefault": true
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "stream",
+     "streams": [
+      {
+       "id": "v0",
+       "action": "other",
+       "reasons": [
+        "x"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "item-song-playback-options.json: trickplay from elsewhere",
+   "raw": {
+    "itemId": "oZtkia7wmduFxr6RPmEJxg",
+    "kind": "track",
+    "versions": [
+     {
+      "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+      "label": "",
+      "container": "m4a",
+      "sizeBytes": 466809,
+      "durationMs": 60000,
+      "bitrateKbps": 62,
+      "parts": [
+       {
+        "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+        "index": 0,
+        "durationMs": 60000,
+        "sizeBytes": 466809
+       }
+      ],
+      "video": [],
+      "audio": [
+       {
+        "id": "a0",
+        "codec": "aac",
+        "channels": 1,
+        "layout": "mono",
+        "atmos": false,
+        "language": "und",
+        "default": true,
+        "commentary": false,
+        "visualImpaired": false
+       }
+      ],
+      "subtitles": []
+     }
+    ],
+    "chapters": [],
+    "markers": [],
+    "preferred": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "audioId": "a0",
+     "reason": "default"
+    },
+    "plan": {
+     "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "mode": "direct",
+     "streams": [
+      {
+       "id": "a0",
+       "action": "direct",
+       "reasons": []
+      }
+     ],
+     "quality": {
+      "mode": "original"
+     }
+    },
+    "trickplay": {
+     "url": "ftp://x",
+     "intervalMs": 1
+    }
+   },
+   "ok": false
+  }
+ ],
+ "sessions": [
+  {
+   "name": "playback-session.json: as read",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": null,
+    "reportEveryMs": 30000,
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": null
+    },
+    "endReason": null,
+    "endMessage": null
+   }
+  },
+  {
+   "name": "playback-session.json: no presentation",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session.json: a url from nowhere",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "file:///etc/passwd",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session.json: a negative generation",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": -1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session.json: an empty revision",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session.json: a stream with subtitles and a decision",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "reportEveryMs": 10000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "stream",
+     "url": "/v1/media/g/3/master.m3u8",
+     "startPositionMs": 0,
+     "subtitles": [
+      {
+       "trackId": "s1",
+       "format": "webvtt",
+       "url": "/v1/media/g/3/subs/s1.vtt"
+      }
+     ],
+     "decision": {
+      "video": {
+       "action": "copy",
+       "reasons": []
+      },
+      "audio": {
+       "action": "transcode",
+       "to": "eac3",
+       "channels": 6,
+       "reasons": [
+        "audio_codec_unsupported"
+       ]
+      },
+      "subtitles": {
+       "action": "sidecar"
+      }
+     },
+     "container": "mp4",
+     "bitrateKbps": 8000
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": null,
+    "reportEveryMs": 10000,
+    "presentation": {
+     "generation": 1,
+     "mode": "stream",
+     "url": "/v1/media/g/3/master.m3u8",
+     "startPositionMs": 0,
+     "subtitles": [
+      {
+       "trackId": "s1",
+       "format": "webvtt",
+       "url": "/v1/media/g/3/subs/s1.vtt"
+      }
+     ],
+     "decision": {
+      "video": {
+       "action": "copy",
+       "reasons": []
+      },
+      "audio": {
+       "action": "transcode",
+       "reasons": [
+        "audio_codec_unsupported"
+       ],
+       "to": "eac3",
+       "channels": 6
+      },
+      "subtitles": {
+       "action": "other",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": 8000
+    },
+    "endReason": null,
+    "endMessage": null
+   }
+  },
+  {
+   "name": "playback-session.json: a subtitle from nowhere",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [
+      {
+       "trackId": "s1",
+       "format": "webvtt",
+       "url": "data:x"
+      }
+     ],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session.json: ended by an administrator",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "ended",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    },
+    "end": {
+     "reason": "terminated",
+     "message": "Bedtime."
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "ended",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": null,
+    "reportEveryMs": 30000,
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": null
+    },
+    "endReason": "terminated",
+    "endMessage": "Bedtime."
+   }
+  },
+  {
+   "name": "playback-session.json: in a queue",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "hologram",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    },
+    "queue": {
+     "queueId": "q1",
+     "entryId": "e1"
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "other",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": {
+     "queueId": "q1",
+     "entryId": "e1"
+    },
+    "reportEveryMs": 30000,
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": null
+    },
+    "endReason": null,
+    "endMessage": null
+   }
+  },
+  {
+   "name": "playback-session.json: a queue entry that is not an id",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "1",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.018Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 1,
+     "mode": "direct",
+     "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    },
+    "queue": {
+     "queueId": "q1",
+     "entryId": "e 1"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session-limited.json: as read",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": null,
+    "reportEveryMs": 30000,
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": null
+    },
+    "endReason": null,
+    "endMessage": null
+   }
+  },
+  {
+   "name": "playback-session-limited.json: no presentation",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session-limited.json: a url from nowhere",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "file:///etc/passwd",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session-limited.json: a negative generation",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": -1,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session-limited.json: an empty revision",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session-limited.json: a stream with subtitles and a decision",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "reportEveryMs": 10000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "stream",
+     "url": "/v1/media/g/3/master.m3u8",
+     "startPositionMs": 0,
+     "subtitles": [
+      {
+       "trackId": "s1",
+       "format": "webvtt",
+       "url": "/v1/media/g/3/subs/s1.vtt"
+      }
+     ],
+     "decision": {
+      "video": {
+       "action": "copy",
+       "reasons": []
+      },
+      "audio": {
+       "action": "transcode",
+       "to": "eac3",
+       "channels": 6,
+       "reasons": [
+        "audio_codec_unsupported"
+       ]
+      },
+      "subtitles": {
+       "action": "sidecar"
+      }
+     },
+     "container": "mp4",
+     "bitrateKbps": 8000
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": null,
+    "reportEveryMs": 10000,
+    "presentation": {
+     "generation": 2,
+     "mode": "stream",
+     "url": "/v1/media/g/3/master.m3u8",
+     "startPositionMs": 0,
+     "subtitles": [
+      {
+       "trackId": "s1",
+       "format": "webvtt",
+       "url": "/v1/media/g/3/subs/s1.vtt"
+      }
+     ],
+     "decision": {
+      "video": {
+       "action": "copy",
+       "reasons": []
+      },
+      "audio": {
+       "action": "transcode",
+       "reasons": [
+        "audio_codec_unsupported"
+       ],
+       "to": "eac3",
+       "channels": 6
+      },
+      "subtitles": {
+       "action": "other",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": 8000
+    },
+    "endReason": null,
+    "endMessage": null
+   }
+  },
+  {
+   "name": "playback-session-limited.json: a subtitle from nowhere",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [
+      {
+       "trackId": "s1",
+       "format": "webvtt",
+       "url": "data:x"
+      }
+     ],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-session-limited.json: ended by an administrator",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "ended",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    },
+    "end": {
+     "reason": "terminated",
+     "message": "Bedtime."
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "ended",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": null,
+    "reportEveryMs": 30000,
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": null
+    },
+    "endReason": "terminated",
+    "endMessage": "Bedtime."
+   }
+  },
+  {
+   "name": "playback-session-limited.json: in a queue",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "hologram",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    },
+    "queue": {
+     "queueId": "q1",
+     "entryId": "e1"
+    }
+   },
+   "ok": true,
+   "value": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "other",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "queue": {
+     "queueId": "q1",
+     "entryId": "e1"
+    },
+    "reportEveryMs": 30000,
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "bitrateKbps": null
+    },
+    "endReason": null,
+    "endMessage": null
+   }
+  },
+  {
+   "name": "playback-session-limited.json: a queue entry that is not an id",
+   "raw": {
+    "id": "ps_7wjDPaSybPgjobCCa8Tk",
+    "revision": "2",
+    "kind": "vod",
+    "role": "local",
+    "state": "paused",
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "lease": {
+     "expiresAt": "2026-10-05T20:08:33.019Z",
+     "reportEveryMs": 30000
+    },
+    "presentation": {
+     "generation": 2,
+     "mode": "direct",
+     "url": "/v1/media/LcBOgXUpXPogF4ZpK3tIFIk5ddo3D_pve4jDRgdRblg",
+     "startPositionMs": 0,
+     "subtitles": [],
+     "decision": {
+      "video": {
+       "action": "direct",
+       "reasons": []
+      },
+      "audio": {
+       "action": "direct",
+       "reasons": []
+      }
+     },
+     "container": "mp4"
+    },
+    "queue": {
+     "queueId": "q1",
+     "entryId": "e 1"
+    }
+   },
+   "ok": false
+  }
+ ],
+ "queues": [
+  {
+   "name": "playback-queue.json: as read",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "window": [
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0,
+      "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+      "kind": "track",
+      "title": "Welcome To New York (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 1
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1,
+      "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+      "kind": "track",
+      "title": "Blank Space (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 2
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "position": 2,
+      "itemId": "a_JekIv9ttB2ASgddvwYww",
+      "kind": "track",
+      "title": "Style (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 3
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-3",
+      "position": 3,
+      "itemId": "8705f7H5xMvho37Mj1bb-g",
+      "kind": "track",
+      "title": "Out Of The Woods (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 4
+     }
+    ],
+    "session": {
+     "id": "ps_7Oxi766TtdMyj1b4Gzn5",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+     "versionId": "PfXuuBetzniMlm4Gz5Cyr6wJTleF5kFR52zWYxS7WOI",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-0"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.038Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/MyOYmaWCjb8C08ZV03HlsimzkxvhUUkV8LzsxDC8F1M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "o-RAl_SJBxeh0zt6j4o8ojKiT0HUo7V95j5E0yyixIc.3",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "repeat": "off",
+     "shuffled": false,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "upcoming": {
+      "available": true,
+      "reason": "ready",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0,
+      "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+      "kind": "track",
+      "title": "Welcome To New York (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1,
+      "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+      "kind": "track",
+      "title": "Blank Space (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "position": 2,
+      "itemId": "a_JekIv9ttB2ASgddvwYww",
+      "kind": "track",
+      "title": "Style (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-3",
+      "position": 3,
+      "itemId": "8705f7H5xMvho37Mj1bb-g",
+      "kind": "track",
+      "title": "Out Of The Woods (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     }
+    ],
+    "session": "ps_7Oxi766TtdMyj1b4Gzn5"
+   }
+  },
+  {
+   "name": "playback-queue.json: no total",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "window": [
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0,
+      "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+      "kind": "track",
+      "title": "Welcome To New York (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 1
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1,
+      "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+      "kind": "track",
+      "title": "Blank Space (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 2
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "position": 2,
+      "itemId": "a_JekIv9ttB2ASgddvwYww",
+      "kind": "track",
+      "title": "Style (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 3
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-3",
+      "position": 3,
+      "itemId": "8705f7H5xMvho37Mj1bb-g",
+      "kind": "track",
+      "title": "Out Of The Woods (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 4
+     }
+    ],
+    "session": {
+     "id": "ps_7Oxi766TtdMyj1b4Gzn5",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+     "versionId": "PfXuuBetzniMlm4Gz5Cyr6wJTleF5kFR52zWYxS7WOI",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-0"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.038Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/MyOYmaWCjb8C08ZV03HlsimzkxvhUUkV8LzsxDC8F1M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "o-RAl_SJBxeh0zt6j4o8ojKiT0HUo7V95j5E0yyixIc.3",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-queue.json: shuffled, repeating, at its end",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "repeat": "all",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": null,
+      "available": false,
+      "reason": "end"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     },
+     "shuffle": {
+      "seed": "s",
+      "lap": 0
+     }
+    },
+    "window": [
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0,
+      "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+      "kind": "track",
+      "title": "Welcome To New York (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 1
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1,
+      "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+      "kind": "track",
+      "title": "Blank Space (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 2
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "position": 2,
+      "itemId": "a_JekIv9ttB2ASgddvwYww",
+      "kind": "track",
+      "title": "Style (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 3
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-3",
+      "position": 3,
+      "itemId": "8705f7H5xMvho37Mj1bb-g",
+      "kind": "track",
+      "title": "Out Of The Woods (Taylor's Version)",
+      "durationMs": 60000,
+      "available": true,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+      "track": 4
+     }
+    ],
+    "session": {
+     "id": "ps_7Oxi766TtdMyj1b4Gzn5",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+     "versionId": "PfXuuBetzniMlm4Gz5Cyr6wJTleF5kFR52zWYxS7WOI",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-0"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.038Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/MyOYmaWCjb8C08ZV03HlsimzkxvhUUkV8LzsxDC8F1M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "o-RAl_SJBxeh0zt6j4o8ojKiT0HUo7V95j5E0yyixIc.3",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "repeat": "all",
+     "shuffled": true,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "upcoming": {
+      "available": false,
+      "reason": "end"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0,
+      "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+      "kind": "track",
+      "title": "Welcome To New York (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1,
+      "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+      "kind": "track",
+      "title": "Blank Space (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "position": 2,
+      "itemId": "a_JekIv9ttB2ASgddvwYww",
+      "kind": "track",
+      "title": "Style (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     },
+     {
+      "entryId": "sbjwtbvsvzm3q4owa-3",
+      "position": 3,
+      "itemId": "8705f7H5xMvho37Mj1bb-g",
+      "kind": "track",
+      "title": "Out Of The Woods (Taylor's Version)",
+      "available": true,
+      "durationMs": 60000,
+      "albumId": "xgnrY1d3Ziiq5-11vjCV9w"
+     }
+    ],
+    "session": "ps_7Oxi766TtdMyj1b4Gzn5"
+   }
+  },
+  {
+   "name": "playback-queue.json: an unavailable entry",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "window": [
+     {
+      "entryId": "e9",
+      "position": 9,
+      "available": false,
+      "kind": "pending",
+      "title": ""
+     }
+    ],
+    "session": {
+     "id": "ps_7Oxi766TtdMyj1b4Gzn5",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+     "versionId": "PfXuuBetzniMlm4Gz5Cyr6wJTleF5kFR52zWYxS7WOI",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-0"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.038Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/MyOYmaWCjb8C08ZV03HlsimzkxvhUUkV8LzsxDC8F1M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "o-RAl_SJBxeh0zt6j4o8ojKiT0HUo7V95j5E0yyixIc.3",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "repeat": "off",
+     "shuffled": false,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "upcoming": {
+      "available": true,
+      "reason": "ready",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [
+     {
+      "entryId": "e9",
+      "position": 9,
+      "itemId": "",
+      "kind": "pending",
+      "title": "",
+      "available": false,
+      "durationMs": null,
+      "albumId": null
+     }
+    ],
+    "session": "ps_7Oxi766TtdMyj1b4Gzn5"
+   }
+  },
+  {
+   "name": "playback-queue.json: an available entry without an item",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "window": [
+     {
+      "entryId": "e9",
+      "position": 9,
+      "kind": "track",
+      "title": "x"
+     }
+    ],
+    "session": {
+     "id": "ps_7Oxi766TtdMyj1b4Gzn5",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+     "versionId": "PfXuuBetzniMlm4Gz5Cyr6wJTleF5kFR52zWYxS7WOI",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-0"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.038Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/MyOYmaWCjb8C08ZV03HlsimzkxvhUUkV8LzsxDC8F1M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "o-RAl_SJBxeh0zt6j4o8ojKiT0HUo7V95j5E0yyixIc.3",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-queue.json: the header alone",
+   "raw": {
+    "id": "q_6fy1PEkSiwBimQiCnwKy",
+    "revision": "1",
+    "total": 4,
+    "current": {
+     "entryId": "sbjwtbvsvzm3q4owa-0",
+     "position": 0
+    },
+    "repeat": "off",
+    "segments": [
+     {
+      "id": "gazuq565i4r3hof2v",
+      "kind": "selector",
+      "label": "1989 (Taylor's Version) [Deluxe]",
+      "count": 4,
+      "state": "ready"
+     }
+    ],
+    "segmentCount": 1,
+    "next": {
+     "entryId": "sbjwtbvsvzm3q4owa-1",
+     "available": true,
+     "reason": "ready"
+    },
+    "postPlay": {
+     "autoplay": false,
+     "countdownSeconds": 10,
+     "passoutCheckDue": false,
+     "automaticAdvances": 0
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "1",
+     "total": 4,
+     "repeat": "off",
+     "shuffled": false,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-0",
+      "position": 0
+     },
+     "upcoming": {
+      "available": true,
+      "reason": "ready",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [],
+    "session": null
+   }
+  },
+  {
+   "name": "playback-queue-advance.json: as read",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "session": {
+     "id": "ps_VuBqdeZMIiNLjieY-coJ",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "versionId": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.048Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/9Ls7h6l2ZJeeWILr2cqtWJKYmrI0MZTToBXsGsYS91M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "xkfHRHXyIAHbfMVJBJAu5Afb0DC1nEV0RKDs5aUO-3k.4",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "repeat": "off",
+     "shuffled": false,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "upcoming": {
+      "available": true,
+      "reason": "ready",
+      "entryId": "sbjwtbvsvzm3q4owa-2"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [],
+    "session": "ps_VuBqdeZMIiNLjieY-coJ"
+   }
+  },
+  {
+   "name": "playback-queue-advance.json: no total",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "session": {
+     "id": "ps_VuBqdeZMIiNLjieY-coJ",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "versionId": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.048Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/9Ls7h6l2ZJeeWILr2cqtWJKYmrI0MZTToBXsGsYS91M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "xkfHRHXyIAHbfMVJBJAu5Afb0DC1nEV0RKDs5aUO-3k.4",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-queue-advance.json: shuffled, repeating, at its end",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "repeat": "all",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": null,
+      "available": false,
+      "reason": "end"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     },
+     "shuffle": {
+      "seed": "s",
+      "lap": 0
+     }
+    },
+    "session": {
+     "id": "ps_VuBqdeZMIiNLjieY-coJ",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "versionId": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.048Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/9Ls7h6l2ZJeeWILr2cqtWJKYmrI0MZTToBXsGsYS91M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "xkfHRHXyIAHbfMVJBJAu5Afb0DC1nEV0RKDs5aUO-3k.4",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "repeat": "all",
+     "shuffled": true,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "upcoming": {
+      "available": false,
+      "reason": "end"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [],
+    "session": "ps_VuBqdeZMIiNLjieY-coJ"
+   }
+  },
+  {
+   "name": "playback-queue-advance.json: an unavailable entry",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "session": {
+     "id": "ps_VuBqdeZMIiNLjieY-coJ",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "versionId": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.048Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/9Ls7h6l2ZJeeWILr2cqtWJKYmrI0MZTToBXsGsYS91M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "xkfHRHXyIAHbfMVJBJAu5Afb0DC1nEV0RKDs5aUO-3k.4",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    },
+    "window": [
+     {
+      "entryId": "e9",
+      "position": 9,
+      "available": false,
+      "kind": "pending",
+      "title": ""
+     }
+    ]
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "repeat": "off",
+     "shuffled": false,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "upcoming": {
+      "available": true,
+      "reason": "ready",
+      "entryId": "sbjwtbvsvzm3q4owa-2"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [
+     {
+      "entryId": "e9",
+      "position": 9,
+      "itemId": "",
+      "kind": "pending",
+      "title": "",
+      "available": false,
+      "durationMs": null,
+      "albumId": null
+     }
+    ],
+    "session": "ps_VuBqdeZMIiNLjieY-coJ"
+   }
+  },
+  {
+   "name": "playback-queue-advance.json: an available entry without an item",
+   "raw": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "repeat": "off",
+     "segments": [
+      {
+       "id": "gazuq565i4r3hof2v",
+       "kind": "selector",
+       "label": "1989 (Taylor's Version) [Deluxe]",
+       "count": 4,
+       "state": "ready"
+      }
+     ],
+     "segmentCount": 1,
+     "next": {
+      "entryId": "sbjwtbvsvzm3q4owa-2",
+      "available": true,
+      "reason": "ready"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false,
+      "automaticAdvances": 0
+     }
+    },
+    "session": {
+     "id": "ps_VuBqdeZMIiNLjieY-coJ",
+     "revision": "1",
+     "kind": "audio",
+     "role": "local",
+     "state": "paused",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "versionId": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "queue": {
+      "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+      "entryId": "sbjwtbvsvzm3q4owa-1"
+     },
+     "lease": {
+      "expiresAt": "2026-10-05T20:08:33.048Z",
+      "reportEveryMs": 30000
+     },
+     "presentation": {
+      "generation": 1,
+      "mode": "direct",
+      "url": "/v1/media/9Ls7h6l2ZJeeWILr2cqtWJKYmrI0MZTToBXsGsYS91M",
+      "startPositionMs": 0,
+      "subtitles": [],
+      "decision": {
+       "audio": {
+        "action": "direct",
+        "reasons": []
+       }
+      },
+      "container": "m4a",
+      "audioRender": {
+       "version": 2,
+       "mode": "unavailable",
+       "id": "xkfHRHXyIAHbfMVJBJAu5Afb0DC1nEV0RKDs5aUO-3k.4",
+       "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+      }
+     }
+    },
+    "window": [
+     {
+      "entryId": "e9",
+      "position": 9,
+      "kind": "track",
+      "title": "x"
+     }
+    ]
+   },
+   "ok": false
+  },
+  {
+   "name": "playback-queue-advance.json: the header alone",
+   "raw": {
+    "id": "q_6fy1PEkSiwBimQiCnwKy",
+    "revision": "2",
+    "total": 4,
+    "current": {
+     "entryId": "sbjwtbvsvzm3q4owa-1",
+     "position": 1
+    },
+    "repeat": "off",
+    "segments": [
+     {
+      "id": "gazuq565i4r3hof2v",
+      "kind": "selector",
+      "label": "1989 (Taylor's Version) [Deluxe]",
+      "count": 4,
+      "state": "ready"
+     }
+    ],
+    "segmentCount": 1,
+    "next": {
+     "entryId": "sbjwtbvsvzm3q4owa-2",
+     "available": true,
+     "reason": "ready"
+    },
+    "postPlay": {
+     "autoplay": false,
+     "countdownSeconds": 10,
+     "passoutCheckDue": false,
+     "automaticAdvances": 0
+    }
+   },
+   "ok": true,
+   "value": {
+    "queue": {
+     "id": "q_6fy1PEkSiwBimQiCnwKy",
+     "revision": "2",
+     "total": 4,
+     "repeat": "off",
+     "shuffled": false,
+     "current": {
+      "entryId": "sbjwtbvsvzm3q4owa-1",
+      "position": 1
+     },
+     "upcoming": {
+      "available": true,
+      "reason": "ready",
+      "entryId": "sbjwtbvsvzm3q4owa-2"
+     },
+     "postPlay": {
+      "autoplay": false,
+      "countdownSeconds": 10,
+      "passoutCheckDue": false
+     }
+    },
+    "window": [],
+    "session": null
+   }
+  }
+ ],
+ "profiles": [
+  {
+   "facts": {
+    "model": "4800X",
+    "osVersion": "14.0",
+    "uhd": true,
+    "av1": false,
+    "dolbyVision": false,
+    "hdr10": false,
+    "hlg": false,
+    "surround": false
+   },
+   "profile": {
+    "version": 1,
+    "evidence": "declared",
+    "client": {
+     "family": "roku",
+     "platform": "roku",
+     "os": "roku",
+     "osVersion": "14.0",
+     "model": "4800X",
+     "app": "portico-roku",
+     "engine": "roku-video"
+    },
+    "display": {
+     "width": 3840,
+     "height": 2160,
+     "dynamicRanges": [
+      "sdr",
+      "hdr10",
+      "hlg"
+     ],
+     "maxFrameRate": 60
+    },
+    "video": [
+     {
+      "codec": "h264",
+      "evidence": "declared",
+      "bitDepths": [
+       8
+      ],
+      "maxWidth": 3840,
+      "maxHeight": 2160,
+      "maxLevel": 51,
+      "maxFrameRate": 60,
+      "dynamicRanges": [
+       "sdr"
+      ]
+     },
+     {
+      "codec": "hevc",
+      "evidence": "declared",
+      "bitDepths": [
+       8,
+       10
+      ],
+      "maxWidth": 3840,
+      "maxHeight": 2160,
+      "maxLevel": 153,
+      "maxFrameRate": 60,
+      "dynamicRanges": [
+       "sdr",
+       "hdr10",
+       "hlg"
+      ]
+     },
+     {
+      "codec": "vp9",
+      "evidence": "declared",
+      "bitDepths": [
+       8,
+       10
+      ],
+      "maxWidth": 3840,
+      "maxHeight": 2160,
+      "maxFrameRate": 60,
+      "dynamicRanges": [
+       "sdr",
+       "hdr10",
+       "hlg"
+      ]
+     }
+    ],
+    "audio": [
+     {
+      "codec": "aac",
+      "maxChannels": 6,
+      "evidence": "declared"
+     },
+     {
+      "codec": "mp3",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "ac3",
+      "maxChannels": 6,
+      "evidence": "declared",
+      "passthrough": true
+     },
+     {
+      "codec": "eac3",
+      "maxChannels": 8,
+      "evidence": "declared",
+      "passthrough": true,
+      "objectAudio": [
+       "atmos"
+      ]
+     },
+     {
+      "codec": "flac",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "pcm",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "alac",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "opus",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "vorbis",
+      "maxChannels": 2,
+      "evidence": "declared"
+     }
+    ],
+    "audioOutput": {
+     "maxChannels": 2
+    },
+    "transports": [
+     {
+      "transport": "direct",
+      "containers": [
+       "mp4",
+       "m4v",
+       "mov",
+       "mkv",
+       "ts",
+       "m2ts"
+      ],
+      "video": [
+       "h264",
+       "hevc",
+       "vp9"
+      ],
+      "audio": [
+       "aac",
+       "mp3",
+       "ac3",
+       "eac3",
+       "flac",
+       "pcm",
+       "alac",
+       "opus",
+       "vorbis"
+      ]
+     },
+     {
+      "transport": "direct",
+      "containers": [
+       "mp3",
+       "m4a",
+       "aac",
+       "flac",
+       "wav",
+       "ogg"
+      ],
+      "video": [],
+      "audio": [
+       "aac",
+       "mp3",
+       "flac",
+       "pcm",
+       "alac",
+       "opus",
+       "vorbis"
+      ]
+     },
+     {
+      "transport": "hls_ts",
+      "containers": [
+       "mpegts"
+      ],
+      "video": [
+       "h264",
+       "hevc",
+       "vp9"
+      ],
+      "audio": [
+       "aac",
+       "mp3",
+       "ac3",
+       "eac3"
+      ]
+     },
+     {
+      "transport": "hls_fmp4",
+      "containers": [
+       "fmp4"
+      ],
+      "video": [
+       "h264",
+       "hevc",
+       "vp9"
+      ],
+      "audio": [
+       "aac",
+       "ac3",
+       "eac3"
+      ]
+     }
+    ],
+    "subtitles": {
+     "text": [
+      "srt",
+      "vtt"
+     ],
+     "styled": [],
+     "bitmap": []
+    }
+   },
+   "capability": {
+    "form": "tv",
+    "network": {
+     "class": "local"
+    },
+    "containers": [
+     {
+      "container": "mp4",
+      "direct": true
+     },
+     {
+      "container": "m4v",
+      "direct": true
+     },
+     {
+      "container": "mov",
+      "direct": true
+     },
+     {
+      "container": "mkv",
+      "direct": true
+     },
+     {
+      "container": "ts",
+      "direct": true
+     },
+     {
+      "container": "m2ts",
+      "direct": true
+     },
+     {
+      "container": "mp3",
+      "direct": true
+     },
+     {
+      "container": "m4a",
+      "direct": true
+     },
+     {
+      "container": "aac",
+      "direct": true
+     },
+     {
+      "container": "flac",
+      "direct": true
+     },
+     {
+      "container": "wav",
+      "direct": true
+     },
+     {
+      "container": "ogg",
+      "direct": true
+     }
+    ],
+    "streaming": {
+     "hls": {
+      "fmp4": true,
+      "ts": true
+     },
+     "progressive": true
+    },
+    "video": [
+     {
+      "codec": "h264",
+      "maxLevel": 51,
+      "maxBitDepth": 8,
+      "maxWidth": 3840,
+      "maxHeight": 2160,
+      "maxFps": 60,
+      "hdr": []
+     },
+     {
+      "codec": "hevc",
+      "maxLevel": 153,
+      "maxBitDepth": 10,
+      "maxWidth": 3840,
+      "maxHeight": 2160,
+      "maxFps": 60,
+      "hdr": [
+       "hdr10",
+       "hlg"
+      ]
+     },
+     {
+      "codec": "vp9",
+      "maxBitDepth": 10,
+      "maxWidth": 3840,
+      "maxHeight": 2160,
+      "maxFps": 60,
+      "hdr": [
+       "hdr10",
+       "hlg"
+      ]
+     }
+    ],
+    "display": {
+     "hdr": [
+      "hdr10",
+      "hlg"
+     ],
+     "maxWidth": 3840,
+     "maxHeight": 2160
+    },
+    "audio": [
+     {
+      "codec": "aac",
+      "maxChannels": 6,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "mp3",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "ac3",
+      "maxChannels": 6,
+      "passthrough": true,
+      "atmos": false
+     },
+     {
+      "codec": "eac3",
+      "maxChannels": 8,
+      "passthrough": true,
+      "atmos": true
+     },
+     {
+      "codec": "flac",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "pcm",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "alac",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "opus",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "vorbis",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     }
+    ],
+    "subtitles": [
+     {
+      "format": "srt",
+      "render": "native"
+     },
+     {
+      "format": "vtt",
+      "render": "native"
+     }
+    ],
+    "features": {}
+   }
+  },
+  {
+   "facts": {
+    "model": "3930X",
+    "osVersion": "13.5",
+    "uhd": false,
+    "av1": false,
+    "dolbyVision": false,
+    "hdr10": false,
+    "hlg": false,
+    "surround": false
+   },
+   "profile": {
+    "version": 1,
+    "evidence": "declared",
+    "client": {
+     "family": "roku",
+     "platform": "roku",
+     "os": "roku",
+     "osVersion": "13.5",
+     "model": "3930X",
+     "app": "portico-roku",
+     "engine": "roku-video"
+    },
+    "display": {
+     "width": 1920,
+     "height": 1080,
+     "dynamicRanges": [
+      "sdr"
+     ],
+     "maxFrameRate": 60
+    },
+    "video": [
+     {
+      "codec": "h264",
+      "evidence": "declared",
+      "bitDepths": [
+       8
+      ],
+      "maxWidth": 1920,
+      "maxHeight": 1080,
+      "maxLevel": 42,
+      "maxFrameRate": 60,
+      "dynamicRanges": [
+       "sdr"
+      ]
+     }
+    ],
+    "audio": [
+     {
+      "codec": "aac",
+      "maxChannels": 6,
+      "evidence": "declared"
+     },
+     {
+      "codec": "mp3",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "ac3",
+      "maxChannels": 6,
+      "evidence": "declared",
+      "passthrough": true
+     },
+     {
+      "codec": "eac3",
+      "maxChannels": 8,
+      "evidence": "declared",
+      "passthrough": true,
+      "objectAudio": [
+       "atmos"
+      ]
+     },
+     {
+      "codec": "flac",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "pcm",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "alac",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "opus",
+      "maxChannels": 2,
+      "evidence": "declared"
+     },
+     {
+      "codec": "vorbis",
+      "maxChannels": 2,
+      "evidence": "declared"
+     }
+    ],
+    "audioOutput": {
+     "maxChannels": 2
+    },
+    "transports": [
+     {
+      "transport": "direct",
+      "containers": [
+       "mp4",
+       "m4v",
+       "mov",
+       "mkv",
+       "ts",
+       "m2ts"
+      ],
+      "video": [
+       "h264"
+      ],
+      "audio": [
+       "aac",
+       "mp3",
+       "ac3",
+       "eac3",
+       "flac",
+       "pcm",
+       "alac",
+       "opus",
+       "vorbis"
+      ]
+     },
+     {
+      "transport": "direct",
+      "containers": [
+       "mp3",
+       "m4a",
+       "aac",
+       "flac",
+       "wav",
+       "ogg"
+      ],
+      "video": [],
+      "audio": [
+       "aac",
+       "mp3",
+       "flac",
+       "pcm",
+       "alac",
+       "opus",
+       "vorbis"
+      ]
+     },
+     {
+      "transport": "hls_ts",
+      "containers": [
+       "mpegts"
+      ],
+      "video": [
+       "h264"
+      ],
+      "audio": [
+       "aac",
+       "mp3",
+       "ac3",
+       "eac3"
+      ]
+     },
+     {
+      "transport": "hls_fmp4",
+      "containers": [
+       "fmp4"
+      ],
+      "video": [
+       "h264"
+      ],
+      "audio": [
+       "aac",
+       "ac3",
+       "eac3"
+      ]
+     }
+    ],
+    "subtitles": {
+     "text": [
+      "srt",
+      "vtt"
+     ],
+     "styled": [],
+     "bitmap": []
+    }
+   },
+   "capability": {
+    "form": "tv",
+    "network": {
+     "class": "local"
+    },
+    "containers": [
+     {
+      "container": "mp4",
+      "direct": true
+     },
+     {
+      "container": "m4v",
+      "direct": true
+     },
+     {
+      "container": "mov",
+      "direct": true
+     },
+     {
+      "container": "mkv",
+      "direct": true
+     },
+     {
+      "container": "ts",
+      "direct": true
+     },
+     {
+      "container": "m2ts",
+      "direct": true
+     },
+     {
+      "container": "mp3",
+      "direct": true
+     },
+     {
+      "container": "m4a",
+      "direct": true
+     },
+     {
+      "container": "aac",
+      "direct": true
+     },
+     {
+      "container": "flac",
+      "direct": true
+     },
+     {
+      "container": "wav",
+      "direct": true
+     },
+     {
+      "container": "ogg",
+      "direct": true
+     }
+    ],
+    "streaming": {
+     "hls": {
+      "fmp4": true,
+      "ts": true
+     },
+     "progressive": true
+    },
+    "video": [
+     {
+      "codec": "h264",
+      "maxLevel": 42,
+      "maxBitDepth": 8,
+      "maxWidth": 1920,
+      "maxHeight": 1080,
+      "maxFps": 60,
+      "hdr": []
+     }
+    ],
+    "display": {
+     "hdr": [],
+     "maxWidth": 1920,
+     "maxHeight": 1080
+    },
+    "audio": [
+     {
+      "codec": "aac",
+      "maxChannels": 6,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "mp3",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "ac3",
+      "maxChannels": 6,
+      "passthrough": true,
+      "atmos": false
+     },
+     {
+      "codec": "eac3",
+      "maxChannels": 8,
+      "passthrough": true,
+      "atmos": true
+     },
+     {
+      "codec": "flac",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "pcm",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "alac",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "opus",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     },
+     {
+      "codec": "vorbis",
+      "maxChannels": 2,
+      "passthrough": false,
+      "atmos": false
+     }
+    ],
+    "subtitles": [
+     {
+      "format": "srt",
+      "render": "native"
+     },
+     {
+      "format": "vtt",
+      "render": "native"
+     }
+    ],
+    "features": {}
+   }
+  }
+ ],
+ "ladder": [
+  {
+   "height": 2160,
+   "kbps": 40000
+  },
+  {
+   "height": 1440,
+   "kbps": 20000
+  },
+  {
+   "height": 1080,
+   "kbps": 8000
+  },
+  {
+   "height": 720,
+   "kbps": 4000
+  },
+  {
+   "height": 480,
+   "kbps": 1500
+  },
+  {
+   "height": 360,
+   "kbps": 800
+  }
+ ],
+ "receipt": {
+  "revision": "e3bf4eb9b2f6c6896f1978786c2b15a7",
+  "summary": {
+   "family": "roku",
+   "platform": "roku",
+   "model": "fixtures",
+   "engine": "roku-video",
+   "evidence": "declared",
+   "revision": "e3bf4eb9b2f6c6896f1978786c2b15a7",
+   "published": true
+  },
+  "version": 1
+ }
+}

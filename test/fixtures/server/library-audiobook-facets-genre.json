@@ -1,0 +1,10 @@
+{
+ "field": "genre",
+ "values": [
+  {
+   "value": "Audiobook",
+   "label": "Audiobook",
+   "count": 8
+  }
+ ]
+}

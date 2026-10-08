@@ -1,0 +1,13 @@
+{
+ "protocolVersion": "1.0",
+ "serverTime": "2026-10-05T20:06:32.902Z",
+ "invite": {
+  "id": "inv_kbOwWNH7hI8LLZ9FVqOvdah6zv75z2i5qXnC_efJzro",
+  "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+  "code": "PNX9TK6A",
+  "expiresAt": "2026-10-05T20:21:32.902Z",
+  "maxUses": 8,
+  "uses": 0,
+  "recipientProfileId": ""
+ }
+}

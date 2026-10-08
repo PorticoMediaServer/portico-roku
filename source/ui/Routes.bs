@@ -1,0 +1,9 @@
+' Routes: the names the shell knows its destinations and pages by.
+
+' A rail key is a destination's name, or "library:<id>" (apps/native/src/shell/Rail.tsx `RailKey`).
+' Returns the library's id, or "" for any other destination.
+function RailLibraryId(key as string) as string
+    prefix = "library:"
+    if Left(key, Len(prefix)) <> prefix then return ""
+    return Mid(key, Len(prefix) + 1)
+end function

@@ -1,0 +1,300 @@
+{
+ "itemId": "FnVfQzincjaryvRl0TA1jw",
+ "revision": {
+  "catalog": 15383,
+  "viewer": 799
+ },
+ "rows": [
+  {
+   "id": "genre:nfo:baaca138e58e5148093fbf6aa38c925ca9824c6e80e330db7acbefb666b3667c",
+   "title": "More Drama movies",
+   "titleText": {
+    "code": "",
+    "fallback": "More Drama movies"
+   },
+   "kind": "related",
+   "artworkShape": "poster",
+   "endpoint": "/v1/items/FnVfQzincjaryvRl0TA1jw/recommendations",
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "relation": "genre",
+   "provider": "nfo",
+   "evidenceId": "baaca138e58e5148093fbf6aa38c925ca9824c6e80e330db7acbefb666b3667c",
+   "priority": 0,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": true,
+   "reorderable": false,
+   "critical": false,
+   "cursorCapable": false,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "jYY0bqzSZAYSmDdF3rEWmA",
+     "kind": "movie",
+     "title": "The Godfather",
+     "subtitle": "1972",
+     "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:49.083Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+     }
+    }
+   ],
+   "total": 1,
+   "start": 0,
+   "limit": 1,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 0,
+    "viewer": 0
+   }
+  },
+  {
+   "id": "genre:tmdb:18",
+   "title": "More Drama movies",
+   "titleText": {
+    "code": "",
+    "fallback": "More Drama movies"
+   },
+   "kind": "related",
+   "artworkShape": "poster",
+   "endpoint": "/v1/items/FnVfQzincjaryvRl0TA1jw/recommendations",
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "relation": "genre",
+   "provider": "tmdb",
+   "evidenceId": "18",
+   "priority": 10,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": true,
+   "reorderable": false,
+   "critical": false,
+   "cursorCapable": false,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "jYY0bqzSZAYSmDdF3rEWmA",
+     "kind": "movie",
+     "title": "The Godfather",
+     "subtitle": "1972",
+     "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:49.083Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "DZs2il2jVWj_ZdSIruE0nA",
+     "kind": "movie",
+     "title": "The Godfather Part II",
+     "subtitle": "1974",
+     "posterUrl": "/v1/metadata/item/DZs2il2jVWj_ZdSIruE0nA/art/poster?v=5b9396d9c07576d5c0f87516e3fc1989394fd2cd932fa5d8b3636e60ad71bb88&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:49.659Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "DZs2il2jVWj_ZdSIruE0nA"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "A-lx0HQACuybqDB5Cqr7ug",
+     "kind": "movie",
+     "title": "One Flew Over the Cuckoo's Nest",
+     "subtitle": "1975",
+     "posterUrl": "/v1/metadata/item/A-lx0HQACuybqDB5Cqr7ug/art/poster?v=ee1bf05e3b1acf2910a355ff600c084603bd1da8c5aa07439aa3c39bf6ebf8ce&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:34.012Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "A-lx0HQACuybqDB5Cqr7ug"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "ymnkJz8MBT73UVWYrkaXvg",
+     "kind": "movie",
+     "title": "Blade Runner",
+     "subtitle": "1982",
+     "posterUrl": "/v1/metadata/item/ymnkJz8MBT73UVWYrkaXvg/art/poster?v=b1f49507009159fb8dfb56e16775da54454ba9b8ddfcd3bb74c166739a27ceed&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:20.753Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ymnkJz8MBT73UVWYrkaXvg"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "0Xu1HSbD_cjluhIbgoVBZQ",
+     "kind": "movie",
+     "title": "Grave of the Fireflies",
+     "subtitle": "1988",
+     "posterUrl": "/v1/metadata/item/0Xu1HSbD_cjluhIbgoVBZQ/art/poster?v=2a336d27fbbbd9ed6228fea2c8e16e2f316069c8c1d43a99cb9fe58dfce2856f&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:26.198Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "0Xu1HSbD_cjluhIbgoVBZQ"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "l_PaPfXC4nd4UMXjeuabsw",
+     "kind": "movie",
+     "title": "Parenthood",
+     "subtitle": "1989",
+     "posterUrl": "/v1/metadata/item/l_PaPfXC4nd4UMXjeuabsw/art/poster?v=0240e2b184383a87558dd48fdd001074a5173cea296b7220023fa414ef460f45&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:35.808Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "l_PaPfXC4nd4UMXjeuabsw"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "E98BeAQtDVbhDJFe9TQWCg",
+     "kind": "movie",
+     "title": "GoodFellas",
+     "subtitle": "1990",
+     "posterUrl": "/v1/metadata/item/E98BeAQtDVbhDJFe9TQWCg/art/poster?v=9a2d3d449519c4b93b28373f3ed263a99a00cde039334b2b8bcbca2c5edbbd09&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:25.569Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "E98BeAQtDVbhDJFe9TQWCg"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "dWQDKXgSQuZwdYI-NoZW4g",
+     "kind": "movie",
+     "title": "Schindler's List",
+     "subtitle": "1993",
+     "posterUrl": "/v1/metadata/item/dWQDKXgSQuZwdYI-NoZW4g/art/poster?v=338fafbdfa136d7998ab53f40a88edc8f745c9ab09996ea4da74dc315657664f&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:40.623Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "dWQDKXgSQuZwdYI-NoZW4g"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "iEY5eCPZtFWdz18iLP-UDg",
+     "kind": "movie",
+     "title": "Forrest Gump",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/iEY5eCPZtFWdz18iLP-UDg/art/poster?v=9228ebc4fc4e10adedf2f8e09cae0bfc3f53637cedd5af19c9687a3adef03b95&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:24.377Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "iEY5eCPZtFWdz18iLP-UDg"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "PLlWxmC9cTPbHRErW3agEQ",
+     "kind": "movie",
+     "title": "The Shawshank Redemption",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/PLlWxmC9cTPbHRErW3agEQ/art/poster?v=6483cdcf6c49f36a3e6c025a0b8c8ba1b1bf4192d5301087bee5a378867dbee2&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:55.060Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "PLlWxmC9cTPbHRErW3agEQ"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "2E4gInreHdz4hMk_d3Uybg",
+     "kind": "movie",
+     "title": "Three Colors: Red",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/2E4gInreHdz4hMk_d3Uybg/art/poster?v=2399f1b1a342d5f1e026bce97fb4765709f7746579846e4e5f37a72a4dd72c34&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:57.510Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "2E4gInreHdz4hMk_d3Uybg"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "id": "6rqyygqysYESf3aTIXzSWQ",
+     "kind": "movie",
+     "title": "Titanic",
+     "subtitle": "1997",
+     "posterUrl": "/v1/metadata/item/6rqyygqysYESf3aTIXzSWQ/art/poster?v=78e3d69fce36891d24bcc6b2c57a3d4df434a02b75f37e5061859ef9985dffe9&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:58.061Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "6rqyygqysYESf3aTIXzSWQ"
+     }
+    }
+   ],
+   "total": 12,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 0,
+    "viewer": 0
+   }
+  }
+ ]
+}

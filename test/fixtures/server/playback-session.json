@@ -1,0 +1,31 @@
+{
+ "id": "ps_7wjDPaSybPgjobCCa8Tk",
+ "revision": "1",
+ "kind": "vod",
+ "role": "local",
+ "state": "paused",
+ "itemId": "FnVfQzincjaryvRl0TA1jw",
+ "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+ "lease": {
+  "expiresAt": "2026-10-05T20:08:33.018Z",
+  "reportEveryMs": 30000
+ },
+ "presentation": {
+  "generation": 1,
+  "mode": "direct",
+  "url": "/v1/media/48JyCx_adgbJyybEeZ7aF6s88Ar9UMUyu2295YgvX1c",
+  "startPositionMs": 0,
+  "subtitles": [],
+  "decision": {
+   "video": {
+    "action": "direct",
+    "reasons": []
+   },
+   "audio": {
+    "action": "direct",
+    "reasons": []
+   }
+  },
+  "container": "mp4"
+ }
+}

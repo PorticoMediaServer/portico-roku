@@ -1,0 +1,412 @@
+' packages/i18n/src/messageformat.ts in BrightScript: the ICU MessageFormat subset the catalogue
+' uses. `{arg}`, `{arg, number[, integer|percent]}`, `{arg, plural, [offset:n] =0 {…} one {…} other {…}}`
+' with `#`, `{arg, selectordinal, …}`, `{arg, select, key {…} other {…}}`, and apostrophe quoting
+' (`''` is a quote, `'{…}'` is literal). The words come from locale/<locale>/translations.xml,
+' generated from packages/i18n/src/catalog, so they are the same words by the same ids.
+'
+' Dates and times inside a message (`{arg, date}`) are formatted for US English; the channel
+' formats its own dates through core/Format.bs.
+
+import "pkg:/source/core/LocaleTables.bs"
+
+' The catalogue message for an id, formatted. An id with no message returns the id (as `tr` does).
+function T(id as string, values = invalid as dynamic) as string
+    source = MessageSource(id)
+    if values = invalid and Instr(1, source, "{") = 0 and Instr(1, source, "'") = 0 then return source
+    return FormatMessage(source, values)
+end function
+
+' The viewer's region choices, as the shell publishes them on the global node: "locale|hourCycle"
+' ("en-GB|h23"); an empty part follows the device. A Task thread reads the node once
+' and keeps the answer (`regionFixed`), so its lookups do not cross threads.
+function RegionChoice() as string
+    globals = GetGlobalAA()
+    if globals.regionFixed <> invalid then return globals.regionFixed
+    if m.global <> invalid and m.global.hasField("region") then return m.global.region
+    return ""
+end function
+
+sub RegionKeep()
+    GetGlobalAA().regionFixed = RegionChoice()
+end sub
+
+' The catalogue source for an id. The profile's language first (the words that differ between the
+' catalogue's locales), then the device's translations (locale/<locale>/translations.xml).
+' The off-device tests have no translations, so they register the sources their fixtures carry.
+function MessageSource(id as string) as string
+    globals = GetGlobalAA()
+    choice = RegionChoice()
+    if choice <> "" and Left(choice, 1) <> "|" then
+        if globals.localeWordsFor = invalid or globals.localeWordsFor <> choice then
+            globals.localeWordsFor = choice
+            globals.localeWords = LocaleWords(Left(choice, Instr(1, choice + "|", "|") - 1))
+        end if
+        if globals.localeWords <> invalid then
+            source = globals.localeWords[id]
+            if source <> invalid then return source
+        end if
+    end if
+    registered = globals.messageCatalogue
+    if registered <> invalid then
+        source = registered[id]
+        if source <> invalid then return source
+    end if
+    return tr(id)
+end function
+
+function FormatMessage(source as string, values = invalid as dynamic) as string
+    if values = invalid then values = {}
+    if m.messageCache = invalid then
+        ' Keys are message sources, and two can differ only in case ("About {size}", "about {size}").
+        m.messageCache = {}
+        m.messageCache.setModeCaseSensitive()
+    end if
+    nodes = m.messageCache[source]
+    if nodes = invalid then
+        state = { source: source, i: 1, length: Len(source), failed: false }
+        nodes = MessageNodes(state, false, 0)
+        if state.failed or state.i <= state.length then nodes = [{ kind: "text", value: source }]
+        m.messageCache[source] = nodes
+    end if
+    return MessageRender(nodes, values, invalid)
+end function
+
+function MessageChar(state as object) as string
+    return Mid(state.source, state.i, 1)
+end function
+
+sub MessageSkipSpace(state as object)
+    while state.i <= state.length
+        c = MessageChar(state)
+        if c <> " " and c <> Chr(9) and c <> Chr(10) and c <> Chr(13) then exit while
+        state.i = state.i + 1
+    end while
+end sub
+
+function MessageIdent(state as object) as string
+    MessageSkipSpace(state)
+    start = state.i
+    while state.i <= state.length
+        c = MessageChar(state)
+        if c = " " or c = Chr(9) or c = Chr(10) or c = Chr(13) or c = "," or c = "{" or c = "}" or c = "#" then exit while
+        state.i = state.i + 1
+    end while
+    if state.i = start then state.failed = true
+    return Mid(state.source, start, state.i - start)
+end function
+
+function MessageNodes(state as object, inPlural as boolean, depth as integer) as object
+    out = []
+    text = ""
+    quote = "'"
+    while state.i <= state.length and not state.failed
+        c = MessageChar(state)
+        if c = quote then
+            nextChar = Mid(state.source, state.i + 1, 1)
+            if nextChar = quote then
+                text = text + quote
+                state.i = state.i + 2
+            else if nextChar = "{" or nextChar = "}" or (inPlural and nextChar = "#") then
+                finish = Instr(state.i + 1, state.source, quote)
+                if finish = 0 then
+                    text = text + Mid(state.source, state.i + 1)
+                    state.i = state.length + 1
+                else
+                    text = text + Mid(state.source, state.i + 1, finish - state.i - 1)
+                    state.i = finish + 1
+                end if
+            else
+                text = text + c
+                state.i = state.i + 1
+            end if
+        else if c = "}" then
+            if depth = 0 then state.failed = true
+            exit while
+        else if c = "#" and inPlural then
+            if text <> "" then out.push({ kind: "text", value: text })
+            text = ""
+            out.push({ kind: "pound" })
+            state.i = state.i + 1
+        else if c = "{" then
+            if text <> "" then out.push({ kind: "text", value: text })
+            text = ""
+            state.i = state.i + 1
+            out.push(MessageArgument(state, depth))
+        else
+            text = text + c
+            state.i = state.i + 1
+        end if
+    end while
+    if text <> "" then out.push({ kind: "text", value: text })
+    return out
+end function
+
+function MessageOptions(state as object, plural as boolean, depth as integer) as object
+    options = {}
+    offset = 0
+    MessageSkipSpace(state)
+    if plural and Mid(state.source, state.i, 7) = "offset:" then
+        state.i = state.i + 7
+        MessageSkipSpace(state)
+        digits = ""
+        while state.i <= state.length and Instr(1, "0123456789", MessageChar(state)) > 0
+            digits = digits + MessageChar(state)
+            state.i = state.i + 1
+        end while
+        if digits = "" then state.failed = true
+        offset = Val(digits, 10)
+    end if
+    while not state.failed
+        MessageSkipSpace(state)
+        if state.i > state.length or MessageChar(state) = "}" then exit while
+        key = MessageIdent(state)
+        MessageSkipSpace(state)
+        if MessageChar(state) <> "{" then
+            state.failed = true
+            exit while
+        end if
+        state.i = state.i + 1
+        options[key] = MessageNodes(state, plural, depth + 1)
+        if MessageChar(state) <> "}" then
+            state.failed = true
+            exit while
+        end if
+        state.i = state.i + 1
+    end while
+    if options.other = invalid then state.failed = true
+    return { offset: offset, options: options }
+end function
+
+function MessageArgument(state as object, depth as integer) as object
+    name = MessageIdent(state)
+    MessageSkipSpace(state)
+    if MessageChar(state) = "}" then
+        state.i = state.i + 1
+        return { kind: "arg", name: name }
+    end if
+    if MessageChar(state) <> "," then
+        state.failed = true
+        return { kind: "text", value: "" }
+    end if
+    state.i = state.i + 1
+    argType = MessageIdent(state)
+    MessageSkipSpace(state)
+    node = invalid
+    if argType = "plural" or argType = "selectordinal" or argType = "select" then
+        if MessageChar(state) <> "," then
+            state.failed = true
+            return { kind: "text", value: "" }
+        end if
+        state.i = state.i + 1
+        parsed = MessageOptions(state, argType <> "select", depth)
+        if argType = "select" then
+            node = { kind: "select", name: name, options: parsed.options }
+        else
+            node = { kind: "plural", name: name, ordinal: argType = "selectordinal", offset: parsed.offset, options: parsed.options }
+        end if
+    else if argType = "number" or argType = "date" or argType = "time" then
+        style = ""
+        if MessageChar(state) = "," then
+            state.i = state.i + 1
+            style = MessageIdent(state)
+            MessageSkipSpace(state)
+        end if
+        node = { kind: argType, name: name, style: style }
+    else
+        state.failed = true
+        return { kind: "text", value: "" }
+    end if
+    MessageSkipSpace(state)
+    if MessageChar(state) <> "}" then
+        state.failed = true
+        return node
+    end if
+    state.i = state.i + 1
+    return node
+end function
+
+function MessageIsNumber(value as dynamic) as boolean
+    kind = Type(value)
+    return kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" or kind = "LongInteger" or kind = "roLongInteger"
+end function
+
+function MessageToNumber(value as dynamic) as dynamic
+    if MessageIsNumber(value) then return value
+    kind = Type(value)
+    if kind = "String" or kind = "roString" then
+        text = value.trim()
+        if text = "" then return invalid
+        for i = 1 to Len(text)
+            if Instr(1, "0123456789.-+", Mid(text, i, 1)) = 0 then return invalid
+        end for
+        return Val(text)
+    end if
+    if kind = "Boolean" or kind = "roBoolean" then
+        if value then return 1
+        return 0
+    end if
+    return invalid
+end function
+
+' English plural categories (messageformat.ts `pluralCategory`; Intl.PluralRules for "en").
+function MessagePluralCategory(n as dynamic, ordinal as boolean) as string
+    if not ordinal then
+        if n = 1 then return "one"
+        return "other"
+    end if
+    if n <> Int(n) then return "other"
+    whole = Int(n)
+    ones = whole mod 10
+    hundreds = whole mod 100
+    if ones = 1 and hundreds <> 11 then return "one"
+    if ones = 2 and hundreds <> 12 then return "two"
+    if ones = 3 and hundreds <> 13 then return "few"
+    return "other"
+end function
+
+' Intl.NumberFormat("en-US"): grouping by thousands, up to three fraction digits, half rounds up.
+function MessageNumber(value as dynamic, style = "" as string) as string
+    n = value
+    if style = "percent" then n = n * 100
+    negative = n < 0
+    if negative then n = -n
+    whole& = n
+    fraction = 0
+    kind = Type(n)
+    if kind <> "Integer" and kind <> "roInt" and kind <> "roInteger" and kind <> "LongInteger" and kind <> "roLongInteger" then
+        if whole& > n then whole& = whole& - 1
+        rest = n - whole&
+        if style = "integer" or style = "percent" then
+            if rest >= 0.5 then whole& = whole& + 1
+        else
+            fraction = Int(rest * 1000 + 0.5)
+            if fraction >= 1000 then
+                whole& = whole& + 1
+                fraction = 0
+            end if
+        end if
+    end if
+    digits = whole&.toStr()
+    grouped = ""
+    while Len(digits) > 3
+        grouped = "," + Right(digits, 3) + grouped
+        digits = Left(digits, Len(digits) - 3)
+    end while
+    out = digits + grouped
+    if fraction > 0 then
+        tail = fraction.toStr()
+        while Len(tail) < 3
+            tail = "0" + tail
+        end while
+        while Right(tail, 1) = "0"
+            tail = Left(tail, Len(tail) - 1)
+        end while
+        out = out + "." + tail
+    end if
+    if negative and (whole& <> 0 or fraction > 0) then out = "-" + out
+    if style = "percent" then out = out + "%"
+    return out
+end function
+
+function MessageValueText(value as dynamic) as string
+    if value = invalid then return ""
+    if MessageIsNumber(value) then return MessageNumber(value)
+    kind = Type(value)
+    if kind = "String" or kind = "roString" then return value
+    if kind = "Boolean" or kind = "roBoolean" then
+        if value then return "true"
+        return "false"
+    end if
+    return ""
+end function
+
+function MessageRender(nodes as object, values as object, pound as dynamic) as string
+    out = ""
+    for each node in nodes
+        kind = node.kind
+        if kind = "text" then
+            out = out + node.value
+        else if kind = "pound" then
+            if pound = invalid then
+                out = out + "#"
+            else
+                out = out + MessageNumber(pound)
+            end if
+        else if kind = "arg" then
+            out = out + MessageValueText(values[node.name])
+        else if kind = "number" then
+            number = MessageToNumber(values[node.name])
+            if number <> invalid then out = out + MessageNumber(number, node.style)
+        else if kind = "date" or kind = "time" then
+            stamp = values[node.name]
+            if MessageIsNumber(stamp) then out = out + MessageDate(stamp, kind, node.style)
+        else if kind = "plural" then
+            number = MessageToNumber(values[node.name])
+            if number = invalid then number = 0
+            branch = invalid
+            if number = Int(number) then branch = node.options["=" + Int(number).toStr()]
+            if branch = invalid then branch = node.options[MessagePluralCategory(number - node.offset, node.ordinal)]
+            if branch = invalid then branch = node.options.other
+            out = out + MessageRender(branch, values, number - node.offset)
+        else if kind = "select" then
+            key = "other"
+            chosen = values[node.name]
+            if chosen <> invalid then key = MessageValueText(chosen)
+            if MessageIsNumber(chosen) then key = Int(chosen).toStr()
+            branch = node.options[key]
+            if branch = invalid then branch = node.options.other
+            out = out + MessageRender(branch, values, pound)
+        end if
+    end for
+    return out
+end function
+
+' A date or time argument: epoch milliseconds, in the device's time zone, US English forms
+' ("Oct 3, 2026", "10/3/26", "9:41 PM").
+function MessageDate(epochMs as dynamic, kind as string, style as string) as string
+    date = CreateObject("roDateTime")
+    seconds& = epochMs / 1000
+    date.fromSeconds(seconds&)
+    date.toLocalTime()
+    if kind = "time" then
+        hour = date.getHours()
+        suffix = "AM"
+        if hour >= 12 then suffix = "PM"
+        hour = hour mod 12
+        if hour = 0 then hour = 12
+        minutes = date.getMinutes().toStr()
+        if Len(minutes) < 2 then minutes = "0" + minutes
+        return hour.toStr() + ":" + minutes + " " + suffix
+    end if
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    month = months[date.getMonth() - 1]
+    if style = "short" then return date.getMonth().toStr() + "/" + date.getDayOfMonth().toStr() + "/" + Right(date.getYear().toStr(), 2)
+    if style = "long" or style = "full" then return month + " " + date.getDayOfMonth().toStr() + ", " + date.getYear().toStr()
+    return Left(month, 3) + " " + date.getDayOfMonth().toStr() + ", " + date.getYear().toStr()
+end function
+
+' messageformat.ts `messageArguments`: the argument names a message uses.
+function MessageArguments(source as string) as object
+    FormatMessage(source, {})
+    names = {}
+    names.setModeCaseSensitive()
+    MessageCollectArguments(m.messageCache[source], names)
+    return names.keys()
+end function
+
+sub MessageCollectArguments(nodes as object, names as object)
+    for each node in nodes
+        if node.name <> invalid then names[node.name] = true
+        if node.options <> invalid then
+            for each key in node.options.keys()
+                MessageCollectArguments(node.options[key], names)
+            end for
+        end if
+    end for
+end sub
+
+' Whether the catalogue has a message for an id (`tr` answers an unknown id with the id itself).
+function HasMessage(id as string) as boolean
+    if id = "" then return false
+    return MessageSource(id) <> id
+end function

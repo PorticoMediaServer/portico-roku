@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/app/together.tsx (`TogetherProvider`) over packages/client-core/src/group-session.ts: Watch Together for the signed-in viewer. One host for the whole channel, so a room survives moving between screens. -->
+<component name="TogetherHost" extends="Node">
+    <interface>
+        <!-- idle | joining | live | ended | left -->
+        <field id="phase" type="string" value="idle" />
+        <field id="inRoom" type="boolean" value="false" />
+        <field id="busy" type="boolean" value="false" />
+        <field id="error" type="string" value="" />
+        <!-- A command the server refused because someone cannot see the title: {command, input}. -->
+        <field id="refused" type="assocarray" />
+        <field id="group" type="assocarray" />
+        <field id="queue" type="assocarray" />
+        <field id="invite" type="assocarray" />
+        <field id="directory" type="array" />
+        <field id="directoryPhase" type="string" value="idle" />
+        <field id="directoryError" type="string" value="" />
+        <!-- Rises whenever something a screen shows changed. -->
+        <field id="changed" type="integer" value="0" />
+        <function name="refreshDirectory" />
+        <function name="create" />
+        <function name="join" />
+        <function name="openGroup" />
+        <function name="leaveGroup" />
+        <function name="endGroup" />
+        <function name="dismiss" />
+        <function name="transport" />
+        <function name="queueAdd" />
+        <function name="queueRemove" />
+        <function name="watch" />
+        <function name="makeInvite" />
+        <function name="makeHost" />
+        <function name="groupCommand" />
+        <function name="serverNowMs" />
+        <!-- Opens the player on the group's title again (the viewer had closed it). -->
+        <function name="rejoin" />
+        <function name="shutdown" />
+    </interface>
+</component>

@@ -1,0 +1,71 @@
+' The platform's digests and randomness. A digest is the device's own (roEVPDigest). The unit
+' tests run off-device, where there is none: they register the digests their fixtures need
+' (computed by Node) with CryptoRegisterDigest, and anything else fails closed.
+import "pkg:/source/core/Bytes.bs"
+
+' The digest of `bytes` ("sha256" or "sha512") as bytes, or invalid when it cannot be computed.
+function CryptoDigest(algorithm as string, bytes as object) as dynamic
+    if CryptoHasNative() then
+        digest = CreateObject("roEVPDigest")
+        digest.setup(algorithm)
+        out = CreateObject("roByteArray")
+        out.fromHexString(digest.process(bytes))
+        return out
+    end if
+    known = GetGlobalAA().cryptoDigests
+    if known = invalid then return invalid
+    hex = known[algorithm + ":" + BytesToHex(bytes)]
+    if hex = invalid then return invalid
+    return BytesFromHex(hex)
+end function
+
+' Whether the platform has its own digests (every Roku does; the off-device test interpreter does not).
+function CryptoHasNative() as boolean
+    globals = GetGlobalAA()
+    if globals.cryptoNative = invalid then globals.cryptoNative = CreateObject("roEVPDigest") <> invalid
+    return globals.cryptoNative
+end function
+
+sub CryptoRegisterDigest(algorithm as string, inputHex as string, digestHex as string)
+    globals = GetGlobalAA()
+    if globals.cryptoDigests = invalid then globals.cryptoDigests = {}
+    globals.cryptoDigests[algorithm + ":" + LCase(inputHex)] = digestHex
+end sub
+
+' `count` random bytes, from the device's UUID generator (122 random bits each).
+function RandomBytes(count as integer) as object
+    out = CreateObject("roByteArray")
+    info = CreateObject("roDeviceInfo")
+    while out.count() < count
+        hex = info.getRandomUUID().replace("-", "")
+        chunk = CreateObject("roByteArray")
+        chunk.fromHexString(hex)
+        ' Drop the two bytes that hold the UUID's fixed version and variant bits.
+        for index = 0 to chunk.count() - 1
+            if index <> 6 and index <> 8 and out.count() < count then out.push(chunk[index])
+        end for
+    end while
+    return out
+end function
+
+' A request id: a lower-case UUID.
+function NewRequestId() as string
+    return LCase(CreateObject("roDeviceInfo").getRandomUUID())
+end function
+
+' Off-device tests only. One verification takes the interpreter about ten seconds, so the tests of
+' what is done with a verdict (core/RouteIdentity.bs) register Node's verdict for each signature
+' in their fixtures; the arithmetic itself is tested on its own (test/Ed25519.test.bs). On a device
+' this is never consulted: it answers only where the platform has no digest of its own.
+function CryptoKnownVerdict(publicKey as object, signature as object, digest as object) as dynamic
+    if CryptoHasNative() then return invalid
+    known = GetGlobalAA().cryptoVerdicts
+    if known = invalid then return invalid
+    return known[BytesToHex(publicKey) + ":" + BytesToHex(signature) + ":" + BytesToHex(digest)]
+end function
+
+sub CryptoRegisterVerdict(publicKeyHex as string, signatureHex as string, digestHex as string, valid as boolean)
+    globals = GetGlobalAA()
+    if globals.cryptoVerdicts = invalid then globals.cryptoVerdicts = {}
+    globals.cryptoVerdicts[LCase(publicKeyHex) + ":" + LCase(signatureHex) + ":" + LCase(digestHex)] = valid
+end sub

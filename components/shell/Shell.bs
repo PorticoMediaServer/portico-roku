@@ -1,0 +1,499 @@
+' apps/native/src/shell/Shell.tsx (with Roots.tsx). The rail, and beside it the content roots:
+' each destination the rail offers is a kept-alive root with its own stack (APL-SHELL-08), so
+' returning to one shows it exactly as it was left. Choosing a destination shows it as it was
+' left; choosing the one already showing goes back to its top; choosing another library shows that
+' library in the Library root. Pages fade in over Theme.motion.standard.
+'
+' While the rail is open the content slides aside by the difference between the rail's two widths,
+' so it is pushed rather than covered (APL-SHELL-07).
+'
+' Back: pop the stack; at a section root move focus to the rail; only when the rail itself is
+' focused does Back leave the channel. Left from the content's edge reaches the rail, Right from
+' the rail returns to the control that had focus. A screen that finishes loading while the viewer
+' is in the rail does not take focus from them.
+import "pkg:/source/core/Receiver.bs"
+import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Settings.bs"
+import "pkg:/source/core/Guide.bs"
+import "pkg:/source/core/Store.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/ClientProfile.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Scroll.bs"
+import "pkg:/components/app/Nav.bs"
+import "pkg:/source/ui/Routes.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.session = m.global.session
+    m.content = m.top.createChild("Group")
+    m.rail = m.top.createChild("ShellRail")
+    m.rail.observeField("chosen", "onShellChosen")
+    m.rail.observeField("expansion", "onShellExpansion")
+    m.driver = m.top.createChild("Group")
+    m.driver.id = "shellFade"
+    m.fade = MakeFloatAnimation(m.top, "shellFade.opacity", Theme.motion.standard)
+    m.driver.observeField("opacity", "onShellFade")
+    m.fading = invalid
+    m.roots = {}
+    m.shown = ""
+    m.tasks = []
+    onShellExpansion()
+end sub
+
+sub enter()
+    if m.global.hasField("shell") then
+        m.global.shell = m.top
+    else
+        m.global.addFields({ shell: m.top })
+    end if
+    viewer = m.session.viewer
+    if viewer <> invalid then
+        m.rail.profileName = viewer.profileName
+        m.rail.serverName = viewer.serverName
+    end if
+    select("Home")
+    m.tasks.push(ApiStart({ path: "/v1/libraries", reader: "libraries" }, "onShellLibraries"))
+    m.tasks.push(ApiStart({ path: "/v1/system" }, "onShellSystem"))
+    ' apps/native/src/bridge/capability-publisher.ts: what this device decodes and shows, published
+    ' once per sign-in. The server decides every play against it; the channel never chooses a codec.
+    facts = DeviceFacts()
+    m.tasks.push(ApiStart({ path: "/v1/playback/client-profile", method: "PUT", body: RokuClientProfile(facts) }, "onShellProfile"))
+    m.tasks.push(ApiStart({ path: "/v1/me/devices/current/capabilities", method: "PUT", body: RokuCapabilityProfile(facts) }, "onShellProfile"))
+    ShellProbeChannels()
+    m.global.observeField("receiveFromDevices", "onShellReceive")
+    scene = m.top.getScene()
+    if scene <> invalid then scene.observeField("playerActive", "onShellPlayerActive")
+    onShellReceive()
+    ' The profile's Language, hour cycle and time zone apply from the first page on.
+    m.tasks.push(ApiStart({ path: "/v1/preferences?deviceClass=television", reader: "preferences" }, "onShellPreferences"))
+end sub
+
+sub onShellPreferences(event as object)
+    result = event.getData()
+    if result.ok and result.value.ok = true then m.global.region = RegionChoiceFor(result.value)
+end sub
+
+' ---- Receiving from other devices (apps/native/src/app/receiver.tsx `ReceiverMode`) -----------------
+' While the channel is open and signed in, the same profile's phone can send it something to
+' play. The television registers itself (ReceiverTask), asks its own viewer before it accepts a
+' phone it has not met, and says it has taken over only once it is really playing.
+
+sub onShellReceive()
+    if m.global.receiveFromDevices = true then
+        ReceiverStart()
+    else
+        ReceiverStop()
+    end if
+end sub
+
+sub ReceiverStart()
+    if m.receiver <> invalid then return
+    viewer = m.session.viewer
+    if viewer = invalid then return
+    name = "Roku"
+    info = CreateObject("roDeviceInfo")
+    if info <> invalid and info.getFriendlyName() <> "" then name = info.getFriendlyName()
+    ' The installation's own id names the device; its digest fences a re-installed channel.
+    device = ReceiverDevice(InstallationIdentity(StoreRegistry()).installationId, name)
+    if device = invalid then return
+    m.receiver = CreateObject("roSGNode", "ReceiverTask")
+    m.receiver.device = device
+    m.receiver.observeField("asking", "onReceiverAsking")
+    m.receiver.observeField("handoff", "onReceiverHandoff")
+    m.receiver.control = "RUN"
+    onShellPlayerActive()
+end sub
+
+sub ReceiverStop()
+    if m.receiver = invalid then return
+    m.receiver.unobserveField("asking")
+    m.receiver.unobserveField("handoff")
+    m.receiver.stop = true
+    m.receiver = invalid
+    if m.taking <> invalid then m.taking.timer.control = "stop"
+    m.taking = invalid
+    if m.receiverSheet <> invalid and m.receiverSheet.isOpen then
+        m.receiverGrant = invalid
+        m.receiverSheet.callFunc("close")
+    end if
+end sub
+
+' The inbox is not read while the player is in the foreground; the registration stays alive.
+sub onShellPlayerActive()
+    scene = m.top.getScene()
+    if m.receiver <> invalid and scene <> invalid then m.receiver.playerActive = scene.playerActive
+end sub
+
+' A phone this television has not met: its own viewer is asked first.
+sub onReceiverAsking()
+    grant = m.receiver.asking
+    if grant = invalid or grant.id = invalid then
+        ' The phone gave up, or the grant was answered elsewhere.
+        if m.receiverSheet <> invalid and m.receiverSheet.isOpen then
+            m.receiverGrant = invalid
+            m.receiverSheet.callFunc("close")
+        end if
+        return
+    end if
+    if m.receiverSheet = invalid then
+        m.receiverSheet = m.top.createChild("UiSheet")
+        m.receiverSheet.kind = "form"
+        m.receiverSheet.observeField("primaryPressed", "onReceiverAllow")
+        m.receiverSheet.observeField("closed", "onReceiverClosed")
+    end if
+    m.receiverGrant = grant
+    m.receiverSheet.title = T("playOn.receiver.askTitle", { device: grant.controllerDisplayName })
+    m.receiverSheet.primaryLabel = T("playOn.receiver.allow")
+    m.receiverSheet.cancelLabel = T("playOn.receiver.decline")
+    body = CreateObject("roSGNode", "Group")
+    text = MakeText(body, "body", "secondary")
+    text.lines = 0
+    text.maxWidth = m.receiverSheet.bodyWidth - Theme.space.md * 2
+    text.value = T("playOn.receiver.askBody", { device: grant.controllerDisplayName })
+    Place(text, Theme.space.md, 0)
+    m.receiverSheet.callFunc("setBody", body, TextHeight(text))
+    m.receiverSheet.callFunc("open")
+end sub
+
+sub onReceiverAllow()
+    ReceiverDecide(true)
+    m.receiverSheet.callFunc("close")
+end sub
+
+' Closing the question any other way declines it.
+sub onReceiverClosed()
+    ReceiverDecide(false)
+end sub
+
+sub ReceiverDecide(allow as boolean)
+    grant = m.receiverGrant
+    if grant = invalid or m.receiver = invalid then return
+    m.receiverGrant = invalid
+    ' Unanswered (a failure), it is asked again on the next read of the inbox.
+    m.tasks.push(ApiStart({ path: ReceiverDecisionPath(grant.receiverId, grant.id), method: "POST", body: ReceiverDecisionBody(allow) }, "onShellProfile"))
+    ' What the phone sends next is looked for at once.
+    if allow then m.receiver.expecting = true
+end sub
+
+' Something was sent: it is loaded, and the server is told only once it is genuinely playing.
+sub onReceiverHandoff()
+    handoff = m.receiver.handoff
+    scene = m.top.getScene()
+    if handoff = invalid or handoff.id = invalid or scene = invalid then return
+    scene.callFunc("play", { itemId: handoff.itemId, startSeconds: HandoffStartSeconds(handoff.requestedPositionUs), entry: invalid })
+    if m.taking <> invalid then m.taking.timer.control = "stop"
+    timer = m.top.createChild("Timer")
+    timer.duration = 0.5
+    timer.repeat = true
+    timer.observeField("fire", "onReceiverTaking")
+    m.taking = { handoff: handoff, timer: timer, deadline: HandoffDeadline(handoff, NowSeconds()) }
+    timer.control = "start"
+end sub
+
+sub onReceiverTaking()
+    taking = m.taking
+    scene = m.top.getScene()
+    if taking = invalid or scene = invalid then return
+    now = scene.callFunc("playerState")
+    done = NowSeconds() >= taking.deadline
+    if now.itemId = taking.handoff.itemId and now.playing and now.playbackId <> "" then
+        ' The phone keeps playing if this is lost; there is nothing to undo here.
+        m.tasks.push(ApiStart({ path: HandoffReadinessPath(taking.handoff.id), method: "POST", body: HandoffReadinessBody(taking.handoff, now.playbackId, now.positionSeconds) }, "onShellProfile"))
+        done = true
+    end if
+    if done then
+        taking.timer.control = "stop"
+        m.top.removeChild(taking.timer)
+        m.taking = invalid
+    end if
+end sub
+
+' apps/native/src/app/linear-availability.ts: the rail offers Channels only where the server has
+' Live TV sources or Library Channels. The guide is asked for one channel of each kind; the last
+' answer for this server is kept, so the rail does not jump while it is asked again, and anything
+' unknown counts as present.
+sub ShellProbeChannels()
+    viewer = m.session.viewer
+    if viewer = invalid then return
+    m.linearKey = "linear:" + viewer.serverId
+    known = StoreReadJson(StoreRegistry(), "portico", m.linearKey)
+    m.linear = { "live-source": true, "library-channel": true }
+    if Type(known) = "roAssociativeArray" then
+        for each kind in m.linear.keys()
+            if Type(known[kind]) = "Boolean" or Type(known[kind]) = "roBoolean" then m.linear[kind] = known[kind]
+        end for
+    end if
+    m.rail.showChannels = m.linear["live-source"] or m.linear["library-channel"]
+    for each kind in ["live-source", "library-channel"]
+        task = ApiStart({ path: GuidePath(GuideRouteNow(kind, NowSeconds()), "", 1) }, "onShellChannels")
+        task.addFields({ guideKind: kind })
+        m.tasks.push(task)
+    end for
+end sub
+
+sub onShellChannels(event as object)
+    task = event.getRoSGNode()
+    has = GuideHasChannels(event.getData())
+    if has = invalid then return
+    m.linear[task.guideKind] = has
+    StoreWriteJson(StoreRegistry(), "portico", m.linearKey, m.linear)
+    m.rail.showChannels = m.linear["live-source"] or m.linear["library-channel"]
+end sub
+
+' A profile that was not taken is published again at the next sign-in; playback falls back to what
+' the server assumes of a Roku.
+sub onShellProfile()
+end sub
+
+sub leave()
+    ReceiverStop()
+    m.global.unobserveField("receiveFromDevices")
+    ' The next profile's choices are its own.
+    m.global.region = ""
+    for each name in m.roots.keys()
+        root = m.roots[name]
+        for each screen in root.stack
+            screen.callFunc("leave")
+        end for
+    end for
+    m.content.removeChildrenIndex(m.content.getChildCount(), 0)
+    m.roots = {}
+    m.shown = ""
+    if m.global.hasField("shell") then m.global.shell = invalid
+end sub
+
+function back() as boolean
+    return false
+end function
+
+sub onShellLibraries(event as object)
+    result = event.getData()
+    if not result.ok then return
+    m.rail.libraries = result.value
+    ' A library's screen names itself and picks its tabs from this list.
+    if m.global.hasField("libraries") then
+        m.global.libraries = result.value
+    else
+        m.global.addFields({ libraries: result.value })
+    end if
+end sub
+
+sub onShellSystem(event as object)
+    result = event.getData()
+    if result.ok and Type(result.value) = "roAssociativeArray" and result.value.name <> invalid and m.rail.serverName = "" then m.rail.serverName = result.value.name
+end sub
+
+sub onShellExpansion()
+    aside = (Theme.metrics.railWidthExpanded - Theme.metrics.railWidth) * m.rail.expansion
+    Place(m.content, Theme.metrics.railWidth + aside, 0)
+end sub
+
+function ShellRootFor(key as string) as object
+    libraryId = RailLibraryId(key)
+    if libraryId <> "" then return { name: "LibraryRoot", screen: "ScreenLibrary", params: { libraryId: libraryId } }
+    screens = { "Home": "ScreenHome", "Search": "ScreenSearch", "Saved": "ScreenSaved", "Channels": "ScreenChannels", "Settings": "ScreenSettings" }
+    return { name: key + "Root", screen: screens[key], params: {} }
+end function
+
+function ShellTop(root as object) as dynamic
+    if root = invalid or root.stack.count() = 0 then return invalid
+    return root.stack[root.stack.count() - 1]
+end function
+
+function ShellMount(root as object, screenName as string, params as dynamic) as dynamic
+    screen = root.container.createChild(screenName)
+    if screen = invalid then return invalid
+    if params = invalid then params = {}
+    screen.route = params
+    root.stack.push(screen)
+    screen.callFunc("enter")
+    return screen
+end function
+
+sub ShellFadeIn(screen as object)
+    if ReduceMotion() then return
+    m.fading = screen
+    screen.opacity = 0
+    RunFloatAnimation(m.fade, 0, 1, Theme.motion.standard)
+end sub
+
+sub onShellFade()
+    if m.fading <> invalid then m.fading.opacity = m.driver.opacity
+end sub
+
+' The rail's destinations (APL-SHELL-08).
+sub select(key as string)
+    target = ShellRootFor(key)
+    root = m.roots[target.name]
+    libraryId = target.params.libraryId
+    if root <> invalid and libraryId <> invalid and root.libraryId <> libraryId then
+        ' Another library: the Library root starts again at that library.
+        for each screen in root.stack
+            screen.callFunc("leave")
+        end for
+        m.content.removeChild(root.container)
+        m.roots.delete(target.name)
+        root = invalid
+        if m.shown = target.name then m.shown = ""
+    end if
+    if root <> invalid and m.shown = target.name then
+        ' The destination already showing goes back to its top.
+        while root.stack.count() > 1
+            ShellDrop(root)
+        end while
+        top = ShellTop(root)
+        if top <> invalid then top.visible = true
+        m.rail.selected = key
+        return
+    end if
+    if m.shown <> "" and m.roots[m.shown] <> invalid then
+        showing = m.roots[m.shown]
+        showing.container.visible = false
+    end if
+    if root = invalid then
+        root = { container: m.content.createChild("Group"), stack: [], focus: invalid, libraryId: libraryId, key: key }
+        m.roots[target.name] = root
+        ShellMount(root, target.screen, target.params)
+    else
+        top = ShellTop(root)
+        if top <> invalid then top.callFunc("resume")
+    end if
+    root.key = key
+    root.container.visible = true
+    m.shown = target.name
+    m.rail.selected = key
+    top = ShellTop(root)
+    if top <> invalid then ShellFadeIn(top)
+end sub
+
+sub onShellChosen()
+    select(m.rail.chosen)
+end sub
+
+sub ShellDrop(root as object)
+    screen = root.stack.pop()
+    if screen = invalid then return
+    screen.callFunc("leave")
+    root.container.removeChild(screen)
+end sub
+
+sub push(request as object)
+    root = m.roots[m.shown]
+    if root = invalid then return
+    below = ShellTop(root)
+    focus = invalid
+    if below <> invalid then
+        focus = FocusedLeaf(below)
+        below.addFields({ shellFocus: invalid })
+        below.shellFocus = focus
+    end if
+    screen = ShellMount(root, request.screen, request.params)
+    if screen = invalid then return
+    if below <> invalid then below.visible = false
+    ShellFadeIn(screen)
+    ' A pushed page holds focus until its own content claims it.
+    screen.setFocus(true)
+end sub
+
+' Puts a page in the place of the one on show (an episode's link opens its show's page): the page
+' under it stays where it was.
+sub replace(request as object)
+    root = m.roots[m.shown]
+    if root = invalid then return
+    if root.stack.count() <= 1 then
+        push(request)
+        return
+    end if
+    ShellDrop(root)
+    screen = ShellMount(root, request.screen, request.params)
+    if screen = invalid then return
+    ShellFadeIn(screen)
+    screen.setFocus(true)
+end sub
+
+' The page on show reads its content again (something of the viewer's own changed).
+sub refreshTop()
+    root = m.roots[m.shown]
+    if root = invalid then return
+    top = ShellTop(root)
+    if top <> invalid then top.callFunc("resume")
+end sub
+
+sub pop()
+    root = m.roots[m.shown]
+    if root = invalid or root.stack.count() <= 1 then return
+    ShellDrop(root)
+    top = ShellTop(root)
+    if top = invalid then return
+    top.visible = true
+    top.callFunc("resume")
+    ShellFocusScreen(top)
+end sub
+
+' Gives focus back to a screen: the control that had it, else its entry control.
+sub ShellFocusScreen(screen as object)
+    focus = invalid
+    if screen.hasField("shellFocus") then focus = screen.shellFocus
+    if focus <> invalid and focus.getParent() <> invalid and focus.visible then
+        focus.setFocus(true)
+    else
+        screen.callFunc("focusEntry")
+    end if
+end sub
+
+sub claimFocus(screen as object)
+    if m.rail.railFocused then return
+    root = m.roots[m.shown]
+    top = ShellTop(root)
+    if top <> invalid and top.isSameNode(screen) then screen.callFunc("focusEntry")
+end sub
+
+sub ShellToRail()
+    root = m.roots[m.shown]
+    top = ShellTop(root)
+    if top <> invalid then
+        top.addFields({ shellFocus: invalid })
+        top.shellFocus = FocusedLeaf(top)
+    end if
+    m.rail.callFunc("focusRail")
+end sub
+
+sub ShellToContent()
+    top = ShellTop(m.roots[m.shown])
+    if top <> invalid then ShellFocusScreen(top)
+end sub
+
+' Focus returns to the page on show (the player closed and what held focus is gone).
+sub focusContent()
+    ShellToContent()
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press then return false
+    root = m.roots[m.shown]
+    if key = "back" then
+        if root <> invalid and root.stack.count() > 1 then
+            pop()
+            return true
+        end if
+        if not m.rail.railFocused then
+            ShellToRail()
+            return true
+        end if
+        return false
+    end if
+    if key = "left" and not m.rail.railFocused then
+        ShellToRail()
+        return true
+    end if
+    if key = "right" and m.rail.railFocused then
+        ShellToContent()
+        return true
+    end if
+    return false
+end function

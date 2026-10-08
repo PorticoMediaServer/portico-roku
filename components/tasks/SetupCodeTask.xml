@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The code a television shows for a phone or computer to approve: asks for it, waits, replaces it before it expires. -->
+<component name="SetupCodeTask" extends="Task">
+    <interface>
+        <!-- "account" (the Portico Account activation code) or "server" (a server's Quick Connect code). -->
+        <field id="mode" type="string" value="account" />
+        <!-- For "server": the verified connection {origin, pin}. -->
+        <field id="connection" type="assocarray" />
+        <!-- {phase, userCode, verificationUri, verificationUriComplete}: creating | waiting | approved | denied | error -->
+        <field id="state" type="assocarray" />
+        <!-- Set once, when approved: the account's grant summary, or the server sign-in outcome. -->
+        <field id="outcome" type="assocarray" />
+        <!-- "restart" asks for a new code (after a denial or an error); "stop" cancels the code and ends the task. -->
+        <field id="command" type="string" value="" alwaysNotify="true" />
+    </interface>
+</component>

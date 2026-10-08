@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/shell/Rail.tsx: the persistent left rail. -->
+<component name="ShellRail" extends="Group">
+    <interface>
+        <!-- [{id, name, kind}] -->
+        <field id="libraries" type="array" onChange="onRailItems" />
+        <!-- Home | Search | Saved | Channels | Settings | library:<id> -->
+        <field id="selected" type="string" value="Home" onChange="onRailStyle" />
+        <field id="showChannels" type="boolean" value="false" onChange="onRailItems" />
+        <field id="profileName" type="string" value="" onChange="onRailItems" />
+        <field id="serverName" type="string" value="" onChange="onRailItems" />
+        <!-- A dot on Settings: unread notifications. -->
+        <field id="badge" type="boolean" value="false" onChange="onRailStyle" />
+        <!-- 0 collapsed → 1 expanded, for the shell to push the content aside. -->
+        <field id="expansion" type="float" value="0" />
+        <field id="railFocused" type="boolean" value="false" />
+        <!-- The destination pressed. -->
+        <field id="chosen" type="string" value="" alwaysNotify="true" />
+        <function name="focusRail" />
+    </interface>
+</component>

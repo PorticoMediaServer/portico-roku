@@ -1,0 +1,13 @@
+{
+ "revision": "e3bf4eb9b2f6c6896f1978786c2b15a7",
+ "summary": {
+  "family": "roku",
+  "platform": "roku",
+  "model": "fixtures",
+  "engine": "roku-video",
+  "evidence": "declared",
+  "revision": "e3bf4eb9b2f6c6896f1978786c2b15a7",
+  "published": true
+ },
+ "version": 1
+}

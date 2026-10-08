@@ -1,0 +1,233 @@
+{
+ "group": "cast",
+ "credits": [
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A1936&v=5363a9b421c2580c18329b8e4790073f61d2ec7368b56bcfec65ce5315ed6429",
+   "id": "1936:0",
+   "personId": "5d29d9d5d112cecb1996f10d7dc5e603",
+   "name": "Martin Balsam",
+   "role": "Juror 1",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5247&v=bfd94043521148ce57916312afbad2f377c166e13e3308b24d75071b6602c66d",
+   "id": "5247:1",
+   "personId": "9fe3b50588d66421b4a9e6487227f298",
+   "name": "John Fiedler",
+   "role": "Juror 2",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5248&v=0e7fd4de20e9130a4a5483165d5838936df5cc3031ad1cb9e712a07fd9abcaa7",
+   "id": "5248:2",
+   "personId": "32643a1fd74370ff1a2cc2be467fa9bc",
+   "name": "Lee J. Cobb",
+   "role": "Juror 3",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5249&v=3dc740c70686961d138317ccad15ce8d33b2dcf3fe08843046251cf55eb465f1",
+   "id": "5249:3",
+   "personId": "20e35fc7c755a2b25314dd470ee21c29",
+   "name": "E.G. Marshall",
+   "role": "Juror 4",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5250&v=1880c25723351a7410c6871e2507dad6c66e63c2201ee1b4d1ff55f95e5eb75a",
+   "id": "5250:4",
+   "personId": "20dc532d04059f79e2440e7fdbe04f27",
+   "name": "Jack Klugman",
+   "role": "Juror 5",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A2651&v=b3573f3ea6831df767b5eb6a5ced4465354ff502138cd04c11c14b5c0b8b182e",
+   "id": "2651:5",
+   "personId": "8ef877dc6a78abe2b27669f69f2adcbd",
+   "name": "Edward Binns",
+   "role": "Juror 6",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5251&v=df899c35ba617b81ca604114feb02206f89f1a051499c560865c2f9991c517be",
+   "id": "5251:6",
+   "personId": "460dec273300f26bcfcc92230f24cdc5",
+   "name": "Jack Warden",
+   "role": "Juror 7",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A4958&v=a73c93c53d06f59156ef6202878737fb6782de3d06ecb8f118e18d256cb61770",
+   "id": "4958:7",
+   "personId": "96e13f1498b355b5a6b111fbd2d8bb8a",
+   "name": "Henry Fonda",
+   "role": "Juror 8",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5252&v=380b2fb3e427d9f77fa3c903c416814c03292e48b0336eaf80d1d458988d2943",
+   "id": "5252:8",
+   "personId": "51c896f3399098d22ef4aae46ea897b9",
+   "name": "Joseph Sweeney",
+   "role": "Juror 9",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A39816&v=fb7aebe2263cf79ed64319309427860e5b2afc8c417b79d4c8cd00d6cd736e7e",
+   "id": "39816:9",
+   "personId": "a81e3267b71e100ad9dc5e8527384098",
+   "name": "Ed Begley",
+   "role": "Juror 10",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5254&v=59d0fee86bd70b289cfdf11f36ca4586309e2110f719937a75520b9426c1593a",
+   "id": "5254:10",
+   "personId": "f79231d5660eb6dc9db2cc7e150bd0f6",
+   "name": "George Voskovec",
+   "role": "Juror 11",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5255&v=84ef4a6e69e6b889e76c0b7b87ab581c0f8fc1651eca9903c4f80e657fe7c9e6",
+   "id": "5255:11",
+   "personId": "cfc80ef384762a7e2446904f913a969f",
+   "name": "Robert Webber",
+   "role": "Juror 12",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A3143&v=6ecbad8638e7246b0c32ab7689262f0b6b4a6dcc431f1c1d8985abe5c1564898",
+   "id": "3143:12",
+   "personId": "842ad9ab28083ebb30b92f53b5d71fe5",
+   "name": "Rudy Bond",
+   "role": "Judge (uncredited)",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "id": "2498394:13",
+   "personId": "43261f3897cb2c69f94097e180909630",
+   "name": "Tom Gorman",
+   "role": "Stenographer (uncredited)",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "id": "1437464:14",
+   "personId": "3ffd4bbf0b61922e5634806dc58e09c7",
+   "name": "James Kelly",
+   "role": "Guard (uncredited)",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "id": "5257:15",
+   "personId": "b44a32dd33c2f803ab737a380883f96c",
+   "name": "Billy Nelson",
+   "role": "Court Clerk (uncredited)",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "id": "153394:16",
+   "personId": "a3b9b75a864263eab6caf6a79563a872",
+   "name": "Walter Stocker",
+   "role": "Man Waiting for Elevator (uncredited)",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "id": "5892050:17",
+   "personId": "9ad4aed3557771777467f69dd4c3b41e",
+   "name": "John Savoca",
+   "role": "Defendant (uncredited)",
+   "department": "Acting",
+   "provider": "tmdb"
+  },
+  {
+   "id": "13cea1d084ed26c58d65fa3ad8302a0f43969daa18d130cdcb43db2dfbd86e26:0",
+   "name": "Martin Balsam",
+   "role": "Juror 1",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "a3e6ec6c58f259404bcbe502b2a33ace4cbb8a1de559984e225e3e6a731c0753:1",
+   "name": "John Fiedler",
+   "role": "Juror 2",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "a1773e5b1da44b573e479978f99add43e7ecd2cb4cc6dea6338b381f8bae9f08:2",
+   "name": "Lee J. Cobb",
+   "role": "Juror 3",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "406271657f0f171906e1506bc2814e85606525bd03646e5daf0f25f6b74c1b68:3",
+   "name": "E.G. Marshall",
+   "role": "Juror 4",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "b7b1a126aee7347bfc4fe19e212bea205656153025b5d2a8ab523c99c7b517e1:4",
+   "name": "Jack Klugman",
+   "role": "Juror 5",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "9c88e1d1ded64581574f2a79398d03ce6aefe0c6091623037c883c95b18a9020:5",
+   "name": "Edward Binns",
+   "role": "Juror 6",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "2c8f76f7bc54f03e88c1e91d0853e5a40aee7689600c440dd5d96851931561e4:6",
+   "name": "Jack Warden",
+   "role": "Juror 7",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "a4d6149aea97276cb3f4a8b296f3b9e6d57c8c48a7be0add9a0bd16588ed688d:7",
+   "name": "Henry Fonda",
+   "role": "Juror 8",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "c39bbfd97df5294d9c9d18b53376b78422a6fbca35a69ecbb547959038fa6b12:8",
+   "name": "Joseph Sweeney",
+   "role": "Juror 9",
+   "department": "Acting",
+   "provider": "nfo"
+  },
+  {
+   "id": "90274c8644fe461dcfd91bec63b079be2b83f83ad3dc5cbde0b5e0bf51e6740e:9",
+   "name": "Ed Begley",
+   "role": "Juror 10",
+   "department": "Acting",
+   "provider": "nfo"
+  }
+ ],
+ "total": 28
+}

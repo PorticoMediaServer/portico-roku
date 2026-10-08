@@ -1,0 +1,115 @@
+' The row at the heart of apps/native/src/screens/auth/Activation.tsx and QuickConnect.tsx: the QR
+' code on its white plate, Theme.space.xxl from a column at most Theme.apple.activationCopyWidth
+' wide; the row is at least Theme.apple.activationMinHeight tall and centred. Waiting: the page to
+' visit (heading, secondary), the code at Theme.apple.activationCodeSize with
+' activationCodeSpacing between its characters, and the note that it refreshes by itself.
+' Approved: "Approved. Connecting…" in the healthy tone. Denied or failed: the reason and one button.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.qr = m.top.createChild("UiQrCode")
+    m.column = m.top.createChild("Group")
+    m.hostNode = MakeText(m.column, "heading", "secondary")
+    m.codeGroup = m.column.createChild("Group")
+    m.codeGroup.addFields({ boxWidth: 0, boxHeight: 0 })
+    m.refreshNote = MakeText(m.column, "caption", "tertiary")
+    m.refreshNote.lines = 0
+    m.refreshNote.align = "center"
+    m.approvedNode = MakeText(m.column, "heading", "healthy")
+    m.messageNode = MakeText(m.column, "body", "secondary")
+    m.messageNode.lines = 0
+    m.messageNode.align = "center"
+    m.button = m.column.createChild("UiButton")
+    m.button.variant = "secondary"
+    m.button.observeField("pressed", "onPanelAction")
+    m.codeWidth = 0
+    m.drawnCode = ""
+end sub
+
+sub PanelDrawCode(code as string)
+    if code = m.drawnCode then return
+    m.drawnCode = code
+    m.codeGroup.removeChildrenIndex(m.codeGroup.getChildCount(), 0)
+    x = 0
+    for index = 1 to Len(code)
+        character = MakeText(m.codeGroup, "display")
+        character.sizeOverride = Theme.apple.activationCodeSize
+        character.lineHeightOverride = Theme.apple.activationCodeLine
+        character.value = Mid(code, index, 1)
+        Place(character, x, 0)
+        x = x + TextWidth(character) + Theme.apple.activationCodeSpacing
+    end for
+    m.codeWidth = x
+    m.codeGroup.boxWidth = x
+    m.codeGroup.boxHeight = Theme.apple.activationCodeLine
+end sub
+
+sub onPanelLayout()
+    width = m.top.panelWidth
+    if width <= 0 then return
+    phase = m.top.phase
+    code = m.top.userCode
+    waiting = phase = "waiting" and code <> ""
+    copyWidth = Theme.apple.activationCopyWidth
+    showQr = waiting and m.top.link <> ""
+    m.qr.visible = showQr
+    if showQr then
+        m.qr.qrSize = m.top.qrSize
+        m.qr.value = m.top.link
+    end if
+
+    m.hostNode.visible = waiting and m.top.host <> ""
+    m.codeGroup.visible = waiting
+    m.refreshNote.visible = waiting
+    m.approvedNode.visible = phase = "approved"
+    other = not waiting and phase <> "approved"
+    m.messageNode.visible = other
+    m.button.visible = other and m.top.action <> ""
+    m.button.focusable = m.button.visible
+    if waiting then
+        m.hostNode.value = m.top.host
+        PanelDrawCode(code)
+        m.refreshNote.maxWidth = copyWidth
+        m.refreshNote.value = T("activation.codeRefreshes")
+    else if phase = "approved" then
+        m.approvedNode.value = T("launch.approvedConnecting")
+    else
+        m.messageNode.maxWidth = copyWidth
+        m.messageNode.value = m.top.message
+        if m.top.action <> "" then m.button.label = m.top.action
+    end if
+
+    ' The column: its widest child sets its width (at most the copy width); children are centred.
+    columnWidth = 0
+    for each node in [m.hostNode, m.codeGroup, m.refreshNote, m.approvedNode, m.messageNode, m.button]
+        if node.visible then
+            size = MeasureNode(node)
+            if size.width > columnWidth then columnWidth = size.width
+        end if
+    end for
+    if columnWidth > copyWidth and not waiting then columnWidth = copyWidth
+    columnHeight = StackColumn([m.hostNode, m.codeGroup, m.refreshNote, m.approvedNode, m.messageNode, m.button], 0, Theme.space.md, columnWidth, "center")
+
+    qrSide = 0
+    if showQr then qrSide = m.qr.boxWidth
+    height = Max(Theme.apple.activationMinHeight, Max(columnHeight, qrSide))
+    total = columnWidth
+    if showQr then total = total + qrSide + Theme.space.xxl
+    x = (width - total) / 2
+    if showQr then
+        Place(m.qr, x, (height - qrSide) / 2)
+        x = x + qrSide + Theme.space.xxl
+    end if
+    Place(m.column, x, (height - columnHeight) / 2)
+    m.top.boxWidth = width
+    m.top.boxHeight = height
+end sub
+
+sub onPanelAction()
+    m.top.actionPressed = true
+end sub

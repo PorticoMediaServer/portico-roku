@@ -1,0 +1,148 @@
+' apps/native/src/ui/Shelf.tsx. The header (title in the heading role, an optional subtitle, and
+' "See all" as a small ghost button with a forward chevron at the trailing edge), then one
+' horizontal row: cards Theme.space.gutter apart, starting a page gutter (Theme.space.page) in from
+' the left. The row follows focus: the focused card comes to rest a page gutter in from the left
+' (RowList `fixedFocus`), and the row remembers its focused card when focus leaves and returns.
+'
+' O(visible): the RowList creates item components only for the cards on screen, the content holds
+' only the pages loaded so far, and `endReached` asks for the next page as focus nears the end
+' (ui/Shelf.tsx onEndReachedThreshold: 0.6 of a row's width from the end).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.titleNode = MakeText(m.top, "heading")
+    m.subtitleNode = MakeText(m.top, "caption", "tertiary")
+    m.seeAllButton = m.top.createChild("UiButton")
+    m.seeAllButton.variant = "ghost"
+    m.seeAllButton.size = "sm"
+    m.seeAllButton.trailingIcon = "forward"
+    m.seeAllButton.observeField("pressed", "onShelfSeeAll")
+    m.list = m.top.createChild("RowList")
+    m.list.addField("focusable", "boolean", false)
+    m.list.focusable = true
+    m.list.itemComponentName = "UiCard"
+    m.list.numRows = 1
+    m.list.drawFocusFeedback = false
+    m.list.rowFocusAnimationStyle = "fixedFocus"
+    m.list.showRowLabel = [false]
+    m.list.observeField("rowItemFocused", "onShelfItemFocused")
+    m.list.observeField("rowItemSelected", "onShelfItemSelected")
+    m.list.observeField("focusedChild", "onShelfListFocus")
+    m.root = invalid
+    m.columnsVisible = 1
+    onShelfLayout()
+end sub
+
+function ShelfCardWidth() as float
+    if m.top.itemWidth > 0 then return m.top.itemWidth
+    if m.top.shape = "person" then return PersonCardWidth()
+    return ShapeWidth(m.top.shape)
+end function
+
+sub onShelfLayout()
+    width = m.top.shelfWidth
+    if width <= 0 then width = Theme.screen.width - Theme.metrics.railWidth
+    page = Theme.space.page
+    cardWidth = ShelfCardWidth()
+    bodyHeight = PersonCardHeight()
+    if m.top.shape <> "person" then bodyHeight = CardBodyHeight(m.top.shape, cardWidth, m.top.titleLines, m.top.captionless)
+
+    headerHeight = 0
+    m.titleNode.visible = m.top.title <> ""
+    m.subtitleNode.visible = m.top.title <> "" and m.top.subtitle <> ""
+    m.seeAllButton.visible = m.top.title <> "" and m.top.seeAll
+    m.seeAllButton.focusable = m.seeAllButton.visible
+    if m.top.title <> "" then
+        label = m.top.seeAllLabel
+        if label = "" then label = T("action.seeAll")
+        m.seeAllButton.label = label
+        buttonWidth = 0
+        if m.top.seeAll then buttonWidth = m.seeAllButton.controlWidth + Theme.space.md
+        m.titleNode.maxWidth = width - page * 2 - buttonWidth
+        m.titleNode.value = m.top.title
+        headingHeight = m.titleNode.height
+        if m.top.subtitle <> "" then
+            m.subtitleNode.maxWidth = width - page * 2 - buttonWidth
+            m.subtitleNode.value = m.top.subtitle
+            headingHeight = headingHeight + m.subtitleNode.height
+        end if
+        headerHeight = headingHeight
+        if m.top.seeAll and m.seeAllButton.controlHeight > headerHeight then headerHeight = m.seeAllButton.controlHeight
+        ' The header's row aligns to the bottom (alignItems: flex-end).
+        Place(m.titleNode, page, headerHeight - headingHeight)
+        Place(m.subtitleNode, page, headerHeight - headingHeight + m.titleNode.height)
+        Place(m.seeAllButton, width - page - m.seeAllButton.controlWidth, headerHeight - m.seeAllButton.controlHeight)
+        headerHeight = headerHeight + Theme.space.md
+    end if
+
+    ' The item is taller than the card by Theme.space.md above and below, the room the focus scale needs.
+    itemHeight = bodyHeight + Theme.space.md * 2
+    Place(m.list, 0, headerHeight - Theme.space.md)
+    m.list.itemSize = [width, itemHeight]
+    m.list.rowItemSize = [[cardWidth, itemHeight]]
+    m.list.rowItemSpacing = [[Theme.space.gutter, 0]]
+    m.list.focusXOffset = [page]
+    m.list.rowHeights = [itemHeight]
+    m.columnsVisible = Int((width - page) / (cardWidth + Theme.space.gutter)) + 1
+    m.top.shelfHeight = headerHeight + bodyHeight + Theme.space.xl
+end sub
+
+sub onShelfItems()
+    items = m.top.items
+    if not m.top.active or items = invalid then
+        m.list.content = invalid
+        m.root = invalid
+        return
+    end if
+    if m.root <> invalid and m.root.getChildCount() = 1 and m.root.getChild(0).isSameNode(items) then return
+    m.root = CreateObject("roSGNode", "ContentNode")
+    m.root.appendChild(items)
+    m.list.content = m.root
+    if m.top.focusedIndex > 0 and m.top.focusedIndex < items.getChildCount() then m.list.jumpToRowItem = [0, m.top.focusedIndex]
+end sub
+
+sub onShelfItemFocused()
+    focused = m.list.rowItemFocused
+    if focused = invalid or focused.count() < 2 then return
+    index = focused[1]
+    m.top.focusedIndex = index
+    m.top.itemFocused = index
+    items = m.top.items
+    if items = invalid then return
+    ' Ask for the next page while more than half a row of cards still lies ahead.
+    if items.getChildCount() - index <= m.columnsVisible then m.top.endReached = true
+end sub
+
+sub onShelfItemSelected()
+    selected = m.list.rowItemSelected
+    if selected <> invalid and selected.count() >= 2 then m.top.itemSelected = selected[1]
+end sub
+
+sub onShelfSeeAll()
+    m.top.seeAllPressed = true
+end sub
+
+sub onShelfListFocus()
+    m.top.hasListFocus = m.list.isInFocusChain()
+end sub
+
+sub focusList()
+    m.list.setFocus(true)
+end sub
+
+sub jumpTo(index as integer)
+    m.top.focusedIndex = index
+    if m.root <> invalid then m.list.jumpToRowItem = [0, index]
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if press and key = "options" and m.list.isInFocusChain() then
+        m.top.itemMenu = m.top.focusedIndex
+        return true
+    end if
+    return false
+end function

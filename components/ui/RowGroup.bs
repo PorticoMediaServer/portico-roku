@@ -1,0 +1,78 @@
+' apps/native/src/ui/ListRow.tsx `RowGroup` (componentSpec.row.group, television column): an
+' optional header label, one raised surface with a soft border at the group radius, hairline
+' separators that start where the row text starts, and an optional footer caption that wraps. On
+' television the surface keeps room inside for the rows' focus ring and scale.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.titleNode = MakeText(m.top, Theme.spec.row.group.header.role, "tertiary")
+    m.surface = m.top.createChild("Poster")
+    m.border = m.top.createChild("Poster")
+    m.separators = m.top.createChild("Group")
+    m.rows = m.top.createChild("Group")
+    m.footerNode = MakeText(m.top, Theme.spec.row.group.footer.role, "tertiary")
+    m.footerNode.lines = 0
+end sub
+
+' Rows are UiListRow nodes (or any node with rowWidth, rowHeight and hasLeading fields).
+sub setRows(rows as object)
+    m.rows.removeChildrenIndex(m.rows.getChildCount(), 0)
+    for each row in rows
+        m.rows.appendChild(row)
+    end for
+    onGroupLayout()
+end sub
+
+sub onGroupLayout()
+    width = m.top.groupWidth
+    count = m.rows.getChildCount()
+    if width <= 0 then return
+    padX = Theme.spec.row.paddingX
+    room = Max(Theme.space.sm, Theme.metrics.focusRing + Theme.apple.rowGroupFocusRoom)
+    y = 0
+    m.titleNode.visible = m.top.title <> ""
+    if m.top.title <> "" then
+        m.titleNode.value = m.top.title
+        Place(m.titleNode, padX, 0)
+        y = m.titleNode.height + Theme.spec.row.group.header.gapBelow
+    end if
+    surfaceTop = y
+    m.separators.removeChildrenIndex(m.separators.getChildCount(), 0)
+    rowY = room
+    previous = invalid
+    for index = 0 to count - 1
+        row = m.rows.getChild(index)
+        if previous <> invalid then
+            inset = padX
+            if previous.hasLeading then inset = inset + Theme.spec.row.leadingBox + Theme.spec.row.leadingGap
+            line = MakeRect(m.separators, width - room * 2 - inset, 1, ThemeColor(Theme.spec.row.group.separator))
+            Place(line, room + inset, rowY)
+            rowY = rowY + 1
+        end if
+        row.rowWidth = width - room * 2
+        Place(row, room, rowY)
+        rowY = rowY + row.rowHeight
+        previous = row
+    end for
+    surfaceHeight = rowY + room
+    Place(m.surface, 0, surfaceTop)
+    Place(m.border, 0, surfaceTop)
+    Place(m.separators, 0, surfaceTop)
+    Place(m.rows, 0, surfaceTop)
+    m.surface.visible = count > 0
+    m.border.visible = count > 0
+    StyleShape(m.surface, width, surfaceHeight, Theme.spec.row.group.radius, ThemeColor(Theme.spec.row.group.background))
+    StyleRing(m.border, width, surfaceHeight, Theme.spec.row.group.radius, Theme.spec.overlay.border.width, ThemeColor(Theme.spec.row.group.border))
+    y = surfaceTop + surfaceHeight
+    m.footerNode.visible = m.top.footer <> ""
+    if m.top.footer <> "" then
+        m.footerNode.maxWidth = width - padX * 2
+        m.footerNode.value = m.top.footer
+        Place(m.footerNode, padX, y + Theme.spec.row.group.footer.gapAbove)
+        y = y + Theme.spec.row.group.footer.gapAbove + TextHeight(m.footerNode)
+    end if
+    m.top.groupHeight = y
+end sub

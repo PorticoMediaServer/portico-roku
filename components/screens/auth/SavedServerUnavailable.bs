@@ -1,0 +1,130 @@
+' apps/native/src/screens/auth/SavedServerUnavailable.tsx (APL-AUTH-01). The person is still signed
+' in, so this is not the sign-in page: it retries on its own with backoff (source/core/Session.bs
+' `SavedServerBackoffSeconds`), says so truthfully, and keeps other servers reachable without
+' discarding the saved sign-in. A surface with the countdown (or the ring while checking) and the
+' help line, then Try again and "Use another server or account". (Roku has no downloads, so the
+' Apple screen's "Watch downloads" has nothing to open.)
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Session.bs"
+
+sub init()
+    m.session = m.global.session
+    m.frame = m.top.createChild("AuthFrame")
+    m.frame.centered = true
+    m.frame.wide = true
+    m.frame.dismissable = false
+    m.content = CreateObject("roSGNode", "Group")
+    m.surface = m.content.createChild("Poster")
+    m.border = m.content.createChild("Poster")
+    m.spinner = m.content.createChild("UiSpinner")
+    m.spinner.size = Theme.apple.savedServerRing
+    m.status = MakeText(m.content, "body", "secondary")
+    m.help = MakeText(m.content, "caption", "tertiary")
+    m.help.lines = 0
+    m.help.align = "center"
+    m.again = m.content.createChild("UiButton")
+    m.again.variant = "primary"
+    m.again.size = "lg"
+    m.again.label = T("action.tryAgain")
+    m.again.observeField("pressed", "onSavedTryNow")
+    m.elsewhere = m.content.createChild("UiButton")
+    m.elsewhere.variant = "ghost"
+    m.elsewhere.label = T("action.useAnotherServerOrAccount")
+    m.elsewhere.observeField("pressed", "onSavedElsewhere")
+    m.timer = m.top.createChild("Timer")
+    m.timer.repeat = true
+    m.timer.duration = 1
+    m.timer.observeField("fire", "onSavedTick")
+    m.attempt = 0
+    m.remaining = SavedServerBackoffSeconds(0)
+    m.session.observeField("busy", "onSavedBusy")
+end sub
+
+sub enter()
+    m.attempt = 0
+    m.remaining = SavedServerBackoffSeconds(0)
+    m.timer.control = "start"
+    onSavedLayout()
+    m.frame.callFunc("focusContent", m.again)
+end sub
+
+sub leave()
+    m.timer.control = "stop"
+end sub
+
+function back() as boolean
+    return false
+end function
+
+sub onSavedTick()
+    if m.session.busy then return
+    m.remaining = m.remaining - 1
+    if m.remaining <= 0 then
+        m.attempt = m.attempt + 1
+        m.remaining = SavedServerBackoffSeconds(m.attempt)
+        m.session.callFunc("restore")
+    end if
+    onSavedLayout()
+end sub
+
+sub onSavedBusy()
+    onSavedLayout()
+end sub
+
+sub onSavedTryNow()
+    m.attempt = 0
+    m.remaining = SavedServerBackoffSeconds(0)
+    m.session.callFunc("restore")
+end sub
+
+sub onSavedElsewhere()
+    m.top.elsewherePressed = true
+end sub
+
+sub onSavedLayout()
+    width = m.frame.contentWidth
+    recovery = m.session.recovery
+    host = ""
+    if recovery <> invalid then host = FriendlyHost(recovery.origin)
+    if host <> "" then
+        m.frame.title = T("savedServer.title", { host: host })
+    else
+        m.frame.title = T("savedServer.titleGeneric")
+    end if
+    m.frame.lead = T("savedServer.lead")
+    busy = m.session.busy
+    m.spinner.visible = busy
+    m.spinner.spinning = busy
+    m.again.loading = busy
+    if busy then
+        m.status.value = T("savedServer.checking")
+    else
+        m.status.value = T("savedServer.retryIn", { seconds: m.remaining })
+    end if
+    m.help.maxWidth = width - Theme.space.lg * 2
+    m.help.value = T("savedServer.help")
+    ' The surface: padded by Theme.space.lg, its two lines centred, Theme.space.md apart.
+    pad = Theme.space.lg
+    statusWidth = TextWidth(m.status)
+    ring = 0
+    if busy then ring = Theme.apple.savedServerRing + Theme.space.sm
+    statusLeft = (width - statusWidth - ring) / 2
+    if busy then Place(m.spinner, statusLeft, pad + (m.status.height - Theme.apple.savedServerRing) / 2)
+    Place(m.status, statusLeft + ring, pad)
+    Place(m.help, pad, pad + m.status.height + Theme.space.md)
+    surfaceHeight = pad * 2 + m.status.height + Theme.space.md + TextHeight(m.help)
+    StyleShape(m.surface, width, surfaceHeight, Theme.metrics.radius.panel, Theme.colors.raised)
+    StyleRing(m.border, width, surfaceHeight, Theme.metrics.radius.panel, Theme.spec.overlay.border.width, ColorAlpha(Theme.colors.lineSoft, Theme.apple.surfaceBorderAlpha))
+    y = surfaceHeight + Theme.space.lg
+    Place(m.again, (width - m.again.controlWidth) / 2, y)
+    y = y + m.again.controlHeight + Theme.space.sm
+    Place(m.elsewhere, (width - m.elsewhere.controlWidth) / 2, y)
+    y = y + m.elsewhere.controlHeight
+    m.frame.callFunc("setContent", m.content, y)
+end sub

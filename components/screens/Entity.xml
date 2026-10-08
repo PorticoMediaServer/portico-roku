@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/Entity.tsx on the shared hero. -->
+<component name="ScreenEntity" extends="Group">
+    <interface>
+        <field id="route" type="assocarray" />
+        <function name="enter" />
+        <function name="resume" />
+        <function name="leave" />
+        <function name="focusEntry" />
+    </interface>
+</component>

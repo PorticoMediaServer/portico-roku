@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Request idempotency keys recorded in test fixtures"
+paths = ['''test/fixtures/.*\.json''']

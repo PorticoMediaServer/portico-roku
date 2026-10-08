@@ -1,0 +1,107 @@
+' apps/native/src/ui/Feedback.tsx `StateView` (componentSpec.feedback.stateView, television
+' column): a glyph in a raised circle (or the waiting ring), a title, body text in the secondary
+' tone, and at most two actions: the primary for recovery, a ghost for the alternative.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.circle = m.top.createChild("Poster")
+    m.iconNode = m.top.createChild("Poster")
+    m.spinner = m.top.createChild("UiSpinner")
+    m.titleNode = MakeText(m.top, Theme.spec.feedback.stateView.title)
+    m.titleNode.lines = 0
+    m.titleNode.align = "center"
+    m.messageNode = MakeText(m.top, Theme.spec.feedback.stateView.body, "secondary")
+    m.messageNode.lines = 0
+    m.messageNode.align = "center"
+    m.primary = m.top.createChild("UiButton")
+    m.primary.variant = Theme.spec.feedback.stateView.action.variant
+    m.primary.size = Theme.spec.feedback.stateView.action.size
+    m.primary.observeField("pressed", "onStatePrimary")
+    m.secondary = m.top.createChild("UiButton")
+    m.secondary.variant = Theme.spec.feedback.stateView.secondaryAction.variant
+    m.secondary.size = Theme.spec.feedback.stateView.action.size
+    m.secondary.observeField("pressed", "onStateSecondary")
+end sub
+
+sub onStateLayout()
+    width = m.top.stateWidth
+    if width <= 0 then return
+    gap = Theme.spec.feedback.stateView.gap
+    maxWidth = Min(Theme.spec.feedback.stateView.maxWidth, width - Theme.space.xxl * 2)
+    circle = Theme.spec.feedback.stateView.iconCircle
+    iconSize = Theme.spec.feedback.stateView.icon
+    loading = m.top.loading
+    m.spinner.visible = loading
+    m.spinner.spinning = loading
+    m.circle.visible = not loading
+    m.iconNode.visible = not loading
+    markHeight = circle
+    if loading then markHeight = Theme.spec.feedback.spinner.size.screen
+
+    m.titleNode.maxWidth = maxWidth
+    m.titleNode.value = m.top.title
+    total = markHeight + gap + TextHeight(m.titleNode)
+    m.messageNode.visible = m.top.message <> ""
+    if m.top.message <> "" then
+        m.messageNode.maxWidth = maxWidth
+        m.messageNode.value = m.top.message
+        total = total + gap + TextHeight(m.messageNode)
+    end if
+    hasPrimary = m.top.action <> ""
+    hasSecondary = m.top.secondaryAction <> ""
+    m.primary.visible = hasPrimary
+    m.primary.focusable = hasPrimary
+    m.secondary.visible = hasSecondary
+    m.secondary.focusable = hasSecondary
+    if hasPrimary then m.primary.label = m.top.action
+    if hasSecondary then m.secondary.label = m.top.secondaryAction
+    buttonsHeight = 0
+    if hasPrimary or hasSecondary then
+        buttonsHeight = m.primary.controlHeight
+        total = total + gap + Theme.space.xs + buttonsHeight
+    end if
+
+    height = m.top.stateHeight
+    if height < total + Theme.space.xxl * 2 then height = total + Theme.space.xxl * 2
+    y = (height - total) / 2
+    if loading then
+        Place(m.spinner, (width - markHeight) / 2, y)
+    else
+        StyleShape(m.circle, circle, circle, circle / 2, Theme.colors.raisedHigh)
+        Place(m.circle, (width - circle) / 2, y)
+        StyleIcon(m.iconNode, m.top.icon, iconSize, Theme.colors.textSecondary)
+        Place(m.iconNode, (width - iconSize) / 2, y + (circle - iconSize) / 2)
+    end if
+    y = y + markHeight + gap
+    Place(m.titleNode, (width - maxWidth) / 2, y)
+    y = y + TextHeight(m.titleNode)
+    if m.top.message <> "" then
+        y = y + gap
+        Place(m.messageNode, (width - maxWidth) / 2, y)
+        y = y + TextHeight(m.messageNode)
+    end if
+    if hasPrimary or hasSecondary then
+        y = y + gap + Theme.space.xs
+        row = 0
+        if hasPrimary then row = row + m.primary.controlWidth
+        if hasSecondary then row = row + m.secondary.controlWidth
+        if hasPrimary and hasSecondary then row = row + Theme.spec.button.gap
+        x = (width - row) / 2
+        if hasPrimary then
+            Place(m.primary, x, y)
+            x = x + m.primary.controlWidth + Theme.spec.button.gap
+        end if
+        if hasSecondary then Place(m.secondary, x, y)
+    end if
+end sub
+
+sub onStatePrimary()
+    m.top.actionPressed = true
+end sub
+
+sub onStateSecondary()
+    m.top.secondaryPressed = true
+end sub

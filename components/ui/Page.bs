@@ -1,0 +1,134 @@
+' apps/native/src/ui/Page.tsx (`Page`, `PageList`). The page scrolls to follow focus: a shelf
+' comes to rest Theme.apple.shelfSnapFraction of the screen's height from the top (ui/Shelf.tsx
+' scrollSnapOffset), any other control is brought fully into view. Content starts
+' Theme.apple.pageTopInset − Theme.space.lg from the top and ends with Theme.space.xxxl to spare.
+'
+' Focus inside the page moves by geometry (ui/Focus.bs), so a screen lays its controls out and the
+' remote finds its way. A direction with nothing that way is not handled here: the shell gives
+' Left to the rail. Only the shelves near the viewport hold their cards (PERF-02).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Scroll.bs"
+
+sub init()
+    m.clip = m.top.createChild("Group")
+    m.content = m.clip.createChild("Group")
+    m.content.id = "pageContent"
+    m.top.body = m.content
+    m.scroll = m.top.createChild("Animation")
+    m.scroll.easeFunction = "outCubic"
+    interpolator = m.scroll.createChild("Vector2DFieldInterpolator")
+    interpolator.key = [0, 1]
+    interpolator.fieldToInterp = "pageContent.translation"
+    m.shelves = []
+    m.top.observeField("focusedChild", "onPageFocus")
+    onPageLayout()
+end sub
+
+sub onPageLayout()
+    width = m.top.pageWidth
+    height = m.top.pageHeight
+    if width <= 0 then width = Theme.screen.width - Theme.metrics.railWidth
+    if height <= 0 then height = Theme.screen.height
+    m.size = { width: width, height: height }
+end sub
+
+sub onPageFocus()
+    m.top.hasFocusInside = m.top.isInFocusChain()
+end sub
+
+' Call after the content is built or changed: finds the shelves and activates the ones in view.
+sub refresh()
+    m.shelves = []
+    PageCollectShelves(m.content)
+    PageActivate(m.top.scrollY)
+end sub
+
+sub PageCollectShelves(node as object)
+    for each child in node.getChildren(-1, 0)
+        if child.hasField("shelfHeight") then
+            m.shelves.push(child)
+        else if child.subtype() = "Group" then
+            PageCollectShelves(child)
+        end if
+    end for
+end sub
+
+sub PageActivate(scroll as dynamic)
+    height = m.size.height
+    for each shelf in m.shelves
+        top = OffsetWithin(shelf, m.content).y
+        shelf.active = top + shelf.shelfHeight > scroll - height and top < scroll + height * 2
+    end for
+end sub
+
+function PageShelfOf(node as object) as dynamic
+    current = node
+    while current <> invalid and not current.isSameNode(m.content)
+        if current.hasField("shelfHeight") then return current
+        current = current.getParent()
+    end while
+    return invalid
+end function
+
+' Brings the focused control into view.
+sub follow()
+    current = FocusCurrent(m.content)
+    if current = invalid then return
+    shelf = PageShelfOf(current)
+    offset = OffsetWithin(current, m.content)
+    height = 0
+    if current.hasField("focusHeight") then height = current.focusHeight
+    if height <= 0 then height = current.boundingRect().height
+    snapTop = invalid
+    if shelf <> invalid then snapTop = OffsetWithin(shelf, m.content).y
+    snapLine = Int(Theme.screen.height * Theme.apple.shelfSnapFraction + 0.5)
+    target = ScrollTarget(m.top.scrollY, m.size.height, m.top.contentHeight, offset.y, height, snapTop, snapLine, Theme.space.xl)
+    PageScrollTo(target)
+end sub
+
+sub PageScrollTo(target as dynamic)
+    if target = m.top.scrollY then return
+    PageActivate(target)
+    m.scroll.control = "stop"
+    if ReduceMotion() then
+        m.content.translation = [0, -target]
+    else
+        m.scroll.duration = MotionSeconds(Theme.motion.standard)
+        m.scroll.getChild(0).keyValue = [m.content.translation, [0, -target]]
+        m.scroll.control = "start"
+    end if
+    m.top.scrollY = target
+end sub
+
+sub scrollToTop()
+    m.scroll.control = "stop"
+    m.content.translation = [0, 0]
+    m.top.scrollY = 0
+    PageActivate(0)
+end sub
+
+function focusEntry() as boolean
+    moved = FocusFirst(m.content)
+    if moved then follow()
+    return moved
+end function
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    direction = FocusDirection(key)
+    if direction = "" then return false
+    if not press then return false
+    if FocusMove(m.content, direction) then
+        follow()
+        return true
+    end if
+    ' Up at the top of a scrolled page returns to the start before focus leaves it.
+    if direction = "up" and m.top.scrollY > 0 then
+        PageScrollTo(0)
+        return true
+    end if
+    return false
+end function

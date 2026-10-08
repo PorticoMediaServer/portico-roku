@@ -1,0 +1,119 @@
+' apps/native/src/screens/title/Episodes.tsx `TvEpisodeRow`. The episode's number, its title, the
+' line under it ("Aired Jan 20, 2008 · 47m"), a thin progress bar when it is started, and a check
+' when it is watched. Focus is a plate in the text colour with ink text (no ring, no scale); the
+' episode whose panel is open is tinted with the accent. A row that has not loaded is a skeleton.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.plate = m.top.createChild("Poster")
+    m.plate.visible = false
+    m.number = MakeText(m.top, "bodyStrong", "tertiary")
+    m.titleNode = MakeText(m.top, "bodyStrong")
+    m.meta = MakeText(m.top, "caption", "tertiary")
+    m.bar = invalid
+    m.check = m.top.createChild("Poster")
+    m.check.visible = false
+    m.blank = invalid
+    m.size = invalid
+    m.watched = invalid
+end sub
+
+sub onEpisodeContent()
+    item = m.top.itemContent
+    width = m.top.width
+    height = m.top.height
+    ' The tint of the episode whose panel is open follows its content node.
+    if m.watched <> invalid and (item = invalid or not m.watched.isSameNode(item)) then
+        m.watched.unobserveFieldScoped("highlighted")
+        m.watched = invalid
+    end if
+    if item <> invalid and m.watched = invalid and item.hasField("highlighted") then
+        item.observeFieldScoped("highlighted", "onEpisodeFocus")
+        m.watched = item
+    end if
+    if item = invalid or width <= 0 or height <= 0 then return
+    inner = height - Theme.space.xxs * 2
+    m.size = { width: width, height: inner }
+    placeholder = item.hasField("placeholder") and item.placeholder = true
+    pad = Theme.space.md
+    numberWidth = Theme.apple.episodeNumberWidth
+    m.number.visible = not placeholder
+    m.titleNode.visible = not placeholder
+    if m.blank <> invalid then m.blank.visible = placeholder
+    if placeholder then
+        if m.blank = invalid then m.blank = m.top.createChild("UiSkeleton")
+        m.blank.blockHeight = Theme.typeScale.bodyStrong.lineHeight
+        m.blank.blockWidth = (width - pad * 2 - numberWidth - pad) * Theme.apple.heroSkeletonTitleFraction
+        Place(m.blank, pad + numberWidth + pad, (height - m.blank.blockHeight) / 2)
+        m.blank.visible = true
+        m.meta.visible = false
+        m.check.visible = false
+        if m.bar <> invalid then m.bar.visible = false
+        m.plate.visible = false
+        return
+    end if
+    watched = item.watched = true
+    right = width - pad
+    m.check.visible = watched
+    if watched then right = right - Theme.metrics.iconSmall - pad
+    m.number.maxWidth = numberWidth
+    m.number.value = item.number
+    textLeft = pad + numberWidth + pad
+    copyWidth = right - textLeft
+    m.titleNode.maxWidth = copyWidth
+    m.titleNode.value = item.title
+    meta = item.meta
+    m.meta.visible = meta <> ""
+    m.meta.maxWidth = copyWidth
+    m.meta.value = meta
+    progress = item.progress
+    content = m.titleNode.height
+    if meta <> "" then content = content + Theme.space.xxs + m.meta.height
+    if progress > 0 then content = content + Theme.space.xxs + Theme.apple.episodeProgressHeight
+    y = (height - content) / 2
+    Place(m.number, pad, (height - m.number.height) / 2)
+    Place(m.titleNode, textLeft, y)
+    y = y + m.titleNode.height
+    if meta <> "" then
+        Place(m.meta, textLeft, y + Theme.space.xxs)
+        y = y + Theme.space.xxs + m.meta.height
+    end if
+    if progress > 0 then
+        if m.bar = invalid then m.bar = m.top.createChild("UiProgressBar")
+        m.bar.barHeight = Theme.apple.episodeProgressHeight
+        m.bar.barWidth = Min(Theme.apple.episodeProgressMax, copyWidth)
+        m.bar.value = progress
+        Place(m.bar, textLeft, y + Theme.space.xxs)
+    end if
+    if m.bar <> invalid then m.bar.visible = progress > 0
+    if watched then Place(m.check, width - pad - Theme.metrics.iconSmall, (height - Theme.metrics.iconSmall) / 2)
+    onEpisodeFocus()
+end sub
+
+sub onEpisodeFocus()
+    item = m.top.itemContent
+    if m.size = invalid or item = invalid then return
+    if item.hasField("placeholder") and item.placeholder = true then return
+    focused = m.top.gridHasFocus and m.top.focusPercent > 0.5
+    highlighted = item.hasField("highlighted") and item.highlighted = true
+    watched = item.watched = true
+    m.plate.visible = focused or highlighted
+    Place(m.plate, 0, Theme.space.xxs)
+    if focused then
+        StyleShape(m.plate, m.size.width, m.size.height, Theme.metrics.radius.control, Theme.colors.text)
+        m.number.tint = Theme.colors.ink
+        m.titleNode.tint = Theme.colors.ink
+        m.meta.tint = ColorAlpha(Theme.colors.ink, Theme.apple.episodeFocusedMetaAlpha)
+        if watched then StyleIcon(m.check, "check", Theme.metrics.iconSmall, Theme.colors.ink)
+    else
+        if highlighted then StyleShape(m.plate, m.size.width, m.size.height, Theme.metrics.radius.control, ColorAlpha(Theme.colors.accent, Theme.apple.episodeHighlightAlpha))
+        m.number.tint = ""
+        m.titleNode.tint = ""
+        if watched then m.titleNode.tint = Theme.colors.textSecondary
+        m.meta.tint = ""
+        if watched then StyleIcon(m.check, "check", Theme.metrics.iconSmall, Theme.colors.textSecondary)
+    end if
+end sub

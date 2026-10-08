@@ -1,0 +1,21 @@
+{
+ "pivot": "series",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ]
+ },
+ "entries": [],
+ "pageInfo": {
+  "start": 0,
+  "total": 0,
+  "revision": "browse_d40163c78f08e9920862dc3dd607bda09fe91b579fd97e4a3c4ddd40a6eea70a",
+  "hasMore": false,
+  "nextCursor": ""
+ },
+ "positionIndex": []
+}

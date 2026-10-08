@@ -1,0 +1,597 @@
+' apps/native/src/screens/Notifications.tsx. The server-owned inbox for this viewer: Unread, All
+' and Archived (and, for an owner, the server's own messages). Pressing a message offers what can
+' be done with it. A change shows at once and is put back if the server refuses it
+' (packages/client-core/src/inbox.ts).
+'
+' For a Portico Account sign-in, the account's own notices come first
+' (apps/native/src/screens/AccountFeed.tsx): a server that went quiet, a new sign-in, a security
+' change, with the three choices the account can make about them. They are read from the account
+' service when this screen opens, and not otherwise.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Notifications.bs"
+import "pkg:/source/core/AccountNotices.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.header = body.createChild("UiPageHeader")
+    m.header.headerWidth = m.width
+    m.header.title = T("notifications.title")
+    m.header.eyebrow = T("notifications.fromServer")
+    m.session = m.global.session
+    m.account = body.createChild("Group")
+    m.feed = { phase: "off", items: [], unread: 0, cursor: "", failure: invalid, busy: false, preferences: invalid }
+    m.feedTasks = []
+    m.audiences = body.createChild("UiTabs")
+    m.audiences.mode = "segmented"
+    m.audiences.observeField("chosen", "onNotesAudience")
+    m.views = body.createChild("UiTabs")
+    m.views.mode = "segmented"
+    items = []
+    for each pair in [["unread", "notifications.view.unread"], ["all", "notifications.view.all"], ["archived", "notifications.view.archived"]]
+        items.push({ id: pair[0], label: T(pair[1]) })
+    end for
+    m.views.items = items
+    m.views.observeField("chosen", "onNotesView")
+    m.area = body.createChild("Group")
+    m.audience = "profile"
+    m.known = ["profile"]
+    m.view = "unread"
+    m.items = []
+    m.counts = { unread: 0, read: 0, archived: 0, total: 0 }
+    m.cursor = ""
+    m.phase = "loading"
+    m.failure = invalid
+    m.busy = false
+    m.generation = 0
+    m.nodes = []
+    m.more = invalid
+    m.markAll = invalid
+    m.menu = invalid
+    m.chosen = invalid
+    m.tasks = {}
+end sub
+
+sub enter()
+    m.views.selected = m.view
+    if m.session.hasAccount then
+        m.feed.phase = "loading"
+        FeedAsk({ kind: "page" })
+        FeedAsk({ kind: "preferences" })
+    end if
+    NotesLoad()
+end sub
+
+' ---- The Portico Account's own notices (AccountFeed.tsx) -------------------------------------------
+
+sub FeedAsk(ask as object)
+    task = CreateObject("roSGNode", "SessionTask")
+    task.job = { kind: "accountNotices", ask: ask }
+    task.observeField("result", "onFeedAnswer")
+    m.feedTasks.push(task)
+    task.control = "RUN"
+end sub
+
+sub onFeedAnswer(event as object)
+    result = event.getData()
+    if result = invalid then return
+    asked = result.asked
+    if asked = "page" then
+        m.feed.busy = false
+        if result.ok = true then
+            if m.feed.appending = true then
+                have = {}
+                have.setModeCaseSensitive()
+                for each notice in m.feed.items
+                    have[notice.id] = true
+                end for
+                for each notice in result.page.items
+                    if not have.doesExist(notice.id) then m.feed.items.push(notice)
+                end for
+            else
+                m.feed.items = result.page.items
+            end if
+            m.feed.unread = result.page.unread
+            m.feed.cursor = result.page.nextCursor
+            m.feed.phase = "ready"
+            m.feed.failure = invalid
+        else
+            m.feed.failure = result.failure
+            if m.feed.phase <> "ready" then m.feed.phase = "error"
+        end if
+        m.feed.appending = false
+    else if asked = "preferences" or asked = "savePreferences" then
+        if result.ok = true then
+            m.feed.preferences = result.preferences
+        else if asked = "savePreferences" then
+            ' Refused: the switch goes back.
+            m.feed.preferences = m.feed.preferencesBefore
+            Toast(PresentError(result.failure, "account", { operation: "save" }).body, "warning")
+        end if
+    else
+        ' Marking read is not confirmed to the viewer; a failure shows again as unread next time.
+        return
+    end if
+    NotesLayout(NotesFocused())
+end sub
+
+' Draws the account's section at `y`; returns where it ends.
+function FeedLayout(y as dynamic) as float
+    group = m.account
+    held = ""
+    for each child in group.getChildren(-1, 0)
+        if child.hasField("feedId") and child.isInFocusChain() then held = child.feedId
+    end for
+    group.removeChildrenIndex(group.getChildCount(), 0)
+    group.visible = m.feed.phase <> "off"
+    if not group.visible then return y
+    Place(group, 0, y)
+    inset = Theme.space.page
+    width = m.width - inset * 2
+    top = 0
+    heading = MakeText(group, "heading", "primary", T("account.portico"))
+    Place(heading, inset, top)
+    if m.feed.unread > 0 then
+        all = group.createChild("UiButton")
+        all.addFields({ feedId: "all" })
+        all.variant = "ghost"
+        all.size = "sm"
+        all.icon = "check"
+        all.label = T("web.account.notif.markAll")
+        all.observeField("pressed", "onFeedReadAll")
+        Place(all, inset + width - all.controlWidth, top)
+    end if
+    top = top + heading.height + Theme.space.md
+    if m.feed.failure <> invalid and m.feed.phase = "ready" then
+        notice = group.createChild("UiNotice")
+        notice.tone = "warning"
+        notice.message = PresentError(m.feed.failure, "account").body
+        notice.action = T("action.tryAgain")
+        notice.noticeWidth = width
+        notice.observeField("actionPressed", "onFeedRetry")
+        Place(notice, inset, top)
+        top = top + notice.noticeHeight + Theme.space.md
+    end if
+    if m.feed.phase = "loading" or m.feed.phase = "error" or m.feed.items.count() = 0 then
+        state = group.createChild("UiStateView")
+        state.stateWidth = m.width
+        if m.feed.phase = "loading" then
+            state.loading = true
+            state.title = T("notifications.loading")
+        else if m.feed.phase = "error" then
+            state.icon = "error"
+            state.title = PresentError(m.feed.failure, "account").body
+            state.action = T("action.tryAgain")
+            state.observeField("actionPressed", "onFeedRetry")
+        else
+            state.icon = "bell"
+            state.title = T("web.account.notif.empty")
+            state.message = T("web.account.notif.emptyBody")
+        end if
+        Place(state, 0, top)
+        top = top + state.boundingRect().height + Theme.space.md
+    else
+        rows = []
+        now = NowSeconds()
+        for each item in m.feed.items
+            words = AccountNoticeWords(item)
+            node = CreateObject("roSGNode", "UiListRow")
+            node.addFields({ feedId: item.id })
+            node.icon = words.icon
+            node.title = words.title
+            node.subtitle = words.body
+            node.subtitleLines = Theme.apple.detailSubtitleLines
+            when = FormatRelativeTime(item.occurredAt, now)
+            if not item.read then when = T("web.account.notif.unread") + " · " + when
+            node.meta = when
+            ' A new sign-in is reviewed where the account's devices are listed.
+            if item.kind = "new_device" then node.accessory = "navigation"
+            node.observeField("pressed", "onFeedPressed")
+            rows.push(node)
+        end for
+        list = group.createChild("UiRowGroup")
+        list.groupWidth = width
+        list.callFunc("setRows", rows)
+        Place(list, inset, top)
+        top = top + list.groupHeight + Theme.space.md
+        if m.feed.cursor <> "" then
+            older = group.createChild("UiButton")
+            older.addFields({ feedId: "older" })
+            older.variant = "secondary"
+            older.label = T("web.account.notif.older")
+            older.loading = m.feed.busy
+            older.observeField("pressed", "onFeedOlder")
+            Place(older, inset, top)
+            top = top + older.controlHeight + Theme.space.md
+        end if
+    end if
+    prefs = m.feed.preferences
+    if prefs <> invalid then
+        rows = []
+        for each pair in [["serverOffline", "web.account.notif.prefServerOffline"], ["storageNearlyFull", "web.account.notif.prefStorage"], ["invitationAccepted", "web.account.notif.prefJoined"]]
+            node = CreateObject("roSGNode", "UiListRow")
+            node.addFields({ feedId: "pref:" + pair[0], feedPref: pair[0] })
+            node.title = T(pair[1])
+            node.toggle = "off"
+            if prefs[pair[0]] = true then node.toggle = "on"
+            node.observeField("pressed", "onFeedPreference")
+            rows.push(node)
+        end for
+        choices = group.createChild("UiRowGroup")
+        choices.title = T("web.account.notif.prefsTitle")
+        choices.footer = T("web.account.notif.prefsHelp")
+        choices.groupWidth = width
+        choices.callFunc("setRows", rows)
+        Place(choices, inset, top)
+        top = top + choices.groupHeight + Theme.space.md
+    end if
+    if held <> "" then
+        for each child in FeedFocusables()
+            if child.feedId = held then FocusOn(child)
+        end for
+    end if
+    return y + top + Theme.space.lg
+end function
+
+function FeedFocusables() as object
+    out = []
+    for each child in m.account.getChildren(-1, 0)
+        if child.hasField("feedId") then
+            out.push(child)
+        else if child.subtype() = "UiRowGroup" then
+            for each row in child.getChildren(-1, 0)
+                FeedCollect(row, out)
+            end for
+        end if
+    end for
+    return out
+end function
+
+sub FeedCollect(node as object, out as object)
+    if node.hasField("feedId") then
+        out.push(node)
+        return
+    end if
+    for each child in node.getChildren(-1, 0)
+        FeedCollect(child, out)
+    end for
+end sub
+
+sub onFeedRetry()
+    m.feed.failure = invalid
+    if m.feed.phase <> "ready" then m.feed.phase = "loading"
+    FeedAsk({ kind: "page" })
+    NotesLayout(NotesFocused())
+end sub
+
+sub onFeedOlder()
+    if m.feed.busy or m.feed.cursor = "" then return
+    m.feed.busy = true
+    m.feed.appending = true
+    FeedAsk({ kind: "page", cursor: m.feed.cursor })
+end sub
+
+sub onFeedReadAll()
+    marked = AccountNoticesMarked(m.feed.items, m.feed.unread, "")
+    m.feed.items = marked.items
+    m.feed.unread = marked.unread
+    FeedAsk({ kind: "read", ids: invalid })
+    NotesLayout(NotesFocused())
+end sub
+
+sub onFeedPressed(event as object)
+    node = event.getRoSGNode()
+    for each item in m.feed.items
+        if item.id = node.feedId then
+            if not item.read then
+                marked = AccountNoticesMarked(m.feed.items, m.feed.unread, item.id)
+                m.feed.items = marked.items
+                m.feed.unread = marked.unread
+                FeedAsk({ kind: "read", ids: [item.id] })
+                NotesLayout(NotesFocused())
+            end if
+            if item.kind = "new_device" then NavPush("ScreenSettings", { address: "profile" })
+            return
+        end if
+    end for
+end sub
+
+sub onFeedPreference(event as object)
+    node = event.getRoSGNode()
+    prefs = m.feed.preferences
+    if prefs = invalid then return
+    m.feed.preferencesBefore = prefs
+    changed = {}
+    changed.append(prefs)
+    changed[node.feedPref] = not (prefs[node.feedPref] = true)
+    m.feed.preferences = changed
+    FeedAsk({ kind: "savePreferences", preferences: changed })
+    NotesLayout(NotesFocused())
+end sub
+
+sub resume()
+end sub
+
+sub leave()
+    m.tasks = {}
+end sub
+
+sub focusEntry()
+    if m.nodes.count() > 0 then
+        FocusOn(m.nodes[0])
+        m.page.callFunc("follow")
+    else if not FocusFirst(m.views) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+' inbox.ts `load`: the first page of a view. What is on screen stays until the new page arrives.
+sub NotesLoad()
+    m.generation = m.generation + 1
+    m.failure = invalid
+    if m.items.count() = 0 then m.phase = "loading"
+    task = ApiStart({ path: NotificationInboxPath(m.audience, m.view), reader: "notificationInbox" }, "onNotesLoaded")
+    task.addFields({ generation: m.generation, appended: false })
+    m.tasks.inbox = task
+    NotesLayout(-1)
+end sub
+
+sub onNotesLoaded(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    m.busy = false
+    held = NotesFocused()
+    onMore = m.more <> invalid and m.more.isInFocusChain()
+    first = m.phase = "loading"
+    if result.ok and result.value.ok = true then
+        inbox = result.value
+        if task.appended then
+            ' inbox.ts `more`: a message already held is not listed twice.
+            have = {}
+            have.setModeCaseSensitive()
+            for each note in m.items
+                have[note.id] = true
+            end for
+            for each note in inbox.items
+                if not have.doesExist(note.id) then m.items.push(note)
+            end for
+        else
+            m.items = inbox.items
+            m.known = inbox.audiences
+        end if
+        m.counts = inbox.counts
+        m.cursor = inbox.nextCursor
+        m.phase = "ready"
+    else
+        m.failure = result.error
+        if m.failure = invalid then m.failure = { code: "invalid_response", status: 0 }
+        if m.items.count() = 0 then m.phase = "error"
+    end if
+    if onMore then held = m.nodes.count()
+    NotesLayout(held)
+    if first then NavClaimFocus()
+end sub
+
+function NotesFocused() as integer
+    for index = 0 to m.nodes.count() - 1
+        if m.nodes[index].isInFocusChain() then return index
+    end for
+    return -1
+end function
+
+sub onNotesAudience()
+    if m.audiences.chosen = m.audience then return
+    m.audience = m.audiences.chosen
+    m.items = []
+    m.cursor = ""
+    NotesLoad()
+end sub
+
+sub onNotesView()
+    if m.views.chosen = m.view then return
+    m.view = m.views.chosen
+    m.views.selected = m.view
+    m.items = []
+    m.cursor = ""
+    NotesLoad()
+end sub
+
+' Lays the page out; `held` is the row to give focus back to (-1 for none).
+sub NotesLayout(held as integer)
+    area = m.area
+    inArea = area.isInFocusChain()
+    area.removeChildrenIndex(area.getChildCount(), 0)
+    m.nodes = []
+    m.more = invalid
+    m.markAll = invalid
+    inset = Theme.space.page
+    width = m.width - inset * 2
+    y = FeedLayout(m.header.headerHeight)
+    x = inset
+    m.audiences.visible = m.known.count() > 1
+    if m.audiences.visible then
+        choices = []
+        for each audience in m.known
+            choices.push({ id: audience, label: NotificationAudienceLabel(audience) })
+        end for
+        m.audiences.items = choices
+        m.audiences.selected = m.audience
+        Place(m.audiences, x, y)
+        x = x + m.audiences.boundingRect().width + Theme.space.sm
+    end if
+    Place(m.views, x, y)
+    rowHeight = m.views.tabsHeight
+    Place(area, 0, 0)
+    if m.counts.unread > 0 and m.view <> "archived" then
+        m.markAll = area.createChild("UiButton")
+        m.markAll.variant = "ghost"
+        m.markAll.size = "sm"
+        m.markAll.icon = "check"
+        m.markAll.label = T("notifications.markAllRead")
+        m.markAll.observeField("pressed", "onNotesReadAll")
+        Place(m.markAll, x + m.views.boundingRect().width + Theme.space.sm, y)
+        if m.markAll.controlHeight > rowHeight then rowHeight = m.markAll.controlHeight
+    end if
+    y = y + rowHeight + Theme.space.lg
+    if m.failure <> invalid and m.items.count() > 0 then
+        notice = area.createChild("UiNotice")
+        notice.tone = "warning"
+        notice.message = PresentError(m.failure, "notifications").body
+        notice.action = T("action.tryAgain")
+        notice.noticeWidth = width
+        notice.observeField("actionPressed", "onNotesRetry")
+        Place(notice, inset, y)
+        y = y + notice.noticeHeight + Theme.space.lg
+    end if
+    if m.items.count() = 0 then
+        state = area.createChild("UiStateView")
+        state.stateWidth = m.width
+        if m.phase = "loading" then
+            state.loading = true
+            state.title = T("notifications.loading")
+        else if m.phase = "error" then
+            state.icon = "error"
+            state.title = T("notifications.error.load")
+            state.message = PresentError(m.failure, "notifications").body
+            state.action = T("action.tryAgain")
+            state.observeField("actionPressed", "onNotesRetry")
+        else
+            words = NotificationEmpty(m.view)
+            state.icon = words.icon
+            state.title = words.title
+            state.message = T("notifications.emptyBodyNoDownloads")
+        end if
+        Place(state, 0, y)
+        y = y + state.boundingRect().height
+    else
+        rows = []
+        now = NowSeconds()
+        for each note in m.items
+            node = CreateObject("roSGNode", "UiListRow")
+            node.addFields({ noteId: note.id })
+            node.icon = NotificationIcon(note.severity)
+            node.title = note.title
+            node.subtitle = note.body
+            node.subtitleLines = Theme.apple.detailSubtitleLines
+            seconds& = note.createdAt
+            seconds& = seconds& \ 1000
+            when = FormatRelativeTime(seconds&, now)
+            if not note.read then when = T("notifications.new") + " · " + when
+            node.meta = when
+            node.accessory = "menu"
+            ' A message already read is quieter.
+            if note.read and m.view <> "archived" then node.opacity = Theme.apple.busyOpacity
+            node.observeField("pressed", "onNotesPressed")
+            rows.push(node)
+            m.nodes.push(node)
+        end for
+        group = area.createChild("UiRowGroup")
+        group.groupWidth = width
+        group.callFunc("setRows", rows)
+        Place(group, inset, y)
+        y = y + group.groupHeight
+        if m.cursor <> "" then
+            m.more = area.createChild("UiButton")
+            m.more.variant = "secondary"
+            m.more.label = T("notifications.loadMore")
+            m.more.loading = m.busy
+            m.more.observeField("pressed", "onNotesMore")
+            Place(m.more, inset, y + Theme.space.lg)
+            y = y + Theme.space.lg + m.more.controlHeight
+        end if
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    if inArea or held >= 0 then
+        if held >= 0 and m.nodes.count() > 0 then
+            if held > m.nodes.count() - 1 then held = m.nodes.count() - 1
+            FocusOn(m.nodes[held])
+            m.page.callFunc("follow")
+        else if not FocusFirst(m.views) then
+            m.top.setFocus(true)
+        end if
+    end if
+end sub
+
+sub onNotesRetry()
+    NotesLoad()
+end sub
+
+sub onNotesMore()
+    if m.busy or m.cursor = "" then return
+    m.busy = true
+    m.more.loading = true
+    task = ApiStart({ path: NotificationInboxPath(m.audience, m.view, m.cursor), reader: "notificationInbox" }, "onNotesLoaded")
+    task.addFields({ generation: m.generation, appended: true })
+    m.tasks.inbox = task
+end sub
+
+sub onNotesPressed(event as object)
+    node = event.getRoSGNode()
+    for each note in m.items
+        if note.id = node.noteId then
+            m.chosen = note
+            if m.menu = invalid then
+                m.menu = m.top.createChild("UiMenu")
+                m.menu.observeField("chosen", "onNotesAction")
+            end if
+            m.menu.title = note.title
+            m.menu.subtitle = note.body
+            m.menu.items = NotificationMenu(note, m.view)
+            m.menu.callFunc("open")
+            return
+        end if
+    end for
+end sub
+
+sub onNotesAction()
+    if m.chosen = invalid then return
+    NotesApply(m.menu.chosen, m.chosen.id)
+    m.chosen = invalid
+end sub
+
+sub onNotesReadAll()
+    NotesApply("read-all", "")
+end sub
+
+' inbox.ts `apply`, `readAll` and `send`: the list changes at once; the counts are the server's.
+sub NotesApply(action as string, id as string)
+    m.before = { items: m.items, counts: m.counts }
+    held = NotesFocused()
+    m.items = NotificationApplied(m.items, action, id, m.view)
+    ids = invalid
+    if action <> "read-all" then ids = [id]
+    task = ApiStart({ path: "/v1/notifications/inbox/actions", method: "POST", body: NotificationActionsBody(NewRequestId(), m.audience, action, ids), reader: "notificationBatch" }, "onNotesApplied")
+    task.addFields({ generation: m.generation })
+    m.tasks.apply = task
+    NotesLayout(held)
+end sub
+
+sub onNotesApplied(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.counts = result.value.counts
+        NotePersonalChange()
+    else
+        ' Refused: the list is put back as it was.
+        m.items = m.before.items
+        m.counts = m.before.counts
+        Toast(T("notifications.error.change"), "warning")
+    end if
+    NotesLayout(NotesFocused())
+end sub

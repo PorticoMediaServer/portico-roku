@@ -1,0 +1,200 @@
+' packages/client-core/src/notifications.ts and inbox.ts (the server-owned inbox for this viewer)
+' and apps/native/src/screens/Notifications.tsx (what each row says and what can be done with it).
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+
+' GET /v1/notifications/inbox: the first page of a view, or the page after a cursor.
+function NotificationInboxPath(audience as string, view as string, cursor = "" as string) as string
+    path = "/v1/notifications/inbox?audience=" + audience.encodeUriComponent() + "&state=" + view + "&limit=50"
+    if cursor <> "" then path = path + "&cursor=" + cursor.encodeUriComponent()
+    return path
+end function
+
+function NotificationUnreadPath(audience as string) as string
+    return "/v1/notifications/unread-count?audience=" + audience.encodeUriComponent()
+end function
+
+' The console wraps its answers as {scope, data}.
+function NotificationData(raw as dynamic) as dynamic
+    if IsObject(raw) and raw.doesExist("data") then return raw.data
+    return raw
+end function
+
+function IsNoteText(value as dynamic, limit as integer) as boolean
+    return IsString(value) and Len(value) <= limit
+end function
+
+' A whole number of milliseconds or a count (the server's times exceed 32 bits).
+function IsNoteWhole(value as dynamic) as boolean
+    if not IsNumber(value) or value < 0 then return false
+    ' A 64-bit holder keeps today's milliseconds; anything with a fraction does not equal it.
+    whole& = value
+    return whole& = value
+end function
+
+function ParseNoteArguments(value as dynamic, most as integer) as boolean
+    if value = invalid then return true
+    if not IsObject(value) or value.count() > most then return false
+    for each key in value.keys()
+        if Len(key) > 48 or not IsNoteText(value[key], 400) then return false
+    end for
+    return true
+end function
+
+function ParseNoteAction(value as dynamic) as boolean
+    if not IsObject(value) or not IsNoteText(value.label, 120) or value.label = "" or not ParseNoteArguments(value.arguments, 8) then return false
+    if IsString(value.kind) and value.kind = "navigate" then
+        if not IsObject(value.target) or not IsNoteText(value.target.view, 80) or value.target.view = "" then return false
+        if value.target.entityId <> invalid and not IsNoteText(value.target.entityId, 200) then return false
+        if value.target.libraryId <> invalid and not IsNoteText(value.target.libraryId, 200) then return false
+        return value.command = invalid
+    end if
+    if IsString(value.kind) and value.kind = "command" then return IsNoteText(value.command, 80) and value.command <> "" and value.target = invalid
+    return false
+end function
+
+' `parseNotification`: {id, audience, severity, title, body, createdAt (ms), read, archived}, or invalid.
+function ParseNotification(v as dynamic) as dynamic
+    if not IsObject(v) or not IsNoteText(v.id, 200) or v.id = "" then return invalid
+    if not IsString(v.audience) or (v.audience <> "profile" and v.audience <> "account-admin") or not ArrayIncludes(["info", "warning", "critical"], v.severity) then return invalid
+    if not IsNoteText(v.source, 60) or v.source = "" or not IsNoteText(v.category, 80) or v.category = "" then return invalid
+    if not IsNoteText(v.title, 300) or v.title = "" or not IsNoteText(v.body, 2000) or not IsNoteText(v.dedupeKey, 240) then return invalid
+    if not IsNoteWhole(v.revision) or not IsNoteWhole(v.createdAt) or not IsNoteWhole(v.updatedAt) or not IsNoteWhole(v.expiresAt) then return invalid
+    if v.readAt <> invalid and not IsNoteWhole(v.readAt) then return invalid
+    if v.archivedAt <> invalid and not IsNoteWhole(v.archivedAt) then return invalid
+    if not IsBoolean(v.read) or not IsBoolean(v.archived) or not IsNoteText(v.cursor, 64) then return invalid
+    if not IsArray(v.actions) or v.actions.count() > 3 or not ParseNoteArguments(v.arguments, 12) then return invalid
+    for each action in v.actions
+        if not ParseNoteAction(action) then return invalid
+    end for
+    return { id: v.id, audience: v.audience, severity: v.severity, title: v.title, body: v.body, createdAt: v.createdAt, read: v.read, archived: v.archived }
+end function
+
+function ParseNoteCounts(v as dynamic) as dynamic
+    if not IsObject(v) or not IsNoteWhole(v.unread) or not IsNoteWhole(v.read) or not IsNoteWhole(v.archived) or not IsNoteWhole(v.total) then return invalid
+    return { unread: v.unread, read: v.read, archived: v.archived, total: v.total }
+end function
+
+' `parseNotificationInbox`: {ok, audiences, counts, items, nextCursor}. A page longer than the
+' server's hundred is not trusted.
+function ParseNotificationInbox(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    v = NotificationData(raw)
+    if not IsObject(v) or not IsNoteWhole(v.revision) or not IsNoteWhole(v.observedAt) or not IsNoteWhole(v.retentionDays) then return bad
+    if not IsNoteText(v.audience, 40) or not IsNoteText(v.state, 20) or not IsNoteText(v.nextCursor, 64) then return bad
+    if not IsArray(v.audiences) or v.audiences.count() > 4 or not IsArray(FieldOf(v, "items")) or FieldOf(v, "items").count() > 100 then return bad
+    counts = ParseNoteCounts(v.counts)
+    if counts = invalid then return bad
+    items = []
+    for each entry in FieldOf(v, "items")
+        note = ParseNotification(entry)
+        if note = invalid then return bad
+        items.push(note)
+    end for
+    ' inbox.ts `load`: the audiences this build knows; with none, the profile's own.
+    audiences = []
+    for each audience in v.audiences
+        if IsString(audience) and (audience = "profile" or audience = "account-admin") then audiences.push(audience)
+    end for
+    if audiences.count() = 0 then audiences = ["profile"]
+    return { ok: true, audiences: audiences, counts: counts, items: items, nextCursor: v.nextCursor }
+end function
+
+' `parseNotificationSummary`: the unread count of one audience, or invalid.
+function ParseNotificationUnread(raw as dynamic) as dynamic
+    v = NotificationData(raw)
+    if not IsObject(v) or not IsNoteWhole(v.revision) or not IsNoteWhole(v.observedAt) or not IsNoteText(v.audience, 40) then return invalid
+    counts = ParseNoteCounts(v.counts)
+    if counts = invalid then return invalid
+    return counts.unread
+end function
+
+' `parseNotificationBatchResult`: {ok, counts}.
+function ParseNotificationBatch(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    v = NotificationData(raw)
+    if not IsObject(v) or not IsNoteWhole(v.revision) or not IsNoteWhole(v.applied) or not IsNoteText(v.audience, 40) or not IsArray(v.receipts) or v.receipts.count() > 256 then return bad
+    for each receipt in v.receipts
+        if not IsObject(receipt) or not IsNoteText(receipt.action, 40) or not ArrayIncludes(["applied", "unchanged", "not-found"], receipt.outcome) then return bad
+        if receipt.id <> invalid and not IsNoteText(receipt.id, 200) then return bad
+    end for
+    counts = ParseNoteCounts(v.counts)
+    if counts = invalid then return bad
+    return { ok: true, counts: counts }
+end function
+
+' inbox.ts `send`: POST /v1/notifications/inbox/actions. `ids` is invalid for "read-all".
+function NotificationActionsBody(operationId as string, audience as string, action as string, ids as dynamic) as object
+    operation = { "action": action }
+    if ids <> invalid then operation["ids"] = ids
+    return { "operationId": operationId, "expectedRevision": 0, "audience": audience, "operations": [operation] }
+end function
+
+' inbox.ts `visible`: what a view shows.
+function NotificationVisible(items as object, view as string) as object
+    out = []
+    for each note in items
+        shown = not note.archived
+        if view = "archived" then shown = note.archived
+        if view = "unread" then shown = not note.archived and not note.read
+        if shown then out.push(note)
+    end for
+    return out
+end function
+
+' inbox.ts `apply` and `readAll`: the list as it reads at once ("read", "unread", "archive",
+' "unarchive" for one message; "read-all" for every one).
+function NotificationApplied(items as object, action as string, id as string, view as string) as object
+    changed = []
+    for each note in items
+        copy = {}
+        copy.append(note)
+        if action = "read-all" then
+            copy.read = true
+        else if note.id = id then
+            if action = "read" then copy.read = true
+            if action = "unread" then copy.read = false
+            if action = "archive" then copy.archived = true
+            if action = "unarchive" then copy.archived = false
+        end if
+        changed.push(copy)
+    end for
+    return NotificationVisible(changed, view)
+end function
+
+' Notifications.tsx: what can be done with a message: [{id, label, icon}].
+function NotificationMenu(note as object, view as string) as object
+    items = []
+    if view <> "archived" then
+        if note.read then
+            items.push({ id: "unread", label: T("notifications.markUnread"), icon: "markUnread" })
+        else
+            items.push({ id: "read", label: T("notifications.markRead"), icon: "check" })
+        end if
+    end if
+    if note.archived then
+        items.push({ id: "unarchive", label: T("notifications.unarchive"), icon: "archive" })
+    else
+        items.push({ id: "archive", label: T("notifications.archive"), icon: "archive" })
+    end if
+    return items
+end function
+
+function NotificationIcon(severity as string) as string
+    if severity = "warning" then return "warning"
+    if severity = "critical" then return "error"
+    return "bell"
+end function
+
+' What an empty view says: {icon, title}.
+function NotificationEmpty(view as string) as object
+    if view = "unread" then return { icon: "bell", title: T("notifications.caughtUp") }
+    if view = "archived" then return { icon: "archive", title: T("notifications.noneArchived") }
+    return { icon: "bell", title: T("notifications.none") }
+end function
+
+function NotificationAudienceLabel(audience as string) as string
+    if audience = "profile" then return T("notifications.audience.profile")
+    return T("notifications.audience.admin")
+end function

@@ -1,0 +1,25 @@
+{
+ "field": "genre",
+ "values": [
+  {
+   "value": "Action & Adventure",
+   "label": "Action & Adventure",
+   "count": 8
+  },
+  {
+   "value": "Animation",
+   "label": "Animation",
+   "count": 8
+  },
+  {
+   "value": "Sci-Fi & Fantasy",
+   "label": "Sci-Fi & Fantasy",
+   "count": 7
+  },
+  {
+   "value": "Comedy",
+   "label": "Comedy",
+   "count": 1
+  }
+ ]
+}

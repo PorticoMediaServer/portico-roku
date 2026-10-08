@@ -1,0 +1,262 @@
+{
+ "facts": {
+  "releaseDate": "2008-01-20"
+ },
+ "files": [
+  {
+   "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+   "path": "/Users/justin/PorticoDev/media/TV/Breaking Bad (2008)/Season 01/Breaking Bad S01E01.mp4",
+   "size": 6727611,
+   "container": "mp4",
+   "duration": 45,
+   "bitRate": 1196019,
+   "available": true,
+   "video": {
+    "codec": "h264",
+    "width": 640,
+    "height": 360,
+    "dynamicRange": "sdr",
+    "frameRate": 24,
+    "bitDepth": 8,
+    "bitRate": 1127414
+   },
+   "audio": [
+    {
+     "language": "und",
+     "codec": "aac",
+     "channels": 1,
+     "channelLayout": "mono",
+     "bitRate": 64275,
+     "default": true
+    }
+   ],
+   "subtitles": []
+  }
+ ],
+ "related": {
+  "version": 1,
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "libraryName": "TV Shows",
+  "rows": []
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+  "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e"
+ },
+ "revision": {
+  "catalog": 27798,
+  "viewer": 199
+ },
+ "item": {
+  "watched": true,
+  "addedAt": "2026-10-02T04:03:14.615Z",
+  "episode": {
+   "showId": "22ySzw_01oM0BPistFLM7g",
+   "showTitle": "Breaking Bad",
+   "seasonId": "TlMhk7AigLkmnJATWhgx7w",
+   "seasonNumber": 1,
+   "numbering": "seasonal",
+   "number": 1,
+   "localIdentityStatus": "parsed",
+   "providerMatchStatus": "matched",
+   "orderingBasis": "official",
+   "sourceBoundary": "whole_source"
+  },
+  "id": "kZwpGXXuxb-8R-SJbduSkg",
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "title": "Pilot",
+  "kind": "episode",
+  "year": 2008,
+  "duration": 45,
+  "overview": "When an unassuming high school chemistry teacher discovers he has a rare form of lung cancer, he decides to team up with a former student and create a top of the line crystal meth in a used RV, to provide for his family once he is gone.",
+  "stillUrl": "/v1/metadata/item/kZwpGXXuxb-8R-SJbduSkg/art/still?v=7641f30f59e0e404709b78f7585fc2513861c5fcb3a5613c14bdac0fd2fb8c20&w=800",
+  "progressSeconds": 0,
+  "available": true,
+  "sources": [
+   {
+    "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "width": 640,
+    "height": 360,
+    "duration": 45
+   }
+  ]
+ },
+ "personal": {
+  "watched": true,
+  "progressSeconds": 0,
+  "lastPlayedAt": "",
+  "status": "current",
+  "conflicts": [],
+  "watchlisted": false,
+  "favorite": false,
+  "rating": null,
+  "revision": 1
+ },
+ "actions": [
+  {
+   "id": "watchlist",
+   "labelKey": "action.watchlist",
+   "enabled": true
+  },
+  {
+   "id": "favorite",
+   "labelKey": "action.favorite",
+   "enabled": true
+  },
+  {
+   "id": "rating",
+   "labelKey": "action.rating",
+   "enabled": true,
+   "min": 0.5,
+   "max": 5,
+   "step": 0.5
+  },
+  {
+   "id": "watched",
+   "labelKey": "action.watched",
+   "enabled": true
+  },
+  {
+   "id": "play",
+   "labelKey": "action.play",
+   "enabled": true,
+   "playback": {
+    "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+    "startSeconds": 0
+   }
+  },
+  {
+   "id": "metadata_edit",
+   "labelKey": "action.metadata_edit",
+   "enabled": true
+  },
+  {
+   "id": "delete",
+   "labelKey": "action.unlink_item",
+   "enabled": true
+  },
+  {
+   "id": "add_to_playlist",
+   "labelKey": "action.add_to_playlist",
+   "enabled": true
+  },
+  {
+   "id": "add_to_collection",
+   "labelKey": "action.add_to_collection",
+   "enabled": true
+  }
+ ],
+ "metadata": {
+  "sources": [
+   {
+    "provider": "nfo",
+    "sourceUrl": "",
+    "observedAt": "2026-10-02T04:10:26Z"
+   },
+   {
+    "provider": "tmdb",
+    "sourceUrl": "",
+    "observedAt": "2026-10-02T21:23:05Z"
+   }
+  ],
+  "status": "available",
+  "ratings": [
+   {
+    "provider": "tmdb",
+    "value": 8.501,
+    "max": 10,
+    "votes": 562,
+    "sourceUrl": "",
+    "observedAt": "2026-10-02T21:23:05Z"
+   }
+  ],
+  "genres": [],
+  "credits": [
+   {
+    "id": "17419:0",
+    "personId": "3f86c296d025ce0dc7e08b415bd7e8f4",
+    "name": "Bryan Cranston",
+    "role": "Walter White",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "84497:1",
+    "personId": "688b87a1af9619581a2395df04332465",
+    "name": "Aaron Paul",
+    "role": "Jesse Pinkman",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "134531:2",
+    "personId": "bdb1c3d566fdbec1348816c8323585ec",
+    "name": "Anna Gunn",
+    "role": "Skyler White",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "209674:3",
+    "personId": "8d46e605c5b835f368330f692e2ddceb",
+    "name": "RJ Mitte",
+    "role": "Walter White Jr.",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "14329:4",
+    "personId": "c97cfa8be24c95e1e1562c8e1b03606e",
+    "name": "Dean Norris",
+    "role": "Hank Schrader",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "1217934:5",
+    "personId": "b02ba78ea4ed37f412c773565fc2e79c",
+    "name": "Betsy Brandt",
+    "role": "Marie Schrader",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "66633:6",
+    "personId": "4a3904db50e1c9d633f055bc90073187",
+    "name": "Vince Gilligan",
+    "role": "Director",
+    "department": "Directing",
+    "provider": "tmdb"
+   },
+   {
+    "id": "2483:9",
+    "personId": "e005dfae24eee138f4972c4f77a0965d",
+    "name": "John Toll",
+    "role": "Director of Photography",
+    "department": "Camera",
+    "provider": "tmdb"
+   },
+   {
+    "id": "1808170:11",
+    "personId": "19b9f7ab6f4ae1ee29a81fccc9fe25e5",
+    "name": "Gina Scheerer",
+    "role": "Associate Producer",
+    "department": "Production",
+    "provider": "tmdb"
+   }
+  ],
+  "creditTotals": {
+   "cast": 6,
+   "crew": 31
+  },
+  "attributions": [
+   "This product uses the TMDB API but is not endorsed or certified by TMDB."
+  ]
+ },
+ "markers": []
+}

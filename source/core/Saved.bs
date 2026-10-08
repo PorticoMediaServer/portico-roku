@@ -1,0 +1,377 @@
+' packages/client-core/src/saved.ts: the viewer's own lists, read with bounds before use.
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Time.bs"
+
+' saved.ts `prose`: at most `limit` characters, no control characters (line breaks when multiline).
+function IsSavedProse(value as dynamic, limit as integer, multiline = false as boolean) as boolean
+    if not IsString(value) or Len(value) > limit then return false
+    if multiline then return IsSynopsis(value)
+    return IsContentString(value, limit)
+end function
+
+' GET /v1/content?view=playlists: the viewer's playlists as cards, {ok, cards: [{id, title,
+' subtitle, total}], empty}. saved.ts `projection` for the playlists view.
+function ParsePlaylistCards(raw as dynamic, serverId as string) as object
+    bad = { ok: false, code: "invalid_saved" }
+    if not IsObject(raw) or not IsObject(raw.scope) or not IsArray(raw.sections) or raw.sections.count() > 24 then return bad
+    if not IsString(raw.scope.serverId) or raw.scope.serverId <> serverId or not IsString(raw.scope.view) or raw.scope.view <> "playlists" then return bad
+    cards = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each section in raw.sections
+        if not IsObject(section) or not IsArray(section.entries) or section.entries.count() > 100 then return bad
+        for each v in section.entries
+            if not IsObject(v) or not IsContentId(v.id) or not IsString(v.kind) or v.kind <> "playlist" or not IsSavedProse(v.title, 200) or not IsObject(v.navigation) or not IsString(v.navigation.view) or v.navigation.view <> "playlist" or not IsString(v.navigation.entityId) or v.navigation.entityId <> v.id or v.playback <> invalid then return bad
+            if v.doesExist("subtitle") and not IsSavedProse(v.subtitle, 4000, true) then return bad
+            total = FieldOf(v, "count")
+            if total <> invalid and not IsNatural(total) then return bad
+            if seen.doesExist(v.id) then return bad
+            seen[v.id] = true
+            card = { id: v.id, title: v.title, subtitle: "", total: -1 }
+            if v.subtitle <> invalid then card.subtitle = v.subtitle
+            if total <> invalid then card.total = total
+            cards.push(card)
+        end for
+    end for
+    return { ok: true, cards: cards }
+end function
+
+' ---- My List, Favorites, Playlists, one playlist (saved.ts) -------------------------------------
+
+function SavedPageSize() as integer
+    return 40
+end function
+
+' GET /v1/content?view=watchlist|favorites|playlists (saved.ts `savedListPath` and `read`).
+function SavedListPath(view as string, sort = "" as string, direction = "" as string, cursor = "" as string) as string
+    query = ["view=" + view, "limit=" + SavedPageSize().toStr()]
+    if sort <> "" then query.push("sort=" + sort.encodeUriComponent())
+    if direction <> "" then query.push("direction=" + direction)
+    if cursor <> "" then query.push("cursor=" + cursor.encodeUriComponent())
+    return "/v1/content?" + query.join("&")
+end function
+
+function PlaylistContentPath(playlistId as string, cursor = "" as string) as string
+    path = "/v1/playlists/" + playlistId.encodeUriComponent() + "/content?limit=" + SavedPageSize().toStr()
+    if cursor <> "" then path = path + "&cursor=" + cursor.encodeUriComponent()
+    return path
+end function
+
+function PlaylistPath(playlistId as string) as string
+    return "/v1/playlists/" + playlistId.encodeUriComponent()
+end function
+
+' saved.ts `media`: a saved list's media entry (it names its library).
+function ParseSavedMedia(v as dynamic) as dynamic
+    entry = ParseContentEntry(v)
+    if entry = invalid or entry.libraryId = invalid then return invalid
+    if entry.playback <> invalid and entry.available = false then return invalid
+    return entry
+end function
+
+' saved.ts `projection`: {ok, projection: {view, sections: [{id, type, title, entries,
+' totalCount, nextCursor}], sorts: [{id, labelKey, directions}], sort, direction, emptyTitle,
+' viewerFence, revision, playlistRevision}}. `selected` is {view, playlistId, sort, direction}.
+' Entries are media (My List, Favorites), playlist cards (Playlists), or occurrences {id, hidden,
+' media} (one playlist).
+function ParseSavedProjection(v as dynamic, serverId as string, selected as object) as object
+    bad = { ok: false, code: "invalid_saved" }
+    if not IsObject(v) or not IsObject(v.scope) or not IsObject(v.revision) or not IsObject(v.query) then return bad
+    s = v.scope
+    r = v.revision
+    q = v.query
+    view = selected.view
+    listView = view = "watchlist" or view = "favorites"
+    entityId = ""
+    if view = "playlist" then entityId = selected.playlistId
+    if not IsString(s.serverId) or s.serverId <> serverId or not IsString(s.libraryId) or s.libraryId <> "" or not IsString(s.libraryKind) or s.libraryKind <> "mixed" or not IsString(s.view) or s.view <> view or not IsString(s.entityId) or s.entityId <> entityId or not IsContentId(s.viewerFence) or not IsNatural(r.catalog) or not IsNatural(r.viewer) then return bad
+    if not IsContentId(q.sort) or not IsString(q.direction) or (q.direction <> "asc" and q.direction <> "desc") or not IsString(q.q) or q.q <> "" or not IsNumber(q.limit) or q.limit <> SavedPageSize() or not IsString(q.searchMode) or q.searchMode <> "none" or not IsString(q.category) then return bad
+    if listView then
+        if q.category <> "all" then return bad
+    else if q.category <> "" then
+        return bad
+    end if
+    if view = "playlist" then
+        if q.sort <> "position" or q.direction <> "asc" or not IsNatural(v.playlistRevision) then return bad
+    else
+        if selected.sort <> invalid and selected.sort <> "" and q.sort <> selected.sort then return bad
+        if selected.direction <> invalid and selected.direction <> "" and q.direction <> selected.direction then return bad
+    end if
+    if not IsArray(v.sections) or v.sections.count() > 4 then return bad
+    sections = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each row in v.sections
+        if not IsObject(row) or not IsContentId(row.id) or not IsString(row.type) or not ArrayIncludes(["rail", "grid", "list"], row.type) or not IsNatural(row.totalCount) or not IsContentString(row.nextCursor, 4096) or seen.doesExist(row.id) then return bad
+        seen[row.id] = true
+        limit = 100
+        if row.type = "rail" then limit = 12
+        if not IsArray(row.entries) or row.entries.count() > limit then return bad
+        entries = []
+        ids = {}
+        ids.setModeCaseSensitive()
+        for each value in row.entries
+            entry = invalid
+            if view = "playlist" then
+                entry = ParsePlaylistOccurrence(value)
+            else if view = "playlists" then
+                entry = ParsePlaylistCard(value)
+            else
+                entry = ParseSavedMedia(value)
+            end if
+            if entry = invalid or ids.doesExist(entry.id) then return bad
+            ids[entry.id] = true
+            entries.push(entry)
+        end for
+        if row.totalCount < entries.count() then return bad
+        if not IsObject(row.heading) or not IsContentId(row.heading.key) or not IsContentString(row.heading.fallback) then return bad
+        sections.push({ id: row.id, type: row.type, title: row.heading.fallback, entries: entries, totalCount: row.totalCount, nextCursor: row.nextCursor })
+    end for
+    if not IsArray(v.navigation) or v.navigation.count() > 3 then return bad
+    for each n in v.navigation
+        if not IsObject(n) or not IsContentId(n.id) or not IsContentId(n.labelKey) or not IsString(n.view) or not ArrayIncludes(["watchlist", "favorites", "playlists"], n.view) then return bad
+    end for
+    if not IsArray(v.sorts) or v.sorts.count() > 16 then return bad
+    sorts = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each row in v.sorts
+        if not IsObject(row) or not IsContentId(row.id) or not IsContentId(row.labelKey) or not IsArray(row.directions) or row.directions.count() > 2 or seen.doesExist(row.id) then return bad
+        seen[row.id] = true
+        for each d in row.directions
+            if not IsString(d) or (d <> "asc" and d <> "desc") then return bad
+        end for
+        if row.directions.count() = 2 and row.directions[0] = row.directions[1] then return bad
+        sorts.push({ id: row.id, labelKey: row.labelKey, directions: row.directions })
+    end for
+    filterLimit = 0
+    if listView then filterLimit = 4
+    if not IsArray(v.filters) or v.filters.count() > filterLimit then return bad
+    if v.doesExist("actions") then
+        if not IsArray(v.actions) or v.actions.count() > 8 then return bad
+        for each a in v.actions
+            if view <> "playlists" or not IsString(a) or a <> "create_playlist" then return bad
+        end for
+    else if view = "playlists" then
+        return bad
+    end if
+    if not IsObject(v.heading) or not IsContentId(v.heading.key) or not IsContentString(v.heading.fallback) then return bad
+    projection = { view: view, sections: sections, sorts: sorts, sort: q.sort, direction: q.direction, emptyTitle: "", viewerFence: s.viewerFence, revision: { catalog: r.catalog, viewer: r.viewer } }
+    if v.doesExist("empty") then
+        if not IsObject(v.empty) or not IsContentId(v.empty.key) or not IsContentString(v.empty.fallback) then return bad
+        projection.emptyTitle = v.empty.fallback
+    end if
+    if view = "playlist" then projection.playlistRevision = v.playlistRevision
+    return { ok: true, projection: projection }
+end function
+
+function ParsePlaylistCard(v as dynamic) as dynamic
+    if not IsObject(v) or not IsContentId(v.id) or not IsString(v.kind) or v.kind <> "playlist" or not IsSavedProse(v.title, 200) or not IsObject(v.navigation) or not IsString(v.navigation.view) or v.navigation.view <> "playlist" or not IsString(v.navigation.entityId) or v.navigation.entityId <> v.id or v.playback <> invalid then return invalid
+    if v.doesExist("subtitle") and not IsSavedProse(v.subtitle, 4000, true) then return invalid
+    total = FieldOf(v, "count")
+    if total <> invalid and not IsNatural(total) then return invalid
+    card = { id: v.id, kind: "playlist", title: v.title, subtitle: "", total: -1 }
+    if v.subtitle <> invalid then card.subtitle = v.subtitle
+    if total <> invalid then card.total = total
+    return card
+end function
+
+' One entry of a playlist: {id, hidden, media}. A hidden one (a title this profile cannot see)
+' keeps its place and carries nothing else.
+function ParsePlaylistOccurrence(v as dynamic) as dynamic
+    if not IsObject(v) or not IsContentId(v.id) or not IsString(v.kind) or v.kind <> "playlist_entry" or not IsBoolean(v.hidden) then return invalid
+    for each key in v.keys()
+        if not ArrayIncludes(["id", "kind", "hidden", "media"], key) then return invalid
+    end for
+    if v.hidden then
+        if v.doesExist("media") then return invalid
+        return { id: v.id, hidden: true }
+    end if
+    media = ParseSavedMedia(v.media)
+    if media = invalid then return invalid
+    return { id: v.id, hidden: false, media: media }
+end function
+
+' saved.ts `resource`: the playlist itself: {ok, playlist: {id, name, summary, revision, role,
+' entryCount, actions, viewerFence}}.
+function ParsePlaylistResource(v as dynamic, serverId as string, playlistId as string) as object
+    bad = { ok: false, code: "invalid_saved" }
+    if not IsObject(v) or not IsString(v.serverId) or v.serverId <> serverId or not IsContentId(v.viewerFence) or not IsString(v.id) or v.id <> playlistId or not IsSavedProse(v.name, 200) or not IsSavedProse(v.summary, 4000, true) or not IsNatural(v.revision) or not IsString(v.role) or not ArrayIncludes(["owner", "editor", "viewer"], v.role) or not IsNatural(v.entryCount) or not IsObject(v.limits) then return bad
+    limits = v.limits
+    if limits.doesExist("maxEntries") and not IsNatural(limits.maxEntries) then return bad
+    if not IsNatural(limits.maxShares) or limits.maxShares > 100 or not IsNatural(limits.maxReorderEntries) or limits.maxReorderEntries > 1000 then return bad
+    if not IsArray(v.actions) or v.actions.count() > 16 then return bad
+    seen = {}
+    for each a in v.actions
+        if not IsString(a) or not ArrayIncludes(["rename", "summary", "delete", "share", "add", "remove", "reorder", "pin"], a) or seen.doesExist(a) then return bad
+        seen[a] = true
+        if v.role = "viewer" and a <> "pin" then return bad
+        if v.role = "editor" and not ArrayIncludes(["add", "remove", "reorder", "pin"], a) then return bad
+    end for
+    if v.doesExist("shares") and v.role <> "owner" then return bad
+    if limits.maxEntries <> invalid and v.entryCount > limits.maxEntries then return bad
+    if (v.doesExist("pinned") and not IsBoolean(v.pinned)) or (v.doesExist("pinRevision") and not IsNatural(v.pinRevision)) then return bad
+    return { ok: true, playlist: { id: playlistId, name: v.name, summary: v.summary, revision: v.revision, role: v.role, entryCount: v.entryCount, actions: v.actions, viewerFence: v.viewerFence } }
+end function
+
+' POST /v1/playlists (create, optionally with titles) and POST /v1/playlists/{id}/entries (add).
+function PlaylistCreateBody(operationId as string, name as string, itemIds as object) as object
+    body = { "operationId": operationId, "name": name }
+    if itemIds.count() > 0 then body["itemIds"] = itemIds
+    return body
+end function
+
+function PlaylistAddBody(operationId as string, revision as dynamic, itemId as string) as object
+    return { "operationId": operationId, "expectedRevision": revision, "itemId": itemId }
+end function
+
+' The receipt of a playlist command: from this server and viewer, for this operation.
+function PlaylistReceiptOk(raw as dynamic, serverId as string, operationId as string) as boolean
+    return IsObject(raw) and IsString(raw.serverId) and raw.serverId = serverId and IsString(raw.operationId) and raw.operationId = operationId and IsContentId(raw.playlistId) and IsNatural(raw.revision) and IsBoolean(raw.deleted)
+end function
+
+' ---- History, collections and saved views (personal-saved.ts) ----------------------------------
+
+function HistoryPath(cursor = "" as string) as string
+    path = "/v1/personal-history?limit=" + SavedPageSize().toStr()
+    if cursor <> "" then path = path + "&cursor=" + cursor.encodeUriComponent()
+    return path
+end function
+
+' `kind` is "collection" or "view".
+function SavedResourcesPath(kind as string, cursor = "" as string) as string
+    path = "/v1/saved-resources?limit=" + SavedPageSize().toStr()
+    if cursor <> "" then path = path + "&cursor=" + cursor.encodeUriComponent()
+    return path + "&kind=" + kind
+end function
+
+function SavedResourceContentPath(resourceId as string, cursor = "" as string) as string
+    path = "/v1/saved-resources/" + resourceId.encodeUriComponent() + "/content?limit=" + SavedPageSize().toStr()
+    if cursor <> "" then path = path + "&cursor=" + cursor.encodeUriComponent()
+    return path
+end function
+
+' The viewer's play history: {ok, entries: [{id, media, updatedAt, positionSeconds, completed}],
+' nextCursor, revision, viewerFence}.
+function ParseHistory(raw as dynamic, serverId as string) as object
+    bad = { ok: false, code: "invalid_saved" }
+    if not IsObject(raw) or not IsContentString(raw.nextCursor, 4096) or not IsString(raw.serverId) or raw.serverId <> serverId or not IsContentId(raw.viewerFence) or not IsNatural(raw.revision) then return bad
+    if not IsArray(raw.entries) or raw.entries.count() > 100 then return bad
+    entries = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each e in raw.entries
+        if not IsObject(e) or not IsContentId(e.id) or not IsContentString(e.updatedAt, 128) or not IsNumber(e.positionSeconds) or e.positionSeconds < 0 or not IsBoolean(e.completed) or seen.doesExist(e.id) then return bad
+        seen[e.id] = true
+        media = ParseContentEntry(e.media)
+        if media = invalid then return bad
+        entries.push({ id: e.id, media: media, updatedAt: e.updatedAt, positionSeconds: e.positionSeconds, completed: e.completed })
+    end for
+    return { ok: true, entries: entries, nextCursor: raw.nextCursor, revision: raw.revision, viewerFence: raw.viewerFence }
+end function
+
+' POST /v1/personal-history/actions: forgets the viewer's history.
+function HistoryClearBody(revision as dynamic) as object
+    return { "expectedRevision": revision, "action": "clear-history" }
+end function
+
+' personal-saved.ts `resource`: a collection or a saved view, or invalid.
+function ParseSavedResource(v as dynamic, serverId as string) as dynamic
+    if not IsObject(v) or not IsString(v.serverId) or v.serverId <> serverId or not IsContentId(v.viewerFence) or not IsContentId(v.id) or not IsString(v.kind) or (v.kind <> "collection" and v.kind <> "view") or not IsSavedProse(v.name, 400, true) or v.name.trim() = "" or not IsSavedProse(v.summary, 8000, true) or not IsString(v.visibility) or (v.visibility <> "private" and v.visibility <> "server") or not IsNatural(v.revision) or not IsNatural(v.entryCount) or not IsString(v.role) or not ArrayIncludes(["owner", "editor", "viewer"], v.role) or not IsString(v.status) or (v.status <> "ready" and v.status <> "needs-review") or not IsBoolean(v.pinned) or not IsNatural(v.pinRevision) then return invalid
+    if not IsArray(v.actions) or v.actions.count() > 8 then return invalid
+    for each a in v.actions
+        if not IsString(a) or not ArrayIncludes(["pin", "update", "delete", "entries", "share"], a) then return invalid
+        if v.role = "viewer" and a <> "pin" then return invalid
+        if v.role = "editor" and a <> "pin" and a <> "entries" then return invalid
+    end for
+    if not IsArray(v.invalidComponents) or v.invalidComponents.count() > 32 then return invalid
+    resource = { id: v.id, kind: v.kind, name: v.name, summary: v.summary, visibility: v.visibility, revision: v.revision, entryCount: v.entryCount, role: v.role, status: v.status, viewerFence: v.viewerFence, actions: v.actions }
+    if v.kind = "view" and v.status = "ready" and IsObject(v.definition) and IsString(v.definition.pivot) then resource.pivot = v.definition.pivot
+    return resource
+end function
+
+' GET /v1/saved-resources?kind=…: {ok, resources, nextCursor, viewerFence}.
+function ParseSavedResources(raw as dynamic, serverId as string, kind as string) as object
+    bad = { ok: false, code: "invalid_saved" }
+    if not IsObject(raw) or not IsContentString(raw.nextCursor, 4096) or not IsString(raw.serverId) or raw.serverId <> serverId or not IsContentId(raw.viewerFence) or not IsNatural(raw.revision) then return bad
+    if not IsArray(raw.resources) or raw.resources.count() > 100 then return bad
+    out = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each v in raw.resources
+        resource = ParseSavedResource(v, serverId)
+        if resource = invalid or resource.viewerFence <> raw.viewerFence or resource.kind <> kind or seen.doesExist(resource.id) then return bad
+        seen[resource.id] = true
+        out.push(resource)
+    end for
+    return { ok: true, resources: out, nextCursor: raw.nextCursor, viewerFence: raw.viewerFence }
+end function
+
+' GET /v1/saved-resources/{id}/content: a collection's entries ({id, hidden, media}), or a saved
+' view's page from the browse engine. {ok, resource, entries, nextCursor}.
+function ParseSavedResourceContent(raw as dynamic, serverId as string, resourceId as string, browse as dynamic) as object
+    bad = { ok: false, code: "invalid_saved" }
+    if not IsObject(raw) or not IsContentString(raw.nextCursor, 4096) then return bad
+    resource = ParseSavedResource(raw.resource, serverId)
+    if resource = invalid or resource.id <> resourceId then return bad
+    entries = []
+    cursor = raw.nextCursor
+    if resource.kind = "view" and resource.status = "ready" then
+        ' The saved query runs on the server's browse engine; its page is parsed, never re-derived.
+        if browse = invalid or not browse.ok or resource.pivot = invalid or browse.result.pivot <> resource.pivot then return bad
+        for each media in browse.result.entries
+            entries.push({ id: media.id, hidden: false, media: media })
+        end for
+        cursor = browse.cursor
+    else
+        if not IsArray(raw.entries) or raw.entries.count() > 100 then return bad
+        seen = {}
+        seen.setModeCaseSensitive()
+        for each e in raw.entries
+            if not IsObject(e) or not IsContentId(e.id) or not IsBoolean(e.hidden) or seen.doesExist(e.id) then return bad
+            seen[e.id] = true
+            if e.hidden then
+                if e.count() <> 2 then return bad
+                entries.push({ id: e.id, hidden: true })
+            else
+                media = ParseContentEntry(e.media)
+                if media = invalid then return bad
+                entries.push({ id: e.id, hidden: false, media: media })
+            end if
+        end for
+    end if
+    return { ok: true, resource: resource, entries: entries, nextCursor: cursor }
+end function
+
+' screens/Saved.tsx `dayLabel`: Today, Yesterday, the weekday within a week, else the date.
+' `day` and `today` are local calendar days as seconds at their midnight.
+function HistoryDayLabel(updatedAt as string, atSeconds as dynamic) as string
+    seconds = IsoToSeconds(updatedAt)
+    if seconds = invalid then return T("saved.earlier")
+    days = HistoryDayNumber(atSeconds) - HistoryDayNumber(seconds)
+    if days <= 0 then return T("saved.today")
+    if days = 1 then return T("relative.yesterday")
+    if days < 7 then return FormatDate(seconds, "weekday")
+    return FormatDate(seconds, "medium")
+end function
+
+' The local calendar day a moment falls on, as a count of days.
+function HistoryDayNumber(seconds as dynamic) as integer
+    date = CreateObject("roDateTime")
+    whole& = seconds
+    date.fromSeconds(whole&)
+    if not FormatRegion().utc then date.toLocalTime()
+    local& = date.asSeconds()
+    return Int(local& / 86400)
+end function
+
+' screens/Saved.tsx `sortLabel`: a saved list's sort as its chip names it.
+function SavedSortLabel(labelKey as string) as string
+    id = labelKey
+    if Left(id, Len("sort.")) = "sort." then id = Mid(id, Len("sort.") + 1)
+    if ArrayIncludes(["title", "added", "year", "duration", "last_played", "rating", "episode", "track", "artist", "album", "author", "release", "random"], id) then return T("lib.sortField", { field: id })
+    words = CreateObject("roRegex", "_", "").replaceAll(id, " ")
+    return UCase(Left(words, 1)) + Mid(words, 2)
+end function

@@ -1,0 +1,54 @@
+' A media row inside a grid that holds focus itself (ui/Grid.bs in "rows" mode): the row is
+' components/ui/ListRow, drawn from the content node's fields (core/Readers.bs `TrackRowFields`:
+' title, caption, meta, artUri, shape, progress, watched, selected), and its focus plate and scale
+' follow the grid's `focusPercent`. A slot that has not loaded is a skeleton line.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.row = m.top.createChild("UiListRow")
+    m.row.focusable = false
+    m.row.media = true
+    m.blank = invalid
+end sub
+
+sub onCellContent()
+    item = m.top.itemContent
+    width = m.top.width
+    if item = invalid or width <= 0 then return
+    placeholder = item.hasField("placeholder") and item.placeholder = true
+    m.row.visible = not placeholder
+    if m.blank <> invalid then m.blank.visible = placeholder
+    if placeholder then
+        if m.blank = invalid then m.blank = m.top.createChild("UiSkeleton")
+        m.blank.blockHeight = m.top.height - Theme.space.sm
+        m.blank.blockWidth = width
+        m.blank.visible = true
+        return
+    end if
+    shape = "square"
+    if item.hasField("shape") and item.shape <> "" then shape = item.shape
+    m.row.shape = shape
+    m.row.title = item.title
+    m.row.subtitle = CellField(item, "caption")
+    m.row.meta = CellField(item, "meta")
+    m.row.artUri = CellField(item, "artUri")
+    if item.hasField("progress") then m.row.progress = item.progress
+    m.row.watched = item.hasField("watched") and item.watched = true
+    m.row.selected = item.hasField("selected") and item.selected = true
+    m.row.rowWidth = width
+    onCellFocus()
+end sub
+
+function CellField(item as object, name as string) as string
+    if item.hasField(name) and item[name] <> invalid then return item[name]
+    return ""
+end function
+
+sub onCellFocus()
+    progress = m.top.focusPercent
+    if not m.top.gridHasFocus then progress = 0
+    m.row.focusProgress = progress
+end sub

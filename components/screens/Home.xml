@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/Home.tsx: what the viewer was last in the middle of as a hero, then the server's rows. -->
+<component name="ScreenHome" extends="Group">
+    <interface>
+        <field id="route" type="assocarray" />
+        <function name="enter" />
+        <function name="resume" />
+        <function name="leave" />
+        <function name="focusEntry" />
+    </interface>
+</component>

@@ -1,0 +1,70 @@
+{
+ "queue": {
+  "id": "q_6fy1PEkSiwBimQiCnwKy",
+  "revision": "2",
+  "total": 4,
+  "current": {
+   "entryId": "sbjwtbvsvzm3q4owa-1",
+   "position": 1
+  },
+  "repeat": "off",
+  "segments": [
+   {
+    "id": "gazuq565i4r3hof2v",
+    "kind": "selector",
+    "label": "1989 (Taylor's Version) [Deluxe]",
+    "count": 4,
+    "state": "ready"
+   }
+  ],
+  "segmentCount": 1,
+  "next": {
+   "entryId": "sbjwtbvsvzm3q4owa-2",
+   "available": true,
+   "reason": "ready"
+  },
+  "postPlay": {
+   "autoplay": false,
+   "countdownSeconds": 10,
+   "passoutCheckDue": false,
+   "automaticAdvances": 0
+  }
+ },
+ "session": {
+  "id": "ps_VuBqdeZMIiNLjieY-coJ",
+  "revision": "1",
+  "kind": "audio",
+  "role": "local",
+  "state": "paused",
+  "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+  "versionId": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+  "queue": {
+   "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+   "entryId": "sbjwtbvsvzm3q4owa-1"
+  },
+  "lease": {
+   "expiresAt": "2026-10-05T20:08:33.048Z",
+   "reportEveryMs": 30000
+  },
+  "presentation": {
+   "generation": 1,
+   "mode": "direct",
+   "url": "/v1/media/9Ls7h6l2ZJeeWILr2cqtWJKYmrI0MZTToBXsGsYS91M",
+   "startPositionMs": 0,
+   "subtitles": [],
+   "decision": {
+    "audio": {
+     "action": "direct",
+     "reasons": []
+    }
+   },
+   "container": "m4a",
+   "audioRender": {
+    "version": 2,
+    "mode": "unavailable",
+    "id": "xkfHRHXyIAHbfMVJBJAu5Afb0DC1nEV0RKDs5aUO-3k.4",
+    "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+   }
+  }
+ }
+}

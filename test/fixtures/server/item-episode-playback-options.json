@@ -1,0 +1,75 @@
+{
+ "itemId": "kZwpGXXuxb-8R-SJbduSkg",
+ "kind": "episode",
+ "versions": [
+  {
+   "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+   "label": "SD · MP4",
+   "container": "mp4",
+   "sizeBytes": 6727611,
+   "durationMs": 45000,
+   "bitrateKbps": 1196,
+   "parts": [
+    {
+     "id": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+     "index": 0,
+     "durationMs": 45000,
+     "sizeBytes": 6727611
+    }
+   ],
+   "video": [
+    {
+     "id": "v0",
+     "codec": "h264",
+     "profile": "constrained baseline",
+     "level": 30,
+     "bitDepth": 8,
+     "width": 640,
+     "height": 360,
+     "fps": 24,
+     "bitrateKbps": 1127
+    }
+   ],
+   "audio": [
+    {
+     "id": "a1",
+     "codec": "aac",
+     "channels": 1,
+     "layout": "mono",
+     "atmos": false,
+     "language": "und",
+     "default": true,
+     "commentary": false,
+     "visualImpaired": false
+    }
+   ],
+   "subtitles": []
+  }
+ ],
+ "chapters": [],
+ "markers": [],
+ "preferred": {
+  "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+  "audioId": "a1",
+  "reason": "default"
+ },
+ "plan": {
+  "versionId": "qmMhju_FnS0-okBSPHEENgTchiUxZY0z6E2sqfEQvU4",
+  "mode": "direct",
+  "streams": [
+   {
+    "id": "v0",
+    "action": "direct",
+    "reasons": []
+   },
+   {
+    "id": "a1",
+    "action": "direct",
+    "reasons": []
+   }
+  ],
+  "quality": {
+   "mode": "original"
+  }
+ }
+}

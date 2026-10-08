@@ -1,0 +1,128 @@
+' packages/client-core/src/remote-playback.ts `ReceiverHost.start`: registers (again, harmlessly),
+' keeps the registration alive, and reads the inbox while the player is not in the foreground.
+' Failures back off and keep trying: a television that lost its server for a minute should be
+' available again without a visit. The screen decides grants and takes handoffs (Shell).
+import "pkg:/source/core/Content.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Receiver.bs"
+
+sub init()
+    m.top.functionName = "work"
+end sub
+
+sub work()
+    port = CreateObject("roMessagePort")
+    m.top.observeField("stop", port)
+    m.top.observeField("expecting", port)
+    device = m.top.device
+    timings = ReceiverTimings()
+    clock = CreateObject("roTimespan")
+    receiverId = ""
+    failures = 0
+    lastBeat = 0
+    expectingUntil = -1
+    handled = {}
+    handled.setModeCaseSensitive()
+    askingId = ""
+    ' The held read of the inbox, until a server says it has none.
+    held = true
+    while true
+        ctx = SessionContextNew()
+        failed = false
+        waited = false
+        if receiverId = "" then
+            answer = ViewerRequest(ctx, "/v1/receivers", "POST", ReceiverRegisterBody(device))
+            receiver = invalid
+            if answer.ok then receiver = ParseReceiver(answer.data)
+            if receiver <> invalid then
+                receiverId = receiver.id
+                m.top.receiverId = receiverId
+                lastBeat = clock.totalMilliseconds()
+            else
+                failed = true
+            end if
+        end if
+        if receiverId <> "" and not failed then
+            if clock.totalMilliseconds() - lastBeat >= timings.heartbeatMs then
+                answer = ViewerRequest(ctx, ReceiverPath(receiverId, "/heartbeat"), "POST", ReceiverHeartbeatBody(device))
+                if answer.ok then
+                    lastBeat = clock.totalMilliseconds()
+                else
+                    failed = true
+                    if ReceiverForgotten(answer.status) then receiverId = ""
+                end if
+            end if
+            if not failed and not m.top.playerActive then
+                answer = invalid
+                quiet = false
+                if held then
+                    api = ViewerApi(ctx)
+                    if api <> invalid then
+                        api.timeoutMs = timings.waitTimeoutMs
+                        answer = ApiRequest(api, ReceiverInboxWaitPath(receiverId, timings.waitSeconds))
+                        waited = answer.ok
+                        ' A held read that ran out of time had no news; that is not a failure.
+                        quiet = not answer.ok and answer.error <> invalid and answer.error.code = "timeout"
+                        if not answer.ok and ReceiverWaitUnsupported(answer.status) then answer = invalid
+                    end if
+                end if
+                if answer = invalid then
+                    ' No held read (an older server), or the receiver is gone: the plain read says which.
+                    answer = ViewerRequest(ctx, ReceiverPath(receiverId, "/inbox"))
+                    if held and answer.ok then held = false
+                end if
+                inbox = invalid
+                if answer.ok then inbox = ParseReceiverInbox(answer.data)
+                if quiet then
+                    waited = true
+                else if inbox <> invalid and inbox.ok then
+                    nextAsking = ""
+                    if inbox.asking <> invalid then nextAsking = inbox.asking.id
+                    if nextAsking <> askingId then
+                        askingId = nextAsking
+                        if inbox.asking <> invalid then
+                            m.top.asking = inbox.asking
+                        else
+                            m.top.asking = {}
+                        end if
+                    end if
+                    for each handoff in inbox.handoffs
+                        if not handled.doesExist(handoff.id) then
+                            handled[handoff.id] = true
+                            m.top.handoff = handoff
+                            exit for
+                        end if
+                    end for
+                else
+                    failed = true
+                    if not answer.ok and ReceiverForgotten(answer.status) then receiverId = ""
+                end if
+            end if
+        end if
+        ' A request may have renewed the session: the scene's image requests follow the new token.
+        record = SessionRecord(ctx)
+        session = m.global.session
+        if record <> invalid and session <> invalid and session.token <> record["session"].accessToken then session.token = record["session"].accessToken
+        if failed then
+            failures = failures + 1
+            if receiverId = "" then m.top.receiverId = ""
+        else
+            failures = 0
+        end if
+        wait = ReceiverPollDelayMs(timings.pollMs, Rnd(0))
+        if failures > 0 then
+            wait = ReceiverBackoffMs(failures)
+        else if waited then
+            ' The held read was the wait: it is asked again at once.
+            wait = timings.afterWaitMs
+        else if expectingUntil > clock.totalMilliseconds() then
+            wait = timings.expectingMs
+        end if
+        message = Wait(wait, port)
+        if message <> invalid then
+            if message.getField() = "stop" then return
+            ' A phone was just allowed: what it sends is looked for at once, and often for a while.
+            expectingUntil = clock.totalMilliseconds() + timings.expectingForMs
+        end if
+    end while
+end sub

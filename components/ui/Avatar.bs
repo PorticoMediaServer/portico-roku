@@ -1,0 +1,37 @@
+' apps/native/src/ui/Avatar.tsx (CON-12): a circle in the profile's art colour (raised when it has
+' none) with the first letter of the name in caption-strong, and the picture over it when there is one.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.plate = m.top.createChild("Poster")
+    m.letter = MakeText(m.top, "captionStrong")
+    m.letter.align = "center"
+    m.masked = m.top.createChild("MaskGroup")
+    m.image = m.masked.createChild("Poster")
+    m.image.loadDisplayMode = "scaleToZoom"
+end sub
+
+sub onAvatarLayout()
+    size = m.top.size
+    if size <= 0 then return
+    color = Theme.colors.raisedHigh
+    art = m.top.art
+    if art <> "" then
+        token = "profile" + UCase(Left(art, 1)) + Mid(art, 2)
+        candidate = ThemeColor(token)
+        if candidate <> Theme.colors.transparent then color = candidate
+    end if
+    StyleShape(m.plate, size, size, size / 2, color)
+    m.letter.maxWidth = size
+    m.letter.value = UCase(Left(m.top.name, 1))
+    Place(m.letter, 0, (size - m.letter.height) / 2)
+    m.image.width = size
+    m.image.height = size
+    m.image.uri = m.top.uri
+    m.masked.maskUri = MaskUri(size, size, size / 2)
+    m.masked.maskSize = [size, size]
+    m.masked.visible = m.top.uri <> ""
+end sub

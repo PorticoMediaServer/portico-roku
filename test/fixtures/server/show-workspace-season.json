@@ -1,0 +1,505 @@
+{
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df"
+ },
+ "revision": {
+  "catalog": 27798,
+  "viewer": 199
+ },
+ "show": {
+  "watchedCount": 3,
+  "unwatchedCount": 1,
+  "posterUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/poster?v=940e1164c6ff6c32b1c6639659b90151176c0a0e08a0b5b4e9c0bed4c26c0251&w=400",
+  "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+  "originalTitle": "Breaking Bad",
+  "tagline": "Change the equation.",
+  "studio": "Sony Pictures Television",
+  "network": "AMC",
+  "originalLanguage": "en",
+  "genres": [
+   "Drama",
+   "Crime"
+  ],
+  "overview": "Walter White, a New Mexico chemistry teacher, is diagnosed with Stage III cancer and given a prognosis of only two years left to live. He becomes filled with a sense of fearlessness and an unrelenting desire to secure his family's financial future at any cost as he enters the dangerous world of drugs and crime.",
+  "status": "Ended",
+  "firstAired": "2008-01-20",
+  "rating": {
+   "value": 8.953,
+   "scale": 10,
+   "votes": 18743
+  },
+  "providerObservedAt": "2026-10-02T04:06:42Z",
+  "id": "22ySzw_01oM0BPistFLM7g",
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "title": "Breaking Bad",
+  "year": 2008,
+  "libraryKind": "tv",
+  "providerMatchStatus": "matched"
+ },
+ "showCredits": [
+  {
+   "id": "7960a6e7558cddf43c3ac337975f539f",
+   "name": "Bryan Cranston",
+   "role": "Walter White",
+   "department": "Acting",
+   "ordinal": 0
+  },
+  {
+   "id": "c1bc67947e7dd4864492cbc6372a3bae",
+   "name": "Aaron Paul",
+   "role": "Jesse Pinkman",
+   "department": "Acting",
+   "ordinal": 1
+  },
+  {
+   "id": "2bc6c8d0a8704ea6887ad902c0f11c67",
+   "name": "Anna Gunn",
+   "role": "Skyler White",
+   "department": "Acting",
+   "ordinal": 2
+  },
+  {
+   "id": "97fad366ed8d0252325f2913726d514a",
+   "name": "RJ Mitte",
+   "role": "Walter White Jr.",
+   "department": "Acting",
+   "ordinal": 3
+  },
+  {
+   "id": "a7328010f6029e65bd38e486631abcb7",
+   "name": "Dean Norris",
+   "role": "Hank Schrader",
+   "department": "Acting",
+   "ordinal": 4
+  },
+  {
+   "id": "e457ac4584e293d20627bc5c9107ad28",
+   "name": "Betsy Brandt",
+   "role": "Marie Schrader",
+   "department": "Acting",
+   "ordinal": 5
+  },
+  {
+   "id": "13e4d6fe3873358be32750de04e2578b",
+   "name": "Bob Odenkirk",
+   "role": "Saul Goodman",
+   "department": "Acting",
+   "ordinal": 6
+  },
+  {
+   "id": "874f87898bcbc647e6bb7c4b00faee66",
+   "name": "Jonathan Banks",
+   "role": "Mike Ehrmantraut",
+   "department": "Acting",
+   "ordinal": 7
+  },
+  {
+   "id": "9806b3d2cf9c4cd8e5387b98712b4587",
+   "name": "Peter Gould",
+   "role": "Co-Executive Producer",
+   "department": "Production",
+   "ordinal": 0
+  },
+  {
+   "id": "49e64daf93a55bdd2cc108033c23ffa1",
+   "name": "Thomas Schnauz",
+   "role": "Co-Executive Producer",
+   "department": "Production",
+   "ordinal": 1
+  },
+  {
+   "id": "4b847387fd07347604c738acec5c285f",
+   "name": "George Mastras",
+   "role": "Co-Executive Producer",
+   "department": "Production",
+   "ordinal": 3
+  },
+  {
+   "id": "1a4ac830afb3990a0f5cac73d64149cd",
+   "name": "Diane Mercer",
+   "role": "Producer",
+   "department": "Production",
+   "ordinal": 4
+  },
+  {
+   "id": "3f86c296d025ce0dc7e08b415bd7e8f4",
+   "name": "Bryan Cranston",
+   "role": "Producer",
+   "department": "Production",
+   "ordinal": 5
+  },
+  {
+   "id": "25e1b86e0d2c201f3e38f1f7233450e5",
+   "name": "Christian Diaz de Bedoya",
+   "role": "Location Manager",
+   "department": "Production",
+   "ordinal": 6
+  },
+  {
+   "id": "d64b4f7d3c7ee36aa6231da4db0274a0",
+   "name": "Andrew Ortner",
+   "role": "Associate Producer",
+   "department": "Production",
+   "ordinal": 7
+  },
+  {
+   "id": "134b61d0596d8029bfe700237374056c",
+   "name": "Sam Catlin",
+   "role": "Co-Executive Producer",
+   "department": "Production",
+   "ordinal": 8
+  },
+  {
+   "id": "7055d3b84e1f939399021e5b59bc2a29",
+   "name": "Michelle MacLaren",
+   "role": "Executive Producer",
+   "department": "Production",
+   "ordinal": 9
+  },
+  {
+   "id": "607262bc7e4f1bf34d509c4f6d18f215",
+   "name": "Melissa Bernstein",
+   "role": "Co-Executive Producer",
+   "department": "Production",
+   "ordinal": 10
+  },
+  {
+   "id": "1cba4dad5c2caf9132db3e8f71ab83f8",
+   "name": "Russell Scott",
+   "role": "Casting Associate",
+   "department": "Production",
+   "ordinal": 14
+  },
+  {
+   "id": "8b5cc1ceae5e8ef78b5bb8f46c79d89e",
+   "name": "Stewart Lyons",
+   "role": "Producer",
+   "department": "Production",
+   "ordinal": 15
+  },
+  {
+   "id": "a9a5e6164922fc881dc59ae8150d6905",
+   "name": "Sharon Bialy",
+   "role": "Casting",
+   "department": "Production",
+   "ordinal": 17
+  },
+  {
+   "id": "8be81fdf6780d3a4a73f6dcdaaa5bcc6",
+   "name": "Sherry Thomas",
+   "role": "Casting",
+   "department": "Production",
+   "ordinal": 18
+  },
+  {
+   "id": "61a1915439b68e534cdbad6f808e9c4a",
+   "name": "Mark Johnson",
+   "role": "Executive Producer",
+   "department": "Production",
+   "ordinal": 23
+  },
+  {
+   "id": "4a3904db50e1c9d633f055bc90073187",
+   "name": "Vince Gilligan",
+   "role": "Executive Producer",
+   "department": "Production",
+   "ordinal": 26
+  },
+  {
+   "id": "b046672d7a5f87b9e48efdf532726bc0",
+   "name": "Jennifer Bryan",
+   "role": "Costume Design",
+   "department": "Costume & Make-Up",
+   "ordinal": 2
+  },
+  {
+   "id": "55b3161adb959b126710e5365c370ecf",
+   "name": "Mark S. Freeborn",
+   "role": "Production Design",
+   "department": "Art",
+   "ordinal": 11
+  },
+  {
+   "id": "6ea7c3d7347558471e0d2875d4880998",
+   "name": "Richard J. Berry",
+   "role": "Thanks",
+   "department": "Crew",
+   "ordinal": 12
+  },
+  {
+   "id": "0fe1ce28afccb90c4e6cb9ac4b08767c",
+   "name": "Mark Hansen",
+   "role": "Property Master",
+   "department": "Art",
+   "ordinal": 13
+  },
+  {
+   "id": "6849947b80883416fbab2a72f791c70b",
+   "name": "Bjarne Sletteland",
+   "role": "Art Direction",
+   "department": "Art",
+   "ordinal": 16
+  },
+  {
+   "id": "4806fe12f32d715dba178dd1c34b79f3",
+   "name": "Thomas Golubić",
+   "role": "Music Supervisor",
+   "department": "Sound",
+   "ordinal": 19
+  },
+  {
+   "id": "b3e60f529f5a8cfaaf59b4d001e7e1b6",
+   "name": "Nick Forshager",
+   "role": "Supervising Sound Editor",
+   "department": "Sound",
+   "ordinal": 20
+  },
+  {
+   "id": "59aacae84ec222bb14e64614030de39f",
+   "name": "Al Goto",
+   "role": "Stunt Coordinator",
+   "department": "Crew",
+   "ordinal": 21
+  },
+  {
+   "id": "6e26c1e6456fa489c4666201d660868e",
+   "name": "Dave Porter",
+   "role": "Original Music Composer",
+   "department": "Sound",
+   "ordinal": 22
+  },
+  {
+   "id": "e4610360d7c2dc3dd26b37a9d0c5e98c",
+   "name": "Eric Justen",
+   "role": "Sound Re-Recording Mixer",
+   "department": "Sound",
+   "ordinal": 24
+  },
+  {
+   "id": "8394f6cc0b2e0d79311cefc498a6a1f1",
+   "name": "Jeffrey Perkins",
+   "role": "Sound Re-Recording Mixer",
+   "department": "Sound",
+   "ordinal": 25
+  }
+ ],
+ "nextUp": {
+  "watched": false,
+  "episodeNumber": 3,
+  "seasonNumber": 1,
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "overview": "Walter fights with Jesse over his drug use, causing him to leave Walter alone with their captive, Krazy-8. Meanwhile, Hank has a scared straight moment with Walter Jr..",
+  "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+  "stillUrl": "/v1/metadata/item/QHzkN_TrCC6IRWs-i_Sd2A/art/still?v=8d18ea200e7816f0fb3e60875c51fdb9544946d15117b6b58eb082d8b17e9d42&w=800",
+  "id": "QHzkN_TrCC6IRWs-i_Sd2A",
+  "kind": "episode",
+  "title": "...And the Bag's in the River",
+  "subtitle": "Breaking Bad",
+  "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+  "available": true,
+  "duration": 45,
+  "progressSeconds": 36.603,
+  "addedAt": "2026-10-02T04:03:14.611Z",
+  "navigation": {
+   "view": "item",
+   "entityId": "QHzkN_TrCC6IRWs-i_Sd2A"
+  },
+  "playback": {
+   "itemId": "QHzkN_TrCC6IRWs-i_Sd2A"
+  }
+ },
+ "seasons": [
+  {
+   "unwatchedCount": 1,
+   "id": "TlMhk7AigLkmnJATWhgx7w",
+   "showId": "22ySzw_01oM0BPistFLM7g",
+   "number": 1,
+   "title": "Season 1",
+   "episodeCount": 4,
+   "watchedCount": 3,
+   "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400"
+  }
+ ],
+ "seasonTotalCount": 1,
+ "nextSeasonCursor": "",
+ "groups": [],
+ "selected": {
+  "seasonId": "TlMhk7AigLkmnJATWhgx7w"
+ },
+ "episodes": {
+  "heading": {
+   "key": "entity.title",
+   "fallback": "Breaking Bad · Season 1"
+  },
+  "scope": {
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "libraryKind": "tv",
+   "view": "season",
+   "entityId": "TlMhk7AigLkmnJATWhgx7w",
+   "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df"
+  },
+  "revision": {
+   "catalog": 27798,
+   "viewer": 199
+  },
+  "navigation": [
+   {
+    "id": "discover",
+    "labelKey": "library.discover",
+    "view": "discover"
+   },
+   {
+    "id": "browse",
+    "labelKey": "library.shows",
+    "view": "browse"
+   }
+  ],
+  "query": {
+   "sort": "episode",
+   "direction": "asc",
+   "category": "",
+   "q": "",
+   "limit": 40,
+   "searchMode": "none"
+  },
+  "sorts": [
+   {
+    "id": "episode",
+    "labelKey": "sort.episode",
+    "directions": [
+     "asc"
+    ]
+   }
+  ],
+  "filters": [],
+  "sections": [
+   {
+    "id": "episodes",
+    "type": "list",
+    "heading": {
+     "key": "section.episodes",
+     "fallback": "Season 1"
+    },
+    "entries": [
+     {
+      "watched": true,
+      "episodeNumber": 1,
+      "seasonNumber": 1,
+      "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+      "overview": "When an unassuming high school chemistry teacher discovers he has a rare form of lung cancer, he decides to team up with a former student and create a top of the line crystal meth in a used RV, to provide for his family once he is gone.",
+      "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+      "stillUrl": "/v1/metadata/item/kZwpGXXuxb-8R-SJbduSkg/art/still?v=7641f30f59e0e404709b78f7585fc2513861c5fcb3a5613c14bdac0fd2fb8c20&w=800",
+      "airDate": "2008-01-20",
+      "id": "kZwpGXXuxb-8R-SJbduSkg",
+      "kind": "episode",
+      "title": "Pilot",
+      "subtitle": "Episode 1",
+      "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:03:14.615Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "kZwpGXXuxb-8R-SJbduSkg"
+      },
+      "playback": {
+       "itemId": "kZwpGXXuxb-8R-SJbduSkg"
+      }
+     },
+     {
+      "watched": true,
+      "episodeNumber": 2,
+      "seasonNumber": 1,
+      "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+      "overview": "Walt and Jesse attempt to tie up loose ends. The desperate situation gets more complicated with the flip of a coin. Walt's wife, Skyler, becomes suspicious of Walt's strange behavior.",
+      "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+      "stillUrl": "/v1/metadata/item/ZQw7Q6dqGFoAuNin__AqnA/art/still?v=b24e0eeaeaabcffcc8735a6d5f8f79e191eda4588ba2d57052beda519c49f3a6&w=800",
+      "airDate": "2008-01-27",
+      "id": "ZQw7Q6dqGFoAuNin__AqnA",
+      "kind": "episode",
+      "title": "Cat's in the Bag...",
+      "subtitle": "Episode 2",
+      "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:03:14.613Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "ZQw7Q6dqGFoAuNin__AqnA"
+      },
+      "playback": {
+       "itemId": "ZQw7Q6dqGFoAuNin__AqnA"
+      }
+     },
+     {
+      "watched": false,
+      "episodeNumber": 3,
+      "seasonNumber": 1,
+      "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+      "overview": "Walter fights with Jesse over his drug use, causing him to leave Walter alone with their captive, Krazy-8. Meanwhile, Hank has a scared straight moment with Walter Jr..",
+      "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+      "stillUrl": "/v1/metadata/item/QHzkN_TrCC6IRWs-i_Sd2A/art/still?v=8d18ea200e7816f0fb3e60875c51fdb9544946d15117b6b58eb082d8b17e9d42&w=800",
+      "airDate": "2008-02-10",
+      "id": "QHzkN_TrCC6IRWs-i_Sd2A",
+      "kind": "episode",
+      "title": "...And the Bag's in the River",
+      "subtitle": "Episode 3",
+      "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 36.603,
+      "addedAt": "2026-10-02T04:03:14.611Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "QHzkN_TrCC6IRWs-i_Sd2A"
+      },
+      "playback": {
+       "itemId": "QHzkN_TrCC6IRWs-i_Sd2A"
+      }
+     },
+     {
+      "watched": true,
+      "episodeNumber": 4,
+      "seasonNumber": 1,
+      "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+      "overview": "Walter finally tells his family that he has cancer. Meanwhile, the DEA believes Albuquerque has a new, big time player to worry about. Jesse makes a surprise visit to his parents home.",
+      "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+      "stillUrl": "/v1/metadata/item/T6qLEl1swVAxHOEXcGJnAQ/art/still?v=a5a45628d9643ae81b65b64a98ae90a3eaa515f20ebaf8bc243d1862ef72be09&w=800",
+      "airDate": "2008-02-17",
+      "id": "T6qLEl1swVAxHOEXcGJnAQ",
+      "kind": "episode",
+      "title": "Cancer Man",
+      "subtitle": "Episode 4",
+      "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:03:14.607Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "T6qLEl1swVAxHOEXcGJnAQ"
+      },
+      "playback": {
+       "itemId": "T6qLEl1swVAxHOEXcGJnAQ"
+      }
+     }
+    ],
+    "totalCount": 4,
+    "nextCursor": "",
+    "start": 0
+   }
+  ]
+ },
+ "settings": {
+  "hideSeasons": false,
+  "absoluteNumbering": false,
+  "ranges": false,
+  "newestFirst": false,
+  "revision": 2
+ }
+}

@@ -1,0 +1,16 @@
+' Profile pictures against the real TypeScript (scripts/golden.mjs `avatars`):
+' identity-restrictions.ts `parseProfileAvatar` as identity-client.ts `avatars` reads the list.
+import "pkg:/source/core/DirectSignIn.bs"
+
+sub Test_Avatars_parse()
+    fixture = TestFixture("golden/avatars.json")
+    if fixture = invalid then return
+    for each item in fixture.cases
+        parsed = ParseProfileAvatars(item.document)
+        AssertEqual(parsed.ok, item.ok, "the pictures, " + item.name)
+        if parsed.ok and item.ok then AssertSame(parsed.avatars, item.expected, "each profile's picture, " + item.name)
+    end for
+    AssertTrue(not ParseProfileAvatars(invalid).ok, "no document")
+    AssertEqual(ProfileAvatarUrl("https://tv.example", "/v1/profiles/p1/avatar", 180), "https://tv.example/v1/profiles/p1/avatar?size=180", "a picture at a size")
+    AssertEqual(ProfileAvatarUrl("https://tv.example", "/v1/profiles/p1/avatar?v=3", 179.6), "https://tv.example/v1/profiles/p1/avatar?v=3&size=180", "a picture that already has a query")
+end sub

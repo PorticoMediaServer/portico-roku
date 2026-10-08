@@ -1,0 +1,2178 @@
+{
+ "now": 1791231244,
+ "sessions": [
+  {
+   "name": "a viewer session",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "with every optional field",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    },
+    "deviceId": "dev_1",
+    "installationId": "inst_1",
+    "refreshToken": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+    "serverIdentity": {
+     "publicKey": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "fingerprint": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": true,
+   "code": null,
+   "session": {
+    "deviceId": "dev_1",
+    "installationId": "inst_1",
+    "refreshToken": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+    "serverIdentity": {
+     "publicKey": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "fingerprint": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    },
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "the expected viewer",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": {
+    "authority": "local",
+    "accountId": "acct_1",
+    "serverId": "srv_1",
+    "profileId": "prof_1"
+   },
+   "stored": false,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "another account than expected",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": {
+    "accountId": "acct_2"
+   },
+   "stored": false,
+   "ok": false,
+   "code": "session_mismatch",
+   "session": null
+  },
+  {
+   "name": "another authority than expected",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "hosted",
+     "role": "viewer"
+    }
+   },
+   "expected": {
+    "authority": "local"
+   },
+   "stored": false,
+   "ok": false,
+   "code": "session_mismatch",
+   "session": null
+  },
+  {
+   "name": "an unknown field",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    },
+    "extra": 1
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "an unknown field, stored",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    },
+    "extra": 1
+   },
+   "expected": null,
+   "stored": true,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "an unknown viewer field",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer",
+     "extra": 1
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "an unknown viewer field, stored",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer",
+     "extra": 1
+    }
+   },
+   "expected": null,
+   "stored": true,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "expired",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2020-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2020-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "expired, stored",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2020-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2020-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": true,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2020-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2020-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "expires after its horizon",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-07-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "expires at its horizon",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-06-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-06-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "a horizon a fraction later",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-06-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00.5Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-06-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00.5Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "a generation of zero",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "0",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a numeric generation",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": 7,
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "the largest generation",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "9223372036854775807",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": true,
+   "code": null,
+   "session": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "9223372036854775807",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   }
+  },
+  {
+   "name": "a generation past the largest",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "9223372036854775808",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a family id with a space",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam 1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "an unknown authority",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "portico",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "no profile",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a short refresh token",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    },
+    "refreshToken": "short"
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a server identity with a short key",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    },
+    "serverIdentity": {
+     "publicKey": "AAAA",
+     "fingerprint": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a server identity with an extra field",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    },
+    "serverIdentity": {
+     "publicKey": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "fingerprint": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "name": "x"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "an empty token",
+   "raw": {
+    "accessToken": "",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a token with a control character",
+   "raw": {
+    "accessToken": "abc\u0007def",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "no family",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "a local date",
+   "raw": {
+    "accessToken": "token-abcdefghijklmnop",
+    "expiresAt": "2099-01-01T00:00:00+02:00",
+    "sessionFamilyId": "fam_1",
+    "tokenGeneration": "7",
+    "authorizationHorizon": "2099-06-01T00:00:00Z",
+    "viewer": {
+     "accountId": "acct_1",
+     "profileId": "prof_1",
+     "serverId": "srv_1",
+     "authority": "local",
+     "role": "viewer"
+    }
+   },
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "not an object",
+   "raw": "token",
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  },
+  {
+   "name": "an array",
+   "raw": [
+    {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   ],
+   "expected": null,
+   "stored": false,
+   "ok": false,
+   "code": "invalid_current_session",
+   "session": null
+  }
+ ],
+ "profiles": [
+  {
+   "name": "one profile",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": true,
+   "ids": [
+    "prof_1"
+   ]
+  },
+  {
+   "name": "ordered by position",
+   "raw": [
+    {
+     "id": "prof_2",
+     "name": "Guest",
+     "primary": false,
+     "position": 5,
+     "art": "coral",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 9,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "prof_3",
+     "name": "Justin",
+     "primary": false,
+     "position": 2,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": true,
+   "ids": [
+    "prof_3",
+    "prof_2",
+    "prof_1"
+   ]
+  },
+  {
+   "name": "ordered by id when positions tie",
+   "raw": [
+    {
+     "id": "prof_b",
+     "name": "Guest",
+     "primary": false,
+     "position": 1,
+     "art": "coral",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "prof_a",
+     "name": "Guest",
+     "primary": false,
+     "position": 1,
+     "art": "coral",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 1,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": true,
+   "ids": [
+    "prof_1",
+    "prof_a",
+    "prof_b"
+   ]
+  },
+  {
+   "name": "with a trust revision and libraries",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false,
+     "trustRevision": 3,
+     "allowedLibraries": [
+      "lib_1",
+      "lib_2"
+     ]
+    }
+   ],
+   "ok": true,
+   "ids": [
+    "prof_1"
+   ]
+  },
+  {
+   "name": "with unrestricted libraries",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false,
+     "allowedLibraries": null
+    }
+   ],
+   "ok": true,
+   "ids": [
+    "prof_1"
+   ]
+  },
+  {
+   "name": "no profiles",
+   "raw": [],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "nine profiles",
+   "raw": [
+    {
+     "id": "p0",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p1",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p2",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p3",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p4",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p5",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p6",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p7",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "p8",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "two primaries",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "prof_2",
+     "name": "Guest",
+     "primary": true,
+     "position": 1,
+     "art": "coral",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "no primary",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": false,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "duplicate ids",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    },
+    {
+     "id": "prof_1",
+     "name": "Guest",
+     "primary": false,
+     "position": 1,
+     "art": "coral",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "an unknown art colour",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "teal",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "a revision of zero",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 0,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "a fractional position",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 1.5,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "duplicate libraries",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "Justin",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false,
+     "allowedLibraries": [
+      "lib_1",
+      "lib_1"
+     ]
+    }
+   ],
+   "ok": false,
+   "ids": null
+  },
+  {
+   "name": "a name too long",
+   "raw": [
+    {
+     "id": "prof_1",
+     "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "primary": true,
+     "position": 0,
+     "art": "blue",
+     "revision": 1,
+     "pinRevision": 1,
+     "pinRequired": false
+    }
+   ],
+   "ok": false,
+   "ids": null
+  }
+ ],
+ "signIns": [
+  {
+   "name": "one unprotected profile signs in as the viewer",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": true,
+   "code": null,
+   "kind": "signed-in",
+   "accountScoped": false,
+   "passwordChangeRequired": false,
+   "role": "owner",
+   "profiles": 1,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "several profiles give an account session",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     },
+     {
+      "id": "prof_2",
+      "name": "Guest",
+      "primary": false,
+      "position": 1,
+      "art": "coral",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "account"
+     }
+    }
+   },
+   "ok": true,
+   "code": null,
+   "kind": "signed-in",
+   "accountScoped": true,
+   "passwordChangeRequired": false,
+   "role": "owner",
+   "profiles": 2,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a PIN gives an account session",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": true
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "account"
+     }
+    }
+   },
+   "ok": true,
+   "code": null,
+   "kind": "signed-in",
+   "accountScoped": true,
+   "passwordChangeRequired": false,
+   "role": "owner",
+   "profiles": 1,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a viewer session with several profiles is refused",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     },
+     {
+      "id": "prof_2",
+      "name": "Guest",
+      "primary": false,
+      "position": 1,
+      "art": "coral",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a viewer session with a PIN is refused",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": true
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a required password change",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "passwordChangeRequired": true,
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "account"
+     }
+    }
+   },
+   "ok": true,
+   "code": null,
+   "kind": "signed-in",
+   "accountScoped": true,
+   "passwordChangeRequired": true,
+   "role": "owner",
+   "profiles": 1,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a required password change with a viewer session is refused",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "passwordChangeRequired": true,
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a Portico Account member",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "member",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": [],
+     "hostedAccountId": "pa_1"
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "custodyPending": true,
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": true,
+   "code": null,
+   "kind": "signed-in",
+   "accountScoped": false,
+   "passwordChangeRequired": false,
+   "role": "member",
+   "profiles": 1,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": true
+  },
+  {
+   "name": "a session for another account",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_9",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "session_mismatch",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a session for another server",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_9",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "session_mismatch",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a session for a profile that is not the primary",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_2",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "session_mismatch",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a hosted session",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "hosted",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "session_mismatch",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a two-step challenge",
+   "raw": {
+    "challenge": {
+     "token": "chal_token",
+     "expiresAt": "2099-01-01T00:00:00Z"
+    }
+   },
+   "ok": true,
+   "code": null,
+   "kind": "challenge",
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": "chal_token",
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a challenge with no token",
+   "raw": {
+    "challenge": {
+     "expiresAt": "2099-01-01T00:00:00Z"
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a device waiting for approval",
+   "raw": {
+    "deviceApprovalPending": true,
+    "deviceId": "dev_1",
+    "installationId": "inst_1"
+   },
+   "ok": true,
+   "code": null,
+   "kind": "device-pending",
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": "dev_1",
+   "custodyPending": false
+  },
+  {
+   "name": "a pending device with a session is refused",
+   "raw": {
+    "deviceApprovalPending": true,
+    "deviceId": "dev_1",
+    "installationId": "inst_1",
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "an unknown role",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "guest",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a primary profile that is not listed",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_9",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "no session",
+   "raw": {
+    "authority": "local",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ]
+   },
+   "ok": false,
+   "code": "invalid_current_session",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "a hosted authority snapshot",
+   "raw": {
+    "authority": "hosted",
+    "serverId": "srv_1",
+    "canManage": true,
+    "account": {
+     "id": "acct_1",
+     "username": "justin",
+     "primaryProfileId": "prof_1",
+     "role": "owner",
+     "revision": 4,
+     "disabled": false,
+     "allowedLibraries": []
+    },
+    "profiles": [
+     {
+      "id": "prof_1",
+      "name": "Justin",
+      "primary": true,
+      "position": 0,
+      "art": "blue",
+      "revision": 1,
+      "pinRevision": 1,
+      "pinRequired": false
+     }
+    ],
+    "session": {
+     "accessToken": "token-abcdefghijklmnop",
+     "expiresAt": "2099-01-01T00:00:00Z",
+     "sessionFamilyId": "fam_1",
+     "tokenGeneration": "7",
+     "authorizationHorizon": "2099-06-01T00:00:00Z",
+     "viewer": {
+      "accountId": "acct_1",
+      "profileId": "prof_1",
+      "serverId": "srv_1",
+      "authority": "local",
+      "role": "viewer"
+     }
+    }
+   },
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  },
+  {
+   "name": "nothing",
+   "raw": null,
+   "ok": false,
+   "code": "invalid_response",
+   "kind": null,
+   "accountScoped": null,
+   "passwordChangeRequired": null,
+   "role": null,
+   "profiles": null,
+   "token": null,
+   "deviceId": null,
+   "custodyPending": false
+  }
+ ]
+}

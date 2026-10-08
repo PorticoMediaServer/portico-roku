@@ -1,0 +1,170 @@
+' apps/native/src/screens/HomeRow.tsx (with client-core's home-row-page.ts `HomeRowPager`):
+' Recommended, Trending now or one of the Picks for you rows as a paged grid from the row's own
+' endpoint. This page is the complete list: it keeps every page the viewer scrolls to, drops an
+' entry a later page repeats, and, when a cursor is refused as stale (the catalogue or the profile
+' changed since the first page), starts again from the first page rather than showing a mixture
+' of two rankings. The next page is asked for when focus comes within Theme.apple.homeRowAhead
+' cards of the end.
+'
+' Difference from the Apple TV app: the page's title stays above the grid while the grid scrolls
+' (a MarkupGrid has no header that scrolls away with it).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Home.bs"
+import "pkg:/source/core/Open.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.header = m.top.createChild("UiPageHeader")
+    m.header.headerWidth = m.width
+    m.holder = m.top.createChild("Group")
+    m.grid = invalid
+    m.state = invalid
+    m.task = invalid
+    m.cursor = ""
+    m.restarted = false
+    m.libraryId = ""
+end sub
+
+sub enter()
+    route = m.top.route
+    title = ""
+    if route.title <> invalid then title = route.title
+    m.header.title = title
+    Place(m.header, 0, Theme.apple.pageTopInset - Theme.space.lg)
+    HomeRowLoad("")
+end sub
+
+sub resume()
+end sub
+
+sub leave()
+    m.task = invalid
+end sub
+
+sub focusEntry()
+    if m.grid <> invalid then
+        m.grid.callFunc("focusGrid")
+    else if m.state <> invalid then
+        m.state.setFocus(true)
+    else
+        m.top.setFocus(true)
+    end if
+end sub
+
+sub HomeRowLoad(cursor as string)
+    route = m.top.route
+    shape = invalid
+    if m.grid <> invalid then shape = m.grid.shape
+    m.task = ApiStart({ path: HomeRowPagePath(route.rowId, cursor, HomeRowPageLimit()), reader: "homeRow", context: { origin: ViewerOrigin(), rowId: route.rowId, shape: shape } }, "onHomeRowPage")
+    m.task.addFields({ cursor: cursor })
+end sub
+
+sub onHomeRowPage(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    first = task.cursor = ""
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        ' A stale cursor starts again from the first page, once.
+        if not first and failure.code = "stale_continuation" and not m.restarted then
+            m.restarted = true
+            HomeRowLoad("")
+            return
+        end if
+        if first then HomeRowFailure(failure)
+        return
+    end if
+    value = result.value
+    top = Theme.apple.pageTopInset - Theme.space.lg + m.header.headerHeight
+    if first then
+        m.holder.removeChildrenIndex(m.holder.getChildCount(), 0)
+        m.state = invalid
+        m.header.title = value.title
+        if value.libraryId <> invalid then m.libraryId = value.libraryId
+        m.grid = m.holder.createChild("UiGrid")
+        m.grid.shape = value.shape
+        m.grid.titleLines = value.titleLines
+        m.grid.gridWidth = m.width
+        m.grid.gridHeight = Theme.screen.height - top
+        Place(m.grid, 0, top)
+        m.grid.items = task.content
+        m.grid.observeField("itemSelected", "onHomeRowSelected")
+        m.grid.observeField("itemMenu", "onHomeRowMenu")
+        m.grid.observeField("visibleRange", "onHomeRowRange")
+        NavClaimFocus()
+    else if m.grid <> invalid then
+        items = m.grid.items
+        seen = {}
+        seen.setModeCaseSensitive()
+        for each card in items.getChildren(-1, 0)
+            seen[card.entryId] = true
+        end for
+        fresh = []
+        for each card in task.content.getChildren(-1, 0)
+            if not seen.doesExist(card.entryId) then
+                seen[card.entryId] = true
+                fresh.push(card)
+            end if
+        end for
+        items.appendChildren(fresh)
+    end if
+    m.cursor = value.nextCursor
+end sub
+
+sub HomeRowFailure(failure as object)
+    m.holder.removeChildrenIndex(m.holder.getChildCount(), 0)
+    m.grid = invalid
+    words = PresentError(failure, "home")
+    m.state = m.holder.createChild("UiStateView")
+    m.state.icon = "warning"
+    m.state.title = words.title
+    m.state.message = words.body
+    m.state.action = T("action.tryAgain")
+    m.state.stateHeight = Theme.screen.height
+    m.state.stateWidth = m.width
+    m.state.observeField("actionPressed", "onHomeRowRetry")
+    NavClaimFocus()
+end sub
+
+sub onHomeRowRetry()
+    m.restarted = false
+    HomeRowLoad("")
+end sub
+
+sub onHomeRowRange()
+    if m.grid = invalid or m.task <> invalid or m.cursor = "" then return
+    loaded = m.grid.items.getChildCount()
+    if m.grid.focusedIndex >= loaded - Theme.apple.homeRowAhead then HomeRowLoad(m.cursor)
+end sub
+
+function HomeRowEntry(index as integer) as dynamic
+    items = m.grid.items
+    if index < 0 or index >= items.getChildCount() then return invalid
+    return items.getChild(index).entry
+end function
+
+sub onHomeRowSelected(event as object)
+    entry = HomeRowEntry(event.getData())
+    if entry <> invalid then OpenEntry(entry, "open", m.libraryId)
+end sub
+
+' The cards are recommendations: their menu offers Not interested.
+sub onHomeRowMenu(event as object)
+    entry = HomeRowEntry(event.getData())
+    if entry <> invalid then OpenEntry(entry, "more", m.libraryId, "recommendation")
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press or m.state = invalid then return false
+    if key = "up" or key = "down" or key = "right" then return true
+    return false
+end function

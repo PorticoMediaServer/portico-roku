@@ -1,0 +1,324 @@
+' apps/native/src/ui/Sheet.tsx (componentSpec.overlay, television column). An opaque panel in the
+' overlay surface (X-16: nothing from the page shows through) with a strong-line border, over a
+' scrim of the canvas colour: centred at overlay.width.lg, or `side`, a full-height panel on the
+' trailing edge at overlay.sideWidth. Header: the title in the heading role (two lines), a
+' subtitle in the secondary caption. The body sits on the row inset so row text lines up with the
+' title, with room for the rows' focus ring. Footer (form, acknowledge): a hairline, then the
+' actions centred; on television the primary comes first and takes focus, then Cancel, then the
+' leading action; a destructive primary leaves focus on Cancel. Opening fades in from
+' overlay.motion.scaleFrom over enterMs; closing fades over exitMs and gives focus back to the
+' control that opened it. Focus is trapped inside while the sheet is open.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Scroll.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.top.visible = false
+    m.scrim = m.top.createChild("Rectangle")
+    m.panel = m.top.createChild("Group")
+    m.panel.id = "sheetPanel"
+    m.surface = m.panel.createChild("Poster")
+    m.border = m.panel.createChild("Poster")
+    m.titleNode = MakeText(m.panel, Theme.spec.overlay.title)
+    m.titleNode.lines = Theme.apple.sheetTitleLines
+    m.subtitleNode = MakeText(m.panel, Theme.spec.overlay.subtitle.role, "secondary")
+    m.clip = m.panel.createChild("Group")
+    m.bodyHolder = m.clip.createChild("Group")
+    m.footerLine = m.panel.createChild("Rectangle")
+    m.footer = m.panel.createChild("Group")
+    m.primary = m.footer.createChild("UiButton")
+    m.primary.observeField("pressed", "onSheetPrimary")
+    m.cancel = m.footer.createChild("UiButton")
+    m.cancel.variant = "ghost"
+    m.cancel.observeField("pressed", "onSheetCancel")
+    m.leading = m.footer.createChild("UiButton")
+    m.leading.variant = "ghost"
+    m.leading.observeField("pressed", "onSheetLeading")
+    m.driver = m.top.createChild("Group")
+    m.driver.id = "sheetDriver"
+    m.driver.opacity = 0
+    m.motion = MakeFloatAnimation(m.top, "sheetDriver.opacity", Theme.spec.overlay.motion.enterMs)
+    m.driver.observeField("opacity", "onSheetProgress")
+    m.motion.observeField("state", "onSheetMotionState")
+    m.body = invalid
+    m.bodyHeight = 0
+    m.viewport = 0
+    m.restore = invalid
+    m.closing = false
+    m.center = [0, 0]
+    m.top.bodyWidth = SheetPanelWidth() - SheetPadX() * 2
+end sub
+
+function SheetPanelWidth() as float
+    if m.top.sheetWidth > 0 then return m.top.sheetWidth
+    if m.top.placement = "side" then return Theme.spec.overlay.sideWidth
+    return Theme.spec.overlay.width.lg
+end function
+
+function SheetPadX() as float
+    return Max(Theme.spec.overlay.inset - Theme.spec.row.paddingX, Theme.metrics.focusRing + Theme.apple.sheetFocusRoomX)
+end function
+
+function SheetKind() as string
+    if m.top.kind <> "" then return m.top.kind
+    if m.top.primaryLabel <> "" then return "form"
+    return "picker"
+end function
+
+' The body is any node `height` tall, laid out bodyWidth wide by its owner.
+sub setBody(body as object, height as float)
+    m.bodyHolder.removeChildrenIndex(m.bodyHolder.getChildCount(), 0)
+    m.body = body
+    m.bodyHeight = height
+    if body <> invalid then m.bodyHolder.appendChild(body)
+    if m.top.isOpen then SheetLayout()
+end sub
+
+sub relayout(height as float)
+    m.bodyHeight = height
+    SheetLayout()
+end sub
+
+sub onSheetFooter()
+    if m.top.isOpen then SheetLayout()
+end sub
+
+' The body's width is known before the sheet opens, so its owner can lay the body out.
+sub onSheetWidth()
+    m.top.bodyWidth = SheetPanelWidth() - SheetPadX() * 2
+    if m.top.isOpen then SheetLayout()
+end sub
+
+sub SheetLayout()
+    side = m.top.placement = "side"
+    width = SheetPanelWidth()
+    m.top.bodyWidth = width - SheetPadX() * 2
+    inset = Theme.spec.overlay.inset
+    kind = SheetKind()
+    maxHeight = Theme.screen.height * Theme.spec.overlay.maxHeight
+    if side then maxHeight = Theme.screen.height
+
+    y = 0
+    m.titleNode.visible = m.top.title <> ""
+    m.subtitleNode.visible = m.top.title <> "" and m.top.subtitle <> ""
+    if m.top.title <> "" then
+        y = Theme.spec.overlay.headerPaddingTop
+        m.titleNode.maxWidth = width - inset * 2
+        m.titleNode.value = m.top.title
+        Place(m.titleNode, inset, y)
+        y = y + TextHeight(m.titleNode)
+        if m.top.subtitle <> "" then
+            y = y + Theme.spec.overlay.headerGap
+            m.subtitleNode.maxWidth = width - inset * 2
+            m.subtitleNode.value = m.top.subtitle
+            Place(m.subtitleNode, inset, y)
+            y = y + m.subtitleNode.height
+        end if
+        y = y + Theme.space.sm
+    end if
+    headerHeight = y
+
+    ' Footer: primary first, then Cancel, then the leading action (television order).
+    cancelLabel = ""
+    if kind = "form" and m.top.cancelLabel <> "-" then
+        cancelLabel = m.top.cancelLabel
+        if cancelLabel = "" then cancelLabel = T("action.cancel")
+    end if
+    buttons = []
+    hasPrimary = m.top.primaryLabel <> "" and kind <> "picker"
+    m.primary.visible = hasPrimary
+    m.primary.focusable = hasPrimary
+    if hasPrimary then
+        m.primary.variant = "primary"
+        if m.top.primaryTone = "destructive" then m.primary.variant = "destructive"
+        m.primary.label = m.top.primaryLabel
+        m.primary.loading = m.top.primaryLoading
+        m.primary.disabled = m.top.primaryDisabled
+        buttons.push(m.primary)
+    end if
+    m.cancel.visible = cancelLabel <> ""
+    m.cancel.focusable = cancelLabel <> ""
+    if cancelLabel <> "" then
+        m.cancel.label = cancelLabel
+        buttons.push(m.cancel)
+    end if
+    hasLeading = m.top.leadingLabel <> "" and kind <> "picker"
+    m.leading.visible = hasLeading
+    m.leading.focusable = hasLeading
+    if hasLeading then
+        m.leading.label = m.top.leadingLabel
+        m.leading.disabled = m.top.leadingDisabled
+        buttons.push(m.leading)
+    end if
+    footerHeight = 0
+    if buttons.count() > 0 then footerHeight = Theme.space.md * 2 + buttons[0].controlHeight + 1
+
+    padY = Max(Theme.space.sm, Theme.metrics.focusRing + Theme.apple.sheetFocusRoomY)
+    room = maxHeight - headerHeight - footerHeight - padY * 2
+    viewport = Min(m.bodyHeight, room)
+    if side then viewport = room
+    m.viewport = viewport
+    Place(m.clip, 0, headerHeight)
+    ' The clip is wider than the body so the rows' focus ring and scale are never cut at the sides.
+    m.clip.clippingRect = [0, 0, width, viewport + padY * 2]
+    Place(m.bodyHolder, SheetPadX(), padY)
+    height = headerHeight + viewport + padY * 2 + footerHeight
+    if side then height = Theme.screen.height
+
+    m.footerLine.visible = buttons.count() > 0
+    if buttons.count() > 0 then
+        footerTop = height - footerHeight
+        m.footerLine.width = width
+        m.footerLine.height = 1
+        m.footerLine.color = ThemeColor(Theme.spec.overlay.footer.hairline)
+        Place(m.footerLine, 0, footerTop)
+        total = 0
+        for each button in buttons
+            total = total + button.controlWidth
+        end for
+        total = total + Theme.space.md * (buttons.count() - 1)
+        x = (width - total) / 2
+        for each button in buttons
+            Place(button, x, 0)
+            x = x + button.controlWidth + Theme.space.md
+        end for
+        Place(m.footer, 0, footerTop + 1 + Theme.space.md)
+    end if
+
+    radius = Theme.spec.overlay.radius
+    StyleShape(m.surface, width, height, radius, ThemeColor(Theme.spec.overlay.surface))
+    StyleRing(m.border, width, height, radius, Theme.spec.overlay.border.width, ThemeColor(Theme.spec.overlay.border.color, Theme.spec.overlay.border.alpha))
+    m.scrim.width = Theme.screen.width
+    m.scrim.height = Theme.screen.height
+    m.scrim.color = ThemeColor(Theme.spec.overlay.scrim.color, Theme.spec.overlay.scrim.alpha)
+    if side then
+        m.center = [Theme.screen.width - width, 0]
+    else
+        m.center = [(Theme.screen.width - width) / 2, (Theme.screen.height - height) / 2]
+    end if
+    m.panel.scaleRotateCenter = [width / 2, height / 2]
+    onSheetProgress()
+end sub
+
+' Presents the sheet over everything, on the scene's overlay layer.
+sub open()
+    if m.top.isOpen then return
+    scene = m.top.getScene()
+    m.restore = FocusedLeaf(scene)
+    layer = scene.findNode("overlayLayer")
+    if layer <> invalid and (m.top.getParent() = invalid or not m.top.getParent().isSameNode(layer)) then layer.appendChild(m.top)
+    m.top.isOpen = true
+    m.closing = false
+    m.top.visible = true
+    SheetLayout()
+    SheetEntryFocus()
+    RunFloatAnimation(m.motion, m.driver.opacity, 1, Theme.spec.overlay.motion.enterMs)
+end sub
+
+sub SheetEntryFocus()
+    ' A destructive primary leaves focus on Cancel; otherwise the body's first control (a picker
+    ' opens on its rows), then the primary.
+    if m.top.primaryTone = "destructive" and m.cancel.visible then
+        FocusOn(m.cancel)
+        return
+    end if
+    if SheetKind() = "picker" or not m.primary.visible then
+        if FocusFirst(m.bodyHolder) then return
+    end if
+    if m.primary.visible and not m.primary.disabled then
+        FocusOn(m.primary)
+        return
+    end if
+    if FocusFirst(m.panel) then return
+    m.top.setFocus(true)
+end sub
+
+' Moves focus to a control inside the body (a picker's current choice).
+sub focusBody(node as object)
+    if node = invalid then return
+    FocusOn(node)
+    SheetFollowFocus()
+end sub
+
+sub close()
+    if not m.top.isOpen or m.closing then return
+    m.closing = true
+    RunFloatAnimation(m.motion, m.driver.opacity, 0, Theme.spec.overlay.motion.exitMs)
+end sub
+
+sub onSheetMotionState()
+    if m.motion.state <> "stopped" then return
+    if m.closing then
+        m.closing = false
+        m.top.isOpen = false
+        m.top.visible = false
+        if m.restore <> invalid and m.restore.getParent() <> invalid then
+            m.restore.setFocus(true)
+        end if
+        m.restore = invalid
+        m.top.closed = true
+    else if m.top.isOpen then
+        m.top.shown = true
+    end if
+end sub
+
+sub onSheetProgress()
+    progress = m.driver.opacity
+    m.scrim.opacity = progress
+    m.panel.opacity = progress
+    if m.top.placement = "side" then
+        ' A side panel slides in from overlay.motion.translate to the right.
+        Place(m.panel, m.center[0] + (1 - progress) * Theme.spec.overlay.motion.translate, m.center[1])
+        m.panel.scale = [1, 1]
+    else
+        from = Theme.spec.overlay.motion.scaleFrom
+        if ReduceMotion() then from = 1
+        size = from + (1 - from) * progress
+        Place(m.panel, m.center[0], m.center[1])
+        m.panel.scale = [size, size]
+    end if
+end sub
+
+sub SheetFollowFocus()
+    current = FocusCurrent(m.bodyHolder)
+    if current = invalid or m.body = invalid then return
+    offset = OffsetWithin(current, m.body)
+    height = 0
+    if current.hasField("focusHeight") then height = current.focusHeight
+    padY = Max(Theme.space.sm, Theme.metrics.focusRing + Theme.apple.sheetFocusRoomY)
+    scroll = ScrollTarget(-m.body.translation[1], m.viewport, m.bodyHeight, offset.y, height, invalid, 0, padY)
+    Place(m.body, m.body.translation[0], -scroll)
+end sub
+
+sub onSheetPrimary()
+    m.top.primaryPressed = true
+end sub
+
+sub onSheetCancel()
+    close()
+end sub
+
+sub onSheetLeading()
+    m.top.leadingPressed = true
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not m.top.isOpen then return false
+    if not press then return true
+    direction = FocusDirection(key)
+    if direction <> "" then
+        FocusMove(m.panel, direction)
+        SheetFollowFocus()
+        return true
+    end if
+    if key = "back" then
+        if SheetKind() <> "acknowledge" then close()
+        return true
+    end if
+    ' Nothing reaches the page under an open sheet.
+    return true
+end function

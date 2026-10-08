@@ -1,0 +1,55 @@
+' Where the channel keeps what must survive a restart: the Roku registry (handoff §2: credentials
+' in the registry, scoped per server as the Apple keychain records are). One section per server
+' ("portico.server.<serverId>") and one for the device ("portico"). The registry is private to the
+' channel; nothing in it is encrypted (Portico keeps user data plain and portable).
+'
+' A store is {read, write, remove}; tests use StoreInMemory.
+
+function StoreRegistry() as object
+    return {
+        read: function(section as string, key as string) as dynamic
+            registry = CreateObject("roRegistrySection", section)
+            if not registry.exists(key) then return invalid
+            return registry.read(key)
+        end function
+        write: function(section as string, key as string, value as string) as boolean
+            registry = CreateObject("roRegistrySection", section)
+            if not registry.write(key, value) then return false
+            return registry.flush()
+        end function
+        remove: function(section as string, key as string) as boolean
+            registry = CreateObject("roRegistrySection", section)
+            if registry.exists(key) then registry.delete(key)
+            return registry.flush()
+        end function
+    }
+end function
+
+function StoreInMemory() as object
+    values = {}
+    values.setModeCaseSensitive()
+    return {
+        values: values
+        read: function(section as string, key as string) as dynamic
+            return m.values[section + "/" + key]
+        end function
+        write: function(section as string, key as string, value as string) as boolean
+            m.values[section + "/" + key] = value
+            return true
+        end function
+        remove: function(section as string, key as string) as boolean
+            m.values.delete(section + "/" + key)
+            return true
+        end function
+    }
+end function
+
+function StoreReadJson(store as object, section as string, key as string) as dynamic
+    text = store.read(section, key)
+    if text = invalid or text = "" then return invalid
+    return ParseJson(text)
+end function
+
+function StoreWriteJson(store as object, section as string, key as string, value as dynamic) as boolean
+    return store.write(section, key, FormatJson(value))
+end function

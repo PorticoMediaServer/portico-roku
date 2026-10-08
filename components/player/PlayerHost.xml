@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/player (PlayerHost, VideoPlayer, Timeline, PlayerOptions, SkipPrompt, PostPlay, MiniPlayer): the player. -->
+<component name="PlayerHost" extends="Group">
+    <interface>
+        <!-- {itemId, startSeconds, entry, queue, index, container, shuffle} -->
+        <function name="play" />
+        <function name="enqueue" />
+        <function name="toggle" />
+        <function name="focusPill" />
+        <function name="stop" />
+        <!-- {kind: play | pause | seek, seconds}: from the group's follower; never sent back out as a command. -->
+        <function name="groupDo" />
+        <!-- {itemId, playbackId, playing, positionSeconds} -->
+        <function name="nowPlaying" />
+        <!-- True while something is playing (the full player or the now-playing pill). -->
+        <field id="active" type="boolean" value="false" />
+        <!-- True while the full player covers the screen. -->
+        <field id="expanded" type="boolean" value="false" />
+        <field id="hasQueue" type="boolean" value="false" />
+        <!-- Rises each time the player closes: the page under it reads again. -->
+        <field id="closed" type="integer" value="0" />
+    </interface>
+</component>

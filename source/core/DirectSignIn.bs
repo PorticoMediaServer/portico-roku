@@ -1,0 +1,165 @@
+' packages/client-core/src/profile-management.ts: what a direct sign-in answers
+' (`parseDirectSignIn`), the account snapshot and its profiles (`parseDirectSnapshot`,
+' `parseManagedProfiles`), and choosing a profile. There is one device-bound session: with several
+' profiles or a PIN it has role `account` and a profile must be chosen; with one unprotected
+' profile it is the viewer.
+import "pkg:/source/core/LocalSession.bs"
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/Time.bs"
+
+function DirectUnreadable() as object
+    return { ok: false, code: "invalid_response", message: "The server sent an answer Portico couldn't read." }
+end function
+
+function ProfileArtNames() as object
+    return ["blue", "violet", "mint", "coral", "gold", "slate", "rose", "sky"]
+end function
+
+' identity-restrictions.ts `parseProfileAvatar` over GET /v1/direct/profiles/avatars: every
+' profile's current picture, [{profileId, url}] (a profile with none is absent). The URL must be a
+' path on this server: an absolute one could point a profile's picture at another origin.
+function ParseProfileAvatars(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) or not IsArray(FieldOf(raw, "items")) or FieldOf(raw, "items").count() > 64 then return bad
+    out = []
+    for each v in FieldOf(raw, "items")
+        if not IsObject(v) then return bad
+        for each key in v.keys()
+            if not ArrayIncludes(["profileid", "version", "updatedat", "sourcemime", "url"], LCase(key)) then return bad
+        end for
+        if not IsString(v.profileId) or not MatchesPattern(v.profileId, "^[A-Za-z0-9_-]{1,128}$") then return bad
+        if not IsNatural(v.version) or v.version < 1 or v.version > 1000000 then return bad
+        if not IsString(v.updatedAt) or Len(v.updatedAt) > 40 or IsoToSeconds(v.updatedAt) = invalid then return bad
+        if not IsString(v.sourceMime) or not ArrayIncludes(["image/jpeg", "image/png", "image/webp"], v.sourceMime) then return bad
+        if not IsString(v.url) or Left(v.url, 13) <> "/v1/profiles/" or Len(v.url) > 512 then return bad
+        out.push({ profileId: v.profileId, url: v.url })
+    end for
+    return { ok: true, avatars: out }
+end function
+
+' ProfileAvatar.tsx `useProfilePictures`: the picture's address at a size in pixels.
+function ProfileAvatarUrl(origin as string, url as string, pixels as dynamic) as string
+    joiner = "?"
+    if Instr(1, url, "?") > 0 then joiner = "&"
+    return origin + url + joiner + "size=" + Int(pixels + 0.5).toStr()
+end function
+
+' A list of at most 1000 distinct ids, or invalid.
+function ParseIdList(value as dynamic) as dynamic
+    if not IsArray(value) or value.count() > 1000 then return invalid
+    seen = {}
+    seen.setModeCaseSensitive()
+    out = []
+    for each id in value
+        if not IsText(id, 128) or seen.doesExist(id) then return invalid
+        seen[id] = true
+        out.push(id)
+    end for
+    return out
+end function
+
+' Returns {ok, profiles}: one to eight profiles, exactly one primary, ordered by position then id.
+function ParseManagedProfiles(raw as dynamic) as object
+    if not IsArray(raw) or raw.count() < 1 or raw.count() > 8 then return DirectUnreadable()
+    arts = ProfileArtNames()
+    profiles = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    primaries = 0
+    for each v in raw
+        if not IsObject(v) or not IsText(v.id, 128) or not IsText(v.name, 120) or not IsBoolean(v.primary) or not IsNatural(v.position) then return DirectUnreadable()
+        if not IsString(v.art) or not ArrayIncludes(arts, v.art) or not IsRevision(v.revision) or not IsRevision(v.pinRevision) or not IsBoolean(v.pinRequired) then return DirectUnreadable()
+        if v.doesExist("trustRevision") and not IsRevision(v.trustRevision) then return DirectUnreadable()
+        if seen.doesExist(v.id) then return DirectUnreadable()
+        seen[v.id] = true
+        if v.primary then primaries = primaries + 1
+        profile = { id: v.id, name: v.name, primary: v.primary, position: v.position, art: v.art, revision: v.revision, pinRevision: v.pinRevision, pinRequired: v.pinRequired }
+        if v.doesExist("trustRevision") then profile.trustRevision = v.trustRevision
+        if v.doesExist("allowedLibraries") then
+            if v.allowedLibraries <> invalid then
+                libraries = ParseIdList(v.allowedLibraries)
+                if libraries = invalid then return DirectUnreadable()
+                profile.allowedLibraries = libraries
+            end if
+        end if
+        profiles.push(profile)
+    end for
+    if primaries <> 1 then return DirectUnreadable()
+    ' Insertion sort by position, then id (eight profiles at most).
+    for i = 1 to profiles.count() - 1
+        held = profiles[i]
+        j = i - 1
+        while j >= 0 and (profiles[j].position > held.position or (profiles[j].position = held.position and profiles[j].id > held.id))
+            profiles[j + 1] = profiles[j]
+            j = j - 1
+        end while
+        profiles[j + 1] = held
+    end for
+    return { ok: true, profiles: profiles }
+end function
+
+' Returns {ok, snapshot: {serverId, account, profiles, canManage, custodyPending}}.
+function ParseDirectSnapshot(raw as dynamic, expected = invalid as dynamic) as object
+    if not IsObject(raw) or raw.authority <> "local" or not IsText(raw.serverId, 128) or not IsObject(raw.account) or not IsBoolean(raw.canManage) then return DirectUnreadable()
+    if raw.doesExist("custodyPending") and not IsBoolean(raw.custodyPending) then return DirectUnreadable()
+    a = raw.account
+    if not IsText(a.id, 128) or not IsText(a.username, 64) or not IsText(a.primaryProfileId, 128) or not IsString(a.role) then return DirectUnreadable()
+    if a.role <> "owner" and a.role <> "admin" and a.role <> "member" then return DirectUnreadable()
+    if a.doesExist("hostedAccountId") and not IsText(a.hostedAccountId, 128) then return DirectUnreadable()
+    if not IsRevision(a.revision) or not IsBoolean(a.disabled) then return DirectUnreadable()
+    if expected <> invalid then
+        if expected.accountId <> invalid and a.id <> expected.accountId then return DirectUnreadable()
+        if expected.serverId <> invalid and raw.serverId <> expected.serverId then return DirectUnreadable()
+    end if
+    parsed = ParseManagedProfiles(raw.profiles)
+    if not parsed.ok then return parsed
+    hasPrimary = false
+    for each profile in parsed.profiles
+        if profile.primary and profile.id = a.primaryProfileId then hasPrimary = true
+    end for
+    if not hasPrimary then return DirectUnreadable()
+    libraries = ParseIdList(a.allowedLibraries)
+    if libraries = invalid then return DirectUnreadable()
+    account = { id: a.id, username: a.username, primaryProfileId: a.primaryProfileId, role: a.role, revision: a.revision, disabled: a.disabled, allowedLibraries: libraries }
+    if a.doesExist("hostedAccountId") then account.hostedAccountId = a.hostedAccountId
+    return { ok: true, snapshot: { authority: "local", serverId: raw.serverId, account: account, profiles: parsed.profiles, canManage: raw.canManage, custodyPending: raw.custodyPending = true } }
+end function
+
+' Returns {ok, kind, …}:
+'   "signed-in"      snapshot, session, accountScoped, passwordChangeRequired
+'   "challenge"      token, expiresAt (two-step verification; finish with the code)
+'   "device-pending" deviceId, installationId (the owner must approve this device first)
+function ParseDirectSignIn(raw as dynamic, atSeconds = invalid as dynamic) as object
+    if not IsObject(raw) then return DirectUnreadable()
+    if raw.doesExist("challenge") then
+        c = raw.challenge
+        if not IsObject(c) or not IsText(c.token, 256) or IsoToSeconds(c.expiresAt) = invalid then return DirectUnreadable()
+        return { ok: true, kind: "challenge", token: c.token, expiresAt: c.expiresAt }
+    end if
+    if raw.doesExist("deviceApprovalPending") then
+        if not IsBoolean(raw.deviceApprovalPending) or raw.deviceApprovalPending <> true or not IsText(raw.deviceId, 128) or not IsText(raw.installationId, 128) or raw.doesExist("session") then return DirectUnreadable()
+        return { ok: true, kind: "device-pending", deviceId: raw.deviceId, installationId: raw.installationId }
+    end if
+    parsed = ParseDirectSnapshot(raw)
+    if not parsed.ok then return parsed
+    snapshot = parsed.snapshot
+    if raw.doesExist("passwordChangeRequired") and not IsBoolean(raw.passwordChangeRequired) then return DirectUnreadable()
+    passwordChangeRequired = raw.passwordChangeRequired = true
+    issued = ParseLocalSession(raw.session, { authority: "local", accountId: snapshot.account.id, serverId: snapshot.serverId, profileId: snapshot.account.primaryProfileId }, false, atSeconds)
+    if not issued.ok then return issued
+    accountScoped = issued.session.viewer.role = "account"
+    ' A viewer session straight from sign-in only for one unprotected profile and no forced password change.
+    if not accountScoped and (passwordChangeRequired or snapshot.profiles.count() <> 1 or snapshot.profiles[0].pinRequired) then return DirectUnreadable()
+    return { ok: true, kind: "signed-in", snapshot: snapshot, session: issued.session, accountScoped: accountScoped, passwordChangeRequired: passwordChangeRequired }
+end function
+
+' `selectDirectProfile`'s request check: a PIN, when given, is four digits.
+function ProfilePinValid(pin as string) as boolean
+    return pin = "" or MatchesPattern(pin, "^\d{4}$")
+end function
+
+' The answer to POST /v1/direct/profiles/{id}/select: {ok, session}.
+function ParseProfileSelection(raw as dynamic, accountId as string, serverId as string, profileId as string, atSeconds = invalid as dynamic) as object
+    if not IsObject(raw) then return DirectUnreadable()
+    return ParseLocalSession(raw.session, { authority: "local", accountId: accountId, serverId: serverId, profileId: profileId }, false, atSeconds)
+end function

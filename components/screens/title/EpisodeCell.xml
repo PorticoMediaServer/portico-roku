@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/title/Episodes.tsx `TvEpisodeRow`: one episode in the show page's list. -->
+<component name="EpisodeCell" extends="Group">
+    <interface>
+        <field id="itemContent" type="node" onChange="onEpisodeContent" />
+        <field id="width" type="float" value="0" onChange="onEpisodeContent" />
+        <field id="height" type="float" value="0" onChange="onEpisodeContent" />
+        <field id="focusPercent" type="float" value="0" onChange="onEpisodeFocus" />
+        <field id="itemHasFocus" type="boolean" value="false" onChange="onEpisodeFocus" />
+        <field id="gridHasFocus" type="boolean" value="false" onChange="onEpisodeFocus" />
+    </interface>
+</component>

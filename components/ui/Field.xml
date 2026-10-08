@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Field.tsx: a text field. On television a field is a button that opens the system keyboard. -->
+<component name="UiField" extends="Group">
+    <interface>
+        <field id="label" type="string" value="" onChange="onFieldLayout" />
+        <field id="value" type="string" value="" onChange="onFieldLayout" />
+        <field id="placeholder" type="string" value="" onChange="onFieldLayout" />
+        <field id="hint" type="string" value="" onChange="onFieldLayout" />
+        <field id="error" type="string" value="" onChange="onFieldLayout" />
+        <field id="secure" type="boolean" value="false" onChange="onFieldLayout" />
+        <field id="editable" type="boolean" value="true" onChange="onFieldLayout" />
+        <!-- generic | email | password | numeric: the keyboard Roku shows. -->
+        <field id="keyboard" type="string" value="generic" />
+        <field id="fieldWidth" type="float" value="0" onChange="onFieldLayout" />
+        <field id="fieldHeight" type="float" value="0" />
+        <!-- Set when the keyboard is confirmed (after `value`). -->
+        <field id="submitted" type="boolean" value="false" alwaysNotify="true" />
+        <function name="edit" />
+    </interface>
+</component>

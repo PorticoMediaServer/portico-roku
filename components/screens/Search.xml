@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens: Search. -->
+<component name="ScreenSearch" extends="Group">
+    <interface>
+        <field id="route" type="assocarray" />
+        <function name="enter" />
+        <function name="resume" />
+        <function name="leave" />
+        <function name="focusEntry" />
+    </interface>
+</component>

@@ -1,0 +1,303 @@
+' packages/client-core/src/search.ts and presentation/search-model.ts: search as the server
+' answers it and as every client draws it. The server owns matching and ranking; the channel only
+' says which words, which group and which page. Groups are independent: one may fail while the
+' answer as a whole succeeds, and its failure is shown beside the results that arrived.
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/CardCaption.bs"
+import "pkg:/source/core/Messages.bs"
+
+function SearchPageSize() as integer
+    return 40
+end function
+
+' How many results each group shows when every group is searched at once.
+function SearchPreviewLimit() as integer
+    return 12
+end function
+
+' The longest query the search accepts (screens/Search.tsx `MAX_QUERY`).
+function SearchMaxQuery() as integer
+    return 128
+end function
+
+function SearchGroups() as object
+    return ["movies", "shows", "episodes", "artists", "albums", "songs", "books", "people", "live-tv"]
+end function
+
+function SearchGroupKind(group as string) as string
+    kinds = { "movies": "movie", "shows": "show", "episodes": "episode", "artists": "artist", "albums": "album", "songs": "song", "books": "book", "people": "person", "live-tv": "channel" }
+    return kinds[group]
+end function
+
+function SearchGroupTarget(group as string) as string
+    targets = { "movies": "item", "shows": "show", "episodes": "item", "artists": "artist", "albums": "album", "songs": "item", "books": "book", "people": "person", "live-tv": "channel" }
+    return targets[group]
+end function
+
+' search-model.ts `SEARCH_CHIPS`: the type chips in one authored order; result sections follow it.
+function SearchChips() as object
+    return [
+        { id: "all", label: "search.chip.all" }
+        { id: "movies", label: "search.chip.movies" }
+        { id: "shows", label: "search.chip.shows" }
+        { id: "episodes", label: "search.chip.episodes" }
+        { id: "people", label: "search.chip.people" }
+        { id: "artists", label: "search.chip.artists" }
+        { id: "albums", label: "search.chip.albums" }
+        { id: "songs", label: "search.chip.songs" }
+        { id: "books", label: "search.chip.audiobooks" }
+        { id: "live-tv", label: "search.chip.liveTV" }
+    ]
+end function
+
+function SearchGroupLabel(id as string) as string
+    for each chip in SearchChips()
+        if chip.id = id then return chip.label
+    end for
+    return "search.chip.all"
+end function
+
+function SearchChipOrder(id as string) as integer
+    chips = SearchChips()
+    for index = 0 to chips.count() - 1
+        if chips[index].id = id then return index
+    end for
+    return chips.count()
+end function
+
+' Whether a character counts as a letter or a digit. Anything outside ASCII is taken as a letter
+' (BrightScript has no Unicode classes); punctuation and spaces in ASCII are not.
+function SearchIsWordChar(char as string) as boolean
+    code = Asc(char)
+    if code > 127 or code < 0 then return true
+    return (code >= 48 and code <= 57) or (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+end function
+
+function SearchWords(text as string) as object
+    words = []
+    current = ""
+    for index = 1 to Len(text)
+        char = Mid(text, index, 1)
+        if SearchIsWordChar(char) then
+            current = current + char
+        else if current <> "" then
+            words.push(current)
+            current = ""
+        end if
+    end for
+    if current <> "" then words.push(current)
+    return words
+end function
+
+' The query with its white space collapsed.
+function SearchNormalize(q as string) as string
+    return CreateObject("roRegex", "\s+", "").replaceAll(q.trim(), " ")
+end function
+
+' screens/Search.tsx `searchable` (the server's NormalizeSearch): 2–128 characters, 1–8 words, one
+' of them of two letters or digits or more. A shorter query simply waits.
+function Searchable(q as string) as boolean
+    text = SearchNormalize(q)
+    if Len(text) < 2 or Len(text) > SearchMaxQuery() then return false
+    words = SearchWords(text)
+    if words.count() = 0 or words.count() > 8 then return false
+    for each word in words
+        if Len(word) >= 2 then return true
+    end for
+    return false
+end function
+
+' search.ts `searchPath`.
+function SearchPath(q as string, group = "" as string, cursor = "" as string) as string
+    query = ["q=" + q.encodeUriComponent(), "limit=" + SearchPageSize().toStr()]
+    if group <> "" then query.push("group=" + group.encodeUriComponent())
+    if cursor <> "" then query.push("cursor=" + cursor.encodeUriComponent())
+    return "/v1/search?" + query.join("&")
+end function
+
+function IsSearchText(value as dynamic, limit = 4096 as integer) as boolean
+    return IsContentString(value, limit)
+end function
+
+' A person or a channel is an entity row, not a media item: no library, playback or progress.
+function ParseSearchEntity(v as dynamic, group as string) as dynamic
+    kind = SearchGroupKind(group)
+    if not IsObject(v) or not IsContentId(v.id) or not IsString(v.kind) or v.kind <> kind or not IsSearchText(v.title, 2048) then return invalid
+    if not IsObject(v.navigation) or not IsString(v.navigation.view) or v.navigation.view <> SearchGroupTarget(group) or not IsString(v.navigation.entityId) or v.navigation.entityId <> v.id then return invalid
+    if v.doesExist("playback") or v.doesExist("available") or v.doesExist("libraryId") then return invalid
+    if v.doesExist("subtitle") and not IsSearchText(v.subtitle) then return invalid
+    if v.doesExist("posterUrl") and not IsSearchText(v.posterUrl) then return invalid
+    total = FieldOf(v, "count")
+    if total <> invalid and not IsNatural(total) then return invalid
+    entry = { id: v.id, kind: kind, title: v.title, navigation: { view: SearchGroupTarget(group), entityId: v.id } }
+    if v.subtitle <> invalid then entry.subtitle = v.subtitle
+    if v.posterUrl <> invalid and v.posterUrl <> "" then entry.posterUrl = v.posterUrl
+    if total <> invalid then entry["count"] = total
+    return entry
+end function
+
+' search.ts `parse`: {ok, groups: [{id, title, status, errorCode, entries, totalCount, hasMore,
+' nextCursor}], viewerFence, revision}. `asked` is {q, group}.
+function ParseSearch(raw as dynamic, asked as object, serverId as string) as object
+    bad = { ok: false, code: "invalid_search" }
+    limit = SearchPageSize()
+    if not IsObject(raw) or not IsObject(raw.scope) or not IsObject(raw.revision) or not IsObject(raw.query) then return bad
+    scope = raw.scope
+    r = raw.revision
+    q = raw.query
+    if not IsString(scope.serverId) or scope.serverId <> serverId or not IsString(scope.libraryId) or scope.libraryId <> "" or not IsString(scope.libraryKind) or scope.libraryKind <> "mixed" or not IsString(scope.view) or scope.view <> "search" or not IsString(scope.entityId) or scope.entityId <> "" or not IsContentId(scope.viewerFence) or not IsNatural(r.catalog) or not IsNatural(r.viewer) then return bad
+    group = ""
+    if asked.group <> invalid then group = asked.group
+    if not IsSearchText(q.q, 512) or q.q = "" or not IsString(q.sort) or not ArrayIncludes(["relevance", "title", "releaseYear", "dateAdded"], q.sort) or not IsString(q.direction) or not ArrayIncludes(["asc", "desc"], q.direction) or not IsString(q.group) or q.group <> group or not IsNumber(q.limit) or q.limit <> limit or not IsString(q.searchMode) or q.searchMode <> "token_prefix" or not IsBoolean(q.recorded) then return bad
+    if q.q <> asked.q or q.recorded then return bad
+    if not IsArray(q.groups) or q.groups.count() > SearchGroups().count() then return bad
+    echoed = {}
+    for each name in q.groups
+        if not IsString(name) or not ArrayIncludes(SearchGroups(), name) then return bad
+        echoed[name] = true
+    end for
+    if group <> "" and (q.groups.count() <> 1 or not echoed.doesExist(group)) then return bad
+    if not IsArray(q.libraryIds) or q.libraryIds.count() > 64 then return bad
+    for each id in q.libraryIds
+        if not IsContentId(id) then return bad
+    end for
+    if not ParseSearchCapabilities(raw.capabilities) then return bad
+    if not IsArray(raw.groups) or raw.groups.count() > SearchGroups().count() then return bad
+    cap = limit
+    if group = "" and SearchPreviewLimit() < cap then cap = SearchPreviewLimit()
+    results = []
+    seen = {}
+    for each value in raw.groups
+        if not IsObject(value) or not IsString(value.id) or not ArrayIncludes(SearchGroups(), value.id) or not IsSearchText(value.title, 512) or not IsContentId(value.entityKind) or not IsNatural(value.totalCount) or not IsSearchText(value.nextCursor) or not IsBoolean(value.hasMore) then return bad
+        code = ""
+        if value.errorCode <> invalid then code = value.errorCode
+        if not IsString(value.status) or (value.status <> "success" and value.status <> "error") or not IsString(code) or not ArrayIncludes(["", "search_group_timeout", "search_group_unavailable"], code) then return bad
+        id = value.id
+        if value.entityKind <> SearchGroupKind(id) or not echoed.doesExist(id) or seen.doesExist(id) then return bad
+        seen[id] = true
+        entity = id = "people" or id = "live-tv"
+        if not IsArray(FieldOf(value, "items")) or FieldOf(value, "items").count() > cap then return bad
+        entries = []
+        ids = {}
+        ids.setModeCaseSensitive()
+        for each v in FieldOf(value, "items")
+            entry = invalid
+            if entity then
+                entry = ParseSearchEntity(v, id)
+            else
+                entry = ParseContentEntry(v)
+            end if
+            if entry = invalid or ids.doesExist(entry.id) then return bad
+            ids[entry.id] = true
+            if not entity then
+                if entry.libraryId = invalid or entry.kind <> SearchGroupKind(id) or entry.navigation = invalid or entry.navigation.view <> SearchGroupTarget(id) or entry.navigation.entityId = invalid or entry.navigation.entityId <> entry.id then return bad
+                if entry.playback <> invalid and (not ArrayIncludes(["movies", "episodes", "songs"], id) or entry.playback.itemId <> entry.id or entry.available = false) then return bad
+            end if
+            entries.push(entry)
+        end for
+        if value.totalCount < entries.count() then return bad
+        ' A failed group carries no partial page, and a successful one never carries a failure code.
+        if value.status = "error" and (entries.count() > 0 or value.totalCount > 0 or value.hasMore or value.nextCursor <> "" or code = "") then return bad
+        if value.status = "success" and code <> "" then return bad
+        if value.hasMore <> (value.nextCursor <> "") then return bad
+        results.push({ id: id, title: value.title, status: value.status, errorCode: code, entries: entries, totalCount: value.totalCount, hasMore: value.hasMore, nextCursor: value.nextCursor })
+    end for
+    if results.count() <> q.groups.count() then return bad
+    for each key in ["navigation", "sorts", "sections", "filters"]
+        if raw.doesExist(key) then return bad
+    end for
+    if not IsObject(raw.heading) or not IsContentId(raw.heading.key) or not IsSearchText(raw.heading.fallback, 512) then return bad
+    if raw.doesExist("empty") and (not IsObject(raw.empty) or not IsContentId(raw.empty.key) or not IsSearchText(raw.empty.fallback, 512)) then return bad
+    return { ok: true, groups: results, viewerFence: scope.viewerFence, revision: { catalog: r.catalog, viewer: r.viewer } }
+end function
+
+function ParseSearchCapabilities(v as dynamic) as boolean
+    sorts = ["relevance", "title", "releaseYear", "dateAdded"]
+    if not IsObject(v) or not IsNatural(v.maxLimit) or not IsNatural(v.groupBudgetMs) or v.maxLimit = 0 or v.groupBudgetMs = 0 then return false
+    if not IsArray(v.groups) or v.groups.count() > SearchGroups().count() then return false
+    seen = {}
+    for each g in v.groups
+        if not IsObject(g) or not IsString(g.id) or not ArrayIncludes(SearchGroups(), g.id) or not IsSearchText(g.title, 512) or not IsContentId(g.entityKind) or not IsBoolean(g.available) or seen.doesExist(g.id) then return false
+        seen[g.id] = true
+        if g.doesExist("reason") and not IsSearchText(g.reason, 1024) then return false
+        ' An unavailable group must say why; silence would look like an empty result.
+        if not g.available and (g.reason = invalid or g.reason = "") then return false
+        if not SearchNames(g.sorts, sorts.count(), sorts) then return false
+    end for
+    return SearchNames(v.sorts, sorts.count(), sorts) and SearchNames(v.directions, 2, ["asc", "desc"])
+end function
+
+function SearchNames(v as dynamic, limit as integer, allowed as object) as boolean
+    if not IsArray(v) or v.count() > limit then return false
+    for each name in v
+        if not IsContentId(name) or not ArrayIncludes(allowed, name) then return false
+    end for
+    return true
+end function
+
+' search-model.ts `orderedSearchGroups`: the groups that have results, in the chips' order.
+function OrderedSearchGroups(groups as object) as object
+    out = []
+    for each group in groups
+        if group.entries.count() > 0 then
+            at = out.count()
+            for index = 0 to out.count() - 1
+                if at = out.count() and SearchChipOrder(out[index].id) > SearchChipOrder(group.id) then at = index
+            end for
+            later = []
+            while out.count() > at
+                later.unshift(out.pop())
+            end while
+            out.push(group)
+            out.append(later)
+        end if
+    end for
+    return out
+end function
+
+' search-model.ts `plain`: lower case, with everything that is not a letter or a digit as one space.
+' (Accents are kept: BrightScript cannot fold them. "Amélie" finds itself, not "Amelie".)
+function SearchPlain(text as string) as string
+    return LCase(SearchWords(text).join(" "))
+end function
+
+' search-model.ts `topSearchResult`: the one title whose name is the words typed (or the only one
+' that starts with them); two that match equally give none. {group, entry}, or invalid.
+function TopSearchResult(query as string, groups as object) as dynamic
+    words = SearchPlain(query)
+    if Len(words) < 2 then return invalid
+    exact = []
+    starts = []
+    for each group in OrderedSearchGroups(groups)
+        if ArrayIncludes(["movies", "shows", "artists", "albums", "books", "people"], group.id) then
+            for each entry in group.entries
+                title = SearchPlain(entry.title)
+                if title = words then
+                    exact.push({ group: group.id, entry: entry })
+                else if Len(words) >= 3 and Left(title, Len(words) + 1) = words + " " then
+                    starts.push({ group: group.id, entry: entry })
+                end if
+            end for
+        end if
+    end for
+    if exact.count() = 1 then return exact[0]
+    if exact.count() = 0 and starts.count() = 1 then return starts[0]
+    return invalid
+end function
+
+' search-model.ts `topResultKindLabel`: what a Top result is, in the singular.
+function TopResultKindLabel(group as string) as string
+    labels = { "movies": "search.kind.movie", "shows": "search.kind.show", "artists": "search.kind.artist", "albums": "search.kind.album", "books": "search.kind.audiobook", "people": "search.kind.person" }
+    label = labels[group]
+    if label = invalid then return SearchGroupLabel(group)
+    return label
+end function
+
+' screens/Search.tsx `shapeOf`: a person is a circle, a channel and an episode landscape (an
+' episode is found by its still, not its show's poster).
+function SearchShape(entry as dynamic) as string
+    if entry = invalid then return "poster"
+    if entry.kind = "person" then return "person"
+    if entry.kind = "channel" or entry.kind = "episode" then return "landscape"
+    return ShapeFor(entry.kind)
+end function

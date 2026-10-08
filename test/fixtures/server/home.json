@@ -1,0 +1,2923 @@
+{
+ "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+ "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df",
+ "rows": [
+  {
+   "id": "continue",
+   "title": "Continue Watching",
+   "titleText": {
+    "code": "home.row.continueWatching",
+    "fallback": "Continue Watching"
+   },
+   "kind": "continue",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/continue",
+   "privacySensitivity": "personal",
+   "policyState": "available",
+   "priority": 10,
+   "cacheTtlSeconds": 45,
+   "required": true,
+   "hideable": false,
+   "reorderable": true,
+   "critical": true,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+     "id": "YEa_W0N2olpVOk2F8yR1mA",
+     "kind": "movie",
+     "title": "Interstellar",
+     "subtitle": "2014",
+     "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2014,
+     "progressSeconds": 27.582,
+     "addedAt": "2026-10-02T04:02:29.777Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+     },
+     "playback": {
+      "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+     },
+     "genres": [
+      "Adventure",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "episodeNumber": 3,
+     "seasonNumber": 1,
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Walter fights with Jesse over his drug use, causing him to leave Walter alone with their captive, Krazy-8. Meanwhile, Hank has a scared straight moment with Walter Jr..",
+     "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+     "stillUrl": "/v1/metadata/item/QHzkN_TrCC6IRWs-i_Sd2A/art/still?v=8d18ea200e7816f0fb3e60875c51fdb9544946d15117b6b58eb082d8b17e9d42&w=800",
+     "id": "QHzkN_TrCC6IRWs-i_Sd2A",
+     "kind": "episode",
+     "title": "...And the Bag's in the River",
+     "subtitle": "Breaking Bad",
+     "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2008,
+     "progressSeconds": 36.603,
+     "addedAt": "2026-10-02T04:03:14.611Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "QHzkN_TrCC6IRWs-i_Sd2A"
+     },
+     "playback": {
+      "itemId": "QHzkN_TrCC6IRWs-i_Sd2A"
+     },
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/t6O-HQibz2LvaR8QnLyESg/art/backdrop?v=9374cea27f314ae5b25bedfa341fa97c86ef946a851aa019c58a707ffc09b999&w=1920",
+     "id": "t6O-HQibz2LvaR8QnLyESg",
+     "kind": "movie",
+     "title": "Dune",
+     "subtitle": "2021",
+     "posterUrl": "/v1/metadata/item/t6O-HQibz2LvaR8QnLyESg/art/poster?v=6e1907651f0f3fa03f451e65205c8c0d25f40bcf618f9e27df54b8b2b6ec420b&w=400",
+     "available": true,
+     "duration": 90.021,
+     "year": 2021,
+     "progressSeconds": 30.008,
+     "addedAt": "2026-10-02T04:57:36.348Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "t6O-HQibz2LvaR8QnLyESg"
+     },
+     "playback": {
+      "itemId": "t6O-HQibz2LvaR8QnLyESg"
+     },
+     "genres": [
+      "Science Fiction",
+      "Adventure"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 3,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "continue_listening",
+   "title": "Continue Listening",
+   "titleText": {
+    "code": "home.row.continueListening",
+    "fallback": "Continue Listening"
+   },
+   "kind": "continue",
+   "artworkShape": "square",
+   "endpoint": "/v1/home/rows/continue_listening",
+   "privacySensitivity": "personal",
+   "policyState": "available",
+   "priority": 20,
+   "cacheTtlSeconds": 45,
+   "required": true,
+   "hideable": false,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "vFbrAmJZ2VjaW84Pr-pD-g",
+     "kind": "audiobook_file",
+     "title": "Dune",
+     "subtitle": "Dune",
+     "posterUrl": "/v1/metadata/item/vFbrAmJZ2VjaW84Pr-pD-g/art/poster?v=d1462ee4047d4298fdaf537092f14374e43540878fcd6c4619d46bf877be40da&w=400",
+     "available": true,
+     "duration": 60,
+     "author": "Frank Herbert",
+     "progressSeconds": 23.371,
+     "addedAt": "2026-10-02T04:03:45.651Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "vFbrAmJZ2VjaW84Pr-pD-g"
+     },
+     "playback": {
+      "itemId": "vFbrAmJZ2VjaW84Pr-pD-g"
+     },
+     "genres": [
+      "Audiobook"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "ZIkvSkDnm3_E7v36kfhPAg",
+     "kind": "audiobook_file",
+     "title": "The Martian (Unabridged)",
+     "subtitle": "The Martian (Unabridged)",
+     "posterUrl": "/v1/metadata/item/ZIkvSkDnm3_E7v36kfhPAg/art/poster?v=0a25b523fe6e047a7087482892a493540a55cdbd231fc9e31dee49bba7d29f5a&w=400",
+     "available": true,
+     "duration": 60,
+     "author": "Andy Weir",
+     "progressSeconds": 17.428,
+     "addedAt": "2026-10-02T04:03:58.616Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ZIkvSkDnm3_E7v36kfhPAg"
+     },
+     "playback": {
+      "itemId": "ZIkvSkDnm3_E7v36kfhPAg"
+     },
+     "genres": [
+      "Audiobook"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 2,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "recent_8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+   "title": "Recently added in Anime",
+   "titleText": {
+    "code": "home.row.recentlyAddedIn",
+    "params": {
+     "library": "Anime"
+    },
+    "fallback": "Recently added in Anime"
+   },
+   "kind": "recent",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/recent_8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+   "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "priority": 30,
+   "cacheTtlSeconds": 120,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "uwdbZDGGNfL0IVJ0sSTqIg",
+     "kind": "show",
+     "title": "Solo Leveling",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/uwdbZDGGNfL0IVJ0sSTqIg/art/poster?v=4f2f91cf25bdb0ced4459030192dc3a4d52803f30111e949786ee12ae4002747&w=400",
+     "available": true,
+     "year": 2024,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "uwdbZDGGNfL0IVJ0sSTqIg"
+     },
+     "genres": [
+      "Animation",
+      "Action & Adventure"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "apcMS4fou_ExuEc6TKp4sA",
+     "kind": "show",
+     "title": "One Piece",
+     "subtitle": "1999",
+     "posterUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/poster?v=d216451408e36dfc01fa7e094d95c407653a2a534e4e0dce16cfe63b859e769d&w=400",
+     "available": true,
+     "year": 1999,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "apcMS4fou_ExuEc6TKp4sA"
+     },
+     "genres": [
+      "Action & Adventure",
+      "Comedy"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "hHKWlNLYCOb-NiTO8r7KhA",
+     "kind": "show",
+     "title": "Naruto Shippūden",
+     "subtitle": "2007",
+     "posterUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/poster?v=3336d0bcf49d2b50f37c1b4dc8c590d3caf2cd24c967b00bf1a7962fe4b7e4e1&w=400",
+     "available": true,
+     "year": 2007,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "hHKWlNLYCOb-NiTO8r7KhA"
+     },
+     "genres": [
+      "Animation",
+      "Action & Adventure"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "m4_eXzXJpNEzgoNyiq6DVQ",
+     "kind": "show",
+     "title": "My Hero Academia",
+     "subtitle": "2016",
+     "posterUrl": "/v1/metadata/show/m4_eXzXJpNEzgoNyiq6DVQ/art/poster?v=688e218cd493f68f7f4691004c54a5b6f8ffb31bd0223fc1c83d0ca018169179&w=400",
+     "available": true,
+     "year": 2016,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "m4_eXzXJpNEzgoNyiq6DVQ"
+     },
+     "genres": [
+      "Action & Adventure",
+      "Animation"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "-fm_-ji3RR-5EckgBVnEtA",
+     "kind": "show",
+     "title": "JUJUTSU KAISEN",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/show/-fm_-ji3RR-5EckgBVnEtA/art/poster?v=28eb7fa8a235be660f86bb73c0e660206e1f50406c01d1e6d433be5d5e708957&w=400",
+     "available": true,
+     "year": 2020,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "-fm_-ji3RR-5EckgBVnEtA"
+     },
+     "genres": [
+      "Animation",
+      "Sci-Fi & Fantasy"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "jD_LYSJVrrQCGVeqTV7g8A",
+     "kind": "show",
+     "title": "Hunter x Hunter",
+     "subtitle": "2011",
+     "posterUrl": "/v1/metadata/show/jD_LYSJVrrQCGVeqTV7g8A/art/poster?v=da94e688a45fee94b458a6f9dd68386ae3389502c46a717870efb074da3e12e9&w=400",
+     "available": true,
+     "year": 2011,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "jD_LYSJVrrQCGVeqTV7g8A"
+     },
+     "genres": [
+      "Animation",
+      "Action & Adventure"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "ryMRhHgEuQClvTRkWKeHzg",
+     "kind": "show",
+     "title": "Demon Slayer: Kimetsu no Yaiba",
+     "subtitle": "2019",
+     "posterUrl": "/v1/metadata/show/ryMRhHgEuQClvTRkWKeHzg/art/poster?v=5bb0d0f7a48592f2d8da1c108c78791efef52a07345ee3be498c1f034b5d18ce&w=400",
+     "available": true,
+     "year": 2019,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "ryMRhHgEuQClvTRkWKeHzg"
+     },
+     "genres": [
+      "Animation",
+      "Action & Adventure"
+     ]
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "N3tK6PcOu3ZQBzDbG963tA",
+     "kind": "show",
+     "title": "Attack on Titan",
+     "subtitle": "2013",
+     "posterUrl": "/v1/metadata/show/N3tK6PcOu3ZQBzDbG963tA/art/poster?v=59e1a9258664b67c4e8523e4f0a2662bc975bbfdcf447fd10c50004e41c0df3b&w=400",
+     "available": true,
+     "year": 2013,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "N3tK6PcOu3ZQBzDbG963tA"
+     },
+     "genres": [
+      "Animation",
+      "Sci-Fi & Fantasy"
+     ]
+    }
+   ],
+   "total": 8,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "recent_ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "title": "Recently added in Movies",
+   "titleText": {
+    "code": "home.row.recentlyAddedIn",
+    "params": {
+     "library": "Movies"
+    },
+    "fallback": "Recently added in Movies"
+   },
+   "kind": "recent",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/recent_ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "priority": 30,
+   "cacheTtlSeconds": 120,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/V8TT3n2HcXi0lKwgW0Fuqg/art/backdrop?v=feebe04b6957d2a14826d997b982e387511ed511f1de44efea5a9f08aeb3f966&w=1920",
+     "id": "V8TT3n2HcXi0lKwgW0Fuqg",
+     "kind": "movie",
+     "title": "Big Buck Bunny",
+     "subtitle": "2008",
+     "posterUrl": "/v1/metadata/item/V8TT3n2HcXi0lKwgW0Fuqg/art/poster?v=d9a8f38882439583d2be9d02bf40f8756e3c3e03eae7f1f8dac6aa9cb4b95593&w=400",
+     "available": true,
+     "duration": 30,
+     "year": 2008,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-03T09:18:21.411Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "V8TT3n2HcXi0lKwgW0Fuqg"
+     },
+     "playback": {
+      "itemId": "V8TT3n2HcXi0lKwgW0Fuqg"
+     },
+     "genres": [
+      "Animation",
+      "Comedy"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": true,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+     "id": "5z16dE7IyIlNQHZH3YWJJQ",
+     "kind": "movie",
+     "title": "Interstellar",
+     "subtitle": "2014",
+     "posterUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+     "available": true,
+     "duration": 240.023,
+     "year": 2014,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T05:08:59.527Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "5z16dE7IyIlNQHZH3YWJJQ"
+     },
+     "playback": {
+      "itemId": "5z16dE7IyIlNQHZH3YWJJQ"
+     },
+     "genres": [
+      "Adventure",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/t6O-HQibz2LvaR8QnLyESg/art/backdrop?v=9374cea27f314ae5b25bedfa341fa97c86ef946a851aa019c58a707ffc09b999&w=1920",
+     "id": "t6O-HQibz2LvaR8QnLyESg",
+     "kind": "movie",
+     "title": "Dune",
+     "subtitle": "2021",
+     "posterUrl": "/v1/metadata/item/t6O-HQibz2LvaR8QnLyESg/art/poster?v=6e1907651f0f3fa03f451e65205c8c0d25f40bcf618f9e27df54b8b2b6ec420b&w=400",
+     "available": true,
+     "duration": 90.021,
+     "year": 2021,
+     "progressSeconds": 30.008,
+     "addedAt": "2026-10-02T04:57:36.348Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "t6O-HQibz2LvaR8QnLyESg"
+     },
+     "playback": {
+      "itemId": "t6O-HQibz2LvaR8QnLyESg"
+     },
+     "genres": [
+      "Science Fiction",
+      "Adventure"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": true,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/m5Z19_CTiIXoc6CoCa0_vA/art/backdrop?v=8b5fb6d694fcda3c1440513bebda293255ba71419af2e2061b4774340f133f2a&w=1920",
+     "id": "m5Z19_CTiIXoc6CoCa0_vA",
+     "kind": "movie",
+     "title": "Your Name.",
+     "subtitle": "2016",
+     "posterUrl": "/v1/metadata/item/m5Z19_CTiIXoc6CoCa0_vA/art/poster?v=7b0b4c9db5287b6c7eabd383e1e17e9037627727b721c0cde1fe759b5820f731&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2016,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:02.285Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "m5Z19_CTiIXoc6CoCa0_vA"
+     },
+     "playback": {
+      "itemId": "m5Z19_CTiIXoc6CoCa0_vA"
+     },
+     "genres": [
+      "Animation",
+      "Romance"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/yv_rx03aji2uHPUHc9GJKQ/art/backdrop?v=84665d1308c73ac6702b2849e3942d214dcd3de5448c446b647ab917c76d1b58&w=1920",
+     "id": "yv_rx03aji2uHPUHc9GJKQ",
+     "kind": "movie",
+     "title": "You+Me - Against the World",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/yv_rx03aji2uHPUHc9GJKQ/art/poster?v=434a9b5d024121ce95f0953dfdea16d9d9c8eb82d34f1e30aa21733ebb6ef99b&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:01.682Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "yv_rx03aji2uHPUHc9GJKQ"
+     },
+     "playback": {
+      "itemId": "yv_rx03aji2uHPUHc9GJKQ"
+     },
+     "genres": [
+      "Romance",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/YBFVNC6bp1ZOJiJUWq8kBw/art/backdrop?v=5ac26d92edea7e0723aca84871f2c194f511d202b07c1b4aafe1887d83d67f90&w=1920",
+     "id": "YBFVNC6bp1ZOJiJUWq8kBw",
+     "kind": "movie",
+     "title": "WALL·E",
+     "subtitle": "2008",
+     "posterUrl": "/v1/metadata/item/YBFVNC6bp1ZOJiJUWq8kBw/art/poster?v=eae9485685d778199ff19c994cfc06e6adea27bded03354c1aa9001a07973ced&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2008,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:01.065Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "YBFVNC6bp1ZOJiJUWq8kBw"
+     },
+     "playback": {
+      "itemId": "YBFVNC6bp1ZOJiJUWq8kBw"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/O2j0PZZHXeBykBuRzvWK3g/art/backdrop?v=89e31eb9463ba68ffd96cb83b898299945c0545c9d446a18f79b4a4deb12ebe6&w=1920",
+     "id": "O2j0PZZHXeBykBuRzvWK3g",
+     "kind": "movie",
+     "title": "Toy Story 5",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/O2j0PZZHXeBykBuRzvWK3g/art/poster?v=9e730a2b284a8ca5a9f5327740f55ce0e277d9811a8f45f5b95a660b323da77f&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:00.495Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "O2j0PZZHXeBykBuRzvWK3g"
+     },
+     "playback": {
+      "itemId": "O2j0PZZHXeBykBuRzvWK3g"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/TjgXafOv_09FvOCa2BG2_w/art/backdrop?v=01b4e6afdb25109e3599e50d1cc6fd542134a2613bbe6931d703a58e17486f61&w=1920",
+     "id": "TjgXafOv_09FvOCa2BG2_w",
+     "kind": "movie",
+     "title": "Toy Story 3",
+     "subtitle": "2010",
+     "posterUrl": "/v1/metadata/item/TjgXafOv_09FvOCa2BG2_w/art/poster?v=2973a6b96ecc42215c498bb2a42b64f03f9dbab7fb4b15a187ddb61e48d3021c&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2010,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:59.863Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "TjgXafOv_09FvOCa2BG2_w"
+     },
+     "playback": {
+      "itemId": "TjgXafOv_09FvOCa2BG2_w"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/XEkpbK3JU_G3V2pu2rHcYg/art/backdrop?v=a353b2e7ed7460fe2275465e3b7febb92f3955c8c59d6ece9198b245da373043&w=1920",
+     "id": "XEkpbK3JU_G3V2pu2rHcYg",
+     "kind": "movie",
+     "title": "Toy Story 2",
+     "subtitle": "1999",
+     "posterUrl": "/v1/metadata/item/XEkpbK3JU_G3V2pu2rHcYg/art/poster?v=7420f5a0bbb298cf1099dbba8ebecee98cfa75c40d6f1ab12468ad4da10fe711&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1999,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:59.272Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "XEkpbK3JU_G3V2pu2rHcYg"
+     },
+     "playback": {
+      "itemId": "XEkpbK3JU_G3V2pu2rHcYg"
+     },
+     "genres": [
+      "Animation",
+      "Comedy"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/M5l1xbFLV_GbYHmUbNZ5Yw/art/backdrop?v=cce4e2d037b59b0aead262644b316acbb0ee00526ee3cfccc0151ca8399c8d04&w=1920",
+     "id": "M5l1xbFLV_GbYHmUbNZ5Yw",
+     "kind": "movie",
+     "title": "Toy Story",
+     "subtitle": "1995",
+     "posterUrl": "/v1/metadata/item/M5l1xbFLV_GbYHmUbNZ5Yw/art/poster?v=14ab2d3385b9499db7827a5d67cab23994f5b424a38592e5431063b489f6e306&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1995,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:58.652Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "M5l1xbFLV_GbYHmUbNZ5Yw"
+     },
+     "playback": {
+      "itemId": "M5l1xbFLV_GbYHmUbNZ5Yw"
+     },
+     "genres": [
+      "Family",
+      "Comedy"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/6rqyygqysYESf3aTIXzSWQ/art/backdrop?v=5560f9ea0c76d2c90542c1ae078022441b886b6c317afef4c30c3119eb75aeec&w=1920",
+     "id": "6rqyygqysYESf3aTIXzSWQ",
+     "kind": "movie",
+     "title": "Titanic",
+     "subtitle": "1997",
+     "posterUrl": "/v1/metadata/item/6rqyygqysYESf3aTIXzSWQ/art/poster?v=78e3d69fce36891d24bcc6b2c57a3d4df434a02b75f37e5061859ef9985dffe9&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1997,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:58.061Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "6rqyygqysYESf3aTIXzSWQ"
+     },
+     "playback": {
+      "itemId": "6rqyygqysYESf3aTIXzSWQ"
+     },
+     "genres": [
+      "Drama",
+      "Romance"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/2E4gInreHdz4hMk_d3Uybg/art/backdrop?v=369d58c1ba2702aa7a417f34c421b310c55855b2daa3ec48f2ca0a394df31223&w=1920",
+     "id": "2E4gInreHdz4hMk_d3Uybg",
+     "kind": "movie",
+     "title": "Three Colors: Red",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/2E4gInreHdz4hMk_d3Uybg/art/poster?v=2399f1b1a342d5f1e026bce97fb4765709f7746579846e4e5f37a72a4dd72c34&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1994,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:57.510Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "2E4gInreHdz4hMk_d3Uybg"
+     },
+     "playback": {
+      "itemId": "2E4gInreHdz4hMk_d3Uybg"
+     },
+     "genres": [
+      "Drama",
+      "Mystery"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 81,
+   "start": 0,
+   "limit": 12,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "recent_Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "title": "Recently added in Audiobooks",
+   "titleText": {
+    "code": "home.row.recentlyAddedIn",
+    "params": {
+     "library": "Audiobooks"
+    },
+    "fallback": "Recently added in Audiobooks"
+   },
+   "kind": "recent",
+   "artworkShape": "square",
+   "endpoint": "/v1/home/rows/recent_Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "priority": 30,
+   "cacheTtlSeconds": 120,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "uV42wmxpy5OPt48zRrpp1w",
+     "kind": "book",
+     "title": "The Martian (Unabridged)",
+     "posterUrl": "/v1/metadata/book/uV42wmxpy5OPt48zRrpp1w/art/cover?v=0a25b523fe6e047a7087482892a493540a55cdbd231fc9e31dee49bba7d29f5a&w=400",
+     "available": true,
+     "author": "Andy Weir",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "uV42wmxpy5OPt48zRrpp1w"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "5iHcx__iQyl1r3Lzsbq_zA",
+     "kind": "book",
+     "title": "The Hunger Games: Special Edition",
+     "posterUrl": "/v1/metadata/book/5iHcx__iQyl1r3Lzsbq_zA/art/cover?v=6b263c355eac0edce49f56ae8c45ef0bc52079082f52043cb1be8e93ccf41650&w=400",
+     "available": true,
+     "author": "Suzanne Collins",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "5iHcx__iQyl1r3Lzsbq_zA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "kdKDTU83KKaUtgy4eC141Q",
+     "kind": "book",
+     "title": "The Hobbit",
+     "posterUrl": "/v1/metadata/book/kdKDTU83KKaUtgy4eC141Q/art/cover?v=bfbe0597cbf9eafd8358fc3041a50c0191c2d71e4459d5bead1fbdd8a3a6f1be&w=400",
+     "available": true,
+     "author": "J. R. R. Tolkien",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "kdKDTU83KKaUtgy4eC141Q"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "wJAApdwCfiIVguAy0Cx0SA",
+     "kind": "book",
+     "title": "Project Hail Mary (Unabridged)",
+     "posterUrl": "/v1/metadata/book/wJAApdwCfiIVguAy0Cx0SA/art/cover?v=c5c182b1caa4998543279e03e59197d6c44d1f7eb388a4169b4885cc114bb438&w=400",
+     "available": true,
+     "author": "Andy Weir",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "wJAApdwCfiIVguAy0Cx0SA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "uEE9Fwf2JKsbGZmBEEd2oQ",
+     "kind": "book",
+     "title": "Pride and Prejudice",
+     "posterUrl": "/v1/metadata/book/uEE9Fwf2JKsbGZmBEEd2oQ/art/cover?v=fdd9c7fc7752fed36901d263cc23d2050f0f5af2bed1845e3fcb2555f55b8f46&w=400",
+     "available": true,
+     "author": "Jane Austen",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "uEE9Fwf2JKsbGZmBEEd2oQ"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "7W7luGM1f9sx_9BkM9HthQ",
+     "kind": "book",
+     "title": "Harry Potter and the Philosopher's Stone",
+     "posterUrl": "/v1/metadata/book/7W7luGM1f9sx_9BkM9HthQ/art/cover?v=f0e7ff6a6b2980a5cbeec1b7a2171fcacf93ba73ae080262446470501acb3283&w=400",
+     "available": true,
+     "author": "J.K. Rowling",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "7W7luGM1f9sx_9BkM9HthQ"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "09ngZNPqo44iYSxkRmBJrg",
+     "kind": "book",
+     "title": "Dune",
+     "posterUrl": "/v1/metadata/book/09ngZNPqo44iYSxkRmBJrg/art/cover?v=d1462ee4047d4298fdaf537092f14374e43540878fcd6c4619d46bf877be40da&w=400",
+     "available": true,
+     "author": "Frank Herbert",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "09ngZNPqo44iYSxkRmBJrg"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "cyBJij0xgREMl-Z166Tn4w",
+     "kind": "book",
+     "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)",
+     "posterUrl": "/v1/metadata/book/cyBJij0xgREMl-Z166Tn4w/art/cover?v=23ac486f73a00f322e37fe745f1425d9e0475fd3a1150a8d0267f415abb9ecce&w=400",
+     "available": true,
+     "author": "James Clear",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "cyBJij0xgREMl-Z166Tn4w"
+     }
+    }
+   ],
+   "total": 8,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "recent_YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "title": "Recently added in Music",
+   "titleText": {
+    "code": "home.row.recentlyAddedIn",
+    "params": {
+     "library": "Music"
+    },
+    "fallback": "Recently added in Music"
+   },
+   "kind": "recent",
+   "artworkShape": "square",
+   "endpoint": "/v1/home/rows/recent_YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "priority": 30,
+   "cacheTtlSeconds": 120,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "UuA5xYpovf4OW0F3oflCYA",
+     "kind": "album",
+     "title": "After Hours",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/album/UuA5xYpovf4OW0F3oflCYA/art/cover?v=5d0ec44e0eb0f3d3f0859ca921352c2290ee4e0ccab411dd94798fcffd763eef&w=400",
+     "available": true,
+     "year": 2020,
+     "artist": {
+      "id": "JFgGylZOT9OyvbVUG66TQQ",
+      "name": "The Weeknd"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "UuA5xYpovf4OW0F3oflCYA"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "LAsz4Phs_niSJDCE7EZFQw",
+     "kind": "album",
+     "title": "Abbey Road (2019 Mix)",
+     "subtitle": "1969",
+     "posterUrl": "/v1/metadata/album/LAsz4Phs_niSJDCE7EZFQw/art/cover?v=ed3a7dcc945176da386721298f5b765ad2d4359f1ec6a3224210adf1ed8c7b37&w=400",
+     "available": true,
+     "year": 1969,
+     "artist": {
+      "id": "XhjscUfNvNI_-fidvhPD6A",
+      "name": "The Beatles"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "LAsz4Phs_niSJDCE7EZFQw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "xgnrY1d3Ziiq5-11vjCV9w",
+     "kind": "album",
+     "title": "1989 (Taylor's Version) [Deluxe]",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/album/xgnrY1d3Ziiq5-11vjCV9w/art/cover?v=8075913e1b6b92d1de5ae21db46a0b4930866fa5794f9b358cd66c39cf55439a&w=400",
+     "available": true,
+     "year": 2023,
+     "artist": {
+      "id": "ZzQOnHfT3TXIQYtDgi8ymg",
+      "name": "Taylor Swift"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "xgnrY1d3Ziiq5-11vjCV9w"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "nmI8wllIvQQkhKIRHgNJqg",
+     "kind": "album",
+     "title": "The Wall",
+     "subtitle": "1979",
+     "posterUrl": "/v1/metadata/album/nmI8wllIvQQkhKIRHgNJqg/art/cover?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "available": true,
+     "year": 1979,
+     "artist": {
+      "id": "ibXC64pLFjIJL32VoTz9eQ",
+      "name": "Pink Floyd"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "nmI8wllIvQQkhKIRHgNJqg"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "-RB0-33YOSUSktb5OKnCAw",
+     "kind": "album",
+     "title": "Thriller",
+     "subtitle": "1982",
+     "posterUrl": "/v1/metadata/album/-RB0-33YOSUSktb5OKnCAw/art/cover?v=000e2ec1882ed28c178c368fe35a4d953ac1fba31ebad1b2979715608bc3c0e3&w=400",
+     "available": true,
+     "year": 1982,
+     "artist": {
+      "id": "Uy8CdavNyWuJu_BAwmCYsA",
+      "name": "Michael Jackson"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "-RB0-33YOSUSktb5OKnCAw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "DGNjv2cgdbiTk7uBRZawvQ",
+     "kind": "album",
+     "title": "DAMN.",
+     "subtitle": "2017",
+     "posterUrl": "/v1/metadata/album/DGNjv2cgdbiTk7uBRZawvQ/art/cover?v=f6122824d80df322c0dbe0dc14b1800943381f9a5f7e3278cf49b7c2274005f6&w=400",
+     "available": true,
+     "year": 2017,
+     "artist": {
+      "id": "hAiPVg8tIVvP1DCQEUA1nw",
+      "name": "Kendrick Lamar"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "DGNjv2cgdbiTk7uBRZawvQ"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "HkrzVCrxBUFUsxgiU7GgSw",
+     "kind": "album",
+     "title": "Rumours",
+     "subtitle": "1977",
+     "posterUrl": "/v1/metadata/album/HkrzVCrxBUFUsxgiU7GgSw/art/cover?v=a491ebaae8cb30e575c1eccc0debebfd3077853a6a0ecbd97edca97d38356444&w=400",
+     "available": true,
+     "year": 1977,
+     "artist": {
+      "id": "Zb3d25E_l5C6gdnksHHR9A",
+      "name": "Fleetwood Mac"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "HkrzVCrxBUFUsxgiU7GgSw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "pmdRQzqNlaS5BqlffxbmkA",
+     "kind": "album",
+     "title": "Random Access Memories",
+     "subtitle": "2013",
+     "posterUrl": "/v1/metadata/album/pmdRQzqNlaS5BqlffxbmkA/art/cover?v=5cec0c02f2ec12ce6ac92bbf68531a4882d028e572dc35ce1579c93cb084ee7e&w=400",
+     "available": true,
+     "year": 2013,
+     "artist": {
+      "id": "86Yl5Ua0uozHuTUVcBYXpQ",
+      "name": "Daft Punk"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "pmdRQzqNlaS5BqlffxbmkA"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "lxxA-WPQXbAX9eaf5fTG4Q",
+     "kind": "album",
+     "title": "HIT ME HARD AND SOFT",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/album/lxxA-WPQXbAX9eaf5fTG4Q/art/cover?v=07b2e16b2864f7e98d29b055c493a61d8636af43b59d57a697b7f7c7c91534af&w=400",
+     "available": true,
+     "year": 2024,
+     "artist": {
+      "id": "iorf1Np2jhpgR377E1JGUw",
+      "name": "Billie Eilish"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "lxxA-WPQXbAX9eaf5fTG4Q"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "kind": "album",
+     "title": "21",
+     "subtitle": "2011",
+     "posterUrl": "/v1/metadata/album/BVeRENlvjqVaYfqxSR3FvQ/art/cover?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+     "available": true,
+     "year": 2011,
+     "artist": {
+      "id": "1S4cNAv-E-9hPui1IC7cQQ",
+      "name": "Adele"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "BVeRENlvjqVaYfqxSR3FvQ"
+     }
+    }
+   ],
+   "total": 10,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "recent_7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "title": "Recently added in TV Shows",
+   "titleText": {
+    "code": "home.row.recentlyAddedIn",
+    "params": {
+     "library": "TV Shows"
+    },
+    "fallback": "Recently added in TV Shows"
+   },
+   "kind": "recent",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/recent_7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "priority": 30,
+   "cacheTtlSeconds": 120,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5P1xrYyeYVN_jcV6JFN72A",
+     "kind": "show",
+     "title": "The Walking Dead",
+     "subtitle": "2010",
+     "posterUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/poster?v=7be825ad6bfc9f8dc5449b548655c5b589afef6f86d121386cef9997afab9cdb&w=400",
+     "available": true,
+     "year": 2010,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5P1xrYyeYVN_jcV6JFN72A"
+     },
+     "genres": [
+      "Action & Adventure",
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "xL6_yOFNIiwgLXJoiyIbBg",
+     "kind": "show",
+     "title": "The Simpsons",
+     "subtitle": "1989",
+     "posterUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/poster?v=d809cfb22c0cfd46b7ad50c903b2f33bedc7aedaeb47c0ddeafe5d8eb3af2c76&w=400",
+     "available": true,
+     "year": 1989,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xL6_yOFNIiwgLXJoiyIbBg"
+     },
+     "genres": [
+      "Animation",
+      "Comedy"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "d51EOEdH4vPkMHs0bb1pIQ",
+     "kind": "show",
+     "title": "The Office",
+     "subtitle": "2005",
+     "posterUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/poster?v=8b396a90862eb195067cf46f70104693422a954923865473387805d559a6a6c9&w=400",
+     "available": true,
+     "year": 2005,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "d51EOEdH4vPkMHs0bb1pIQ"
+     },
+     "genres": [
+      "Comedy"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "7K8NB4iF_3xBKUsg0z5Teg",
+     "kind": "show",
+     "title": "The Mandalorian",
+     "subtitle": "2019",
+     "posterUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/poster?v=577d34feb2de9917b91fe789c378bb7a83c0d7b734afb62ed4cba5f103091bc8&w=400",
+     "available": true,
+     "year": 2019,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "7K8NB4iF_3xBKUsg0z5Teg"
+     },
+     "genres": [
+      "Sci-Fi & Fantasy",
+      "Action & Adventure"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_OR9V3RRg5Bgz5wuirRzGg",
+     "kind": "show",
+     "title": "The Last of Us",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/poster?v=047ee98b0ea2c2b2b8a9bc29b97408826794595a579b2ff6858a28924944474d&w=400",
+     "available": true,
+     "year": 2023,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_OR9V3RRg5Bgz5wuirRzGg"
+     },
+     "genres": [
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "l6c_UOaem12vpQoauST9Pw",
+     "kind": "show",
+     "title": "The Gentlemen",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/poster?v=7521124a4b0539c7f16e24c3b5f12991b5a0a236c9bb99c294947a604168a239&w=400",
+     "available": true,
+     "year": 2024,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "l6c_UOaem12vpQoauST9Pw"
+     },
+     "genres": [
+      "Comedy",
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "4sDm9_Nt7oW5oVLen4eopw",
+     "kind": "show",
+     "title": "Ted Lasso",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/show/4sDm9_Nt7oW5oVLen4eopw/art/poster?v=da6bc794afd349a3d0bd49d76e0018005bb80a6def9cb9ded88ccabfcdd5ebcf&w=400",
+     "available": true,
+     "year": 2020,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "4sDm9_Nt7oW5oVLen4eopw"
+     },
+     "genres": [
+      "Drama",
+      "Comedy"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "MsZj7D4_0CJ6mWmfTTBUmw",
+     "kind": "show",
+     "title": "Stranger Things: Tales from '85",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/MsZj7D4_0CJ6mWmfTTBUmw/art/poster?v=c46f0ede35bcb2a03cd74324a3d6b13956f3b13cd3a263e75001b71b7b35bb18&w=400",
+     "available": true,
+     "year": 2026,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "MsZj7D4_0CJ6mWmfTTBUmw"
+     },
+     "genres": [
+      "Animation",
+      "Sci-Fi & Fantasy"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "rZnNBYCjd2oB3nbKZ_SKpA",
+     "kind": "show",
+     "title": "Stranger Things",
+     "subtitle": "2016",
+     "posterUrl": "/v1/metadata/show/rZnNBYCjd2oB3nbKZ_SKpA/art/poster?v=2bdde430234fb8da10279c44cbece20048f509d84e86a5b770a31c923dbcfbee&w=400",
+     "available": true,
+     "year": 2016,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "rZnNBYCjd2oB3nbKZ_SKpA"
+     },
+     "genres": [
+      "Action & Adventure",
+      "Mystery"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_xl9Q3BOa0-NFAbZa8-Cvw",
+     "kind": "show",
+     "title": "South Park",
+     "subtitle": "1997",
+     "posterUrl": "/v1/metadata/show/_xl9Q3BOa0-NFAbZa8-Cvw/art/poster?v=05da5ee203dc89db98975593bf8b7298159de733c731b3671dd5bd8fe6b81ebc&w=400",
+     "available": true,
+     "year": 1997,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_xl9Q3BOa0-NFAbZa8-Cvw"
+     },
+     "genres": [
+      "Animation",
+      "Comedy"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "vtKe105MiqnkTGnwIBQ-_A",
+     "kind": "show",
+     "title": "Slow Horses",
+     "subtitle": "2022",
+     "posterUrl": "/v1/metadata/show/vtKe105MiqnkTGnwIBQ-_A/art/poster?v=193e04c63b7126a0f5847cbf582210ed9e3a7f3c82509be5f84238c0ac800025&w=400",
+     "available": true,
+     "year": 2022,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "vtKe105MiqnkTGnwIBQ-_A"
+     },
+     "genres": [
+      "Crime",
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "CYY-RyWJwXzoFnFG6G_1Ag",
+     "kind": "show",
+     "title": "Silo",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/CYY-RyWJwXzoFnFG6G_1Ag/art/poster?v=fcb1ba8ba9af5989a630b17e855cdc9133155972d58a9fc60234737963ec2cc0&w=400",
+     "available": true,
+     "year": 2023,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "CYY-RyWJwXzoFnFG6G_1Ag"
+     },
+     "genres": [
+      "Sci-Fi & Fantasy",
+      "Drama"
+     ]
+    }
+   ],
+   "total": 24,
+   "start": 0,
+   "limit": 12,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "recommended",
+   "title": "Recommended for you",
+   "titleText": {
+    "code": "home.row.recommended",
+    "fallback": "Recommended for you"
+   },
+   "kind": "recommendation",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/recommended",
+   "privacySensitivity": "personal",
+   "policyState": "available",
+   "priority": 60,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/zx038379rId8i8anvLQorw/art/backdrop?v=3904a7eebc485fba3bd584a44dfb030247a320a90a49c3d4655cced2050094fe&w=1920",
+     "id": "zx038379rId8i8anvLQorw",
+     "kind": "movie",
+     "title": "Project Hail Mary",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/zx038379rId8i8anvLQorw/art/poster?v=d5aaa143eed9407bb8678928a0bcb3f2449a51f07591e175f608fe7c166fb406&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:37.035Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "zx038379rId8i8anvLQorw"
+     },
+     "playback": {
+      "itemId": "zx038379rId8i8anvLQorw"
+     },
+     "genres": [
+      "Science Fiction",
+      "Adventure"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/GPpxfKgakCQI5O5vvxPfww/art/backdrop?v=f0879a2f3f0f2f0521492a7a72ded5d8f77bf21e01c73b35d2cc66db944314f3&w=1920",
+     "id": "GPpxfKgakCQI5O5vvxPfww",
+     "kind": "movie",
+     "title": "Pulp Fiction",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/GPpxfKgakCQI5O5vvxPfww/art/poster?v=f9d2ea5131dec1ffcbd0c36ab9cc3469f6dfa0c19d715b2bbe77e87106d57f5a&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1994,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:37.624Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "GPpxfKgakCQI5O5vvxPfww"
+     },
+     "playback": {
+      "itemId": "GPpxfKgakCQI5O5vvxPfww"
+     },
+     "genres": [
+      "Thriller",
+      "Crime"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/dWQDKXgSQuZwdYI-NoZW4g/art/backdrop?v=5bb8cd95bf55ac12dafe30198f9f7d385a9c8fe47857c2111fe47acc107b52a4&w=1920",
+     "id": "dWQDKXgSQuZwdYI-NoZW4g",
+     "kind": "movie",
+     "title": "Schindler's List",
+     "subtitle": "1993",
+     "posterUrl": "/v1/metadata/item/dWQDKXgSQuZwdYI-NoZW4g/art/poster?v=338fafbdfa136d7998ab53f40a88edc8f745c9ab09996ea4da74dc315657664f&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1993,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:40.623Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "dWQDKXgSQuZwdYI-NoZW4g"
+     },
+     "playback": {
+      "itemId": "dWQDKXgSQuZwdYI-NoZW4g"
+     },
+     "genres": [
+      "Drama",
+      "History"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/-FGU-wrsn1_H6tMb8rSMRQ/art/backdrop?v=3d641f9182a8295ebbdcd0615ce069bb7ca351124287271466db7eea24023368&w=1920",
+     "id": "-FGU-wrsn1_H6tMb8rSMRQ",
+     "kind": "movie",
+     "title": "Spirited Away",
+     "subtitle": "2001",
+     "posterUrl": "/v1/metadata/item/-FGU-wrsn1_H6tMb8rSMRQ/art/poster?v=0c8a809f2d9d3aeb954ba748805c616c085f397083c409caf9c2e8e769316dbd&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2001,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:43.619Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "-FGU-wrsn1_H6tMb8rSMRQ"
+     },
+     "playback": {
+      "itemId": "-FGU-wrsn1_H6tMb8rSMRQ"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/uvexyG1WHo4Kky5ijFEmoQ/art/backdrop?v=1d887ace4537ea2517cecae0f276d6cb119d23d4d364ffc998c6ae91494b8d23&w=1920",
+     "id": "uvexyG1WHo4Kky5ijFEmoQ",
+     "kind": "movie",
+     "title": "The Empire Strikes Back",
+     "subtitle": "1980",
+     "posterUrl": "/v1/metadata/item/uvexyG1WHo4Kky5ijFEmoQ/art/poster?v=08661ca554528e58d718b89cea29f8bc12f32c491f618f6ec1ccbc4228f5ed67&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1980,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:47.225Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "uvexyG1WHo4Kky5ijFEmoQ"
+     },
+     "playback": {
+      "itemId": "uvexyG1WHo4Kky5ijFEmoQ"
+     },
+     "genres": [
+      "Adventure",
+      "Action"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/backdrop?v=01713ca725b58fd74807acf00d43c340d90bde9a58304af49ea9119d43b143f4&w=1920",
+     "id": "jYY0bqzSZAYSmDdF3rEWmA",
+     "kind": "movie",
+     "title": "The Godfather",
+     "subtitle": "1972",
+     "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1972,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:49.083Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+     },
+     "playback": {
+      "itemId": "jYY0bqzSZAYSmDdF3rEWmA"
+     },
+     "genres": [
+      "Drama",
+      "Crime"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/e6FKU_0xhr6U2ueq_RM-OA/art/backdrop?v=7e3080681914f689fd1204f54c7fb69456313fb309c2350c62694e0bb5d54e18&w=1920",
+     "id": "e6FKU_0xhr6U2ueq_RM-OA",
+     "kind": "movie",
+     "title": "Obsession",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/e6FKU_0xhr6U2ueq_RM-OA/art/poster?v=7088ab6acd58e27a39f145316d665d148aa161b2b9cbbed306e48e42f7036a2e&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:33.417Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "e6FKU_0xhr6U2ueq_RM-OA"
+     },
+     "playback": {
+      "itemId": "e6FKU_0xhr6U2ueq_RM-OA"
+     },
+     "genres": [
+      "Horror",
+      "Thriller"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/L9w0rUoGiluwAY9VMEr70Q/art/backdrop?v=e1a4f1e47a8fecfa5a50eec872ba919c6b5b24285dae4b7cf44136528a475013&w=1920",
+     "id": "L9w0rUoGiluwAY9VMEr70Q",
+     "kind": "movie",
+     "title": "Inside Out",
+     "subtitle": "2015",
+     "posterUrl": "/v1/metadata/item/L9w0rUoGiluwAY9VMEr70Q/art/poster?v=a2b0eb398643611c4e64dcb46d25cf37c5278b68a12392c018fba8fca80a0125&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2015,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:29.216Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "L9w0rUoGiluwAY9VMEr70Q"
+     },
+     "playback": {
+      "itemId": "L9w0rUoGiluwAY9VMEr70Q"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/wWMsJmvrao0WQE9L0PlO7A/art/backdrop?v=1f5b1a54d0f430a55f898398bcb9df20a7c15c001c35027618f0acfca55707f9&w=1920",
+     "id": "wWMsJmvrao0WQE9L0PlO7A",
+     "kind": "movie",
+     "title": "Se7en",
+     "subtitle": "1995",
+     "posterUrl": "/v1/metadata/item/wWMsJmvrao0WQE9L0PlO7A/art/poster?v=37ed6d07561f94eb90df37c8629b6a3b244beac237572c355f913c67c1606b90&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1995,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:41.227Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "wWMsJmvrao0WQE9L0PlO7A"
+     },
+     "playback": {
+      "itemId": "wWMsJmvrao0WQE9L0PlO7A"
+     },
+     "genres": [
+      "Crime",
+      "Mystery"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/34YfBskC0bEhTg2_usZ5dg/art/backdrop?v=b013b8880ce1d4a7c1f66e1973961fbf192bed40446d9a20517b19d0ce3d9bbd&w=1920",
+     "id": "34YfBskC0bEhTg2_usZ5dg",
+     "kind": "movie",
+     "title": "Spider-Man: Into the Spider-Verse",
+     "subtitle": "2018",
+     "posterUrl": "/v1/metadata/item/34YfBskC0bEhTg2_usZ5dg/art/poster?v=c5840c44e22ba2d134113367ddd0957752fd36b3d2125df130a7524e40e3b294&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2018,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:43.064Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "34YfBskC0bEhTg2_usZ5dg"
+     },
+     "playback": {
+      "itemId": "34YfBskC0bEhTg2_usZ5dg"
+     },
+     "genres": [
+      "Animation",
+      "Action"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/A-lx0HQACuybqDB5Cqr7ug/art/backdrop?v=6661302c75b21459fecf63e313272df4b59e1bc724d103ad274532b704944064&w=1920",
+     "id": "A-lx0HQACuybqDB5Cqr7ug",
+     "kind": "movie",
+     "title": "One Flew Over the Cuckoo's Nest",
+     "subtitle": "1975",
+     "posterUrl": "/v1/metadata/item/A-lx0HQACuybqDB5Cqr7ug/art/poster?v=ee1bf05e3b1acf2910a355ff600c084603bd1da8c5aa07439aa3c39bf6ebf8ce&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1975,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:34.012Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "A-lx0HQACuybqDB5Cqr7ug"
+     },
+     "playback": {
+      "itemId": "A-lx0HQACuybqDB5Cqr7ug"
+     },
+     "genres": [
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/6rqyygqysYESf3aTIXzSWQ/art/backdrop?v=5560f9ea0c76d2c90542c1ae078022441b886b6c317afef4c30c3119eb75aeec&w=1920",
+     "id": "6rqyygqysYESf3aTIXzSWQ",
+     "kind": "movie",
+     "title": "Titanic",
+     "subtitle": "1997",
+     "posterUrl": "/v1/metadata/item/6rqyygqysYESf3aTIXzSWQ/art/poster?v=78e3d69fce36891d24bcc6b2c57a3d4df434a02b75f37e5061859ef9985dffe9&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1997,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:58.061Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "6rqyygqysYESf3aTIXzSWQ"
+     },
+     "playback": {
+      "itemId": "6rqyygqysYESf3aTIXzSWQ"
+     },
+     "genres": [
+      "Drama",
+      "Romance"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 90,
+   "start": 0,
+   "limit": 12,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "for_you:top",
+   "title": "Top rated you haven't seen",
+   "titleText": {
+    "code": "home.row.topRated",
+    "fallback": "Top rated you haven't seen"
+   },
+   "kind": "recommendation",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/for_you:top",
+   "privacySensitivity": "personal",
+   "policyState": "available",
+   "family": "for_you",
+   "priority": 68,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": false,
+   "reorderable": false,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/kXH-nfSl1_Fw9QhSTZEIOQ/art/backdrop?v=452ac9d7771f42a15b3d4bbe81d63ab70c413b4a1be5c16a071cd9c999cc95f2&w=1920",
+     "id": "kXH-nfSl1_Fw9QhSTZEIOQ",
+     "kind": "movie",
+     "title": "The Lord of the Rings: The Two Towers",
+     "subtitle": "2002",
+     "posterUrl": "/v1/metadata/item/kXH-nfSl1_Fw9QhSTZEIOQ/art/poster?v=f2544ed15cf41fd5bd5c7e304537236f27113d1b774bc451cd298a0449d163eb&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2002,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:52.666Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "kXH-nfSl1_Fw9QhSTZEIOQ"
+     },
+     "playback": {
+      "itemId": "kXH-nfSl1_Fw9QhSTZEIOQ"
+     },
+     "genres": [
+      "Adventure",
+      "Fantasy"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/0Xu1HSbD_cjluhIbgoVBZQ/art/backdrop?v=fa6a18c8c49308e0e2c455a3af1043e973c49854d448da8726bec8791404b4e6&w=1920",
+     "id": "0Xu1HSbD_cjluhIbgoVBZQ",
+     "kind": "movie",
+     "title": "Grave of the Fireflies",
+     "subtitle": "1988",
+     "posterUrl": "/v1/metadata/item/0Xu1HSbD_cjluhIbgoVBZQ/art/poster?v=2a336d27fbbbd9ed6228fea2c8e16e2f316069c8c1d43a99cb9fe58dfce2856f&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1988,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:26.198Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "0Xu1HSbD_cjluhIbgoVBZQ"
+     },
+     "playback": {
+      "itemId": "0Xu1HSbD_cjluhIbgoVBZQ"
+     },
+     "genres": [
+      "Animation",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/PLlWxmC9cTPbHRErW3agEQ/art/backdrop?v=f1d4130cb8917ef64629b21e1269088d6324a26bcbaf7a1ca64d6716120ba318&w=1920",
+     "id": "PLlWxmC9cTPbHRErW3agEQ",
+     "kind": "movie",
+     "title": "The Shawshank Redemption",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/PLlWxmC9cTPbHRErW3agEQ/art/poster?v=6483cdcf6c49f36a3e6c025a0b8c8ba1b1bf4192d5301087bee5a378867dbee2&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1994,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:55.060Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "PLlWxmC9cTPbHRErW3agEQ"
+     },
+     "playback": {
+      "itemId": "PLlWxmC9cTPbHRErW3agEQ"
+     },
+     "genres": [
+      "Drama",
+      "Crime"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/r1CtLp6xQId25P--kvpDiA/art/backdrop?v=20e7f25e44fcfa2ea9f6f48991f8e9f5bca21b1c2541fa58eefab8a7708d8d7a&w=1920",
+     "id": "r1CtLp6xQId25P--kvpDiA",
+     "kind": "movie",
+     "title": "Inception",
+     "subtitle": "2010",
+     "posterUrl": "/v1/metadata/item/r1CtLp6xQId25P--kvpDiA/art/poster?v=d000514fa33c16ee1885ee728679f455fbe3a1115e2c3049bacf8f1bdad15341&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2010,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:27.975Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "r1CtLp6xQId25P--kvpDiA"
+     },
+     "playback": {
+      "itemId": "r1CtLp6xQId25P--kvpDiA"
+     },
+     "genres": [
+      "Action",
+      "Science Fiction"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/DZs2il2jVWj_ZdSIruE0nA/art/backdrop?v=d92ad89926b8c43010307fd6df14c90954528d287b2c2a5212bfa718e935d62b&w=1920",
+     "id": "DZs2il2jVWj_ZdSIruE0nA",
+     "kind": "movie",
+     "title": "The Godfather Part II",
+     "subtitle": "1974",
+     "posterUrl": "/v1/metadata/item/DZs2il2jVWj_ZdSIruE0nA/art/poster?v=5b9396d9c07576d5c0f87516e3fc1989394fd2cd932fa5d8b3636e60ad71bb88&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1974,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:49.659Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "DZs2il2jVWj_ZdSIruE0nA"
+     },
+     "playback": {
+      "itemId": "DZs2il2jVWj_ZdSIruE0nA"
+     },
+     "genres": [
+      "Drama",
+      "Crime"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/RmCoJCvBUsUpxUsFvbTR3w/art/backdrop?v=309567c8b2f9302b46ffd1ea3ec6998824ef9762fc011ccf3785bd4cf5a25dc9&w=1920",
+     "id": "RmCoJCvBUsUpxUsFvbTR3w",
+     "kind": "movie",
+     "title": "Gladiator",
+     "subtitle": "2000",
+     "posterUrl": "/v1/metadata/item/RmCoJCvBUsUpxUsFvbTR3w/art/poster?v=0164cfdeea11fd1c5848a871c6118867405f81554e8ff566038bacbba5da1145&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2000,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:24.976Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "RmCoJCvBUsUpxUsFvbTR3w"
+     },
+     "playback": {
+      "itemId": "RmCoJCvBUsUpxUsFvbTR3w"
+     },
+     "genres": [
+      "Action",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/YBFVNC6bp1ZOJiJUWq8kBw/art/backdrop?v=5ac26d92edea7e0723aca84871f2c194f511d202b07c1b4aafe1887d83d67f90&w=1920",
+     "id": "YBFVNC6bp1ZOJiJUWq8kBw",
+     "kind": "movie",
+     "title": "WALL·E",
+     "subtitle": "2008",
+     "posterUrl": "/v1/metadata/item/YBFVNC6bp1ZOJiJUWq8kBw/art/poster?v=eae9485685d778199ff19c994cfc06e6adea27bded03354c1aa9001a07973ced&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2008,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:01.065Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "YBFVNC6bp1ZOJiJUWq8kBw"
+     },
+     "playback": {
+      "itemId": "YBFVNC6bp1ZOJiJUWq8kBw"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/U40ywtp8X5jXM6fcX8eLKA/art/backdrop?v=6ed3d6fa41ea6006623178e897cf55dea615213c3c31c3b9bcc1464b2fc5f52b&w=1920",
+     "id": "U40ywtp8X5jXM6fcX8eLKA",
+     "kind": "movie",
+     "title": "The Shining",
+     "subtitle": "1980",
+     "posterUrl": "/v1/metadata/item/U40ywtp8X5jXM6fcX8eLKA/art/poster?v=c5bf79b05ef88579709fd1ecc33f6b5ac9c005517dfef3a031a38a700c3eb7f0&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1980,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:55.655Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "U40ywtp8X5jXM6fcX8eLKA"
+     },
+     "playback": {
+      "itemId": "U40ywtp8X5jXM6fcX8eLKA"
+     },
+     "genres": [
+      "Horror",
+      "Thriller"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/ss1uGgjrarhpGti5ilD0Ew/art/backdrop?v=3ec093156ff5cc2151c6818413eb8dfc7b5317fe9c5ee3cdead9e984e6046e1d&w=1920",
+     "id": "ss1uGgjrarhpGti5ilD0Ew",
+     "kind": "movie",
+     "title": "Saving Private Ryan",
+     "subtitle": "1998",
+     "posterUrl": "/v1/metadata/item/ss1uGgjrarhpGti5ilD0Ew/art/poster?v=b7540ebf7c169229700ac633e2182c40346eef348eae1833230c684add744c95&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1998,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:40.042Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ss1uGgjrarhpGti5ilD0Ew"
+     },
+     "playback": {
+      "itemId": "ss1uGgjrarhpGti5ilD0Ew"
+     },
+     "genres": [
+      "War",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/dUZNQGlhCsSl-eHSf0R8dg/art/backdrop?v=4b6c6e0485ca42a29277737d41a186360a44b3f073885640bbcd7b0bf709f353&w=1920",
+     "id": "dUZNQGlhCsSl-eHSf0R8dg",
+     "kind": "movie",
+     "title": "Back to the Future",
+     "subtitle": "1985",
+     "posterUrl": "/v1/metadata/item/dUZNQGlhCsSl-eHSf0R8dg/art/poster?v=51e462a2e634ecc755b4a3440cbbe56dab706b815bf990fddfb753ba5a0ecb80&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1985,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:19.003Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "dUZNQGlhCsSl-eHSf0R8dg"
+     },
+     "playback": {
+      "itemId": "dUZNQGlhCsSl-eHSf0R8dg"
+     },
+     "genres": [
+      "Adventure",
+      "Comedy"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/ts6hDDGBfJOO1xm106cwBA/art/backdrop?v=a3d17a070b0e2796ca972c4e7913e0f86a6a17da05a1cab6564b9a1e4b0f2c5f&w=1920",
+     "id": "ts6hDDGBfJOO1xm106cwBA",
+     "kind": "movie",
+     "title": "The Dark Knight",
+     "subtitle": "2008",
+     "posterUrl": "/v1/metadata/item/ts6hDDGBfJOO1xm106cwBA/art/poster?v=1e8c9af3d5d8747396057b10f58227ba43d89bd83d11361b4aa4b57ff21f217b&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2008,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:46.643Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ts6hDDGBfJOO1xm106cwBA"
+     },
+     "playback": {
+      "itemId": "ts6hDDGBfJOO1xm106cwBA"
+     },
+     "genres": [
+      "Action",
+      "Thriller"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/Gk77agMbMFWlwLe-U77QKw/art/backdrop?v=9a73f76e5e62d416de2ec6f4e3b35aaa823f5a2562bd84c51a7a06f789424130&w=1920",
+     "id": "Gk77agMbMFWlwLe-U77QKw",
+     "kind": "movie",
+     "title": "Jurassic Park",
+     "subtitle": "1993",
+     "posterUrl": "/v1/metadata/item/Gk77agMbMFWlwLe-U77QKw/art/poster?v=b46ea47f1559d9dbefc66a0b49edcbaac3960f7d7c4f40224a16c05f55ff4769&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1993,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:30.990Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "Gk77agMbMFWlwLe-U77QKw"
+     },
+     "playback": {
+      "itemId": "Gk77agMbMFWlwLe-U77QKw"
+     },
+     "genres": [
+      "Adventure",
+      "Science Fiction"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 38,
+   "start": 0,
+   "limit": 12,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "for_you:genre:drama",
+   "title": "Drama for you",
+   "titleText": {
+    "code": "home.row.genreForYou",
+    "params": {
+     "genre": "Drama"
+    },
+    "fallback": "Drama for you"
+   },
+   "kind": "recommendation",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/for_you:genre:drama",
+   "privacySensitivity": "personal",
+   "policyState": "available",
+   "family": "for_you",
+   "priority": 61,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": false,
+   "reorderable": false,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/2E4gInreHdz4hMk_d3Uybg/art/backdrop?v=369d58c1ba2702aa7a417f34c421b310c55855b2daa3ec48f2ca0a394df31223&w=1920",
+     "id": "2E4gInreHdz4hMk_d3Uybg",
+     "kind": "movie",
+     "title": "Three Colors: Red",
+     "subtitle": "1994",
+     "posterUrl": "/v1/metadata/item/2E4gInreHdz4hMk_d3Uybg/art/poster?v=2399f1b1a342d5f1e026bce97fb4765709f7746579846e4e5f37a72a4dd72c34&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1994,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:57.510Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "2E4gInreHdz4hMk_d3Uybg"
+     },
+     "playback": {
+      "itemId": "2E4gInreHdz4hMk_d3Uybg"
+     },
+     "genres": [
+      "Drama",
+      "Mystery"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/l_PaPfXC4nd4UMXjeuabsw/art/backdrop?v=8ef1787e75a427831a9070a9efc51aac7d7f93840a1632953820653df822a618&w=1920",
+     "id": "l_PaPfXC4nd4UMXjeuabsw",
+     "kind": "movie",
+     "title": "Parenthood",
+     "subtitle": "1989",
+     "posterUrl": "/v1/metadata/item/l_PaPfXC4nd4UMXjeuabsw/art/poster?v=0240e2b184383a87558dd48fdd001074a5173cea296b7220023fa414ef460f45&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1989,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:35.808Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "l_PaPfXC4nd4UMXjeuabsw"
+     },
+     "playback": {
+      "itemId": "l_PaPfXC4nd4UMXjeuabsw"
+     },
+     "genres": [
+      "Comedy",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/-l3kfCw2B0P55Xb-UFz07A/art/backdrop?v=4ba01297198a88ba3a7a12cf1f2532482f61c3c33e3d9b1aa7714a3ffe04fcd0&w=1920",
+     "id": "-l3kfCw2B0P55Xb-UFz07A",
+     "kind": "movie",
+     "title": "The Rivals of Amziah King",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/-l3kfCw2B0P55Xb-UFz07A/art/poster?v=0927e382f365176c3c66e54817feec9418ae9374cc6ef4954c0289d2bc6cdd85&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:54.490Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "-l3kfCw2B0P55Xb-UFz07A"
+     },
+     "playback": {
+      "itemId": "-l3kfCw2B0P55Xb-UFz07A"
+     },
+     "genres": [
+      "Thriller",
+      "Crime"
+     ],
+     "watchlisted": false
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "y2TW7qBSaHpDhnNYCHW3vQ",
+     "kind": "show",
+     "title": "Severance",
+     "subtitle": "2022",
+     "posterUrl": "/v1/metadata/show/y2TW7qBSaHpDhnNYCHW3vQ/art/poster?v=23037f61bf7b6ad80fe8f7c5a988ea272cba013389d32612b679dd9e2537235d&w=400",
+     "available": true,
+     "year": 2022,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "y2TW7qBSaHpDhnNYCHW3vQ"
+     },
+     "genres": [
+      "Drama",
+      "Mystery"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_OR9V3RRg5Bgz5wuirRzGg",
+     "kind": "show",
+     "title": "The Last of Us",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/poster?v=047ee98b0ea2c2b2b8a9bc29b97408826794595a579b2ff6858a28924944474d&w=400",
+     "available": true,
+     "year": 2023,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_OR9V3RRg5Bgz5wuirRzGg"
+     },
+     "genres": [
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "xo0WVHybY-IROwn12xDl5w",
+     "kind": "show",
+     "title": "Lioness",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/poster?v=ebaee69c2691653437ac4daee35040be09706edd01913a504c013f22e221d195&w=400",
+     "available": true,
+     "year": 2023,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xo0WVHybY-IROwn12xDl5w"
+     },
+     "genres": [
+      "Drama",
+      "War & Politics"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "qrtRe2eYjfm7SU1zyPU7Rg",
+     "kind": "show",
+     "title": "Outlander: Blood of My Blood",
+     "subtitle": "2025",
+     "posterUrl": "/v1/metadata/show/qrtRe2eYjfm7SU1zyPU7Rg/art/poster?v=0009b319574bb4288ab3e6ab09d40b6e7a360f0b54c04458e276a2738d460f2e&w=400",
+     "available": true,
+     "year": 2025,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "qrtRe2eYjfm7SU1zyPU7Rg"
+     },
+     "genres": [
+      "Drama"
+     ]
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/yv_rx03aji2uHPUHc9GJKQ/art/backdrop?v=84665d1308c73ac6702b2849e3942d214dcd3de5448c446b647ab917c76d1b58&w=1920",
+     "id": "yv_rx03aji2uHPUHc9GJKQ",
+     "kind": "movie",
+     "title": "You+Me - Against the World",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/yv_rx03aji2uHPUHc9GJKQ/art/poster?v=434a9b5d024121ce95f0953dfdea16d9d9c8eb82d34f1e30aa21733ebb6ef99b&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:01.682Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "yv_rx03aji2uHPUHc9GJKQ"
+     },
+     "playback": {
+      "itemId": "yv_rx03aji2uHPUHc9GJKQ"
+     },
+     "genres": [
+      "Romance",
+      "Drama"
+     ],
+     "watchlisted": false
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5P1xrYyeYVN_jcV6JFN72A",
+     "kind": "show",
+     "title": "The Walking Dead",
+     "subtitle": "2010",
+     "posterUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/poster?v=7be825ad6bfc9f8dc5449b548655c5b589afef6f86d121386cef9997afab9cdb&w=400",
+     "available": true,
+     "year": 2010,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5P1xrYyeYVN_jcV6JFN72A"
+     },
+     "genres": [
+      "Action & Adventure",
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "l6c_UOaem12vpQoauST9Pw",
+     "kind": "show",
+     "title": "The Gentlemen",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/poster?v=7521124a4b0539c7f16e24c3b5f12991b5a0a236c9bb99c294947a604168a239&w=400",
+     "available": true,
+     "year": 2024,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "l6c_UOaem12vpQoauST9Pw"
+     },
+     "genres": [
+      "Comedy",
+      "Drama"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "BTcEg5gSAoocBdKmhwafyg",
+     "kind": "show",
+     "title": "Lanterns",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/poster?v=cc158ba080b7bc238d292fd18a860c4ecbbe8bcc7f1c324b6bfdf4c092daaf17&w=400",
+     "available": true,
+     "year": 2026,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "BTcEg5gSAoocBdKmhwafyg"
+     },
+     "genres": [
+      "Drama",
+      "Mystery"
+     ]
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "e3gS8v6SROn_5BodzsuIPw",
+     "kind": "show",
+     "title": "Monster: The Lizzie Borden Story",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/e3gS8v6SROn_5BodzsuIPw/art/poster?v=b7eb3f7c9c7434ade1cd24ea5e1537af058233625eb5b1c245cf1fde92f6680c&w=400",
+     "available": true,
+     "year": 2026,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "e3gS8v6SROn_5BodzsuIPw"
+     },
+     "genres": [
+      "Drama",
+      "Crime"
+     ]
+    }
+   ],
+   "total": 19,
+   "start": 0,
+   "limit": 12,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "for_you:genre:science fiction",
+   "title": "Science Fiction for you",
+   "titleText": {
+    "code": "home.row.genreForYou",
+    "params": {
+     "genre": "Science Fiction"
+    },
+    "fallback": "Science Fiction for you"
+   },
+   "kind": "recommendation",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/for_you:genre:science fiction",
+   "privacySensitivity": "personal",
+   "policyState": "available",
+   "family": "for_you",
+   "priority": 62,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": false,
+   "reorderable": false,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/HXpEAgjJXZYbh9Iyn7fExQ/art/backdrop?v=97e49733b81c7fcdeecaad2f7d9eba7c00a58b4c8f5f0702dc53fd387b883b24&w=1920",
+     "id": "HXpEAgjJXZYbh9Iyn7fExQ",
+     "kind": "movie",
+     "title": "Backrooms",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/HXpEAgjJXZYbh9Iyn7fExQ/art/poster?v=71205797efec538fec76f2b90d1cfddc67274366cc61e8be8afba19d3fa68d95&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:19.588Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "HXpEAgjJXZYbh9Iyn7fExQ"
+     },
+     "playback": {
+      "itemId": "HXpEAgjJXZYbh9Iyn7fExQ"
+     },
+     "genres": [
+      "Horror",
+      "Mystery"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/VCL7bPj4HZ_mOLY4thS6aw/art/backdrop?v=7bac096c251afe86fe73a857310e4ac55bb7f0504be1d5bb628f59d4e1cf07b1&w=1920",
+     "id": "VCL7bPj4HZ_mOLY4thS6aw",
+     "kind": "movie",
+     "title": "The End of Oak Street",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/VCL7bPj4HZ_mOLY4thS6aw/art/poster?v=dd4e9eac2c385a15eaead76a443da3e946cd22fee8ff1614297800ea62fb371c&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:47.897Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "VCL7bPj4HZ_mOLY4thS6aw"
+     },
+     "playback": {
+      "itemId": "VCL7bPj4HZ_mOLY4thS6aw"
+     },
+     "genres": [
+      "Science Fiction",
+      "Mystery"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/pifG-3ffrLZT3oOfvqjKQw/art/backdrop?v=9c7829ea8f85769f845912775a38579d7ae794934ff51980090d005bf633b857&w=1920",
+     "id": "pifG-3ffrLZT3oOfvqjKQw",
+     "kind": "movie",
+     "title": "Hope",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/pifG-3ffrLZT3oOfvqjKQw/art/poster?v=43e6c98243aa42a30b777aec4e5fdaf61270a8c4291769bf02e0b5739f43c25d&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:26.766Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "pifG-3ffrLZT3oOfvqjKQw"
+     },
+     "playback": {
+      "itemId": "pifG-3ffrLZT3oOfvqjKQw"
+     },
+     "genres": [
+      "Science Fiction",
+      "Mystery"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/jJz6GeyqTkLDIWvP8HeMFQ/art/backdrop?v=5b8248607c596adff52251c39f301cfced704c9953bdf77b76ae8a5fea251eab&w=1920",
+     "id": "jJz6GeyqTkLDIWvP8HeMFQ",
+     "kind": "movie",
+     "title": "Resident Evil",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/jJz6GeyqTkLDIWvP8HeMFQ/art/poster?v=4194058a2142923db743405849b37307d25ff29cb1ee2598b34ed028cc35e42a&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:38.855Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jJz6GeyqTkLDIWvP8HeMFQ"
+     },
+     "playback": {
+      "itemId": "jJz6GeyqTkLDIWvP8HeMFQ"
+     },
+     "genres": [
+      "Horror",
+      "Science Fiction"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/TUsUscjsXwualdoYQgCc1w/art/backdrop?v=9d817bbbcc070f608ae5bafb66fcbf447c223db12cbb6fa41bb1bc4f251cda21&w=1920",
+     "id": "TUsUscjsXwualdoYQgCc1w",
+     "kind": "movie",
+     "title": "The Terminator",
+     "subtitle": "1984",
+     "posterUrl": "/v1/metadata/item/TUsUscjsXwualdoYQgCc1w/art/poster?v=5075d86750b1bf842d6ad4a9df7869df6e567b1f41b68683201c4316d122f03d&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1984,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:56.853Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "TUsUscjsXwualdoYQgCc1w"
+     },
+     "playback": {
+      "itemId": "TUsUscjsXwualdoYQgCc1w"
+     },
+     "genres": [
+      "Action",
+      "Thriller"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/Bey2xi_FMNzSf5sRGVMbfQ/art/backdrop?v=da52fda10a3001555727291d6a5c1a14018dd61d052a21d9d4eb5925c2945eea&w=1920",
+     "id": "Bey2xi_FMNzSf5sRGVMbfQ",
+     "kind": "movie",
+     "title": "Avatar",
+     "subtitle": "2009",
+     "posterUrl": "/v1/metadata/item/Bey2xi_FMNzSf5sRGVMbfQ/art/poster?v=2ab0046d57c1ca6dbbd0b1a46eae427f438e72279e2602519e62a8a3af24904e&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2009,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:17.230Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "Bey2xi_FMNzSf5sRGVMbfQ"
+     },
+     "playback": {
+      "itemId": "Bey2xi_FMNzSf5sRGVMbfQ"
+     },
+     "genres": [
+      "Science Fiction",
+      "Action"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 6,
+   "start": 0,
+   "limit": 12,
+   "hasMore": false,
+   "nextCursor": "",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  },
+  {
+   "id": "trending_now",
+   "title": "Trending now",
+   "titleText": {
+    "code": "home.row.trending",
+    "fallback": "Trending now"
+   },
+   "kind": "recommendation",
+   "artworkShape": "poster",
+   "endpoint": "/v1/home/rows/trending_now",
+   "privacySensitivity": "catalog",
+   "policyState": "available",
+   "priority": 70,
+   "cacheTtlSeconds": 300,
+   "required": false,
+   "hideable": true,
+   "reorderable": true,
+   "critical": false,
+   "cursorCapable": true,
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "BTcEg5gSAoocBdKmhwafyg",
+     "kind": "show",
+     "title": "Lanterns",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/poster?v=cc158ba080b7bc238d292fd18a860c4ecbbe8bcc7f1c324b6bfdf4c092daaf17&w=400",
+     "available": true,
+     "year": 2026,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "BTcEg5gSAoocBdKmhwafyg"
+     },
+     "genres": [
+      "Drama",
+      "Mystery"
+     ]
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/F3JVwLKYT7F2FzlXhKzkvg/art/backdrop?v=81339ab0d8668f83f15486b282e7308473263654446f7e4cebde8bb8a6095a3f&w=1920",
+     "id": "F3JVwLKYT7F2FzlXhKzkvg",
+     "kind": "movie",
+     "title": "Spider-Man: Brand New Day",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/F3JVwLKYT7F2FzlXhKzkvg/art/poster?v=962118bedf3a2de4b669ea06fc99fba88954d134dc77d15f3f8db688f0675c39&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:42.424Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "F3JVwLKYT7F2FzlXhKzkvg"
+     },
+     "playback": {
+      "itemId": "F3JVwLKYT7F2FzlXhKzkvg"
+     },
+     "genres": [
+      "Science Fiction",
+      "Action"
+     ],
+     "watchlisted": false
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5WRgrpGzIzHsNIsVgIcAEw",
+     "kind": "show",
+     "title": "MobLand",
+     "subtitle": "2025",
+     "posterUrl": "/v1/metadata/show/5WRgrpGzIzHsNIsVgIcAEw/art/poster?v=601cf74dfd785cf42cdf5868b54cfd5d293bdd95bf727fb6d22ed76efb77b9b1&w=400",
+     "available": true,
+     "year": 2025,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5WRgrpGzIzHsNIsVgIcAEw"
+     },
+     "genres": [
+      "Crime",
+      "Drama"
+     ]
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/jJz6GeyqTkLDIWvP8HeMFQ/art/backdrop?v=5b8248607c596adff52251c39f301cfced704c9953bdf77b76ae8a5fea251eab&w=1920",
+     "id": "jJz6GeyqTkLDIWvP8HeMFQ",
+     "kind": "movie",
+     "title": "Resident Evil",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/jJz6GeyqTkLDIWvP8HeMFQ/art/poster?v=4194058a2142923db743405849b37307d25ff29cb1ee2598b34ed028cc35e42a&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:38.855Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jJz6GeyqTkLDIWvP8HeMFQ"
+     },
+     "playback": {
+      "itemId": "jJz6GeyqTkLDIWvP8HeMFQ"
+     },
+     "genres": [
+      "Horror",
+      "Science Fiction"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/e6FKU_0xhr6U2ueq_RM-OA/art/backdrop?v=7e3080681914f689fd1204f54c7fb69456313fb309c2350c62694e0bb5d54e18&w=1920",
+     "id": "e6FKU_0xhr6U2ueq_RM-OA",
+     "kind": "movie",
+     "title": "Obsession",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/e6FKU_0xhr6U2ueq_RM-OA/art/poster?v=7088ab6acd58e27a39f145316d665d148aa161b2b9cbbed306e48e42f7036a2e&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:33.417Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "e6FKU_0xhr6U2ueq_RM-OA"
+     },
+     "playback": {
+      "itemId": "e6FKU_0xhr6U2ueq_RM-OA"
+     },
+     "genres": [
+      "Horror",
+      "Thriller"
+     ],
+     "watchlisted": false
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "apcMS4fou_ExuEc6TKp4sA",
+     "kind": "show",
+     "title": "One Piece",
+     "subtitle": "1999",
+     "posterUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/poster?v=d216451408e36dfc01fa7e094d95c407653a2a534e4e0dce16cfe63b859e769d&w=400",
+     "available": true,
+     "year": 1999,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "apcMS4fou_ExuEc6TKp4sA"
+     },
+     "genres": [
+      "Action & Adventure",
+      "Comedy"
+     ]
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/OfgyR1tYaHqpMg-RHH90Qg/art/backdrop?v=55c802bfa6a4e8f943330e48b33fa6bdde03ac97c03da3ac511ae428c09f11a6&w=1920",
+     "id": "OfgyR1tYaHqpMg-RHH90Qg",
+     "kind": "movie",
+     "title": "Moana",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/OfgyR1tYaHqpMg-RHH90Qg/art/poster?v=c409c3304f071c7a3077637e84a5f18089b0bb9a85bd5e29de15e01d393f3f2e&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:32.214Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "OfgyR1tYaHqpMg-RHH90Qg"
+     },
+     "playback": {
+      "itemId": "OfgyR1tYaHqpMg-RHH90Qg"
+     },
+     "genres": [
+      "Family",
+      "Fantasy"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/iLqxit9xW6O-v9-cnshjbg/art/backdrop?v=26517e37e08f9af5b970c115787d009a3535e55aa20f68d5a12d0050668ae2ab&w=1920",
+     "id": "iLqxit9xW6O-v9-cnshjbg",
+     "kind": "movie",
+     "title": "The Odyssey",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/iLqxit9xW6O-v9-cnshjbg/art/poster?v=e25fbc6e79bca041e27ddc65dfa562f6d7278dfdd01b098ef2c52a658a4d6ce8&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:53.854Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "iLqxit9xW6O-v9-cnshjbg"
+     },
+     "playback": {
+      "itemId": "iLqxit9xW6O-v9-cnshjbg"
+     },
+     "genres": [
+      "Adventure",
+      "Action"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/O2j0PZZHXeBykBuRzvWK3g/art/backdrop?v=89e31eb9463ba68ffd96cb83b898299945c0545c9d446a18f79b4a4deb12ebe6&w=1920",
+     "id": "O2j0PZZHXeBykBuRzvWK3g",
+     "kind": "movie",
+     "title": "Toy Story 5",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/O2j0PZZHXeBykBuRzvWK3g/art/poster?v=9e730a2b284a8ca5a9f5327740f55ce0e277d9811a8f45f5b95a660b323da77f&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:00.495Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "O2j0PZZHXeBykBuRzvWK3g"
+     },
+     "playback": {
+      "itemId": "O2j0PZZHXeBykBuRzvWK3g"
+     },
+     "genres": [
+      "Animation",
+      "Family"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/VCL7bPj4HZ_mOLY4thS6aw/art/backdrop?v=7bac096c251afe86fe73a857310e4ac55bb7f0504be1d5bb628f59d4e1cf07b1&w=1920",
+     "id": "VCL7bPj4HZ_mOLY4thS6aw",
+     "kind": "movie",
+     "title": "The End of Oak Street",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/VCL7bPj4HZ_mOLY4thS6aw/art/poster?v=dd4e9eac2c385a15eaead76a443da3e946cd22fee8ff1614297800ea62fb371c&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:47.897Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "VCL7bPj4HZ_mOLY4thS6aw"
+     },
+     "playback": {
+      "itemId": "VCL7bPj4HZ_mOLY4thS6aw"
+     },
+     "genres": [
+      "Science Fiction",
+      "Mystery"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/wrUmR23BVPH2a-KDdkmktQ/art/backdrop?v=2f2ea5157fa25d2d277a51663fe256921da843240b0637819eae45d42a317c06&w=1920",
+     "id": "wrUmR23BVPH2a-KDdkmktQ",
+     "kind": "movie",
+     "title": "Coyote vs. Acme",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/wrUmR23BVPH2a-KDdkmktQ/art/poster?v=a3fc834a5b8fcd2ff6ef888a86de20798cea475c85ff4d8af443e5578955052c&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:21.376Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "wrUmR23BVPH2a-KDdkmktQ"
+     },
+     "playback": {
+      "itemId": "wrUmR23BVPH2a-KDdkmktQ"
+     },
+     "genres": [
+      "Comedy",
+      "Adventure"
+     ],
+     "watchlisted": false
+    },
+    {
+     "watched": false,
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/HXpEAgjJXZYbh9Iyn7fExQ/art/backdrop?v=97e49733b81c7fcdeecaad2f7d9eba7c00a58b4c8f5f0702dc53fd387b883b24&w=1920",
+     "id": "HXpEAgjJXZYbh9Iyn7fExQ",
+     "kind": "movie",
+     "title": "Backrooms",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/item/HXpEAgjJXZYbh9Iyn7fExQ/art/poster?v=71205797efec538fec76f2b90d1cfddc67274366cc61e8be8afba19d3fa68d95&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:02:19.588Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "HXpEAgjJXZYbh9Iyn7fExQ"
+     },
+     "playback": {
+      "itemId": "HXpEAgjJXZYbh9Iyn7fExQ"
+     },
+     "genres": [
+      "Horror",
+      "Mystery"
+     ],
+     "watchlisted": false
+    }
+   ],
+   "total": 17,
+   "start": 0,
+   "limit": 12,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor",
+   "revision": {
+    "catalog": 50170,
+    "viewer": 1525
+   }
+  }
+ ],
+ "hero": {
+  "rowId": "continue",
+  "entryId": "YEa_W0N2olpVOk2F8yR1mA"
+ },
+ "layout": {
+  "revision": 15,
+  "rowOrder": [],
+  "hiddenRowIds": []
+ },
+ "revision": {
+  "catalog": 50170,
+  "viewer": 1525
+ },
+ "generatedAt": "2026-10-05T20:06:32.412Z"
+}

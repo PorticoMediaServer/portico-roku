@@ -1,0 +1,392 @@
+' The channel's session: connecting to a server by address, signing in to it, choosing a profile,
+' and coming back next time. What apps/native/src/app/session.tsx does with client-core
+' (server-connections.ts, profile-management.ts, direct-connect.ts), as plain synchronous steps
+' for a Task thread.
+'
+' A context is {store, send, installation, hostedUrl}. A connection is {origin, pin}: a server
+' whose identity proof was verified at that address. Every step returns {ok: true, …} or
+' {ok: false, failure}, where failure is {code, status, message} (and `shown`, a catalogue id, for
+' copy Portico itself wrote for a known situation).
+import "pkg:/source/core/Api.bs"
+import "pkg:/source/core/Bytes.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/DirectSignIn.bs"
+import "pkg:/source/core/LocalSession.bs"
+import "pkg:/source/core/RouteIdentity.bs"
+import "pkg:/source/core/SetupCode.bs"
+import "pkg:/source/core/Store.bs"
+import "pkg:/source/core/Time.bs"
+
+function SessionHostedUrl() as string
+    return "https://web.getportico.tv"
+end function
+
+' installation.ts: a random per-installation secret, set once and kept for the life of the
+' install, with what an approval screen calls this device.
+function InstallationIdentity(store as object) as object
+    id = store.read("portico", "installationId")
+    if id = invalid or not MatchesPattern(id, "^[A-Za-z0-9_-]{32,128}$") then
+        id = Base64UrlEncode(RandomBytes(24))
+        store.write("portico", "installationId", id)
+    end if
+    name = "Roku"
+    transport = ""
+    version = "0.1.0"
+    info = CreateObject("roDeviceInfo")
+    if info <> invalid then
+        friendly = info.getFriendlyName()
+        if friendly <> invalid and friendly <> "" then name = friendly
+        transport = TransportClassFor(info.getConnectionType())
+    end if
+    app = CreateObject("roAppInfo")
+    if app <> invalid then
+        given = app.getVersion()
+        if given <> invalid and given <> "" then version = given
+    end if
+    return { installationId: id, name: Left(name, 64), platform: "roku", app: "Portico", appVersion: version, transport: transport }
+end function
+
+function SessionContextNew() as object
+    store = StoreRegistry()
+    return { store: store, send: HttpSend, installation: InstallationIdentity(store), hostedUrl: SessionHostedUrl() }
+end function
+
+function SessionApi(ctx as object, baseUrl as string, token = "" as string) as object
+    api = ApiNew(baseUrl, token)
+    api.send = ctx.send
+    api.installation = ctx.installation
+    ' Tests answer requests from a table the transport reads through the api.
+    if ctx.transport <> invalid then api.transport = ctx.transport
+    return api
+end function
+
+function SessionFailure(code as string, message = "" as string, shown = invalid as dynamic) as object
+    failure = { code: code, status: 0, message: message }
+    if shown <> invalid then failure.shown = shown
+    return { ok: false, failure: failure }
+end function
+
+function SessionNow(ctx as object) as dynamic
+    if ctx.now <> invalid then return ctx.now
+    return NowSeconds()
+end function
+
+' route-identity.ts `probeRoute`: ask the server at `origin` to prove its identity for a fresh
+' nonce. With a `pin` it must be that server. Returns {ok, pin}.
+function SessionProbe(ctx as object, origin as string, pin as dynamic) as object
+    nonce = Base64UrlEncode(RandomBytes(32))
+    if ctx.nonce <> invalid then nonce = ctx.nonce
+    api = SessionApi(ctx, origin)
+    api.timeoutMs = 3000
+    answer = ApiRequest(api, "/v1/networking/identity-proof", "POST", { "baseUrl": origin, "nonce": nonce })
+    if not answer.ok then
+        code = "route_unavailable"
+        if answer.status = 401 then code = "authentication_required"
+        if answer.status = 403 then code = "access_denied"
+        if answer.status = 429 then code = "rate_limited"
+        if answer.status = 0 then code = answer.error.code
+        return { ok: false, failure: { code: code, status: answer.status, message: "The connection could not be verified." } }
+    end if
+    checked = RouteProofCheck(answer.data, origin, nonce, pin, SessionNow(ctx))
+    if not checked.ok then return { ok: false, failure: { code: checked.code, status: 0, message: checked.message } }
+    return { ok: true, pin: checked.pin }
+end function
+
+' direct-connect.ts `connectDirectServer`: inspect, pair and check the server at a typed address.
+' No credential has been sent when this returns. Returns {ok, connection: {origin, pin}}.
+function SessionConnect(ctx as object, typed as string, pin = invalid as dynamic) as object
+    origin = RouteOrigin(ServerAddress(typed))
+    if not origin.ok then return { ok: false, failure: { code: origin.code, status: 0, message: origin.message } }
+    proof = SessionProbe(ctx, origin.origin, pin)
+    if not proof.ok then
+        code = proof.failure.code
+        if code = "network" or code = "timeout" or code = "route_unavailable" then proof.failure.shown = "apple.connect.unreachable"
+        return proof
+    end if
+    system = ApiRequest(SessionApi(ctx, origin.origin), "/v1/system")
+    if not system.ok then return { ok: false, failure: system.error }
+    if IsObject(system.data) and system.data.setupRequired = true then return SessionFailure("setup_required", "", "apple.connect.setupRequired")
+    return { ok: true, connection: { origin: origin.origin, pin: proof.pin } }
+end function
+
+function SessionRecordSection(serverId as string) as string
+    return "portico.server." + serverId
+end function
+
+' server-connections.ts `rememberNativeSession`: keep a viewer session. The server it names must be
+' the one that proved itself at this address, and a direct sign-in must carry the server's own key.
+function SessionAccept(ctx as object, connection as object, session as object, details = invalid as dynamic) as object
+    if details = invalid then details = {}
+    if session.viewer.serverId <> connection.pin.serverId then return SessionFailure("identity_mismatch", "Verify this server before saving its sign-in.")
+    if details.hosted = invalid and session.serverIdentity = invalid then return SessionFailure("missing_server_key", "This server must include its identity key in the sign-in response.")
+    if session.serverIdentity <> invalid then
+        actual = ServerPin(session.viewer.serverId, session.serverIdentity.publicKey, session.serverIdentity.fingerprint)
+        if not actual.ok or not SameServerPin(actual.pin, connection.pin) then return SessionFailure("identity_mismatch", "The native session returned a different server identity.")
+    end if
+    record = {
+        "version": "1"
+        "logicalOrigin": connection.origin
+        "session": session
+        "pin": { "serverId": connection.pin.serverId, "publicKey": connection.pin.publicKey, "fingerprint": connection.pin.fingerprint }
+    }
+    if IsString(details.username) and details.username <> "" then record["username"] = details.username
+    if IsString(details.serverName) and details.serverName <> "" then record["serverName"] = details.serverName
+    if details.hosted <> invalid then record["hosted"] = details.hosted
+    if details.profileName <> invalid then record["profileName"] = details.profileName
+    section = SessionRecordSection(connection.pin.serverId)
+    if not StoreWriteJson(ctx.store, section, "record", record) then return SessionFailure("persistence_error", "The sign-in could not be saved.")
+    ctx.store.write("portico", "selected", connection.pin.serverId)
+    return { ok: true, session: session, connection: connection, record: record }
+end function
+
+' The saved record for the selected server, or invalid. A record that cannot be read is no record.
+function SessionRecord(ctx as object) as dynamic
+    serverId = ctx.store.read("portico", "selected")
+    if serverId = invalid or serverId = "" then return invalid
+    raw = StoreReadJson(ctx.store, SessionRecordSection(serverId), "record")
+    if not IsObject(raw) or raw["version"] <> "1" or not IsObject(raw["pin"]) or not IsString(raw["logicalOrigin"]) then return invalid
+    parsed = ParseLocalSession(raw["session"], invalid, true, SessionNow(ctx))
+    if not parsed.ok then return invalid
+    pin = ServerPin(raw["pin"]["serverId"], raw["pin"]["publicKey"], raw["pin"]["fingerprint"])
+    if not pin.ok or parsed.session.viewer.serverId <> pin.pin.serverId then return invalid
+    raw["session"] = parsed.session
+    raw["pin"] = pin.pin
+    return raw
+end function
+
+sub SessionForget(ctx as object, serverId as string)
+    ctx.store.remove(SessionRecordSection(serverId), "record")
+    if ctx.store.read("portico", "selected") = serverId then ctx.store.remove("portico", "selected")
+end sub
+
+' What a sign-in answer leads to (profile-management.ts `DirectSignIn`, then session.tsx's
+' handling). Returns {ok, kind, …}:
+'   "ready"            session, connection (one unprotected profile: signed in, saved)
+'   "profiles"         snapshot, accountSession (choose a profile)
+'   "password-change"  accountSession (the server requires a new password first)
+'   "challenge"        token (two-step verification)
+'   "device-pending"   (the owner must approve this device)
+function SessionSignInOutcome(ctx as object, connection as object, answer as object, details = invalid as dynamic) as object
+    if not answer.ok then return { ok: false, failure: answer.error }
+    parsed = ParseDirectSignIn(answer.data, SessionNow(ctx))
+    if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } }
+    if parsed.kind = "challenge" then return { ok: true, kind: "challenge", token: parsed.token }
+    if parsed.kind = "device-pending" then return { ok: true, kind: "device-pending" }
+    if parsed.snapshot.serverId <> connection.pin.serverId then return SessionFailure("server_mismatch", "The server answered as a different server.")
+    if parsed.passwordChangeRequired then return { ok: true, kind: "password-change", accountSession: parsed.session, snapshot: parsed.snapshot }
+    if parsed.accountScoped then return { ok: true, kind: "profiles", accountSession: parsed.session, snapshot: parsed.snapshot }
+    if details = invalid then details = {}
+    details.profileName = parsed.snapshot.profiles[0].name
+    if details.username = invalid then details.username = parsed.snapshot.account.username
+    accepted = SessionAccept(ctx, connection, parsed.session, details)
+    if not accepted.ok then return accepted
+    accepted.kind = "ready"
+    return accepted
+end function
+
+' POST /v1/direct/sign-in {username, password}.
+function SessionSignIn(ctx as object, connection as object, username as string, password as string) as object
+    if username.trim() = "" or password = "" then return { ok: false, failure: { code: "credentials_required", status: 0, message: "" } }
+    answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/direct/sign-in", "POST", { "username": username, "password": password })
+    return SessionSignInOutcome(ctx, connection, answer, { username: username })
+end function
+
+' POST /v1/auth/two-factor/challenge {token, code}: finishes a two-step sign-in.
+function SessionCompleteChallenge(ctx as object, connection as object, token as string, code as string, username = "" as string) as object
+    entered = code.trim()
+    if entered = "" or Len(entered) > 64 then return { ok: false, failure: { code: "invalid_code", status: 0, message: "" } }
+    answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/auth/two-factor/challenge", "POST", { "token": token, "code": entered })
+    outcome = SessionSignInOutcome(ctx, connection, answer, { username: username })
+    if outcome.ok and outcome.kind = "challenge" then return { ok: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    return outcome
+end function
+
+' POST /v1/direct/password with the account session: a required password change. Sign in again after.
+function SessionChangeRequiredPassword(ctx as object, connection as object, accountSession as object, currentPassword as string, newPassword as string) as object
+    answer = ApiRequest(SessionApi(ctx, connection.origin, accountSession.accessToken), "/v1/direct/password", "POST", { "currentPassword": currentPassword, "newPassword": newPassword })
+    if not answer.ok then return { ok: false, failure: answer.error }
+    return { ok: true }
+end function
+
+' POST /v1/direct/profiles/{id}/select with the account session: the profile's own viewer session.
+function SessionChooseProfile(ctx as object, connection as object, pending as object, profileId as string, pin = "" as string, details = invalid as dynamic) as object
+    if not ProfilePinValid(pin) then return { ok: false, failure: { code: "invalid_pin", status: 0, message: "" } }
+    body = { "installationId": ctx.installation.installationId }
+    if pin <> "" then body["pin"] = pin
+    answer = ApiRequest(SessionApi(ctx, connection.origin, pending.accountSession.accessToken), "/v1/direct/profiles/" + profileId.encodeUriComponent() + "/select", "POST", body)
+    if not answer.ok then return { ok: false, failure: answer.error }
+    parsed = ParseProfileSelection(answer.data, pending.snapshot.account.id, pending.snapshot.serverId, profileId, SessionNow(ctx))
+    if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } }
+    if details = invalid then details = {}
+    if details.username = invalid then details.username = pending.snapshot.account.username
+    for each profile in pending.snapshot.profiles
+        if profile.id = profileId then details.profileName = profile.name
+    end for
+    accepted = SessionAccept(ctx, connection, parsed.session, details)
+    if accepted.ok then accepted.kind = "ready"
+    return accepted
+end function
+
+' GET /v1/direct with a viewer session: the account's profiles, for switching.
+function SessionProfiles(ctx as object, connection as object, token as string) as object
+    answer = ApiRequest(SessionApi(ctx, connection.origin, token), "/v1/direct")
+    if not answer.ok then return { ok: false, failure: answer.error }
+    parsed = ParseDirectSnapshot(answer.data, { serverId: connection.pin.serverId })
+    if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } }
+    return { ok: true, snapshot: parsed.snapshot }
+end function
+
+' identity-client.ts `avatars`: the uploaded pictures of the account's profiles, read with the
+' token the chooser holds (the account grant while choosing, the profile session when switching).
+function SessionAvatars(ctx as object, connection as object, token as string) as object
+    answer = ApiRequest(SessionApi(ctx, connection.origin, token), "/v1/direct/profiles/avatars")
+    if not answer.ok then return { ok: false, failure: answer.error }
+    parsed = ParseProfileAvatars(answer.data)
+    if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: "" } }
+    return { ok: true, avatars: parsed.avatars }
+end function
+
+' server-connections.ts `refreshStoredSession`: renew the saved session when it is about to
+' expire or the server just refused its access token. The request id is saved before sending, so
+' a repeat after a failure replays the same request and the server returns its stored answer.
+' Returns {ok, session}; a failure with `signOut` true means the sign-in is over and the record
+' was removed.
+function SessionRenew(ctx as object, record as object, rejected = "" as string) as object
+    session = record["session"]
+    expires = IsoToSeconds(session.expiresAt)
+    fresh = expires <> invalid and expires - SessionNow(ctx) > 60
+    if fresh and record["pendingRefresh"] = invalid and (rejected = "" or session.accessToken <> rejected) then return { ok: true, session: session }
+    if session.refreshToken = invalid then return { ok: false, signOut: false, failure: { code: "refresh_unavailable", status: 0, message: "" } }
+    requestId = record["pendingRefresh"]
+    section = SessionRecordSection(record["pin"].serverId)
+    if requestId = invalid then
+        requestId = Base64UrlEncode(RandomBytes(24))
+        record["pendingRefresh"] = requestId
+        StoreWriteJson(ctx.store, section, "record", record)
+    end if
+    answer = ApiRequest(SessionApi(ctx, record["logicalOrigin"]), "/v1/auth/refresh", "POST", { "refreshToken": session.refreshToken, "installationId": ctx.installation.installationId, "requestId": requestId })
+    if not answer.ok then
+        status = answer.status
+        if status = 401 or status = 403 then
+            ' Only a refusal ends the sign-in: revoked, an unknown family, or a reused refresh token.
+            SessionForget(ctx, record["pin"].serverId)
+            code = "refresh_refused"
+            if status = 401 and answer.error.code = "session_migrated" then code = "session_migrated"
+            return { ok: false, signOut: true, failure: { code: code, status: status, message: "" } }
+        end if
+        if status = 404 or status = 405 then return { ok: false, signOut: false, failure: { code: "refresh_unsupported", status: status, message: "" } }
+        if status = 0 then return { ok: false, signOut: false, failure: answer.error }
+        return { ok: false, signOut: false, failure: { code: "refresh_unavailable_now", status: status, message: "" } }
+    end if
+    parsed = ParseLocalSession(answer.data, { authority: session.viewer.authority, accountId: session.viewer.accountId, serverId: session.viewer.serverId, profileId: session.viewer.profileId }, false, SessionNow(ctx))
+    if not parsed.ok or parsed.session.sessionFamilyId <> session.sessionFamilyId then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    record["session"] = parsed.session
+    record.delete("pendingRefresh")
+    StoreWriteJson(ctx.store, section, "record", record)
+    return { ok: true, session: parsed.session }
+end function
+
+' Coming back: the saved server proves it is still the pinned one before any credential is sent,
+' the session is renewed if it needs it, and the server confirms the viewer. Returns {ok, state}:
+'   "none"     nothing saved
+'   "ready"    record, session, connection
+'   "offline"  record (the server did not answer; keep the sign-in and keep trying)
+'   "ended"    record (the sign-in is over: the address and username reopen the sign-in screen)
+'   "refused"  record (the server knows this sign-in but refuses it access)
+'   "changed"  record (the address now belongs to a different server; nothing was sent)
+function SessionRestore(ctx as object) as object
+    record = SessionRecord(ctx)
+    if record = invalid then return { ok: true, state: "none" }
+    probe = SessionProbe(ctx, record["logicalOrigin"], record["pin"])
+    if not probe.ok then
+        if probe.failure.code = "identity_mismatch" then return { ok: true, state: "changed", record: record, failure: probe.failure }
+        return { ok: true, state: "offline", record: record, failure: probe.failure }
+    end if
+    connection = { origin: record["logicalOrigin"], pin: record["pin"] }
+    renewed = SessionRenew(ctx, record)
+    session = record["session"]
+    if renewed.ok then
+        session = renewed.session
+    else if renewed.signOut = true then
+        return { ok: true, state: "ended", record: record, failure: renewed.failure }
+    else if renewed.failure.code = "network" or renewed.failure.code = "timeout" then
+        return { ok: true, state: "offline", record: record, failure: renewed.failure }
+    end if
+    expires = IsoToSeconds(session.expiresAt)
+    if expires = invalid or expires <= SessionNow(ctx) then
+        SessionForget(ctx, record["pin"].serverId)
+        return { ok: true, state: "ended", record: record, failure: { code: "session_expired", status: 401, message: "" } }
+    end if
+    me = ApiRequest(SessionApi(ctx, connection.origin, session.accessToken), "/v1/me")
+    if not me.ok then
+        if me.status = 401 then
+            again = SessionRenew(ctx, record, session.accessToken)
+            if again.ok then
+                session = again.session
+                me = ApiRequest(SessionApi(ctx, connection.origin, session.accessToken), "/v1/me")
+            end if
+        end if
+        if not me.ok then
+            if me.status = 401 then
+                SessionForget(ctx, record["pin"].serverId)
+                return { ok: true, state: "ended", record: record, failure: me.error }
+            end if
+            if me.status = 403 then return { ok: true, state: "refused", record: record, failure: me.error }
+            return { ok: true, state: "offline", record: record, failure: me.error }
+        end if
+    end if
+    return { ok: true, state: "ready", record: record, session: session, connection: connection }
+end function
+
+' Signing out: the server ends the session (best effort), and the record is removed.
+sub SessionSignOut(ctx as object)
+    record = SessionRecord(ctx)
+    if record = invalid then return
+    ApiRequest(SessionApi(ctx, record["logicalOrigin"], record["session"].accessToken), "/v1/sessions/current", "DELETE")
+    SessionForget(ctx, record["pin"].serverId)
+end sub
+
+' What an approval screen calls this device (apps/native/src/bridge/setup-codes.ts `deviceIdentity`).
+function SessionDeviceIdentity(ctx as object) as object
+    return { "deviceName": Left(ctx.installation.name, 64), "appVersion": ctx.installation.appVersion }
+end function
+
+' Quick Connect on a server (bridge/setup-codes.ts `nativeQuickConnect`).
+function QuickConnectCreate(ctx as object, connection as object) as object
+    body = SessionDeviceIdentity(ctx)
+    body["requestId"] = NewRequestId()
+    if ctx.requestId <> invalid then body["requestId"] = ctx.requestId
+    body["platform"] = "roku"
+    answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/quick-connect", "POST", body)
+    if not answer.ok then return { ok: false, failure: answer.error }
+    if not SetupCodeValid(answer.data, SessionNow(ctx)) then return { ok: false, failure: { code: "invalid_response", status: 0, message: "The activation response was invalid." } }
+    return { ok: true, authorization: answer.data }
+end function
+
+' Returns {ok, next}: "approved" (with `outcome`, a sign-in outcome), or SetupCodeAfterPoll's next.
+function QuickConnectPoll(ctx as object, connection as object, authorization as object) as object
+    answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/quick-connect/token", "POST", { "deviceCode": authorization.deviceCode })
+    if not answer.ok then
+        after = SetupCodeAfterPoll(authorization.interval, answer.error)
+        after.ok = true
+        return after
+    end if
+    parsed = ParseLocalSession(answer.data, { authority: "local", serverId: connection.pin.serverId }, false, SessionNow(ctx))
+    if not parsed.ok then return { ok: true, next: "approved", outcome: { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } } }
+    return { ok: true, next: "approved", outcome: SessionAccept(ctx, connection, parsed.session, {}) }
+end function
+
+sub QuickConnectCancel(ctx as object, connection as object, authorization as dynamic)
+    if authorization = invalid then return
+    ApiRequest(SessionApi(ctx, connection.origin), "/v1/quick-connect/cancel", "POST", { "deviceCode": authorization.deviceCode })
+end sub
+
+' apps/native/src/screens/auth/SavedServerUnavailable.tsx `BACKOFF_SECONDS`: a saved server that
+' cannot be reached is tried again on its own, each failure waiting longer, up to a minute.
+function SavedServerBackoffSeconds(attempt as integer) as integer
+    waits = [2, 4, 8, 15, 30, 60]
+    index = attempt
+    if index < 0 then index = 0
+    if index > waits.count() - 1 then index = waits.count() - 1
+    return waits[index]
+end function

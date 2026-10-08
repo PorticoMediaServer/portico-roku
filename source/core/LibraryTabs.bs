@@ -1,0 +1,90 @@
+' packages/client-core/src/presentation/library-tabs.ts: the tabs of a library, authored. Discover
+' is first and the default on every library; there is no Categories tab (genres, decades and
+' studios are filters; Music's Genres tab is genres only). Every client renders these in this order
+' with these names: the server's pivots are vocabulary, not layout.
+'
+' A tab is {id, label (a message id), pivot, shows, fixedSort, fixedFilter, opens}. `shows`:
+' "rows" (Discover), "titles" (a browsable grid), "tracks" (the songs table), "genres" (genre
+' cards) or "playlists" (the viewer's own).
+
+function LibraryTabs(kind as string, owner = false as boolean, unmatched = false as boolean) as object
+    discover = { id: "discover", label: "library.tab.discover", shows: "rows" }
+    collections = { id: "collections", label: "library.tab.collections", pivot: "collections", shows: "titles" }
+    family = kind
+    if kind = "anime" then family = "tv"
+    if family = "movie" then return [discover, { id: "browse", label: "library.tab.movies", pivot: "movies", shows: "titles" }, collections]
+    if family = "tv" then
+        return [
+            discover
+            { id: "browse", label: "library.tab.shows", pivot: "shows", shows: "titles" }
+            { id: "aired", label: "library.tab.aired", pivot: "shows", shows: "titles", fixedSort: { field: "latestAired", direction: "desc" } }
+            collections
+        ]
+    end if
+    if family = "music" then
+        tabs = [
+            discover
+            { id: "browse", label: "library.tab.artists", pivot: "artists", shows: "titles" }
+            { id: "releases", label: "library.tab.albums", pivot: "albums", shows: "titles" }
+            { id: "songs", label: "library.tab.songs", pivot: "songs", shows: "tracks" }
+            { id: "genres", label: "library.tab.genres", pivot: "genres", shows: "genres", opens: { tabId: "releases", field: "genre" } }
+            { id: "playlists", label: "library.tab.playlists", shows: "playlists" }
+        ]
+        ' Owner-only: albums made from files without tags, so the owner can find and fix them.
+        if owner and unmatched then tabs.push({ id: "unmatched", label: "library.tab.unmatched", pivot: "albums", shows: "titles", fixedFilter: [{ field: "match", operator: "equals", value: "unmatched" }] })
+        return tabs
+    end if
+    if family = "audiobook" then
+        return [
+            discover
+            { id: "browse", label: "library.tab.books", pivot: "books", shows: "titles" }
+            { id: "authors", label: "library.tab.authors", pivot: "authors", shows: "titles" }
+            { id: "series", label: "library.tab.series", pivot: "series", shows: "titles" }
+        ]
+    end if
+    return [discover]
+end function
+
+' The tab an address names, or Discover.
+function LibraryTab(kind as string, id as dynamic, owner = false as boolean, unmatched = false as boolean) as object
+    tabs = LibraryTabs(kind, owner, unmatched)
+    for each candidate in tabs
+        if candidate.id = id then return candidate
+    end for
+    return tabs[0]
+end function
+
+' The tab that browses a pivot in a library of this kind (a row's "See all" names a pivot).
+function LibraryTabForPivot(kind as string, pivot as string) as dynamic
+    for each candidate in LibraryTabs(kind)
+        if candidate.pivot = pivot and candidate.fixedSort = invalid and candidate.fixedFilter = invalid then return candidate
+    end for
+    return invalid
+end function
+
+' An artist's releases by type, in the order the page shows them; a type with nothing is left out.
+function ArtistReleaseGroups(entries as object) as object
+    groups = [
+        { id: "albums", label: "title.albums", entries: [] }
+        { id: "singles", label: "title.singlesAndEps", entries: [] }
+        { id: "compilations", label: "title.compilations", entries: [] }
+        { id: "appearances", label: "title.appearsOn", entries: [] }
+    ]
+    for each entry in entries
+        role = entry.role
+        if role = invalid or role = "album" then
+            groups[0].entries.push(entry)
+        else if role = "single" or role = "ep" then
+            groups[1].entries.push(entry)
+        else if role = "compilation" then
+            groups[2].entries.push(entry)
+        else if role = "appearance" then
+            groups[3].entries.push(entry)
+        end if
+    end for
+    out = []
+    for each group in groups
+        if group.entries.count() > 0 then out.push(group)
+    end for
+    return out
+end function

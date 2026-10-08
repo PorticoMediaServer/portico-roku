@@ -1,0 +1,62 @@
+{
+ "actions": [
+  "create_playlist"
+ ],
+ "heading": {
+  "key": "saved.playlists",
+  "fallback": "Playlists"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "",
+  "libraryKind": "mixed",
+  "view": "playlists",
+  "entityId": "",
+  "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df"
+ },
+ "revision": {
+  "catalog": 0,
+  "viewer": 0
+ },
+ "navigation": [
+  {
+   "id": "watchlist",
+   "labelKey": "saved.watchlist",
+   "view": "watchlist"
+  },
+  {
+   "id": "favorites",
+   "labelKey": "saved.favorites",
+   "view": "favorites"
+  },
+  {
+   "id": "playlists",
+   "labelKey": "saved.playlists",
+   "view": "playlists"
+  }
+ ],
+ "query": {
+  "sort": "title",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [
+  {
+   "id": "title",
+   "labelKey": "sort.title",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  }
+ ],
+ "filters": [],
+ "sections": [],
+ "empty": {
+  "key": "playlists.empty",
+  "fallback": "No playlists yet."
+ }
+}

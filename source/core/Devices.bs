@@ -1,0 +1,155 @@
+' packages/client-core/src/identity-devices.ts and identity-client.ts (the devices an account is
+' signed in on) and apps/native/src/screens/Security.tsx `DevicesSection` (what each row says and
+' what can be done about a device).
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Time.bs"
+
+function DevicesPath(installationId as string) as string
+    return "/v1/devices?installationId=" + installationId.encodeUriComponent()
+end function
+
+function DevicePath(deviceId as string, suffix = "" as string) as string
+    return "/v1/devices/" + deviceId.encodeUriComponent() + suffix
+end function
+
+function IsDeviceText(value as dynamic, limit as integer) as boolean
+    return IsString(value) and Len(value) <= limit and not MatchesPattern(value, "[\x00-\x1f\x7f]")
+end function
+
+function IsDeviceId(value as dynamic) as boolean
+    return IsString(value) and MatchesPattern(value, "^[A-Za-z0-9_-]{1,128}$")
+end function
+
+function DeviceKeys() as object
+    return ["id", "authority", "installationid", "name", "platform", "app", "appversion", "ip", "firstseen", "lastseen", "trusted", "approvalstate", "lastprofileid", "rememberaccount", "current", "sessions"]
+end function
+
+' `parseDevice`: {id, name, platform, ip, lastSeen (seconds), trusted, approvalState, current,
+' sessions}, or invalid. A field nobody asked for is a defect, as is an address that is not one.
+function ParseDevice(raw as dynamic) as dynamic
+    if not IsObject(raw) then return invalid
+    for each key in raw.keys()
+        if not ArrayIncludes(DeviceKeys(), LCase(key)) then return invalid
+    end for
+    if raw.authority <> invalid and (not IsString(raw.authority) or (raw.authority <> "local" and raw.authority <> "hosted")) then return invalid
+    if not IsDeviceId(raw.id) or not IsString(raw.installationId) or not MatchesPattern(raw.installationId, "^[A-Za-z0-9_-]{32,128}$") then return invalid
+    if not IsDeviceText(raw.name, 120) or raw.name = "" then return invalid
+    for each field in ["platform", "app", "appVersion"]
+        if not IsDeviceText(raw[field], 64) then return invalid
+    end for
+    if not IsString(raw.ip) or Len(raw.ip) > 45 or MatchesPattern(raw.ip, "[^0-9a-fA-F.:]") then return invalid
+    if not IsString(raw.firstSeen) or Len(raw.firstSeen) > 40 or IsoToSeconds(raw.firstSeen) = invalid then return invalid
+    seen = invalid
+    if IsString(raw.lastSeen) and Len(raw.lastSeen) <= 40 then seen = IsoToSeconds(raw.lastSeen)
+    if seen = invalid then return invalid
+    if not IsBoolean(raw.trusted) or not IsBoolean(raw.rememberAccount) or not IsBoolean(raw.current) then return invalid
+    if not IsString(raw.approvalState) or not ArrayIncludes(["approved", "pending", "denied"], raw.approvalState) then return invalid
+    if raw.lastProfileId <> invalid then
+        if not IsString(raw.lastProfileId) or (raw.lastProfileId <> "" and not IsDeviceId(raw.lastProfileId)) then return invalid
+    end if
+    if not IsNatural(raw.sessions) or raw.sessions > 1000 then return invalid
+    return { id: raw.id, name: raw.name, platform: raw.platform, ip: raw.ip, lastSeen: seen, trusted: raw.trusted, approvalState: raw.approvalState, current: raw.current, sessions: raw.sessions }
+end function
+
+' `parseDevices`: {ok, devices}, most recently active first as the server sends them. At most one
+' may be this device.
+function ParseDevices(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) or raw.count() <> 1 or not IsArray(FieldOf(raw, "items")) or FieldOf(raw, "items").count() > 200 then return bad
+    ids = {}
+    ids.setModeCaseSensitive()
+    current = 0
+    out = []
+    for each item in FieldOf(raw, "items")
+        device = ParseDevice(item)
+        if device = invalid or ids.doesExist(device.id) then return bad
+        ids[device.id] = true
+        if device.current then current = current + 1
+        out.push(device)
+    end for
+    if current > 1 then return bad
+    return { ok: true, devices: out }
+end function
+
+function DeviceAwaitingApproval(device as object) as boolean
+    return device.approvalState = "pending"
+end function
+
+' Security.tsx `platformLabel`: the platform in words, or as the server names it.
+function DevicePlatformLabel(platform as string) as string
+    known = { "web": "device.platform.web", "ios": "device.platform.ios", "tvos": "device.platform.tvos", "android": "device.platform.android", "androidtv": "device.platform.androidtv" }
+    id = known[platform]
+    if id <> invalid then return T(id)
+    return platform
+end function
+
+' Security.tsx `deviceGlyph`: a device's own glyph.
+function DeviceGlyph(platform as string, name as string) as string
+    known = { "web": "browser", "ios": "phone", "ipados": "tablet", "tvos": "tvDevice", "android": "phone", "androidtv": "tvDevice", "tizen": "tvDevice", "webos": "tvDevice", "roku": "tvDevice" }
+    if platform <> "" and known[platform] <> invalid then return known[platform]
+    lower = LCase(name)
+    if Instr(1, lower, "ipad") > 0 or Instr(1, lower, "tablet") > 0 then return "tablet"
+    return "browser"
+end function
+
+' One device's row: {title, subtitle, meta, badge: "" | "this" | "waiting", icon}. `when` is the
+' last-seen time in words (the screen's relative time).
+function DeviceRow(device as object, lastSeenWords as string) as object
+    row = { title: device.name, subtitle: T("devices.lastSeen", { platform: DevicePlatformLabel(device.platform), when: lastSeenWords }), meta: "", badge: "", icon: DeviceGlyph(device.platform, device.name) }
+    if device.current then
+        row.badge = "this"
+        row.meta = T("device.thisDevice")
+    else if DeviceAwaitingApproval(device) then
+        row.badge = "waiting"
+        row.meta = T("device.waiting")
+    else if device.sessions > 0 then
+        row.meta = T("device.signedIn")
+    else
+        row.meta = T("device.signedOut")
+    end if
+    return row
+end function
+
+' What can be done about a device: [{id, label, icon, destructive}].
+function DeviceActions(device as object) as object
+    items = []
+    if DeviceAwaitingApproval(device) then
+        items.push({ id: "approve", label: T("device.approve"), icon: "check" })
+        items.push({ id: "deny", label: T("device.deny"), icon: "close" })
+    end if
+    trust = "device.trust"
+    if device.trusted then trust = "device.untrust"
+    items.push({ id: "trust", label: T(trust), icon: "shield" })
+    if device.sessions > 0 then
+        words = "device.signOutOther"
+        if device.current then words = "device.signOutThis"
+        items.push({ id: "signOut", label: T(words), icon: "signOut", destructive: true })
+    end if
+    if not device.current then items.push({ id: "remove", label: T("device.remove"), icon: "trash", destructive: true })
+    return items
+end function
+
+' The line under a device's name in its menu: its platform and, when the server recorded one, its address.
+function DeviceMenuLine(device as object) as string
+    line = DevicePlatformLabel(device.platform)
+    if device.ip <> "" then line = line + " · " + device.ip
+    return line
+end function
+
+' The request an action makes: {path, method, body}, or invalid for one that asks first.
+function DeviceRequest(device as object, action as string) as dynamic
+    if action = "approve" or action = "deny" then return { path: DevicePath(device.id, "/approval"), method: "POST", body: { "approved": action = "approve" } }
+    if action = "trust" then return { path: DevicePath(device.id), method: "PATCH", body: { "trusted": not device.trusted } }
+    if action = "signOutConfirmed" then return { path: DevicePath(device.id, "/sessions"), method: "DELETE", body: invalid }
+    if action = "removeConfirmed" then return { path: DevicePath(device.id), method: "DELETE", body: invalid }
+    return invalid
+end function
+
+' What the confirmation says before a device is signed out or removed: {title, body, action}.
+function DeviceConfirmWords(device as object, action as string) as object
+    if action = "remove" then return { title: T("confirm.removeDevice.title", { device: device.name }), body: T("confirm.removeDevice.body"), action: T("action.removeShort") }
+    if device.current then return { title: T("confirm.signOutThisDevice.title"), body: T("confirm.signOutThisDevice.body"), action: T("action.signOut") }
+    return { title: T("confirm.signOutDevice.title", { device: device.name }), body: "", action: T("action.signOut") }
+end function

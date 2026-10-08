@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/shell/Shell.tsx: the authenticated frame: the rail and the content roots. -->
+<component name="Shell" extends="Group">
+    <interface>
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+        <!-- {screen, params}: pushes a page onto the showing section's stack. -->
+        <function name="push" />
+        <function name="pop" />
+        <function name="replace" />
+        <function name="refreshTop" />
+        <function name="focusContent" />
+        <!-- A screen's claim on focus once its entry control is ready; refused while the rail has focus. -->
+        <function name="claimFocus" />
+        <function name="select" />
+    </interface>
+</component>

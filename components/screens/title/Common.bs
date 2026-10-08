@@ -1,0 +1,142 @@
+' What the title pages share (apps/native/src/screens/Detail.tsx, Show.tsx, Entity.tsx and
+' Person.tsx build the same pieces): shelves of people and of related titles, the Details section
+' (screens/title/TitleDetails.tsx) and the page's failure state. The importing screen holds
+' `m.width` and names the handlers.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/components/app/Nav.bs"
+
+' A shelf of cards or people under the hero. Handlers: onTitleShelfSelected, onTitleShelfMenu,
+' onTitleShelfSeeAll.
+function TitleShelf(parent as object, section as object, items as object, index as integer) as object
+    shelf = parent.createChild("UiShelf")
+    shelf.addFields({ sectionIndex: index, sectionKind: section.kind })
+    shelf.shelfWidth = m.width
+    shelf.shape = section.shape
+    if section.titleLines <> invalid then shelf.titleLines = section.titleLines
+    shelf.title = section.title
+    if section.seeAllLabel <> invalid and section.shown <> invalid and section.total > section.shown then
+        shelf.seeAllLabel = section.seeAllLabel
+        shelf.seeAll = true
+    end if
+    shelf.active = false
+    shelf.items = items
+    shelf.observeField("itemSelected", "onTitleShelfSelected")
+    shelf.observeField("itemMenu", "onTitleShelfMenu")
+    shelf.observeField("seeAllPressed", "onTitleShelfSeeAll")
+    return shelf
+end function
+
+' A person card opens the person's page.
+sub TitleOpenPerson(card as object)
+    if card = invalid or not card.hasField("personId") or card.personId = "" then return
+    NavPush("ScreenPerson", { personId: card.personId, name: card.title })
+end sub
+
+' Details, the section that closes a title page: the facts that do not belong in the hero line
+' (readable stops, so the remote can reach the bottom of the page), the genres as buttons (each
+' opens the library filtered to it; handler onTitleGenre), then the files. Returns its height.
+function TitleDetails(parent as object, rows as object, genres as object, files as object, top as dynamic) as float
+    if rows.count() = 0 and genres.count() = 0 and files.count() = 0 then return 0
+    page = Theme.space.page
+    inner = m.width - page * 2
+    y = top
+    heading = MakeText(parent, "heading", "primary", T("title.details"))
+    Place(heading, page, y)
+    y = y + heading.height + Theme.space.md
+    if rows.count() > 0 then
+        group = parent.createChild("UiRowGroup")
+        lines = []
+        for each row in rows
+            line = CreateObject("roSGNode", "UiListRow")
+            line.interactive = false
+            line.readable = true
+            line.subtitleLines = Theme.apple.detailSubtitleLines
+            line.title = row[0]
+            line.subtitle = row[1]
+            lines.push(line)
+        end for
+        group.groupWidth = inner
+        group.callFunc("setRows", lines)
+        Place(group, page, y)
+        y = y + group.groupHeight + Theme.space.md
+    end if
+    if genres.count() > 0 then
+        label = MakeText(parent, "label", "tertiary", T("title.genres"))
+        Place(label, page, y)
+        y = y + label.height + Theme.space.sm
+        x = page
+        rowHeight = 0
+        for each name in genres
+            button = parent.createChild("UiButton")
+            button.addFields({ genre: name })
+            button.size = "sm"
+            button.variant = "secondary"
+            button.label = name
+            button.observeField("pressed", "onTitleGenre")
+            if x > page and x + button.controlWidth > page + inner then
+                x = page
+                y = y + rowHeight + Theme.space.sm
+            end if
+            Place(button, x, y)
+            x = x + button.controlWidth + Theme.space.sm
+            rowHeight = button.controlHeight
+        end for
+        y = y + rowHeight + Theme.space.md
+    end if
+    if files.count() > 0 then
+        label = MakeText(parent, "label", "tertiary", T("title.files"))
+        Place(label, page, y)
+        y = y + label.height + Theme.space.sm
+        for each file in files
+            group = parent.createChild("UiRowGroup")
+            line = CreateObject("roSGNode", "UiListRow")
+            line.interactive = false
+            line.readable = true
+            line.icon = "film"
+            line.subtitleLines = Theme.apple.fileSubtitleLines
+            line.title = file.title
+            line.subtitle = file.body
+            group.groupWidth = inner
+            group.callFunc("setRows", [line])
+            Place(group, page, y)
+            y = y + group.groupHeight + Theme.space.sm
+        end for
+        y = y - Theme.space.sm + Theme.space.md
+    end if
+    return y - Theme.space.md - top + Theme.space.xl
+end function
+
+' The page could not be read: the Apple message with Try again (handler onTitleRetry).
+function TitleFailure(parent as object, failure as dynamic, subject as string, top as dynamic) as object
+    if failure = invalid then failure = { code: "invalid_response", status: 0 }
+    words = PresentError(failure, subject)
+    state = parent.createChild("UiStateView")
+    state.icon = "warning"
+    state.title = T("error.title.load", { subject: subject })
+    state.message = words.body
+    state.action = T("action.tryAgain")
+    state.stateWidth = m.width
+    state.observeField("actionPressed", "onTitleRetry")
+    Place(state, 0, top)
+    return state
+end function
+
+' A notice across the page (a failed save, a file that is not available).
+function TitleNotice(parent as object, tone as string, message as string, action as string, handler as string, top as dynamic) as float
+    notice = parent.createChild("UiNotice")
+    notice.tone = tone
+    notice.message = message
+    if action <> "" then
+        notice.action = action
+        notice.observeField("actionPressed", handler)
+    end if
+    notice.noticeWidth = m.width - Theme.space.page * 2
+    Place(notice, Theme.space.page, top)
+    return notice.noticeHeight
+end function

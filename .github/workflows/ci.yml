@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {path: portico-roku}
+      # The generator reads the shared packages and the Apple TV app from sibling checkouts.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {repository: PorticoMediaServer/portico-server, path: portico-server}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {repository: PorticoMediaServer/portico-react-native, path: portico-react-native}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: {node-version: 24, cache: npm, cache-dependency-path: portico-roku/package-lock.json}
+      - run: npm ci --no-audit --no-fund
+        working-directory: portico-roku
+      - name: Generated files are current
+        working-directory: portico-roku
+        run: |
+          npm run generate
+          git diff --exit-code
+      - run: npm run check
+        working-directory: portico-roku
+      - run: npm test
+        working-directory: portico-roku
+      - run: npm run package
+        working-directory: portico-roku
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: portico-roku, path: portico-roku/build/portico-roku.zip, if-no-files-found: error}

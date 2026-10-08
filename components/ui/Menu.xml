@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Sheet.tsx `Menu`: an action menu built on Sheet. -->
+<component name="UiMenu" extends="Group">
+    <interface>
+        <field id="title" type="string" value="" />
+        <field id="subtitle" type="string" value="" />
+        <!-- [{id, label, icon, detail, destructive, selected, disabled, section}] -->
+        <field id="items" type="array" />
+        <field id="placement" type="string" value="center" />
+        <field id="chosen" type="string" value="" alwaysNotify="true" />
+        <field id="closed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="open" />
+        <function name="close" />
+    </interface>
+</component>

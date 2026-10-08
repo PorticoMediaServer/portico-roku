@@ -1,0 +1,16 @@
+{
+ "guide": {
+  "sources": [],
+  "state": "no-sources",
+  "viewerFence": "427582a9d3b9d6a3ec248dda3881f85a47b52d75d6eefc7707be52e1f221cf3c",
+  "start": "2026-10-05T20:00:00Z",
+  "end": "2026-10-05T23:00:00Z",
+  "timezone": "UTC",
+  "channels": [],
+  "nextCursor": "",
+  "observedAt": "2026-10-05T20:06:32Z",
+  "days": 0
+ },
+ "protocolVersion": "1.0",
+ "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s"
+}

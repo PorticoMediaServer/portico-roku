@@ -1,0 +1,326 @@
+' apps/native/src/screens/channels/ChannelsScreen.tsx and ChannelList.tsx. Channels: the server's
+' Live TV sources and its Library Channels, each a list of channels saying what is on now, how
+' long is left and what follows. Pressing a channel tunes it (a Playback v1 session for the
+' channel). The server builds the guide; the channel asks for the window that is on now, thirty
+' channels at a time, and more as "Show more" is pressed.
+'
+' Differences from the Apple TV app: the list, not the time grid (the guide's List view); no
+' programme sheet, recordings, reminders, day picker, favourites or group chips.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Cards.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Guide.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.header = body.createChild("UiPageHeader")
+    m.header.headerWidth = m.width
+    m.header.title = T("channels.title")
+    m.picker = body.createChild("UiTabs")
+    m.picker.tabsWidth = m.width
+    m.picker.observeField("chosen", "onChannelsSource")
+    m.area = body.createChild("Group")
+    m.session = m.global.session
+    m.entries = []
+    m.entry = ""
+    m.channels = []
+    m.nodes = []
+    m.cursor = ""
+    m.state = ""
+    m.loading = false
+    m.failure = invalid
+    m.generation = 0
+    m.tasks = {}
+    m.tick = m.top.createChild("Timer")
+    m.tick.duration = Theme.apple.dashboardRefreshMs / 1000
+    m.tick.repeat = true
+    m.tick.observeField("fire", "onChannelsTick")
+end sub
+
+sub enter()
+    ' The sources: one request of each kind says which exist and what they are called.
+    m.probes = {}
+    for each kind in ["live-source", "library-channel"]
+        task = ApiStart({ path: GuidePath(GuideRouteNow(kind, NowSeconds()), "", 1) }, "onChannelsProbe")
+        task.addFields({ guideKind: kind })
+        m.tasks[kind] = task
+    end for
+    m.loading = true
+    ChannelsLayout()
+    m.tick.control = "start"
+end sub
+
+sub resume()
+    ChannelsRefreshRows()
+end sub
+
+sub leave()
+    m.tick.control = "stop"
+    m.tasks = {}
+end sub
+
+sub focusEntry()
+    if m.nodes.count() > 0 then
+        FocusOn(m.nodes[0])
+        m.page.callFunc("follow")
+    else if not FocusFirst(m.page) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function ChannelsServerId() as string
+    viewer = m.session.viewer
+    if viewer = invalid then return ""
+    return viewer.serverId
+end function
+
+function ChannelsOwner() as boolean
+    viewer = m.session.viewer
+    return viewer <> invalid and viewer.viewer <> invalid and viewer.viewer.role = "owner"
+end function
+
+sub onChannelsProbe(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    sources = []
+    if result.ok and IsObject(result.value) and IsObject(result.value.guide) then
+        list = FieldOf(result.value.guide, "sources")
+        if IsArray(list) then sources = list
+    end if
+    m.probes[task.guideKind] = { has: GuideHasChannels(result), sources: sources, failure: result.error }
+    if m.probes.count() < 2 then return
+    ' Each live source by its name, then Library Channels.
+    live = m.probes["live-source"]
+    entries = GuideSourceEntries(live.sources)
+    if m.probes["library-channel"].has = true then entries.push({ id: "library", label: T("channels.custom.name"), kind: "library-channel", sourceId: "" })
+    m.entries = entries
+    if entries.count() = 0 then
+        m.loading = false
+        m.state = "no-sources"
+        if live.has = invalid and m.probes["library-channel"].has = invalid then m.failure = live.failure
+        ChannelsLayout()
+        NavClaimFocus()
+        return
+    end if
+    items = []
+    for each entry in entries
+        items.push({ id: entry.id, label: entry.label })
+    end for
+    m.picker.items = items
+    m.entry = entries[0].id
+    m.picker.selected = m.entry
+    ChannelsLoad("")
+end sub
+
+function ChannelsEntry() as dynamic
+    for each entry in m.entries
+        if entry.id = m.entry then return entry
+    end for
+    return invalid
+end function
+
+sub onChannelsSource()
+    if m.picker.chosen = m.entry then return
+    m.entry = m.picker.chosen
+    m.picker.selected = m.entry
+    ChannelsLoad("")
+end sub
+
+sub ChannelsLoad(cursor as string)
+    entry = ChannelsEntry()
+    if entry = invalid then return
+    if cursor = "" then
+        m.channels = []
+        m.cursor = ""
+        m.state = ""
+    end if
+    m.failure = invalid
+    m.loading = true
+    m.generation = m.generation + 1
+    m.requested = GuideRouteNow(entry.kind, NowSeconds())
+    m.requested.sourceId = entry.sourceId
+    task = ApiStart({ path: GuidePath(m.requested, cursor) }, "onChannelsGuide")
+    task.addFields({ generation: m.generation })
+    m.tasks.guide = task
+    if cursor = "" then ChannelsLayout()
+end sub
+
+sub onChannelsGuide(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    m.loading = false
+    first = m.channels.count() = 0
+    if not result.ok then
+        m.failure = result.error
+        if m.failure = invalid then m.failure = { code: "invalid_response", status: 0 }
+    else
+        guide = ParseChannelGuide(result.value, ChannelsServerId(), m.requested)
+        if guide.ok then
+            m.state = guide.state
+            for each channel in guide.channels
+                if not channel.hidden then m.channels.push(channel)
+            end for
+            m.cursor = guide.nextCursor
+        else
+            m.failure = { code: "invalid_response", status: 0 }
+        end if
+    end if
+    held = -1
+    for index = 0 to m.nodes.count() - 1
+        if m.nodes[index].isInFocusChain() then held = index
+    end for
+    onMore = m.more <> invalid and m.more.isInFocusChain()
+    ChannelsLayout()
+    if first then
+        NavClaimFocus()
+    else if onMore and m.nodes.count() > 0 then
+        ' The first of the channels that arrived takes the focus Show more held.
+        target = m.nodes.count() - 1
+        if held >= 0 then target = held
+        FocusOn(m.nodes[target])
+        m.page.callFunc("follow")
+    end if
+end sub
+
+sub ChannelsLayout()
+    area = m.area
+    area.removeChildrenIndex(area.getChildCount(), 0)
+    m.nodes = []
+    m.more = invalid
+    y = m.header.headerHeight
+    m.picker.visible = m.entries.count() > 1
+    if m.picker.visible then
+        Place(m.picker, 0, y)
+        y = y + m.picker.tabsHeight + Theme.space.md
+    end if
+    Place(area, 0, y)
+    inset = Theme.space.page
+    width = m.width - inset * 2
+    height = 0
+    if m.channels.count() = 0 then
+        state = area.createChild("UiStateView")
+        state.stateWidth = m.width
+        if m.loading then
+            state.loading = true
+        else if m.failure <> invalid then
+            words = PresentError(m.failure, "generic")
+            state.icon = "warning"
+            state.title = words.title
+            state.message = words.body
+            state.action = T("action.tryAgain")
+            state.observeField("actionPressed", "onChannelsRetry")
+        else
+            state.icon = "channels"
+            entry = ChannelsEntry()
+            if entry = invalid then
+                state.title = T("channels.noSourcesTitle")
+                state.message = T("channels.noSourcesMember")
+                if ChannelsOwner() then state.message = T("channels.noSourcesOwner")
+            else
+                state.title = T("channels.emptyTitle", { source: entry.label })
+                state.message = T("channels.emptyMember")
+                if ChannelsOwner() then state.message = T("channels.emptyOwner")
+            end if
+        end if
+        height = state.boundingRect().height
+    else
+        now = NowSeconds()
+        rows = []
+        for each channel in m.channels
+            node = CreateObject("roSGNode", "UiListRow")
+            node.addFields({ channelId: channel.id })
+            node.icon = "channels"
+            if channel.logoPath <> "" then
+                node.shape = "square"
+                node.artUri = MediaUrl(ViewerOrigin(), channel.logoPath)
+            end if
+            node.subtitleLines = Theme.apple.detailSubtitleLines
+            ChannelsRowWords(node, channel, now)
+            node.observeField("pressed", "onChannelsPressed")
+            rows.push(node)
+            m.nodes.push(node)
+        end for
+        group = area.createChild("UiRowGroup")
+        group.groupWidth = width
+        group.callFunc("setRows", rows)
+        Place(group, inset, 0)
+        height = group.groupHeight
+        if m.cursor <> "" then
+            m.more = area.createChild("UiButton")
+            m.more.variant = "secondary"
+            m.more.label = T("action.showMore")
+            m.more.loading = m.loading
+            m.more.observeField("pressed", "onChannelsMore")
+            Place(m.more, inset, height + Theme.space.lg)
+            height = height + Theme.space.lg + m.more.controlHeight
+        end if
+    end if
+    m.page.contentHeight = y + height + Theme.space.xxxl
+    m.page.callFunc("refresh")
+end sub
+
+sub ChannelsRowWords(node as object, channel as object, now as dynamic)
+    row = ChannelRow(channel, now)
+    node.title = row.title
+    node.meta = row.meta
+    node.subtitle = row.subtitle
+    node.progress = row.progress
+end sub
+
+' What is on moves with the clock: the rows say it again without being rebuilt.
+sub ChannelsRefreshRows()
+    now = NowSeconds()
+    for index = 0 to m.nodes.count() - 1
+        if index < m.channels.count() then ChannelsRowWords(m.nodes[index], m.channels[index], now)
+    end for
+end sub
+
+sub onChannelsTick()
+    ' Past the window that was asked for, the guide is read again from the top.
+    if m.requested <> invalid and not m.loading and m.channels.count() > 0 and GuideWindow(NowSeconds()).start <> m.requested.start and not m.page.isInFocusChain() then
+        ChannelsLoad("")
+        return
+    end if
+    ChannelsRefreshRows()
+end sub
+
+sub onChannelsRetry()
+    if m.entries.count() = 0 then
+        m.failure = invalid
+        enter()
+    else
+        ChannelsLoad("")
+    end if
+end sub
+
+sub onChannelsMore()
+    if m.loading or m.cursor = "" then return
+    m.more.loading = true
+    ChannelsLoad(m.cursor)
+end sub
+
+sub onChannelsPressed(event as object)
+    node = event.getRoSGNode()
+    for each channel in m.channels
+        if channel.id = node.channelId then
+            if not channel.tuneAvailable then
+                Toast(PresentError({ code: channel.tuneUnavailableReason, status: 0 }, "playback").body, "warning")
+                return
+            end if
+            scene = m.top.getScene()
+            if scene <> invalid then scene.callFunc("play", { channel: channel, startSeconds: 0, entry: { id: channel.id, kind: "channel", title: channel.name, subtitle: ChannelRow(channel, NowSeconds()).subtitle, posterUrl: channel.logoPath } })
+            return
+        end if
+    end for
+end sub

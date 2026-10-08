@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/player/EntryMenu.tsx: what can be done with a card (the Apple app's long press; the remote's * key). -->
+<component name="EntryMenu" extends="Group">
+    <interface>
+        <!-- {entry, origin, libraryId} -->
+        <function name="open" />
+    </interface>
+</component>

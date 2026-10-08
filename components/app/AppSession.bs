@@ -1,0 +1,391 @@
+' apps/native/src/app/session.tsx, for the channel: one node the screens observe and call, as the
+' Apple screens use `useSession()`. Each action runs its step in a Task (components/tasks) and
+' publishes what the screens show. The steps and their rules are in source/core/Session.bs and
+' source/core/Hosted.bs; the words for a failure come from source/core/Errors.bs.
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Hosted.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.tasks = []
+    m.credentials = invalid
+    m.challengeToken = ""
+    m.accountSession = invalid
+    m.details = invalid
+    m.afterConnect = invalid
+end sub
+
+sub SessionRun(job as object)
+    task = CreateObject("roSGNode", "SessionTask")
+    task.job = job
+    task.observeField("result", "onSessionResult")
+    m.tasks.push(task)
+    m.top.busy = true
+    task.control = "RUN"
+end sub
+
+sub onSessionResult(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    kept = []
+    for each running in m.tasks
+        if not running.isSameNode(task) then kept.push(running)
+    end for
+    m.tasks = kept
+    m.top.busy = m.tasks.count() > 0
+    kind = result.kindOfJob
+    if kind = "restore" then
+        SessionRestored(result)
+    else if kind = "connect" then
+        SessionConnected(result)
+    else if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" then
+        SessionOutcome(result)
+    else if kind = "profiles" then
+        if result.ok then
+            m.top.pending = { snapshot: result.snapshot, accountSession: { accessToken: m.top.viewer.token }, switching: true }
+            m.top.hasPending = true
+        else
+            m.top.error = PresentError(result.failure, "profiles", { operation: "load" }).body
+        end if
+    else if kind = "servers" then
+        SessionServers(result)
+    else if kind = "openServer" then
+        SessionOpened(result)
+    else if kind = "signOut" or kind = "signOutAccount" then
+        SessionSignedOut(kind = "signOutAccount")
+    end if
+end sub
+
+sub restore()
+    m.top.error = ""
+    SessionRun({ kind: "restore" })
+end sub
+
+sub SessionRestored(result as object)
+    if result.hosted <> invalid then
+        m.top.account = result.hosted.account
+        m.top.hasAccount = true
+    end if
+    state = result.state
+    if state = "ready" then
+        SessionReady(result.record, result.session, result.connection)
+        return
+    end if
+    record = result.record
+    if record <> invalid then
+        m.top.origin = record["logicalOrigin"]
+        if record["username"] <> invalid then m.top.username = record["username"]
+    end if
+    if state = "offline" then
+        name = ""
+        if record["serverName"] <> invalid then name = record["serverName"]
+        m.top.recovery = { origin: record["logicalOrigin"], serverName: name }
+        m.top.hasRecovery = true
+        m.top.phase = "unavailable"
+        return
+    end if
+    m.top.hasRecovery = false
+    if state = "ended" or state = "refused" or state = "changed" then
+        ' The sign-in screen opens with the server and username filled in, and says why, quietly.
+        if result.failure <> invalid then m.top.note = SignInMessage(result.failure)
+        if m.top.note = "" then m.top.note = T("error.authentication")
+    end if
+    m.top.phase = "signedOut"
+    if m.top.hasAccount then refreshServers()
+end sub
+
+sub SessionReady(record as dynamic, session as object, connection as object)
+    viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, viewer: session.viewer, profileName: "", serverName: "", username: "" }
+    if record <> invalid then
+        if record["profileName"] <> invalid then viewer.profileName = record["profileName"]
+        if record["serverName"] <> invalid then viewer.serverName = record["serverName"]
+        if record["username"] <> invalid then viewer.username = record["username"]
+    end if
+    m.credentials = invalid
+    m.accountSession = invalid
+    m.top.connection = connection
+    m.top.token = session.accessToken
+    m.top.viewer = viewer
+    m.top.error = ""
+    m.top.note = ""
+    m.top.directStep = ""
+    m.top.hasPending = false
+    m.top.hasRecovery = false
+    m.top.switching = false
+    m.switchBack = invalid
+    m.top.phase = "ready"
+end sub
+
+sub setOrigin(text as string)
+    if text = m.top.origin then return
+    m.top.origin = text
+    m.top.connection = invalid
+end sub
+
+' Proves the server at the typed address (no credential is sent).
+sub connect()
+    if m.top.origin.trim() = "" or m.top.busy then return
+    m.top.error = ""
+    m.afterConnect = invalid
+    SessionRun({ kind: "connect", address: m.top.origin, pin: invalid })
+end sub
+
+sub SessionConnected(result as object)
+    if not result.ok then
+        m.afterConnect = invalid
+        m.top.error = SignInMessage(result.failure)
+        return
+    end if
+    m.top.connection = result.connection
+    if m.afterConnect <> invalid then
+        job = m.afterConnect
+        m.afterConnect = invalid
+        job.connection = result.connection
+        SessionRun(job)
+        return
+    end if
+    m.top.connected = true
+end sub
+
+' {username, password}: a direct sign-in to the server at the typed address.
+sub signIn(credentials as object)
+    if m.top.busy then return
+    m.top.error = ""
+    m.credentials = credentials
+    m.details = invalid
+    job = { kind: "signIn", connection: m.top.connection, username: credentials.username, password: credentials.password }
+    if m.top.connection = invalid then
+        m.afterConnect = job
+        SessionRun({ kind: "connect", address: m.top.origin, pin: invalid })
+    else
+        SessionRun(job)
+    end if
+end sub
+
+sub SessionOutcome(result as object)
+    if not result.ok then
+        m.top.error = SignInMessage(result.failure)
+        return
+    end if
+    kind = result.kind
+    if kind = "ready" then
+        SessionReady(result.record, result.session, result.connection)
+    else if kind = "profiles" then
+        m.top.directStep = ""
+        m.top.pending = { snapshot: result.snapshot, accountSession: result.accountSession, switching: false }
+        m.top.hasPending = true
+    else if kind = "password-change" then
+        m.accountSession = result.accountSession
+        m.top.directStep = "password-change"
+    else if kind = "challenge" then
+        m.challengeToken = result.token
+        m.top.directStep = "challenge"
+    else if kind = "device-pending" then
+        m.top.directStep = "device-pending"
+    end if
+end sub
+
+sub completeChallenge(code as string)
+    if m.top.busy then return
+    m.top.error = ""
+    username = ""
+    if m.credentials <> invalid then username = m.credentials.username
+    SessionRun({ kind: "challenge", connection: m.top.connection, token: m.challengeToken, code: code, username: username })
+end sub
+
+sub changeRequiredPassword(newPassword as string)
+    if m.top.busy or m.credentials = invalid or m.accountSession = invalid then return
+    m.top.error = ""
+    SessionRun({ kind: "changePassword", connection: m.top.connection, accountSession: m.accountSession, username: m.credentials.username, currentPassword: m.credentials.password, newPassword: newPassword })
+    m.credentials = { username: m.credentials.username, password: newPassword }
+end sub
+
+' "Check again" while the owner approves this device.
+sub retrySignIn()
+    if m.top.busy then return
+    m.top.error = ""
+    if m.pendingServer <> invalid then
+        openServer(m.pendingServer)
+    else if m.credentials <> invalid then
+        SessionRun({ kind: "signIn", connection: m.top.connection, username: m.credentials.username, password: m.credentials.password })
+    end if
+end sub
+
+sub cancelStep()
+    m.top.directStep = ""
+    m.top.error = ""
+    m.challengeToken = ""
+    m.accountSession = invalid
+end sub
+
+' {profileId, pin}
+sub chooseProfile(choice as object)
+    if m.top.busy or not m.top.hasPending then return
+    m.top.error = ""
+    pin = ""
+    if choice.pin <> invalid then pin = choice.pin
+    SessionRun({ kind: "chooseProfile", connection: m.top.connection, pending: m.top.pending, profileId: choice.profileId, pin: pin, details: m.details })
+end sub
+
+sub cancelPending()
+    m.top.hasPending = false
+    m.top.error = ""
+end sub
+
+' The profile chooser while signed in (Settings › Switch profile).
+' apps/native/src/screens/SettingsPages.tsx `ServersScreen`: another of the account's servers, or
+' a server by its address. The sign-in in use stays until another one replaces it; Back returns
+' to it.
+sub switchServer()
+    if m.top.phase <> "ready" or m.top.busy or m.top.switching then return
+    m.switchBack = { connection: m.top.connection, origin: m.top.origin }
+    m.top.error = ""
+    m.top.note = ""
+    if m.top.hasAccount then
+        pickServer()
+        refreshServers()
+    end if
+    m.top.switching = true
+end sub
+
+sub cancelSwitch()
+    if not m.top.switching then return
+    if m.switchBack <> invalid then
+        m.top.connection = m.switchBack.connection
+        m.top.origin = m.switchBack.origin
+    end if
+    m.switchBack = invalid
+    m.top.directStep = ""
+    m.top.error = ""
+    m.top.switching = false
+end sub
+
+sub switchProfile()
+    if m.top.phase <> "ready" or m.top.busy then return
+    SessionRun({ kind: "profiles", connection: m.top.connection, token: m.top.viewer.token })
+end sub
+
+' A server sign-in a code approved (Quick Connect): the Task has already saved it.
+sub acceptOutcome(outcome as object)
+    if outcome.ok then
+        SessionReady(outcome.record, outcome.session, outcome.connection)
+    else
+        m.top.error = SignInMessage(outcome.failure)
+    end if
+end sub
+
+' The account's activation code was approved.
+sub accountApproved(account as object)
+    m.top.account = account
+    m.top.hasAccount = true
+    m.top.landing = { kind: "deciding" }
+    refreshServers()
+end sub
+
+sub refreshServers()
+    m.top.directoryStatus = "loading"
+    SessionRun({ kind: "servers" })
+end sub
+
+sub SessionServers(result as object)
+    if not result.ok then
+        if result.signOut = true then
+            m.top.hasAccount = false
+            m.top.note = T("error.authentication")
+            m.top.directoryStatus = "idle"
+            return
+        end if
+        m.top.servers = []
+        m.top.error = PresentError(result.failure, "portico-account").body
+        m.top.directoryStatus = "error"
+        m.top.landing = { kind: "none" }
+        return
+    end if
+    m.top.servers = result.servers
+    m.top.directoryStatus = "ready"
+    landing = m.top.landing
+    ' Decide once the list is known; again if a list that was empty gains a server.
+    if landing = invalid or landing.kind = "deciding" or (landing.kind = "none" and result.servers.count() > 0) then
+        choice = LandingChoice(result.servers, result.lastServer)
+        if choice.kind = "open" then
+            openServer(choice.server)
+        else
+            m.top.landing = { kind: choice.kind }
+        end if
+    end if
+end sub
+
+sub openServer(server as object)
+    m.top.error = ""
+    m.pendingServer = server
+    m.top.landing = { kind: "opening", server: server }
+    SessionRun({ kind: "openServer", server: server })
+end sub
+
+sub pickServer()
+    m.pendingServer = invalid
+    m.top.directStep = ""
+    m.top.landing = { kind: "pick" }
+end sub
+
+sub SessionOpened(result as object)
+    server = m.pendingServer
+    if result.ok then
+        m.top.connection = result.connection
+        m.details = result.details
+        if result.kind = "device-pending" then
+            m.top.directStep = "device-pending"
+            return
+        end if
+        m.pendingServer = invalid
+        SessionOutcome(result)
+        return
+    end if
+    if result.signOut = true then
+        m.top.hasAccount = false
+        m.top.note = T("error.authentication")
+        return
+    end if
+    stage = "route"
+    if result.stage <> invalid then stage = result.stage
+    category = PresentErrorFacts(result.failure, "sign-in", { service: "server" }).category
+    kind = ClassifyPorticoFailure(result.failure, stage, category)
+    code = ""
+    if result.failure.code <> invalid then code = result.failure.code
+    m.top.landing = { kind: "failed", server: server, failure: { kind: kind, code: code } }
+end sub
+
+sub signOut()
+    SessionRun({ kind: "signOut" })
+end sub
+
+sub signOutAccount()
+    SessionRun({ kind: "signOutAccount" })
+end sub
+
+sub SessionSignedOut(account as boolean)
+    m.top.viewer = invalid
+    m.top.connection = invalid
+    m.top.hasPending = false
+    m.top.directStep = ""
+    m.top.error = ""
+    if account then
+        m.top.hasAccount = false
+        m.top.servers = []
+    end if
+    m.top.phase = "signedOut"
+    if m.top.hasAccount then
+        m.top.landing = { kind: "pick" }
+        refreshServers()
+    end if
+end sub
+
+' "Use another server or account" from the saved-server screen: the sign-in screens open, and the
+' saved server stays reachable from them.
+sub useElsewhere()
+    m.top.phase = "signedOut"
+end sub
+
+sub clearError()
+    m.top.error = ""
+end sub

@@ -1,0 +1,75 @@
+' apps/native/src/ui/Toast.tsx (componentSpec.feedback.toast, television column): the top trailing
+' corner (Theme.apple.toastTop down, Theme.apple.toastInsetX in), an overlay-surface panel with a
+' strong-line border, an optional glyph and the message in the body role. It fades in dropping
+' Theme.apple.toastTravel over overlay.motion.enterMs, stays for toast.durationMs, and fades out
+' over exitMs. Mounted once by the scene, above the screens and below sheets.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.panel = m.top.createChild("Group")
+    m.surface = m.panel.createChild("Poster")
+    m.border = m.panel.createChild("Poster")
+    m.iconNode = m.panel.createChild("Poster")
+    m.messageNode = MakeText(m.panel, "body")
+    m.messageNode.lines = 0
+    m.panel.opacity = 0
+    m.driver = m.top.createChild("Group")
+    m.driver.id = "toastDriver"
+    m.driver.opacity = 0
+    m.motion = MakeFloatAnimation(m.top, "toastDriver.opacity", Theme.spec.overlay.motion.enterMs)
+    m.driver.observeField("opacity", "onToastProgress")
+    m.timer = m.top.createChild("Timer")
+    m.timer.duration = Theme.spec.feedback.toast.durationMs / 1000
+    m.timer.observeField("fire", "onToastExpire")
+    m.rest = [0, 0]
+end sub
+
+sub onToastShow()
+    toast = m.top.toast
+    if toast = invalid or toast.message = invalid or toast.message = "" then
+        onToastExpire()
+        return
+    end if
+    padX = Theme.spec.feedback.toast.paddingX
+    padY = Theme.spec.feedback.toast.paddingY
+    x = padX
+    icon = ""
+    if toast.icon <> invalid then icon = toast.icon
+    m.iconNode.visible = icon <> ""
+    iconSize = Theme.metrics.icon
+    if icon <> "" then
+        StyleIcon(m.iconNode, icon, iconSize, Theme.colors.textSecondary)
+        x = x + iconSize + Theme.space.md
+    end if
+    m.messageNode.maxWidth = 0
+    m.messageNode.width = 0
+    m.messageNode.value = toast.message
+    limit = Theme.spec.feedback.toast.maxWidth - x - padX
+    if TextWidth(m.messageNode) > limit then m.messageNode.maxWidth = limit
+    width = x + TextWidth(m.messageNode) + padX
+    height = Max(TextHeight(m.messageNode), iconSize) + padY * 2
+    Place(m.messageNode, x, (height - TextHeight(m.messageNode)) / 2)
+    if icon <> "" then Place(m.iconNode, padX, (height - iconSize) / 2)
+    StyleShape(m.surface, width, height, Theme.spec.feedback.toast.radius, ThemeColor(Theme.spec.feedback.toast.surface))
+    StyleRing(m.border, width, height, Theme.spec.feedback.toast.radius, Theme.spec.overlay.border.width, ThemeColor(Theme.spec.overlay.border.color, Theme.spec.overlay.border.alpha))
+    m.rest = [Theme.screen.width - Theme.apple.toastInsetX - width, Theme.apple.toastTop]
+    RunFloatAnimation(m.motion, m.driver.opacity, 1, Theme.spec.overlay.motion.enterMs)
+    m.timer.control = "stop"
+    m.timer.control = "start"
+end sub
+
+sub onToastExpire()
+    m.timer.control = "stop"
+    RunFloatAnimation(m.motion, m.driver.opacity, 0, Theme.spec.overlay.motion.exitMs)
+end sub
+
+sub onToastProgress()
+    progress = m.driver.opacity
+    m.panel.opacity = progress
+    travel = Theme.apple.toastTravel
+    if ReduceMotion() then travel = 0
+    Place(m.panel, m.rest[0], m.rest[1] - (1 - progress) * travel)
+end sub

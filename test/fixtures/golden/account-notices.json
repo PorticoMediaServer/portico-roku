@@ -1,0 +1,925 @@
+{
+ "cases": [
+  {
+   "name": "five notices",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": true,
+   "expected": {
+    "unread": 4,
+    "nextCursor": "c2",
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": 1791194400,
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios"
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "other",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "none",
+   "document": {
+    "items": [],
+    "unread": 0
+   },
+   "ok": true,
+   "expected": {
+    "unread": 0,
+    "nextCursor": "",
+    "items": []
+   }
+  },
+  {
+   "name": "an empty cursor",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": ""
+   },
+   "ok": true,
+   "expected": {
+    "unread": 4,
+    "nextCursor": "",
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": 1791194400,
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios"
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "other",
+      "occurredAt": 1791194400,
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "no id",
+   "document": {
+    "items": [
+     {
+      "id": "",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a time that is not one",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "recently",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "read that is not yes or no",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": 1,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a server without an id",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "detail that is a list",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": [
+       "x"
+      ]
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an unread count that is negative",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": -1,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an unread count that is text",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": "four",
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a cursor that is a number",
+   "document": {
+    "items": [
+     {
+      "id": "an_1",
+      "kind": "server_offline",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     },
+     {
+      "id": "an_2",
+      "kind": "new_device",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": true,
+      "server": null,
+      "detail": {
+       "name": "Justin’s iPhone",
+       "platform": "ios",
+       "count": 3
+      }
+     },
+     {
+      "id": "an_3",
+      "kind": "security_event",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "event": "two_step_enabled"
+      }
+     },
+     {
+      "id": "an_4",
+      "kind": "signing_key_expiring",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {
+       "keyId": "k1",
+       "expiresAt": "2026-11-01T00:00:00Z"
+      }
+     },
+     {
+      "id": "an_5",
+      "kind": "something_new",
+      "occurredAt": "2026-10-05T10:00:00Z",
+      "read": false,
+      "server": {
+       "id": "srv_1",
+       "name": "Home"
+      },
+      "detail": {}
+     }
+    ],
+    "unread": 4,
+    "nextCursor": 7
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "no list",
+   "document": {
+    "unread": 4,
+    "nextCursor": "c2"
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "preferences": [
+  {
+   "document": {
+    "serverOffline": true,
+    "storageNearlyFull": false,
+    "invitationAccepted": true
+   },
+   "expected": {
+    "serverOffline": true,
+    "storageNearlyFull": false,
+    "invitationAccepted": true
+   }
+  },
+  {
+   "document": {
+    "serverOffline": "yes",
+    "storageNearlyFull": false,
+    "invitationAccepted": true
+   },
+   "expected": null
+  },
+  {
+   "document": {
+    "serverOffline": true
+   },
+   "expected": null
+  }
+ ],
+ "kinds": [
+  "server_offline",
+  "storage_nearly_full",
+  "invitation_accepted",
+  "new_device",
+  "security_event",
+  "account_export_ready",
+  "signing_key_expiring"
+ ],
+ "events": [
+  "password_changed",
+  "password_reset",
+  "recovery_codes_replaced",
+  "sign_in_method_removed",
+  "provider_linked",
+  "two_step_enabled",
+  "two_step_disabled",
+  "contact_email_changed",
+  "contact_email_verified"
+ ]
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/App.tsx: the root. The app opens on the brand and a ring, then the shell or sign-in. -->
+<component name="MainScene" extends="Scene">
+    <interface>
+        <function name="toast" />
+        <function name="play" />
+        <function name="enqueue" />
+        <function name="restoreFocus" />
+        <function name="playerState" />
+        <!-- {kind: play | pause | seek, seconds}: the group's follower steers the player directly. -->
+        <function name="playerGroup" />
+        <!-- True while something is playing (the player or its pill). -->
+        <field id="playerActive" type="boolean" value="false" />
+        <!-- True while a queue is playing: an entry's menu offers "Play next" and "Add to queue". -->
+        <field id="queueActive" type="boolean" value="false" />
+        <function name="entryMenu" />
+        <function name="organize" />
+    </interface>
+    <children>
+        <Poster id="atmosphere" />
+        <Group id="screenLayer" />
+        <Group id="railLayer" />
+        <Group id="playerLayer" />
+        <UiToast id="toastHost" />
+        <Group id="overlayLayer" />
+        <TogetherHost id="together" />
+    </children>
+</component>

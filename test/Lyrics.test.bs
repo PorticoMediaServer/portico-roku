@@ -1,0 +1,49 @@
+' Lyrics against the real TypeScript (scripts/golden.mjs `lyrics`): lyrics.ts over the
+' development server's answer for a song (it has none) and that answer with made lyrics.
+import "pkg:/source/core/Lyrics.bs"
+
+sub Test_Lyrics_parse()
+    fixture = TestFixture("golden/lyrics.json")
+    if fixture = invalid then return
+    chosen = invalid
+    for each item in fixture.cases
+        parsed = ParseLyricsView(item.document, item.serverId, item.target)
+        AssertEqual(parsed.ok, item.ok, "the lyrics, " + item.name)
+        if parsed.ok and item.ok then
+            if item.name = "with synced lyrics chosen" then chosen = parsed
+            copy = {}
+            copy.append(parsed)
+            copy.delete("ok")
+            AssertSame(copy, item.expected, "what the lyrics hold, " + item.name)
+        end if
+    end for
+    AssertTrue(not ParseLyricsView(invalid, "s", { itemId: "i", libraryId: "", sessionId: "", sessionGeneration: 0 }).ok, "no document")
+    if chosen = invalid then return
+    ' A song whose library the page did not say is still read; another library's answer is not.
+    served = fixture.cases[0]
+    loose = { itemId: served.target.itemId, libraryId: "", sessionId: served.target.sessionId, sessionGeneration: served.target.sessionGeneration }
+    AssertTrue(ParseLyricsView(served.document, served.serverId, loose).ok, "a song whose library is not known here")
+    loose.libraryId = "elsewhere"
+    AssertTrue(not ParseLyricsView(served.document, served.serverId, loose).ok, "an answer for another library")
+    for each item in fixture.active
+        AssertEqual(ActiveLyricLine(chosen.selected.document, item.position, item.offset, item.start), item.index, "the line at " + Str(item.position).trim() + " s, offset " + Str(item.offset).trim())
+    end for
+    AssertEqual(ActiveLyricLine({ format: "text", lines: [{ text: "One" }] }, 3, 0), -1, "plain words follow nothing")
+    for each item in fixture.seeks
+        AssertEqual(LyricSeekPosition(item.line, item.offset, item.source), item.seconds, "where the line at " + Str(item.line.atMs).trim() + " ms jumps to")
+    end for
+    AssertEqual(LyricSeekPosition({ text: "plain" }, 0, { startSeconds: 0, duration: 60 }), invalid, "a line without a time jumps nowhere")
+    choices = LyricChoices(chosen)
+    AssertSame(choices, [{ id: "lyr_1", label: "From the album folder" }, { id: "lyr_3", label: "Typed in" }], "what can be chosen: deleted lyrics are not offered")
+    body = LyricsSelectionBody(chosen, "ps_1", chosen.resources[2])
+    AssertEqual(body["resourceId"], "lyr_3", "choosing names the lyrics")
+    AssertEqual(body["expectedSelectionRevision"], 4, "against the selection it replaces")
+    AssertEqual(body["sourceVersion"], chosen.source.version, "for the verified source")
+    AssertEqual(LyricsSelectionBody(chosen, "ps_1", invalid)["resourceId"], "", "choosing none clears the selection")
+    AssertSame(LyricWindow(4000, 2000), { first: 1994, last: 2014 }, "only the lines near the one being sung are held")
+    AssertSame(LyricWindow(4, -1), { first: 0, last: 3 }, "a short song is held whole")
+    AssertSame(LyricWindow(0, 0), { first: 0, last: -1 }, "no lines")
+    AssertEqual(LyricLineText({ text: "" }), Chr(9834), "a line without words is a note")
+    AssertEqual(LyricsPath("a b", "ps 1"), "/v1/items/a%20b/lyrics?sessionId=ps%201", "the lyrics of a session's song")
+    AssertEqual(LyricsPath("a", "ps", "/selection"), "/v1/items/a/lyrics/selection", "where a choice is saved")
+end sub

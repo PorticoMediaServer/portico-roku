@@ -1,0 +1,237 @@
+' packages/client-core/src/presentation/title-files.ts and language.ts: a title's Files list in
+' the words a media-server owner reads ("4K · HEVC · Dolby Vision · MKV"), one line per audio and
+' subtitle track, size and bitrate, and the path for owners; and what a track is called. Language
+' names come from generated tables (source/core/LanguageTables.bs): a Roku has no Intl.
+import "pkg:/source/core/LanguageTables.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Messages.bs"
+
+' language.ts `languageKey`: a code's primary subtag, two letters where the language has them.
+' Empty for no language ("", "und", "zxx").
+function LanguageKey(code as dynamic) as string
+    if not IsString(code) then return ""
+    primary = LCase(code.trim())
+    for each mark in ["-", "_"]
+        at = Instr(1, primary, mark)
+        if at > 0 then primary = Left(primary, at - 1)
+    end for
+    if primary = "" or primary = "und" or primary = "zxx" then return ""
+    if m.languageAlpha3 = invalid then m.languageAlpha3 = LanguageAlpha3()
+    short = m.languageAlpha3[primary]
+    if short <> invalid then return short
+    return primary
+end function
+
+function SameLanguage(a as dynamic, b as dynamic) as boolean
+    key = LanguageKey(a)
+    return key <> "" and key = LanguageKey(b)
+end function
+
+' The language as the viewer reads it ("French"), or "" when the code names none.
+function LanguageName(code as dynamic) as string
+    key = LanguageKey(code)
+    if key = "" then return ""
+    if m.languageNames = invalid then m.languageNames = LanguageNames()
+    name = m.languageNames[key]
+    if name = invalid then return ""
+    return name
+end function
+
+' screens/title/language.ts `useLanguageName`: a track's language as a name, from the catalogue
+' first ("language.fr"), then the generated table; a code nothing names stays as it is.
+function TitleLanguageName(code as string) as string
+    key = LanguageKey(code)
+    if key = "" then key = code
+    id = "language" + "." + key
+    if HasMessage(id) then return T(id)
+    if m.languageNames = invalid then m.languageNames = LanguageNames()
+    name = m.languageNames[key]
+    if name <> invalid then return name
+    return key
+end function
+
+function LanguageNativeName(code as dynamic) as string
+    key = LanguageKey(code)
+    if key = "" then return ""
+    if m.languageNative = invalid then m.languageNative = LanguageNativeNames()
+    name = m.languageNative[key]
+    if name = invalid then return LanguageName(code)
+    return name
+end function
+
+' language.ts `trackName`: the language, then the track's own title only when it says something
+' more ("SDH", "Director's commentary"). A title that is the language again, in any spelling, or
+' a container's stock word adds nothing. Empty when the track names nothing.
+function TrackName(track as object) as string
+    code = ""
+    if IsString(track.language) and LanguageKey(track.language) <> "" then code = track.language
+    language = LanguageName(code)
+    title = ""
+    if IsString(track.title) then title = track.title.trim()
+    folded = LCase(title)
+    repeats = false
+    for each name in [language, LanguageNativeName(code), code, LanguageKey(code)]
+        if name <> "" and folded = LCase(name) then repeats = true
+    end for
+    extra = ""
+    if title <> "" and not repeats and not MatchesPattern(folded, "^(subtitles?|captions?|audio|track(\s*\d+)?|default|und)$") then
+        extra = title
+        ' "English - SDH", "English (Forced)": the language in front says nothing new.
+        if language <> "" and Left(folded, Len(language)) = LCase(language) then
+            rest = Mid(title, Len(language) + 1)
+            rest = CreateObject("roRegex", "^\s*[-–·:(]?\s*", "").replace(rest, "")
+            extra = CreateObject("roRegex", "\)$", "").replace(rest, "").trim()
+        else
+            extra = CreateObject("roRegex", "\)$", "").replace(extra, "").trim()
+        end if
+    end if
+    parts = []
+    if language <> "" then parts.push(language)
+    if extra <> "" and LCase(extra) <> LCase(language) then parts.push(extra)
+    if parts.count() = 0 then return title
+    return parts.join(" · ")
+end function
+
+' title-files.ts `resolutionLabel`: "4K", "1080p", "720p", "480p" or "SD", from the picture height.
+function ResolutionLabel(height as dynamic) as string
+    if height >= 2100 then return T("quality.4k")
+    if height >= 1000 then return T("quality.height", { height: 1080 })
+    if height >= 700 then return T("quality.height", { height: 720 })
+    if height >= 460 then return T("quality.height", { height: 480 })
+    return T("quality.sd")
+end function
+
+' title-files.ts `codecLabel`: a codec as people name it; an unknown one in capitals.
+function CodecLabel(codec as string) as string
+    names = {
+        "h264": "H.264", "avc": "H.264", "hevc": "HEVC", "h265": "HEVC", "av1": "AV1", "vp9": "VP9", "mpeg2video": "MPEG-2", "mpeg4": "MPEG-4", "vc1": "VC-1"
+        "aac": "AAC", "ac3": "Dolby Digital", "eac3": "Dolby Digital Plus", "truehd": "Dolby TrueHD", "dts": "DTS", "flac": "FLAC", "opus": "Opus", "mp3": "MP3", "vorbis": "Vorbis", "alac": "ALAC", "pcm_s16le": "PCM", "pcm_s24le": "PCM"
+        "subrip": "SRT", "srt": "SRT", "ass": "ASS", "ssa": "SSA", "webvtt": "WebVTT", "vtt": "WebVTT", "mov_text": "Text", "hdmv_pgs_subtitle": "PGS", "pgs": "PGS", "dvd_subtitle": "VobSub", "dvb_subtitle": "DVB"
+    }
+    known = names[LCase(codec)]
+    if known <> invalid then return known
+    return UCase(codec)
+end function
+
+' title-files.ts `dynamicRangeLabel`: "Dolby Vision", "HDR10+", "HDR10", "HLG"; "" for SDR.
+function DynamicRangeLabel(range as dynamic, hdr10Plus = false as boolean) as string
+    if not IsString(range) then return ""
+    key = LCase(range)
+    if key = "dolby_vision" or key = "dolby-vision" or key = "dovi" then return "Dolby Vision"
+    if key = "hdr10" then
+        if hdr10Plus then return "HDR10+"
+        return "HDR10"
+    end if
+    if key = "hdr10plus" or key = "hdr10+" then return "HDR10+"
+    if key = "hlg" then return "HLG"
+    return ""
+end function
+
+' title-files.ts `channelsLabel`: "7.1", "5.1", "Stereo", "Mono"; "" when nothing is known.
+function ChannelsLabel(track as object) as string
+    layout = ""
+    if IsString(track.channelLayout) then layout = LCase(track.channelLayout)
+    named = CreateObject("roRegex", "^(\d\.\d)", "").match(layout)
+    if named.count() > 1 then return named[1]
+    channels = 0
+    if track.channels <> invalid then channels = track.channels
+    if layout = "stereo" or channels = 2 then return T("mediaInfo.stereo")
+    if layout = "mono" or channels = 1 then return T("mediaInfo.mono")
+    if channels = 6 then return "5.1"
+    if channels = 8 then return "7.1"
+    if channels > 0 then return T("mediaInfo.channels", { count: channels })
+    return ""
+end function
+
+' title-files.ts `formatBitRate`: "12.4 Mbps", "640 kbps".
+function FormatBitRate(bitsPerSecond as dynamic) as string
+    if bitsPerSecond = invalid or bitsPerSecond <= 0 then return ""
+    if bitsPerSecond >= 1000000 then
+        value = bitsPerSecond / 1000000.0
+        if value >= 10 then
+            whole% = Int(value + 0.5)
+            return whole%.toStr() + " Mbps"
+        end if
+        tenths% = Int(value * 10 + 0.5)
+        return (tenths% \ 10).toStr() + "." + (tenths% mod 10).toStr() + " Mbps"
+    end if
+    kilo% = Int(bitsPerSecond / 1000.0 + 0.5)
+    return kilo%.toStr() + " kbps"
+end function
+
+function TitleTrackLine(track as object, audio as boolean, number as integer) as string
+    known = ""
+    if IsString(track.language) and track.language <> "" and track.language <> "und" then known = TitleLanguageName(track.language)
+    name = known
+    if name = "" then
+        name = T("mediaInfo.track", { number: number })
+        if IsString(track.title) and track.title <> "" then name = track.title
+    end if
+    marks = []
+    if track.default = true then marks.push(T("mediaInfo.default"))
+    if track.forced = true then marks.push(T("mediaInfo.forced"))
+    if track.external = true then marks.push(T("mediaInfo.external"))
+    ' The track's own title follows only when it says more than the language.
+    said = ""
+    if known <> "" then
+        named = TrackName(track)
+        at = Instr(1, named, " · ")
+        if at > 0 then said = Mid(named, at + Len(" · "))
+    end if
+    parts = [name, CodecLabel(track.codec)]
+    if audio then
+        channels = ChannelsLabel(track)
+        if channels <> "" then parts.push(channels)
+        if track.objectAudio = "atmos" then parts.push("Atmos")
+        if track.objectAudio = "dtsx" then parts.push("DTS:X")
+    end if
+    if said <> "" then parts.push(said)
+    line = parts.join(" · ")
+    if marks.count() > 0 then line = line + " (" + marks.join(", ") + ")"
+    return line
+end function
+
+' title-files.ts `titleFileLines`: one file as the lines its row prints. {id, summary, facts,
+' audio, subtitles, path, available}.
+function TitleFileLines(file as object) as object
+    v = file.video
+    summary = []
+    if v <> invalid then
+        if v.height > 0 then summary.push(ResolutionLabel(v.height))
+        if v.codec <> "" then summary.push(CodecLabel(v.codec))
+        range = DynamicRangeLabel(v.dynamicRange, v.hdr10Plus = true)
+        if range <> "" then summary.push(range)
+    end if
+    if file.container <> "" then summary.push(UCase(file.container))
+    facts = []
+    if v <> invalid and v.width > 0 and v.height > 0 then facts.push(v.width.toStr() + "×" + v.height.toStr())
+    if file.size > 0 then facts.push(FormatBytes(file.size))
+    rate = FormatBitRate(file.bitRate)
+    if rate <> "" then facts.push(rate)
+    if file.duration > 0 then facts.push(FormatDuration(file.duration))
+    if v <> invalid and v.frameRate <> invalid then
+        fps = ""
+        if v.frameRate = Int(v.frameRate) then
+            whole% = v.frameRate
+            fps = whole%.toStr()
+        else
+            thousandths& = Int(v.frameRate * 1000 + 0.5)
+            fraction = (thousandths& mod 1000).toStr()
+            while Len(fraction) < 3
+                fraction = "0" + fraction
+            end while
+            fps = (thousandths& \ 1000).toStr() + "." + fraction
+        end if
+        facts.push(T("mediaInfo.fps", { fps: fps }))
+    end if
+    if v <> invalid and v.bitDepth <> invalid and v.bitDepth > 8 then facts.push(T("mediaInfo.bitDepth", { bits: v.bitDepth }))
+    lines = { id: file.id, summary: summary.join(" · "), facts: facts, audio: [], subtitles: [], available: file.available }
+    for index = 0 to file.audio.count() - 1
+        lines.audio.push(TitleTrackLine(file.audio[index], true, index + 1))
+    end for
+    for index = 0 to file.subtitles.count() - 1
+        lines.subtitles.push(TitleTrackLine(file.subtitles[index], false, index + 1))
+    end for
+    if file.path <> invalid then lines.path = file.path
+    return lines
+end function

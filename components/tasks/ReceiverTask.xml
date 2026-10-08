@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- packages/client-core/src/remote-playback.ts `ReceiverHost`: registers this television as a receiver and reads its inbox. -->
+<component name="ReceiverTask" extends="Task">
+    <interface>
+        <!-- {deviceId, displayName, platform, keyFingerprint} -->
+        <field id="device" type="assocarray" />
+        <!-- True while the player is in the foreground: the inbox is not read, the heartbeat continues. -->
+        <field id="playerActive" type="boolean" value="false" />
+        <!-- Set to read the inbox every second for a while (a phone was just allowed). -->
+        <field id="expecting" type="boolean" value="false" alwaysNotify="true" />
+        <!-- Set to end the loop. -->
+        <field id="stop" type="boolean" value="false" alwaysNotify="true" />
+        <field id="receiverId" type="string" value="" />
+        <!-- The grant waiting for this television's viewer, or an empty object for none. -->
+        <field id="asking" type="assocarray" />
+        <!-- A handoff waiting for this television to play. -->
+        <field id="handoff" type="assocarray" alwaysNotify="true" />
+    </interface>
+</component>

@@ -1,0 +1,247 @@
+' The readers an ApiTask can pass an answer through, by name. Each is the bounded parser of one
+' document; a reader returns {value} (plain data for the screen) and, when it builds a tree for a
+' list, {content} (a ContentNode).
+import "pkg:/source/core/Content.bs"
+import "pkg:/source/core/Cards.bs"
+import "pkg:/source/core/Browse.bs"
+import "pkg:/source/core/ContentProjection.bs"
+import "pkg:/source/core/LibraryTabs.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Saved.bs"
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/source/core/SavedReaders.bs"
+import "pkg:/source/core/PlaybackReaders.bs"
+import "pkg:/source/core/Settings.bs"
+import "pkg:/source/core/Lyrics.bs"
+import "pkg:/source/core/Devices.bs"
+import "pkg:/source/core/Guide.bs"
+import "pkg:/source/core/Notifications.bs"
+import "pkg:/source/core/Together.bs"
+import "pkg:/source/core/ServerAdmin.bs"
+
+function ReadAnswer(reader as dynamic, answer as object, context as dynamic) as object
+    if context = invalid then context = {}
+    if reader = "libraries" then return { value: ParseLibraries(answer.data) }
+    if reader = "home" then return ReadHome(answer.data, context)
+    if reader = "homeRow" then return ReadHomeRow(answer.data, context)
+    if reader = "projection" then return ReadProjection(answer.data, context)
+    if reader = "capabilities" then return { value: ParseBrowseCapabilities(answer.data) }
+    if reader = "browse" then return ReadBrowse(answer.data, context)
+    if reader = "facets" then return { value: ParseBrowseFacets(answer.data, context.field) }
+    if reader = "cover" then return ReadCover(answer.data, context)
+    if reader = "detail" then return ReadDetail(answer.data, context)
+    if reader = "titleRows" then return ReadTitleRows(answer.data, context)
+    if reader = "show" then return ReadShow(answer.data, context)
+    if reader = "entity" then return ReadEntity(answer.data, context)
+    if reader = "person" then return ReadPerson(answer.data, context)
+    if reader = "credits" then return ReadCredits(answer.data, context)
+    if reader = "receipt" then return ReadReceipt(answer.data, context)
+    if reader = "container" then return ReadContainer(answer.data, context)
+    if reader = "playbackOptions" then return ReadPlaybackOptions(answer.data)
+    if reader = "playbackSession" then return ReadPlaybackSession(answer.data)
+    if reader = "playbackQueue" then return ReadPlaybackQueue(answer.data)
+    if reader = "playbackWindow" then return ReadPlaybackWindow(answer.data)
+    if reader = "groupSnapshot" then return { value: ParseGroupSnapshot(answer.data) }
+    if reader = "groupList" then return { value: ParseGroupList(answer.data) }
+    if reader = "groupReceipt" then return { value: ParseGroupReceipt(answer.data) }
+    if reader = "groupQueue" then return ReadGroupQueue(answer.data)
+    if reader = "notificationInbox" then return { value: ParseNotificationInbox(answer.data) }
+    if reader = "notificationBatch" then return { value: ParseNotificationBatch(answer.data) }
+    if reader = "notificationUnread" then return { value: { ok: true, unread: ParseNotificationUnread(answer.data) } }
+    if reader = "channelSession" then return { value: ParseChannelSession(answer.data) }
+    if reader = "devices" then return { value: ParseDevices(answer.data) }
+    if reader = "itemEntry" then return ReadItemEntry(answer.data)
+    if reader = "lyrics" then return { value: ParseLyricsView(answer.data, context.serverId, context.target) }
+    if reader = "preferences" then return { value: ParsePreferences(answer.data) }
+    if reader = "adminSessions" then return { value: ParseAdminSessions(answer.data) }
+    if reader = "adminAlerts" then return { value: ParseAdminAlerts(answer.data) }
+    if reader = "adminHealth" then return { value: ParseMeasurement(answer.data, "health") }
+    if reader = "adminStorage" then return { value: ParseMeasurement(answer.data, "storage") }
+    if reader = "adminTelemetry" then return { value: ParseTelemetry(answer.data) }
+    if reader = "adminJobs" then return { value: ParseAdminJobs(answer.data) }
+    if reader = "search" then return ReadSearch(answer.data, context)
+    if reader = "saved" then return ReadSaved(answer.data, context)
+    if reader = "playlist" then return ReadPlaylist(answer.data, context)
+    if reader = "history" then return ReadHistory(answer.data, context)
+    if reader = "savedResources" then return ReadSavedResources(answer.data, context)
+    if reader = "savedResource" then return ReadSavedResource(answer.data, context)
+    if reader = "playlists" then return { value: ParsePlaylistCards(answer.data, context.serverId) }
+    return { value: answer.data }
+end function
+
+' GET /v1/home. The value is {ok, rows (summaries), hero, empty}; the content has one child per
+' row, each holding that row's cards.
+function ReadHome(data as dynamic, context as object) as object
+    parsed = ParseHomeDocument(data)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    document = parsed.document
+    content = CreateObject("roSGNode", "ContentNode")
+    rows = []
+    children = []
+    for each row in document.rows
+        if row.entries.count() > 0 then
+            summary = HomeRowSummary(row)
+            rows.push(summary)
+            children.push(CardsNode(row.entries, { origin: context.origin, shape: summary.shape, resume: summary.resume }))
+        end if
+    end for
+    content.appendChildren(children)
+    value = { ok: true, rows: rows, hero: invalid }
+    ' "1m" is never said for a short clip (screens/Home.tsx `heroDuration`).
+    hero = HomeHero(document, invalid, HomeHeroDurationFloor())
+    if hero <> invalid then
+        value.hero = {
+            eyebrow: ServerTextLabel(hero.row.titleText, hero.row.title)
+            title: hero.title, line: hero.line, meta: hero.meta, progress: hero.progress, playLabel: hero.playLabel
+            art: hero.art, coverShape: hero.coverShape, overview: hero.entry.overview, entry: hero.entry
+            backdropUri: MediaUrl(context.origin, hero.entry.backdropUrl), coverUri: MediaUrl(context.origin, hero.entry.posterUrl)
+        }
+    end if
+    return { value: value, content: content }
+end function
+
+' GET /v1/home/rows/{id}: one page of a row. The value is {ok, id, nextCursor, total, hasMore,
+' count}; the content holds the page's cards.
+function ReadHomeRow(data as dynamic, context as object) as object
+    parsed = ParseHomeRow(data)
+    if not parsed.ok or (context.rowId <> invalid and parsed.row.id <> context.rowId) then return { value: { ok: false, code: "invalid_home" } }
+    row = parsed.row
+    shape = context.shape
+    if shape = invalid then shape = SectionShape(row.entries)
+    summary = HomeRowSummary(row)
+    summary.ok = true
+    summary.hasMore = row.hasMore
+    summary.shape = shape
+    return { value: summary, content: CardsNode(row.entries, { origin: context.origin, shape: shape, resume: IsContinueRow(row.id) }) }
+end function
+
+' GET /v1/libraries/{id}/content. `context`: {origin, route, serverId, family, fence, sectionId,
+' cursor}. The value is {ok, sections (summaries), scope, revision, empty, heading}; the content
+' has one child per section holding its cards (or rows, for a list). A continuation (`fence`) is
+' checked against the page it continues.
+function ReadProjection(data as dynamic, context as object) as object
+    parsed = ParseContentProjection(data, context.route, context.serverId, ContentPageSize())
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    projection = parsed.projection
+    if context.fence <> invalid then
+        problem = ContentContinuationCheck(projection, context.fence, context.sectionId, context.cursor)
+        if problem <> "" then return { value: { ok: false, code: problem } }
+    end if
+    family = projection.scope.libraryKind
+    content = CreateObject("roSGNode", "ContentNode")
+    sections = []
+    children = []
+    for each section in projection.sections
+        if section.entries.count() > 0 then
+            summary = SectionSummary(section, family)
+            sections.push(summary)
+            if section.type = "list" then
+                children.push(TrackRowsNode(section.entries, { origin: context.origin }))
+            else
+                children.push(CardsNode(section.entries, { origin: context.origin, shape: summary.shape, resume: summary.resume }))
+            end if
+        end if
+    end for
+    content.appendChildren(children)
+    value = { ok: true, sections: sections, scope: projection.scope, revision: projection.revision, heading: projection.heading.fallback, emptyTitle: "" }
+    if projection.empty <> invalid then value.emptyTitle = projection.empty.fallback
+    if projection.entity <> invalid then value.entity = projection.entity
+    if projection.listening <> invalid then value.listening = projection.listening
+    return { value: value, content: content }
+end function
+
+' screens/Library.tsx `renderTrack` and screens/Home.tsx's list section: a song as a row (cover,
+' title, artist and album, length).
+function TrackRowFields(entry as object, options as object) as object
+    parts = []
+    if entry.artist <> invalid and entry.artist.name <> invalid then
+        parts.push(entry.artist.name)
+    else
+        caption = CardCaption(entry, options.now)
+        if caption <> invalid and caption <> "" then parts.push(caption)
+    end if
+    if entry.album <> invalid and entry.album.name <> invalid then parts.push(entry.album.name)
+    art = entry.posterUrl
+    if art = invalid then art = entry.backdropUrl
+    meta = ""
+    if entry.duration <> invalid and entry.duration > 0 then meta = FormatClock(entry.duration)
+    return { row: true, title: entry.title, caption: parts.join(" · "), meta: meta, artUri: MediaUrl(options.origin, art), shape: "square", progress: ProgressFor(entry), watched: entry.watched = true, entryId: entry.id, entry: entry }
+end function
+
+function TrackRowsNode(entries as object, options as object) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each entry in entries
+        child = CreateObject("roSGNode", "ContentNode")
+        child.addFields(TrackRowFields(entry, options))
+        children.push(child)
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' screens/LibraryTabs.tsx `GenreCard`: a genre as a square card with how many songs it holds; its
+' cover is the newest album's, read when the card comes on screen.
+function GenreCardFields(entry as object, options as object) as object
+    caption = ""
+    total = FieldOf(entry, "count")
+    if total <> invalid and total > 0 then caption = T("title.songCount", { count: total })
+    cover = invalid
+    if entry.artworkPaths <> invalid and entry.artworkPaths.count() > 0 then cover = entry.artworkPaths[0]
+    icon = ""
+    if cover = invalid then icon = "category"
+    return { title: entry.title, caption: caption, artUri: MediaUrl(options.origin, cover), shape: "square", progress: 0, watched: false, icon: icon, titleLines: 1, entryId: entry.id, entry: entry, genre: true }
+end function
+
+' POST /v1/libraries/{id}/browse: one chunk of a grid. `context`: {origin, shows, family, shape}.
+' The value is {ok, start, total, revision, positionIndex, shape, titleLines, shown}; the content
+' holds the chunk's cards (titles), rows (tracks) or genre cards.
+function ReadBrowse(data as dynamic, context as object) as object
+    parsed = ParseBrowseResult(data)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    result = parsed.result
+    shape = context.shape
+    if shape = invalid or shape = "" then shape = SectionShape(result.entries, context.family)
+    lines = 1
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each entry in result.entries
+        fields = invalid
+        if context.shows = "tracks" then
+            fields = TrackRowFields(entry, { origin: context.origin })
+        else if context.shows = "genres" then
+            fields = GenreCardFields(entry, { origin: context.origin })
+        else
+            fields = CardFields(entry, { origin: context.origin, shape: shape })
+            if entry.kind = "book" then lines = 2
+        end if
+        child = CreateObject("roSGNode", "ContentNode")
+        child.addFields(fields)
+        children.push(child)
+    end for
+    node.appendChildren(children)
+    if context.shows = "genres" then shape = "square"
+    return { value: { ok: true, start: result.start, total: result.total, revision: result.revision, positionIndex: result.positionIndex, shape: shape, titleLines: lines, shown: result.entries.count() }, content: node }
+end function
+
+' The newest album of a genre, for the genre card's cover: {ok, artUri}.
+function ReadCover(data as dynamic, context as object) as object
+    parsed = ParseBrowseResult(data)
+    if not parsed.ok or parsed.result.entries.count() = 0 then return { value: { ok: false } }
+    return { value: { ok: true, artUri: MediaUrl(context.origin, parsed.result.entries[0].posterUrl) } }
+end function
+
+' The entry of a title from its detail document (a player that was given only an id names it).
+function ReadItemEntry(data as dynamic) as object
+    entry = invalid
+    if IsObject(data) and data.item <> invalid then entry = ParseContentEntry(data.item)
+    return { value: { ok: entry <> invalid, entry: entry } }
+end function
+
+' GET /v1/groups/{id}/queue: the queue alone, or wrapped as {queue}.
+function ReadGroupQueue(data as dynamic) as object
+    raw = data
+    if IsObject(data) and IsObject(data.queue) then raw = data.queue
+    queue = ParseGroupQueue(raw)
+    return { value: { ok: queue <> invalid, queue: queue } }
+end function

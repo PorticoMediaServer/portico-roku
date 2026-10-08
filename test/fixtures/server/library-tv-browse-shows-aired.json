@@ -1,0 +1,574 @@
+{
+ "pivot": "shows",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "latestAired",
+    "direction": "desc"
+   }
+  ]
+ },
+ "entries": [
+  {
+   "backdropUrl": "/v1/metadata/show/e3gS8v6SROn_5BodzsuIPw/art/backdrop?v=70d571d0c6c4153e6dc661c005a48b1f0cb5b186bd3d12ed8b69f0cf4e19a4d1&w=1920",
+   "latestEpisode": {
+    "airDate": "2026-09-17",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "R.I.P (Rest in Pestilence) Abby Borden",
+    "count": 4
+   },
+   "rating": 8.455,
+   "id": "e3gS8v6SROn_5BodzsuIPw",
+   "kind": "show",
+   "title": "Monster: The Lizzie Borden Story",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/show/e3gS8v6SROn_5BodzsuIPw/art/poster?v=b7eb3f7c9c7434ade1cd24ea5e1537af058233625eb5b1c245cf1fde92f6680c&w=400",
+   "year": 2026,
+   "addedAt": "2026-10-02T04:03:21.845Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "e3gS8v6SROn_5BodzsuIPw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/fGKo8Xp7R22b6pkcwEAYiQ/art/backdrop?v=f68e9949651aac0e50d8a392cc3840312f56d5089caac4f7508e0cccb7ab4e6c&w=1920",
+   "latestEpisode": {
+    "airDate": "2026-09-16",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Breaking & Entering",
+    "count": 4
+   },
+   "rating": 7.357,
+   "id": "fGKo8Xp7R22b6pkcwEAYiQ",
+   "kind": "show",
+   "title": "Neagley",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/show/fGKo8Xp7R22b6pkcwEAYiQ/art/poster?v=8a4efcf52603770763f70ae0e9a0edbb088a5939a800e4fd3949715a081b930f&w=400",
+   "year": 2026,
+   "addedAt": "2026-10-02T04:03:23.164Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "fGKo8Xp7R22b6pkcwEAYiQ"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/backdrop?v=18cb05ef6231d4191378641bcf18612c60fa97d6623ea8bc05093895410ee827&w=1920",
+   "latestEpisode": {
+    "airDate": "2026-09-06",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "The Weenie",
+    "count": 1
+   },
+   "rating": 7.93,
+   "id": "BTcEg5gSAoocBdKmhwafyg",
+   "kind": "show",
+   "title": "Lanterns",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/poster?v=cc158ba080b7bc238d292fd18a860c4ecbbe8bcc7f1c324b6bfdf4c092daaf17&w=400",
+   "year": 2026,
+   "addedAt": "2026-10-02T04:03:18.225Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "BTcEg5gSAoocBdKmhwafyg"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/MsZj7D4_0CJ6mWmfTTBUmw/art/backdrop?v=f89286ac7b3c94f5c4256a6b2b16a088be54c410e8e46f78f6168b44d03e5d71&w=1920",
+   "latestEpisode": {
+    "airDate": "2026-04-23",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Chapter Four: The Confession",
+    "count": 4
+   },
+   "rating": 7.308,
+   "id": "MsZj7D4_0CJ6mWmfTTBUmw",
+   "kind": "show",
+   "title": "Stranger Things: Tales from '85",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/show/MsZj7D4_0CJ6mWmfTTBUmw/art/poster?v=c46f0ede35bcb2a03cd74324a3d6b13956f3b13cd3a263e75001b71b7b35bb18&w=400",
+   "year": 2026,
+   "addedAt": "2026-10-02T04:03:34.857Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "MsZj7D4_0CJ6mWmfTTBUmw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/qrtRe2eYjfm7SU1zyPU7Rg/art/backdrop?v=f4289335a5c02f1f1c96bd00e59eb5a43837b39ffed7b5a7c71cfa9a72514429&w=1920",
+   "latestEpisode": {
+    "airDate": "2025-08-22",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "A Soldier's Heart",
+    "count": 1
+   },
+   "rating": 8.367,
+   "id": "qrtRe2eYjfm7SU1zyPU7Rg",
+   "kind": "show",
+   "title": "Outlander: Blood of My Blood",
+   "subtitle": "2025",
+   "posterUrl": "/v1/metadata/show/qrtRe2eYjfm7SU1zyPU7Rg/art/poster?v=0009b319574bb4288ab3e6ab09d40b6e7a360f0b54c04458e276a2738d460f2e&w=400",
+   "year": 2025,
+   "addedAt": "2026-10-02T04:03:24.248Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "qrtRe2eYjfm7SU1zyPU7Rg"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/5WRgrpGzIzHsNIsVgIcAEw/art/backdrop?v=51966b75904f7c51e767088407ad503a8a59535295af4e317b93b9bfcc2b4d8d&w=1920",
+   "latestEpisode": {
+    "airDate": "2025-04-20",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Rat Trap",
+    "count": 1
+   },
+   "rating": 8.4,
+   "id": "5WRgrpGzIzHsNIsVgIcAEw",
+   "kind": "show",
+   "title": "MobLand",
+   "subtitle": "2025",
+   "posterUrl": "/v1/metadata/show/5WRgrpGzIzHsNIsVgIcAEw/art/poster?v=601cf74dfd785cf42cdf5868b54cfd5d293bdd95bf727fb6d22ed76efb77b9b1&w=400",
+   "year": 2025,
+   "addedAt": "2026-10-02T04:03:20.697Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "5WRgrpGzIzHsNIsVgIcAEw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/ekd1duh-YEZT6I8mSCRV7A/art/backdrop?v=bb0be8b53cb6d4d7f178578518a6c0cee17dbce82ed5ad7f4ac4424303a0100c&w=1920",
+   "latestEpisode": {
+    "airDate": "2024-05-21",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "The Corridor",
+    "count": 1
+   },
+   "rating": 7.8,
+   "id": "ekd1duh-YEZT6I8mSCRV7A",
+   "kind": "show",
+   "title": "Dark Matter",
+   "subtitle": "2024",
+   "posterUrl": "/v1/metadata/show/ekd1duh-YEZT6I8mSCRV7A/art/poster?v=962cd77e0e6719cdbc4cb4c0621a5e286d8a9fd79b5ceb8428bacfa0e3a258df&w=400",
+   "year": 2024,
+   "addedAt": "2026-10-02T04:03:15.814Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "ekd1duh-YEZT6I8mSCRV7A"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/backdrop?v=88e1c1882538927772cfacfe931be96d81c7b7a5193438ceba0f0d2ffcf264e3&w=1920",
+   "latestEpisode": {
+    "airDate": "2024-03-07",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "An Unsympathetic Gentleman",
+    "count": 4
+   },
+   "rating": 7.848,
+   "id": "l6c_UOaem12vpQoauST9Pw",
+   "kind": "show",
+   "title": "The Gentlemen",
+   "subtitle": "2024",
+   "posterUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/poster?v=7521124a4b0539c7f16e24c3b5f12991b5a0a236c9bb99c294947a604168a239&w=400",
+   "year": 2024,
+   "addedAt": "2026-10-02T04:03:37.525Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "l6c_UOaem12vpQoauST9Pw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/backdrop?v=102f64a4a79dee2fe821c3250a253c560319ce6331716c73fe9f97a35007f7c4&w=1920",
+   "latestEpisode": {
+    "airDate": "2023-08-06",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "The Choice of Failure",
+    "count": 1
+   },
+   "rating": 8.071,
+   "id": "xo0WVHybY-IROwn12xDl5w",
+   "kind": "show",
+   "title": "Lioness",
+   "subtitle": "2023",
+   "posterUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/poster?v=ebaee69c2691653437ac4daee35040be09706edd01913a504c013f22e221d195&w=400",
+   "year": 2023,
+   "addedAt": "2026-10-02T04:03:19.440Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "xo0WVHybY-IROwn12xDl5w"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/CYY-RyWJwXzoFnFG6G_1Ag/art/backdrop?v=b5b8f4670c41836104d9013c9ba1223cc3a129879b8c1fc03c9e7f2897c8f090&w=1920",
+   "latestEpisode": {
+    "airDate": "2023-05-18",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Truth",
+    "count": 1
+   },
+   "rating": 7.479,
+   "id": "CYY-RyWJwXzoFnFG6G_1Ag",
+   "kind": "show",
+   "title": "Silo",
+   "subtitle": "2023",
+   "posterUrl": "/v1/metadata/show/CYY-RyWJwXzoFnFG6G_1Ag/art/poster?v=fcb1ba8ba9af5989a630b17e855cdc9133155972d58a9fc60234737963ec2cc0&w=400",
+   "year": 2023,
+   "addedAt": "2026-10-02T04:03:29.476Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "CYY-RyWJwXzoFnFG6G_1Ag"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/backdrop?v=157560791c9418163c4f294b9646e492465d54a7205e9b0bfbcecc4fcf082dae&w=1920",
+   "latestEpisode": {
+    "airDate": "2023-02-05",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Please Hold to My Hand",
+    "count": 1
+   },
+   "rating": 8.293,
+   "id": "_OR9V3RRg5Bgz5wuirRzGg",
+   "kind": "show",
+   "title": "The Last of Us",
+   "subtitle": "2023",
+   "posterUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/poster?v=047ee98b0ea2c2b2b8a9bc29b97408826794595a579b2ff6858a28924944474d&w=400",
+   "year": 2023,
+   "addedAt": "2026-10-02T04:03:39.079Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "_OR9V3RRg5Bgz5wuirRzGg"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/vtKe105MiqnkTGnwIBQ-_A/art/backdrop?v=5e78a23bf42cd264ffcae1738cb3db7c74e04aba01fb57926d14d3119ddb0bcd&w=1920",
+   "latestEpisode": {
+    "airDate": "2022-04-15",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Visiting Hours",
+    "count": 1
+   },
+   "rating": 7.913,
+   "id": "vtKe105MiqnkTGnwIBQ-_A",
+   "kind": "show",
+   "title": "Slow Horses",
+   "subtitle": "2022",
+   "posterUrl": "/v1/metadata/show/vtKe105MiqnkTGnwIBQ-_A/art/poster?v=193e04c63b7126a0f5847cbf582210ed9e3a7f3c82509be5f84238c0ac800025&w=400",
+   "year": 2022,
+   "addedAt": "2026-10-02T04:03:30.894Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "vtKe105MiqnkTGnwIBQ-_A"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/y2TW7qBSaHpDhnNYCHW3vQ/art/backdrop?v=7d06f0b99126aac35d4fd4d26618962a7f71f89547f40fbfe9295df324e9ef68&w=1920",
+   "latestEpisode": {
+    "airDate": "2022-03-03",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "The You You Are",
+    "count": 1
+   },
+   "rating": 8.294,
+   "id": "y2TW7qBSaHpDhnNYCHW3vQ",
+   "kind": "show",
+   "title": "Severance",
+   "subtitle": "2022",
+   "posterUrl": "/v1/metadata/show/y2TW7qBSaHpDhnNYCHW3vQ/art/poster?v=23037f61bf7b6ad80fe8f7c5a988ea272cba013389d32612b679dd9e2537235d&w=400",
+   "year": 2022,
+   "addedAt": "2026-10-02T04:03:28.284Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "y2TW7qBSaHpDhnNYCHW3vQ"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/M1eyUgPn3-IxSuHAx8Ontw/art/backdrop?v=316882721fb8275f47c4f2256fea4832df56b1849b01db22ccf3ff0722b4d002&w=1920",
+   "latestEpisode": {
+    "airDate": "2022-02-03",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "In a Tree",
+    "count": 4
+   },
+   "rating": 7.7,
+   "id": "M1eyUgPn3-IxSuHAx8Ontw",
+   "kind": "show",
+   "title": "Reacher",
+   "subtitle": "2022",
+   "posterUrl": "/v1/metadata/show/M1eyUgPn3-IxSuHAx8Ontw/art/poster?v=04731b09c54d298a766f36d1fe98706ef9ddd421f2d213c183be698ca2863ac1&w=400",
+   "year": 2022,
+   "addedAt": "2026-10-02T04:03:25.519Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "M1eyUgPn3-IxSuHAx8Ontw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/4sDm9_Nt7oW5oVLen4eopw/art/backdrop?v=eb6dbb0941599f6791c428c107c5ebc2cbef2aed2381889e5c10a5a99bae4429&w=1920",
+   "latestEpisode": {
+    "airDate": "2020-08-21",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "For the Children",
+    "count": 1
+   },
+   "rating": 7.805,
+   "id": "4sDm9_Nt7oW5oVLen4eopw",
+   "kind": "show",
+   "title": "Ted Lasso",
+   "subtitle": "2020",
+   "posterUrl": "/v1/metadata/show/4sDm9_Nt7oW5oVLen4eopw/art/poster?v=da6bc794afd349a3d0bd49d76e0018005bb80a6def9cb9ded88ccabfcdd5ebcf&w=400",
+   "year": 2020,
+   "addedAt": "2026-10-02T04:03:36.421Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "4sDm9_Nt7oW5oVLen4eopw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/backdrop?v=fe2a6d761ecb4711ea3c83a988c7e244fd2abe4e4284798da52912870e5c0d8a&w=1920",
+   "latestEpisode": {
+    "airDate": "2019-11-29",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Chapter 4: Sanctuary",
+    "count": 1
+   },
+   "rating": 8.41,
+   "id": "7K8NB4iF_3xBKUsg0z5Teg",
+   "kind": "show",
+   "title": "The Mandalorian",
+   "subtitle": "2019",
+   "posterUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/poster?v=577d34feb2de9917b91fe789c378bb7a83c0d7b734afb62ed4cba5f103091bc8&w=400",
+   "year": 2019,
+   "addedAt": "2026-10-02T04:03:40.326Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "7K8NB4iF_3xBKUsg0z5Teg"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/rZnNBYCjd2oB3nbKZ_SKpA/art/backdrop?v=bdf53a4431fac4d23e8f2870a347d3ade2704107af85123cb00959027f8b823b&w=1920",
+   "latestEpisode": {
+    "airDate": "2016-07-15",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Chapter Four: The Body",
+    "count": 4
+   },
+   "rating": 8.521,
+   "id": "rZnNBYCjd2oB3nbKZ_SKpA",
+   "kind": "show",
+   "title": "Stranger Things",
+   "subtitle": "2016",
+   "posterUrl": "/v1/metadata/show/rZnNBYCjd2oB3nbKZ_SKpA/art/poster?v=2bdde430234fb8da10279c44cbece20048f509d84e86a5b770a31c923dbcfbee&w=400",
+   "year": 2016,
+   "addedAt": "2026-10-02T04:03:33.580Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "rZnNBYCjd2oB3nbKZ_SKpA"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/F-UnwfA4yj3WZ5WTIdqINQ/art/backdrop?v=a531c44e9388e3f4e33ed56f7af138bd2f4cf7a4ef3d8dac08b5d36cd4cb3062&w=1920",
+   "latestEpisode": {
+    "airDate": "2014-01-13",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "M. Night Shaym-Aliens!",
+    "count": 1
+   },
+   "rating": 7.982,
+   "id": "F-UnwfA4yj3WZ5WTIdqINQ",
+   "kind": "show",
+   "title": "Rick and Morty",
+   "subtitle": "2013",
+   "posterUrl": "/v1/metadata/show/F-UnwfA4yj3WZ5WTIdqINQ/art/poster?v=9045b48b7d281d122193dad32edb41dd5fb969edaf90418f74b990ab0b535628&w=400",
+   "year": 2013,
+   "addedAt": "2026-10-02T04:03:26.725Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "F-UnwfA4yj3WZ5WTIdqINQ"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/ukxpwSMlI14124dX_lf20g/art/backdrop?v=5abaffc58d442a024082ecb98b381f776d562fe4d2814a84914221d8922b003c&w=1920",
+   "latestEpisode": {
+    "airDate": "2011-05-08",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Cripples, Bastards, and Broken Things",
+    "count": 1
+   },
+   "rating": 8.2,
+   "id": "ukxpwSMlI14124dX_lf20g",
+   "kind": "show",
+   "title": "Game of Thrones",
+   "subtitle": "2011",
+   "posterUrl": "/v1/metadata/show/ukxpwSMlI14124dX_lf20g/art/poster?v=adc51c0cafde6fab95206eec1581072b2645339ea9a436c1fe4f9b3bf776e7b5&w=400",
+   "year": 2011,
+   "addedAt": "2026-10-02T04:03:17.073Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "ukxpwSMlI14124dX_lf20g"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/backdrop?v=442ad3bdc6eabc673dee686446c30e33bb2c3bb9ae94e6ba67fce57ba6c9c5e0&w=1920",
+   "latestEpisode": {
+    "airDate": "2010-11-21",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Vatos",
+    "count": 1
+   },
+   "rating": 8.558,
+   "id": "5P1xrYyeYVN_jcV6JFN72A",
+   "kind": "show",
+   "title": "The Walking Dead",
+   "subtitle": "2010",
+   "posterUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/poster?v=7be825ad6bfc9f8dc5449b548655c5b589afef6f86d121386cef9997afab9cdb&w=400",
+   "year": 2010,
+   "addedAt": "2026-10-02T04:03:44.516Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "5P1xrYyeYVN_jcV6JFN72A"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+   "latestEpisode": {
+    "airDate": "2008-02-17",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Cancer Man",
+    "count": 1
+   },
+   "rating": 8.501,
+   "id": "22ySzw_01oM0BPistFLM7g",
+   "kind": "show",
+   "title": "Breaking Bad",
+   "subtitle": "2008",
+   "posterUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/poster?v=940e1164c6ff6c32b1c6639659b90151176c0a0e08a0b5b4e9c0bed4c26c0251&w=400",
+   "year": 2008,
+   "addedAt": "2026-10-02T04:03:14.607Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "22ySzw_01oM0BPistFLM7g"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/backdrop?v=9c68a5d72f9bb4f25b335f7092673a0b674de10509f606f2571ca501edb03213&w=1920",
+   "latestEpisode": {
+    "airDate": "2005-04-12",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "The Alliance",
+    "count": 1
+   },
+   "rating": 7.802,
+   "id": "d51EOEdH4vPkMHs0bb1pIQ",
+   "kind": "show",
+   "title": "The Office",
+   "subtitle": "2005",
+   "posterUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/poster?v=8b396a90862eb195067cf46f70104693422a954923865473387805d559a6a6c9&w=400",
+   "year": 2005,
+   "addedAt": "2026-10-02T04:03:41.794Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "d51EOEdH4vPkMHs0bb1pIQ"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/_xl9Q3BOa0-NFAbZa8-Cvw/art/backdrop?v=7dcb27b56529dfe50c1df4c61ec62fc9bb96770634801c99bc9599d7a8e0c99b&w=1920",
+   "latestEpisode": {
+    "airDate": "1997-09-03",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "Big Gay Al's Big Gay Boat Ride",
+    "count": 1
+   },
+   "rating": 7.8,
+   "id": "_xl9Q3BOa0-NFAbZa8-Cvw",
+   "kind": "show",
+   "title": "South Park",
+   "subtitle": "1997",
+   "posterUrl": "/v1/metadata/show/_xl9Q3BOa0-NFAbZa8-Cvw/art/poster?v=05da5ee203dc89db98975593bf8b7298159de733c731b3671dd5bd8fe6b81ebc&w=400",
+   "year": 1997,
+   "addedAt": "2026-10-02T04:03:32.192Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "_xl9Q3BOa0-NFAbZa8-Cvw"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/backdrop?v=9dc88511b8ff1f0b083a185dc7c4156bb00895b3232f94be8d141a3050aa32c4&w=1920",
+   "latestEpisode": {
+    "airDate": "1990-01-28",
+    "seasonNumber": 1,
+    "episodeNumber": 4,
+    "title": "There's No Disgrace Like Home",
+    "count": 1
+   },
+   "rating": 7.5,
+   "id": "xL6_yOFNIiwgLXJoiyIbBg",
+   "kind": "show",
+   "title": "The Simpsons",
+   "subtitle": "1989",
+   "posterUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/poster?v=d809cfb22c0cfd46b7ad50c903b2f33bedc7aedaeb47c0ddeafe5d8eb3af2c76&w=400",
+   "year": 1989,
+   "addedAt": "2026-10-02T04:03:42.999Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "xL6_yOFNIiwgLXJoiyIbBg"
+   }
+  }
+ ],
+ "pageInfo": {
+  "start": 0,
+  "total": 24,
+  "revision": "browse_1018b4b368019bff6683bfb9ad3419390c6e469b3555c4dc4456e04aa5368730",
+  "hasMore": false,
+  "nextCursor": ""
+ },
+ "positionIndex": []
+}

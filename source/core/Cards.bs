@@ -1,0 +1,193 @@
+' What a card and a row show, made from the server's entries: the same choices
+' apps/native/src/screens/Home.tsx makes (`EntryCard`, `useSectionCards`, `sectionTitle`) with
+' client-core's presentation rules. Built in the Task thread, so the screen receives content
+' nodes it hands straight to a list.
+import "pkg:/source/core/CardCaption.bs"
+import "pkg:/source/core/Home.bs"
+import "pkg:/source/core/Messages.bs"
+
+' packages/client-core/src/presentation/server-text.ts `serverTextLabel`: a server-authored label
+' is a catalogue message id, its parameters and a US English fallback. The catalogue message wins;
+' the fallback stands in for a code this client does not ship yet, and for a message whose
+' parameters the server did not send.
+function ServerTextLabel(label as dynamic, fallback = "" as string) as string
+    if label = invalid then return fallback
+    code = ""
+    if label.code <> invalid then
+        code = label.code
+    else if label.key <> invalid then
+        code = label.key
+    end if
+    if code <> "" and HasMessage(code) then
+        params = label.params
+        if params = invalid then params = {}
+        complete = true
+        for each name in MessageArguments(MessageSource(code))
+            value = params[name]
+            if Type(value) <> "String" and Type(value) <> "roString" then complete = false
+        end for
+        if complete then
+            text = T(code, params)
+            if text <> "" then return text
+        end if
+    end if
+    if label.fallback <> invalid and label.fallback <> "" then return label.fallback
+    return fallback
+end function
+
+' screens/Home.tsx `sectionTitle`: a heading whose key is a row title code (`home.row.*`) is the
+' catalogue message with its params, else the server's words.
+function SectionTitle(heading as object) as string
+    if Left(heading.key, Len("home.row.")) = "home.row." then return ServerTextLabel(heading, heading.fallback)
+    return heading.fallback
+end function
+
+' presentation/content.ts `iconFor`: the placeholder icon for a kind with no artwork.
+function IconFor(kind as string) as string
+    if kind = "artist" or kind = "album" or kind = "song" or kind = "disc" or kind = "music" then return "music"
+    if kind = "book" or kind = "audiobook_file" or kind = "chapter" or kind = "author" or kind = "book_series" or kind = "audiobook" then return "book"
+    if kind = "episode" or kind = "season" or kind = "show" or kind = "tv" or kind = "anime" then return "tv"
+    if kind = "collection" then return "collection"
+    if kind = "category" then return "category"
+    return "film"
+end function
+
+' presentation/content.ts `progressFor`: how far in, 0–1.
+function ProgressFor(entry as object) as float
+    if entry.duration = invalid or entry.progressSeconds = invalid or entry.duration = 0 or entry.progressSeconds = 0 then return 0
+    value = entry.progressSeconds / entry.duration
+    if value < 0 then return 0
+    if value > 1 then return 1
+    return value
+end function
+
+' index.ts `mediaUrl`: an artwork path on the selected server.
+function MediaUrl(origin as string, path as dynamic) as string
+    if Type(path) <> "String" and Type(path) <> "roString" then return ""
+    if path = "" then return ""
+    if Left(path, 1) = "/" then return origin + path
+    return path
+end function
+
+' recommendation-feedback.ts `isRecommendationRow`.
+function IsRecommendationRow(row as object) as boolean
+    if row.kind <> invalid then return row.kind = "recommendation"
+    return row.id = "recommended" or row.id = "trending_now" or Left(row.id, Len("for_you:")) = "for_you:"
+end function
+
+' home.ts `homeViewResourceId`: the saved view a Home row shows ("view:<id>"), or "".
+function HomeViewResourceId(rowId as string) as string
+    prefix = "view:"
+    if Left(rowId, Len(prefix)) = prefix and Len(rowId) > Len(prefix) then return Mid(rowId, Len(prefix) + 1)
+    return ""
+end function
+
+' One card's fields (screens/Home.tsx `EntryCard`). `options`: {origin, shape, resume, libraryId}.
+' `resume` is a Continue Watching card: the show as the title, what is left as the caption.
+function CardFields(entry as object, options as object) as object
+    shape = options.shape
+    title = entry.title
+    caption = invalid
+    if options.resume = true then
+        title = ContinueTitle(entry)
+        caption = ContinueCaption(entry, options.now)
+    else
+        caption = CardCaption(entry, options.now)
+    end if
+    if caption = invalid then caption = ""
+    art = entry.posterUrl
+    if art = invalid then art = entry.backdropUrl
+    if shape = "landscape" then
+        art = entry.backdropUrl
+        if art = invalid then art = entry.posterUrl
+    end if
+    icon = ""
+    if entry.posterUrl = invalid and entry.backdropUrl = invalid then icon = IconFor(entry.kind)
+    lines = 1
+    if entry.kind = "book" then lines = 2
+    return {
+        title: title
+        caption: caption
+        artUri: MediaUrl(options.origin, art)
+        shape: shape
+        progress: ProgressFor(entry)
+        watched: entry.watched = true and entry.kind <> "category" and entry.kind <> "collection"
+        icon: icon
+        titleLines: lines
+        entryId: entry.id
+        entry: entry
+    }
+end function
+
+function CardNode(entry as object, options as object) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    node.addFields(CardFields(entry, options))
+    return node
+end function
+
+' screens/Home.tsx `useSectionCards`: one card geometry per section (X-14): the first entry's
+' shape in a shelf, with the library's family deciding where the kind alone cannot.
+function SectionShape(entries as object, family = "" as string) as string
+    if entries.count() > 0 then return ShapeFor(entries[0].kind, "shelf", family)
+    if family = "music" or family = "audiobook" then return "square"
+    return "poster"
+end function
+
+' A Home row as its shelf shows it: {id, title, shape, resume, seeAll, seeAllLabel, seeAllRoute,
+' nextCursor, total, libraryId, titleLines, origin}.
+function HomeRowSummary(row as object) as object
+    shape = SectionShape(row.entries)
+    summary = { id: row.id, title: SectionTitle(HomeRowHeading(row)), shape: shape, resume: IsContinueRow(row.id), nextCursor: row.nextCursor, total: row.total, shown: row.entries.count(), titleLines: 1, seeAll: false, seeAllLabel: "", seeAllRoute: invalid }
+    if row.libraryId <> invalid then summary.libraryId = row.libraryId
+    for each entry in row.entries
+        if entry.kind = "book" then summary.titleLines = 2
+    end for
+    ' A recommendation row with no library of its own opens as its own paged page; a saved view's
+    ' row opens the view's page (screens/Home.tsx `seeAllFor`).
+    view = HomeViewResourceId(row.id)
+    route = invalid
+    if view <> "" then
+        route = { screen: "ScreenSavedResource", params: { resourceId: view, title: row.title } }
+    else if row.libraryId = invalid and IsRecommendationRow(row) then
+        route = { screen: "ScreenHomeRow", params: { rowId: row.id, title: summary.title } }
+    end if
+    if route <> invalid and (row.total > row.entries.count() or view <> "") then
+        summary.seeAll = true
+        summary.seeAllRoute = route
+        summary.seeAllLabel = T("shelf.seeAll")
+        if row.total > 0 then summary.seeAllLabel = T("shelf.seeAllCount", { count: MessageNumber(row.total) })
+    end if
+    summary.origin = ""
+    if summary.resume then
+        summary.origin = "continue_watching"
+    else if IsRecommendationRow(row) then
+        summary.origin = "recommendation"
+    end if
+    return summary
+end function
+
+' The cards of a list of entries, as children of a ContentNode.
+function CardsNode(entries as object, options as object) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each entry in entries
+        children.push(CardNode(entry, options))
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' A projection section as its shelf (or grid, or list) shows it: {id, type, title, shape, resume,
+' seeAll (the row's own, or invalid), seeAllLabel, nextCursor, totalCount, shown, titleLines,
+' recommendation}.
+function SectionSummary(section as object, family = "" as string) as object
+    shape = SectionShape(section.entries, family)
+    summary = { id: section.id, type: section.type, title: SectionTitle(section.heading), shape: shape, resume: IsContinueRow(section.id), nextCursor: section.nextCursor, totalCount: section.totalCount, shown: section.entries.count(), titleLines: 1, seeAll: invalid, recommendation: IsRecommendationRow(section) }
+    if section.seeAll <> invalid then summary.seeAll = section.seeAll
+    for each entry in section.entries
+        if entry.kind = "book" then summary.titleLines = 2
+    end for
+    summary.seeAllLabel = T("shelf.seeAll")
+    if section.totalCount > 0 then summary.seeAllLabel = T("shelf.seeAllCount", { count: MessageNumber(section.totalCount) })
+    return summary
+end function

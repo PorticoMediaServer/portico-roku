@@ -1,0 +1,212 @@
+' apps/native/App.tsx `Root`. The atmosphere (ui/Canvas.tsx Atmosphere: the canvas with its
+' projection glow, under everything, never scrolling), then the view the session's phase calls
+' for: the brand and a ring while the remembered sign-in is read and confirmed, the shell when
+' signed in, the sign-in screens when there is no sign-in, and the saved-server screen when the
+' remembered server does not answer. Above them, in the order of Theme.layers: the player, toasts
+' and overlays.
+'
+' Difference from the Apple TV app: the Apple app opens the shell at once with the remembered
+' sign-in and confirms it in the background. Here the remembered server proves its identity before
+' the saved token is used (source/core/Session.bs `SessionRestore`), so the ring stays until it has.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Store.bs"
+
+sub init()
+    m.top.backgroundUri = ""
+    m.top.backgroundColor = Theme.colors.ink
+    atmosphere = m.top.findNode("atmosphere")
+    atmosphere.uri = "pkg:/images/gradients/atmosphere.png"
+    atmosphere.width = Theme.screen.width
+    atmosphere.height = Theme.screen.height
+    m.screenLayer = m.top.findNode("screenLayer")
+    session = CreateObject("roSGNode", "AppSession")
+    ' The device's own settings (Settings › Appearance): text size and Reduce Motion.
+    stored = StoreReadJson(StoreRegistry(), "portico", "devicePreferences")
+    scale = 1.0
+    still = false
+    receive = true
+    if Type(stored) = "roAssociativeArray" then
+        if stored.textSize = "large" then scale = Theme.apple.textScaleLarge
+        still = stored.reduceMotion = true
+        ' "Receive from other devices" is on until it is turned off.
+        if Type(stored.receiveFromDevices) = "Boolean" or Type(stored.receiveFromDevices) = "roBoolean" then receive = stored.receiveFromDevices
+    end if
+    ' `region`: the profile's Language, hour cycle and time zone (Messages.bs `RegionChoice`).
+    ' `together`: Watch Together for the signed-in viewer (one host, so a room survives moving between screens).
+    m.global.addFields({ textScale: scale, reduceMotion: still, receiveFromDevices: receive, region: "", session: session, together: m.top.findNode("together") })
+    m.session = session
+    m.view = invalid
+    m.shown = ""
+    m.player = invalid
+    m.entryMenu = invalid
+    for each name in ["phase", "hasPending", "switching"]
+        m.session.observeField(name, "onScenePhase")
+    end for
+    m.session.observeField("viewer", "onSceneViewer")
+    m.session.observeField("token", "onSceneViewer")
+    onScenePhase()
+    m.session.callFunc("restore")
+end sub
+
+function SceneWanted() as string
+    phase = m.session.phase
+    if phase = "restoring" then return "connecting"
+    if phase = "unavailable" then return "ScreenSavedServerUnavailable"
+    if phase = "ready" and not m.session.hasPending and not m.session.switching then return "Shell"
+    return "ScreenAuthFlow"
+end function
+
+sub onScenePhase()
+    wanted = SceneWanted()
+    if wanted = m.shown then return
+    ' Leaving the shell (signing out, switching server) ends what is playing and leaves any room.
+    if m.shown = "Shell" then
+        if m.player <> invalid then m.player.callFunc("stop")
+        m.top.findNode("together").callFunc("shutdown")
+    end if
+    if m.view <> invalid then
+        if m.shown <> "connecting" then m.view.callFunc("leave")
+        m.screenLayer.removeChild(m.view)
+        m.view = invalid
+    end if
+    m.shown = wanted
+    if wanted = "connecting" then
+        m.view = SceneConnecting()
+        m.view.setFocus(true)
+        return
+    end if
+    m.view = m.screenLayer.createChild(wanted)
+    if wanted = "ScreenSavedServerUnavailable" then m.view.observeField("elsewherePressed", "onSceneElsewhere")
+    m.view.callFunc("enter")
+end sub
+
+' App.tsx `Connecting`: the wordmark and a ring, centred, Theme.space.lg apart.
+function SceneConnecting() as object
+    view = m.screenLayer.createChild("Group")
+    height = Theme.apple.connectingWordmark
+    width = height * Theme.apple.wordmarkAspect
+    ring = Theme.apple.connectingRing
+    total = height + Theme.space.lg + ring
+    top = (Theme.screen.height - total) / 2
+    wordmark = view.createChild("Poster")
+    wordmark.uri = "pkg:/images/brand/wordmark.png"
+    wordmark.blendColor = Theme.colors.text
+    wordmark.width = width
+    wordmark.height = height
+    Place(wordmark, (Theme.screen.width - width) / 2, top)
+    spinner = view.createChild("UiSpinner")
+    spinner.size = ring
+    Place(spinner, (Theme.screen.width - ring) / 2, top + height + Theme.space.lg)
+    return view
+end function
+
+' Artwork is the viewer's: every image request under the screens carries the session's bearer
+' (apps/native/src/app/content.ts `useArtwork`), set on the layer's HTTP agent whenever the token
+' changes. Media URLs carry their own grant and need none.
+sub onSceneViewer()
+    viewer = m.session.viewer
+    token = m.session.token
+    if token = "" and viewer <> invalid then token = viewer.token
+    agent = CreateObject("roHttpAgent")
+    if token <> "" then agent.addHeader("Authorization", "Bearer " + token)
+    m.screenLayer.setHttpAgent(agent)
+end sub
+
+sub onSceneElsewhere()
+    m.session.callFunc("useElsewhere")
+end sub
+
+' Plays a title: {itemId, startSeconds, entry}. The player is the scene's own layer, over the shell.
+sub play(request as object)
+    if m.player = invalid then
+        m.player = m.top.findNode("playerLayer").createChild("PlayerHost")
+        if m.player = invalid then return
+        m.player.observeField("closed", "onScenePlayerClosed")
+        m.player.observeField("hasQueue", "onScenePlayerQueue")
+        m.player.observeField("active", "onScenePlayerActive")
+    end if
+    m.player.callFunc("play", request)
+end sub
+
+' "Play next" and "Add to queue": {entry, next}.
+sub enqueue(request as object)
+    if m.player <> invalid then m.player.callFunc("enqueue", request)
+end sub
+
+sub onScenePlayerActive()
+    m.top.playerActive = m.player.active
+end sub
+
+' What the player is doing: {itemId, playbackId, playing, positionSeconds} (the receiver proves a
+' handoff is really playing before it says so).
+function playerState() as object
+    if m.player = invalid then return { itemId: "", playbackId: "", playing: false, buffering: false, ready: false, positionSeconds: 0 }
+    return m.player.callFunc("nowPlaying")
+end function
+
+' The group's follower: play, pause or seek, straight to the player.
+sub playerGroup(action as object)
+    if m.player <> invalid then m.player.callFunc("groupDo", action)
+end sub
+
+sub onScenePlayerQueue()
+    m.top.queueActive = m.player.hasQueue
+end sub
+
+' The player closed, or went behind its pill: the page under it reads where the title was left.
+sub onScenePlayerClosed()
+    shell = m.global.shell
+    if shell <> invalid and m.shown = "Shell" then shell.callFunc("refreshTop")
+end sub
+
+' Focus goes back to the page on show when what held it before the player opened is gone.
+sub restoreFocus()
+    shell = m.global.shell
+    if shell <> invalid and m.shown = "Shell" then
+        shell.callFunc("focusContent")
+    else if m.view <> invalid then
+        m.view.setFocus(true)
+    end if
+end sub
+
+' An entry's menu (the Apple app's long press): {entry, origin, libraryId}.
+sub entryMenu(request as object)
+    if m.entryMenu = invalid then m.entryMenu = m.top.findNode("overlayLayer").createChild("EntryMenu")
+    if m.entryMenu <> invalid then m.entryMenu.callFunc("open", request)
+end sub
+
+' "Add to playlist…" and "Add to collection…": {kind, entry}.
+sub organize(request as object)
+    if m.organizeSheet = invalid then m.organizeSheet = m.top.findNode("overlayLayer").createChild("OrganizeSheet")
+    if m.organizeSheet <> invalid then m.organizeSheet.callFunc("open", request)
+end sub
+
+' Shows a toast: {message, icon}.
+sub toast(entry as object)
+    m.top.findNode("toastHost").toast = entry
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    ' Audio behind a page: Play/Pause answers anywhere, and Up from the top of a page reaches the
+    ' now-playing pill.
+    if press and m.player <> invalid and m.player.active and not m.player.expanded then
+        if key = "play" then
+            m.player.callFunc("toggle")
+            return true
+        end if
+        if key = "up" then return m.player.callFunc("focusPill")
+    end if
+    if key <> "back" then return false
+    if not press then return false
+    ' Switching server: Back walks back inside the sign-in screens, then returns to the server in use.
+    if m.session.switching and m.view <> invalid and m.shown = "ScreenAuthFlow" then
+        if not m.view.callFunc("back") then m.session.callFunc("cancelSwitch")
+        return true
+    end if
+    ' Back walks back inside the view on show; where there is nothing to go back to, it leaves the channel.
+    if m.view <> invalid and m.shown <> "connecting" then return m.view.callFunc("back")
+    return false
+end function

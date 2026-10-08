@@ -1,0 +1,274 @@
+' apps/native/src/player/EntryMenu.tsx `PlaylistSheet` and `CollectionSheet`. "Add to playlist…"
+' and "Add to collection…": the viewer's own playlists (or collections) as rows, one press adds
+' the title; under them a name field and Create, which makes a new one holding the title. Each
+' write is one command with a new operation id against the revision just read; the notice says
+' what happened in the catalogue's words.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Saved.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.sheet = m.top.createChild("UiSheet")
+    m.sheet.kind = "picker"
+    m.request = invalid
+    m.rows = invalid
+    m.busy = false
+    m.task = invalid
+    m.name = ""
+    m.generation = 0
+end sub
+
+function OrganizeServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function OrganizeItemId() as string
+    entry = m.request.entry
+    if entry.playback <> invalid then return entry.playback.itemId
+    return entry.id
+end function
+
+function OrganizePlaylists() as boolean
+    return m.request.kind = "playlist"
+end function
+
+sub open(request as object)
+    m.generation = m.generation + 1
+    m.request = request
+    m.rows = invalid
+    m.busy = false
+    m.name = ""
+    if OrganizePlaylists() then
+        m.sheet.title = T("entry.sheet.addToPlaylist")
+    else
+        m.sheet.title = T("entry.sheet.addToCollection")
+    end if
+    m.sheet.subtitle = request.entry.title
+    OrganizeBuild()
+    m.sheet.callFunc("open")
+    OrganizeList()
+end sub
+
+sub OrganizeList()
+    if OrganizePlaylists() then
+        m.task = ApiStart({ path: SavedListPath("playlists"), reader: "playlists", context: { serverId: OrganizeServerId() } }, "onOrganizeList")
+    else
+        m.task = ApiStart({ path: SavedResourcesPath("collection"), reader: "savedResources", context: { serverId: OrganizeServerId(), kind: "collection" } }, "onOrganizeList")
+    end if
+    m.task.addFields({ generation: m.generation })
+end sub
+
+sub onOrganizeList(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    m.rows = []
+    if result.ok and result.value.ok = true then
+        if OrganizePlaylists() then
+            for each card in result.value.cards
+                m.rows.push({ id: card.id, title: card.title, total: card.total, revision: invalid })
+            end for
+        else
+            for each resource in result.value.resources
+                if ArrayHas(resource.actions, "entries") then m.rows.push({ id: resource.id, title: resource.name, total: resource.entryCount, revision: resource.revision })
+            end for
+        end if
+    end if
+    ' A collection just made is found by its name, and the title put in it.
+    if m.created <> invalid then
+        name = m.created
+        m.created = invalid
+        for each row in m.rows
+            if row.title = name then
+                OrganizeAdd(row, T("entry.created", { name: name }))
+                return
+            end if
+        end for
+        OrganizeDone(T("entry.created", { name: name }))
+        return
+    end if
+    OrganizeBuild()
+end sub
+
+function ArrayHas(list as object, value as string) as boolean
+    for each item in list
+        if item = value then return true
+    end for
+    return false
+end function
+
+sub OrganizeBuild()
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    y = 0
+    first = invalid
+    if m.rows = invalid then
+        state = body.createChild("UiStateView")
+        state.loading = true
+        if OrganizePlaylists() then
+            state.title = T("entry.loadingPlaylists")
+        else
+            state.title = T("entry.loadingCollections")
+        end if
+        state.stateWidth = width
+        y = state.boundingRect().height
+    else
+        for index = 0 to m.rows.count() - 1
+            item = m.rows[index]
+            row = body.createChild("UiListRow")
+            row.addFields({ rowIndex: index })
+            row.icon = "queue"
+            if not OrganizePlaylists() then row.icon = "collection"
+            row.title = item.title
+            if item.total >= 0 then row.meta = T("count.items", { count: item.total })
+            row.disabled = m.busy
+            row.rowWidth = width
+            row.observeField("pressed", "onOrganizeRow")
+            Place(row, 0, y)
+            y = y + row.rowHeight
+            if first = invalid then first = row
+        end for
+        if m.rows.count() > 0 then y = y + Theme.space.md
+        field = body.createChild("UiField")
+        if OrganizePlaylists() then
+            field.label = T("web.saved.newPlaylist")
+            field.placeholder = T("profile.name")
+        else
+            field.label = T("web.saved.newCollection")
+        end if
+        field.value = m.name
+        field.fieldWidth = width
+        field.observeField("submitted", "onOrganizeName")
+        Place(field, 0, y)
+        y = y + field.fieldHeight + Theme.space.md
+        m.field = field
+        create = body.createChild("UiButton")
+        create.variant = "primary"
+        if OrganizePlaylists() then
+            create.label = T("entry.createPlaylist")
+        else
+            create.label = T("entry.createCollection")
+        end if
+        create.loading = m.busy
+        create.disabled = m.name.trim() = "" or m.busy
+        create.observeField("pressed", "onOrganizeCreate")
+        Place(create, 0, y)
+        y = y + create.controlHeight
+        m.create = create
+        if first = invalid then first = field
+    end if
+    m.sheet.callFunc("setBody", body, y)
+    if first <> invalid and m.sheet.isOpen then m.sheet.callFunc("focusBody", first)
+end sub
+
+sub onOrganizeName()
+    m.name = m.field.value
+    if m.create <> invalid then
+        m.create.disabled = m.name.trim() = "" or m.busy
+        if m.name.trim() <> "" then m.sheet.callFunc("focusBody", m.create)
+    end if
+end sub
+
+sub onOrganizeRow(event as object)
+    if m.busy then return
+    row = event.getRoSGNode()
+    item = m.rows[row.rowIndex]
+    OrganizeAdd(item, T("entry.addedTo", { name: item.title }))
+end sub
+
+' Adds the title to a playlist (its revision is read first) or a collection.
+sub OrganizeAdd(item as object, done as string)
+    m.busy = true
+    m.done = done
+    if OrganizePlaylists() then
+        task = ApiStart({ path: PlaylistPath(item.id), reader: "playlist", context: { serverId: OrganizeServerId(), playlistId: item.id } }, "onOrganizePlaylist")
+        task.addFields({ generation: m.generation, playlistId: item.id })
+        m.task = task
+    else
+        operationId = NewRequestId()
+        body = { "expectedRevision": item.revision, "addItemIds": [OrganizeItemId()], "removeEntryIds": [], "operationId": operationId }
+        task = ApiStart({ path: "/v1/saved-resources/" + item.id.encodeUriComponent() + "/entries", method: "PUT", body: body }, "onOrganizeWritten")
+        task.addFields({ generation: m.generation, operationId: "" })
+        m.task = task
+    end if
+end sub
+
+sub onOrganizePlaylist(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        OrganizeFailed(result.error)
+        return
+    end if
+    operationId = NewRequestId()
+    write = ApiStart({ path: PlaylistPath(task.playlistId) + "/entries", method: "POST", body: PlaylistAddBody(operationId, result.value.playlist.revision, OrganizeItemId()) }, "onOrganizeWritten")
+    write.addFields({ generation: m.generation, operationId: operationId })
+    m.task = write
+end sub
+
+sub onOrganizeCreate()
+    name = m.name.trim()
+    if name = "" or m.busy then return
+    m.busy = true
+    m.create.loading = true
+    m.done = T("entry.created", { name: name })
+    operationId = NewRequestId()
+    if OrganizePlaylists() then
+        task = ApiStart({ path: "/v1/playlists", method: "POST", body: PlaylistCreateBody(operationId, name, [OrganizeItemId()]) }, "onOrganizeWritten")
+        task.addFields({ generation: m.generation, operationId: operationId })
+        m.task = task
+    else
+        body = { "expectedRevision": 0, "kind": "collection", "name": name, "summary": "", "operationId": operationId }
+        task = ApiStart({ path: "/v1/saved-resources", method: "POST", body: body }, "onOrganizeCollectionMade")
+        task.addFields({ generation: m.generation, name: name })
+        m.task = task
+    end if
+end sub
+
+sub onOrganizeCollectionMade(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if not result.ok then
+        OrganizeFailed(result.error)
+        return
+    end if
+    m.created = task.name
+    OrganizeList()
+end sub
+
+sub onOrganizeWritten(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if not result.ok or (task.operationId <> "" and not PlaylistReceiptOk(result.value, OrganizeServerId(), task.operationId)) then
+        OrganizeFailed(result.error)
+        return
+    end if
+    OrganizeDone(m.done)
+end sub
+
+sub OrganizeDone(message as string)
+    m.busy = false
+    m.sheet.callFunc("close")
+    Toast(message, "check")
+    NotePersonalChange()
+end sub
+
+sub OrganizeFailed(failure as dynamic)
+    m.busy = false
+    if failure = invalid then failure = { code: "invalid_response", status: 0 }
+    Toast(PresentError(failure, "saved", { operation: "save" }).body, "warning")
+    OrganizeBuild()
+end sub

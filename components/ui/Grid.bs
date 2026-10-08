@@ -1,0 +1,123 @@
+' apps/native/src/ui/Grid.tsx `WindowedGrid`. The column count and column width come from the
+' measured width and the preferred card width exactly as there (Theme.gridLayout, generated with
+' the same arithmetic): cards Theme.space.gutter apart, rows Theme.space.lg apart, page gutters at
+' the sides. Nothing is sized by the collection: the MarkupGrid creates item components only for
+' the rows on screen, cells that have not loaded are placeholders, and the visible range is
+' reported so the store can fetch, prefetch and evict pages.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.grid = m.top.createChild("MarkupGrid")
+    m.grid.addField("focusable", "boolean", false)
+    m.grid.focusable = true
+    m.grid.itemComponentName = "UiCard"
+    m.grid.drawFocusFeedback = false
+    m.grid.vertFocusAnimationStyle = "fixedFocus"
+    m.grid.observeField("itemFocused", "onGridItemFocused")
+    m.grid.observeField("itemSelected", "onGridItemSelected")
+    m.grid.observeField("focusedChild", "onGridFocus")
+    m.visibleRows = 1
+    onGridLayout()
+end sub
+
+sub onGridLayout()
+    layout = ThemeGridLayout(m.top.shape)
+    width = m.top.gridWidth
+    if width <= 0 then width = Theme.screen.width - Theme.metrics.railWidth
+    height = m.top.gridHeight
+    if height <= 0 then height = Theme.screen.height
+    columns = layout.columns
+    columnWidth = layout.columnWidth
+    if m.top.gridWidth > 0 then
+        ' ui/Grid.tsx: columns = floor((available + gap) / (itemWidth + gap)); columnWidth fills the row.
+        available = width - Theme.space.page * 2
+        preferred = ShapeWidth(m.top.shape)
+        columns = Max(1, Int((available + Theme.space.gutter) / (preferred + Theme.space.gutter)))
+        columnWidth = Int((available - Theme.space.gutter * (columns - 1)) / columns)
+    end if
+    bodyHeight = CardBodyHeight(m.top.shape, columnWidth, m.top.titleLines)
+    ' The row gap is inside the item (half above, half below), the room the focus scale needs.
+    itemHeight = bodyHeight + Theme.space.lg
+    component = "UiCard"
+    if m.top.mode = "rows" then
+        columns = 1
+        columnWidth = width - Theme.space.page * 2
+        itemHeight = MediaRowHeight(m.top.shape)
+        component = "UiRowCell"
+        if m.top.cell <> "" then component = m.top.cell
+        if m.top.cellHeight > 0 then itemHeight = m.top.cellHeight
+        if m.top.cellWidth > 0 then columnWidth = m.top.cellWidth
+    end if
+    style = "fixedFocus"
+    if m.top.floating then style = "floatingFocus"
+    if m.grid.vertFocusAnimationStyle <> style then m.grid.vertFocusAnimationStyle = style
+    if m.grid.itemComponentName <> component then m.grid.itemComponentName = component
+    inset = Theme.space.page
+    if m.top.cellWidth > 0 then inset = 0
+    Place(m.grid, inset, 0)
+    m.grid.itemSize = [columnWidth, itemHeight]
+    m.grid.itemSpacing = [Theme.space.gutter, 0]
+    m.grid.numColumns = columns
+    m.visibleRows = Int(height / itemHeight) + 1
+    ' A list that shows whole rows only (the episode list) is exactly as tall as they are.
+    if m.top.floating then m.visibleRows = Max(1, Int(height / itemHeight))
+    m.grid.numRows = m.visibleRows
+    m.top.columns = columns
+    m.top.rowStride = itemHeight
+end sub
+
+function ThemeGridLayout(shape as string) as object
+    if shape = "landscape" then return { columns: Theme.gridLayout.landscape.columns, columnWidth: Theme.gridLayout.landscape.columnWidth }
+    if shape = "square" then return { columns: Theme.gridLayout.square.columns, columnWidth: Theme.gridLayout.square.columnWidth }
+    return { columns: Theme.gridLayout.poster.columns, columnWidth: Theme.gridLayout.poster.columnWidth }
+end function
+
+sub onGridItems()
+    m.grid.content = m.top.items
+    GridReportRange(m.top.focusedIndex)
+end sub
+
+sub GridReportRange(index as integer)
+    columns = m.top.columns
+    if columns <= 0 then return
+    row = index \ columns
+    first = Max(0, row - 1) * columns
+    last = (row + m.visibleRows + 1) * columns - 1
+    m.top.visibleRange = [first, last]
+end sub
+
+sub onGridItemFocused()
+    index = m.grid.itemFocused
+    m.top.focusedIndex = index
+    m.top.itemFocused = index
+    GridReportRange(index)
+end sub
+
+sub onGridItemSelected()
+    m.top.itemSelected = m.grid.itemSelected
+end sub
+
+sub onGridFocus()
+    m.top.hasGridFocus = m.grid.isInFocusChain()
+end sub
+
+sub focusGrid()
+    m.grid.setFocus(true)
+end sub
+
+sub jumpTo(index as integer)
+    m.top.focusedIndex = index
+    m.grid.jumpToItem = index
+    GridReportRange(index)
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if press and key = "options" and m.grid.isInFocusChain() then
+        m.top.itemMenu = m.top.focusedIndex
+        return true
+    end if
+    return false
+end function

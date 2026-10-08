@@ -1,0 +1,46 @@
+' ui/Focus.bs: the geometry that chooses where the remote goes.
+
+function TestRect(x as integer, y as integer, width as integer, height as integer) as object
+    return { x: x, y: y, width: width, height: height }
+end function
+
+sub Test_Focus_nearestInTheBeamWins()
+    current = TestRect(100, 100, 200, 64)
+    candidates = [TestRect(320, 100, 200, 64), TestRect(540, 100, 200, 64), TestRect(100, 200, 200, 64)]
+    AssertEqual(FocusPick(current, candidates, "right"), 0)
+    AssertEqual(FocusPick(current, candidates, "down"), 2)
+    AssertEqual(FocusPick(current, candidates, "left"), -1)
+    AssertEqual(FocusPick(current, candidates, "up"), -1)
+end sub
+
+sub Test_Focus_beamBeatsDistance()
+    ' A far control straight below beats a near one off to the side.
+    current = TestRect(100, 100, 200, 64)
+    candidates = [TestRect(400, 180, 200, 64), TestRect(120, 600, 200, 64)]
+    AssertEqual(FocusPick(current, candidates, "down"), 1)
+end sub
+
+sub Test_Focus_outsideTheBeamStillReachable()
+    current = TestRect(100, 100, 200, 64)
+    candidates = [TestRect(400, 300, 200, 64), TestRect(900, 300, 200, 64)]
+    AssertEqual(FocusPick(current, candidates, "down"), 0)
+end sub
+
+sub Test_Focus_tieGoesToTheSmallerOffset()
+    current = TestRect(300, 100, 200, 64)
+    candidates = [TestRect(0, 200, 400, 64), TestRect(280, 200, 240, 64)]
+    AssertEqual(FocusPick(current, candidates, "down"), 1)
+end sub
+
+sub Test_Focus_overlappingControlBehindIsNotAhead()
+    ' A control that starts before the current one is not "right" of it, even when it is wider.
+    current = TestRect(300, 100, 200, 64)
+    candidates = [TestRect(100, 100, 300, 64)]
+    AssertEqual(FocusPick(current, candidates, "right"), -1)
+    AssertEqual(FocusPick(current, candidates, "left"), 0)
+end sub
+
+sub Test_Focus_directions()
+    AssertEqual(FocusDirection("left"), "left")
+    AssertEqual(FocusDirection("OK"), "")
+end sub

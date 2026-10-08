@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/PorticoLanding.tsx: where a Portico Account lands after signing in. -->
+<component name="ScreenPorticoLanding" extends="Group">
+    <interface>
+        <field id="directPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="signedOut" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

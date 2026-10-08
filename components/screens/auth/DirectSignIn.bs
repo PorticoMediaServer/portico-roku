@@ -1,0 +1,226 @@
+' apps/native/src/screens/auth/DirectSignIn.tsx, with its DirectStepScreen. On television only the
+' address is typed first (step "address": the field, Continue, "Use a password instead"); the TV
+' then shows a Quick Connect code. Step "password": the address, the username, the password,
+' Sign in. A sign-in can stop at a two-step code, a required new password, or the owner's approval
+' of this device (the session's directStep), each its own form. The server's identity is pinned on
+' first contact and checked silently ever after.
+'
+' One keyboard session (TV-AUTH-03): confirming a field's keyboard moves straight into the next
+' field's, and confirming the last one submits.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+
+sub init()
+    m.session = m.global.session
+    m.frame = m.top.createChild("AuthFrame")
+    m.frame.observeField("errorDismissed", "onDirectDismiss")
+    m.content = CreateObject("roSGNode", "Group")
+    m.address = m.content.createChild("UiField")
+    m.address.label = T("auth.serverAddress")
+    m.address.placeholder = T("apple.direct.addressExample")
+    m.address.observeField("submitted", "onDirectAddress")
+    m.user = m.content.createChild("UiField")
+    m.user.label = T("auth.username")
+    m.user.placeholder = T("apple.direct.usernameExample")
+    m.user.keyboard = "email"
+    m.user.observeField("submitted", "onDirectUser")
+    m.secret = m.content.createChild("UiField")
+    m.secret.observeField("submitted", "onDirectSecret")
+    m.primary = m.content.createChild("UiButton")
+    m.primary.variant = "primary"
+    m.primary.size = "lg"
+    m.primary.observeField("pressed", "onDirectPrimary")
+    m.alternative = m.content.createChild("UiButton")
+    m.alternative.variant = "ghost"
+    m.alternative.label = T("quickConnect.usePassword")
+    m.alternative.observeField("pressed", "onDirectAlternative")
+    m.entered = ""
+    m.shown = ""
+    for each name in ["error", "busy", "directStep", "note"]
+        m.session.observeField(name, "onDirectLayout")
+    end for
+    m.session.observeField("connected", "onDirectConnected")
+end sub
+
+sub enter()
+    m.address.value = m.session.origin
+    m.user.value = m.session.username
+    m.entered = ""
+    onDirectLayout()
+    DirectEntryFocus()
+end sub
+
+sub leave()
+end sub
+
+' The form on show: a step the sign-in stopped at, else this screen's own step.
+function DirectForm() as string
+    if m.session.directStep <> "" then return m.session.directStep
+    return m.top.step
+end function
+
+sub DirectEntryFocus()
+    form = DirectForm()
+    if form = "address" then
+        ' Opened with the address already filled in (a sign-in that ended): Continue takes focus.
+        if m.session.origin.trim() <> "" then
+            m.frame.callFunc("focusContent", m.primary)
+        else
+            m.frame.callFunc("focusContent", invalid)
+        end if
+    else if form = "device-pending" then
+        m.frame.callFunc("focusContent", m.primary)
+    else
+        m.frame.callFunc("focusContent", invalid)
+    end if
+end sub
+
+sub onDirectLayout()
+    width = m.frame.contentWidth
+    form = DirectForm()
+    busy = m.session.busy
+    for each node in [m.address, m.user, m.secret, m.alternative]
+        node.visible = false
+    end for
+    m.frame.note = m.session.note
+    m.frame.error = m.session.error
+    m.primary.fillWidth = width
+    m.primary.loading = busy
+    m.alternative.fillWidth = width
+    m.alternative.focusable = false
+    if form = "address" then
+        m.frame.title = T("auth.signInToServer")
+        m.frame.lead = T("apple.direct.addressLead")
+        m.address.visible = true
+        m.alternative.visible = true
+        m.alternative.focusable = true
+        m.primary.label = T("action.continue")
+        m.primary.disabled = m.session.origin.trim() = ""
+    else if form = "password" then
+        m.frame.title = T("auth.signInToServer")
+        m.frame.lead = T("apple.direct.passwordLead")
+        m.address.visible = true
+        m.user.visible = true
+        m.secret.visible = true
+        m.secret.label = T("auth.password")
+        m.secret.secure = true
+        m.secret.hint = ""
+        m.primary.label = T("auth.signIn")
+        m.primary.disabled = not (m.session.origin.trim() <> "" and m.user.value <> "" and m.secret.value <> "")
+    else if form = "device-pending" then
+        m.frame.title = T("device.approval.titleThisDevice")
+        m.frame.lead = T("device.approval.body")
+        m.primary.label = T("device.approval.checkAgain")
+        m.primary.disabled = false
+    else if form = "password-change" then
+        m.frame.title = T("web.direct.newPasswordTitle")
+        m.frame.lead = T("web.direct.newPasswordLede")
+        m.secret.visible = true
+        m.secret.label = T("auth.newPassword")
+        m.secret.hint = T("account.passwordRule")
+        m.secret.secure = true
+        m.primary.label = T("action.continue")
+        m.primary.disabled = not PasswordAcceptable(m.secret.value)
+    else
+        m.frame.title = T("web.direct.codeTitle")
+        m.frame.lead = T("web.direct.codeLede")
+        m.secret.visible = true
+        m.secret.label = T("security.authenticatorCode")
+        m.secret.hint = ""
+        m.secret.secure = false
+        m.primary.label = T("action.continue")
+        m.primary.disabled = Len(m.secret.value.trim()) < Theme.apple.challengeMinLength
+    end if
+    ' A new form starts with an empty field.
+    if form <> m.shown then
+        if m.shown <> "" then m.secret.value = ""
+        m.shown = form
+        m.address.fieldWidth = width
+        m.user.fieldWidth = width
+        m.secret.fieldWidth = width
+        height = StackColumn([m.address, m.user, m.secret, m.primary, m.alternative], 0, Theme.space.lg, width)
+        m.frame.callFunc("setContent", m.content, height)
+        DirectEntryFocus()
+        return
+    end if
+    m.address.fieldWidth = width
+    m.user.fieldWidth = width
+    m.secret.fieldWidth = width
+    height = StackColumn([m.address, m.user, m.secret, m.primary, m.alternative], 0, Theme.space.lg, width)
+    m.frame.callFunc("setContent", m.content, height)
+end sub
+
+sub onDirectAddress()
+    m.session.callFunc("setOrigin", m.address.value)
+    onDirectLayout()
+    if DirectForm() = "address" then
+        DirectSubmit()
+    else
+        m.user.callFunc("edit")
+    end if
+end sub
+
+sub onDirectUser()
+    onDirectLayout()
+    m.secret.callFunc("edit")
+end sub
+
+sub onDirectSecret()
+    onDirectLayout()
+    DirectSubmit()
+end sub
+
+sub onDirectPrimary()
+    DirectSubmit()
+end sub
+
+sub DirectSubmit()
+    if m.primary.disabled or m.session.busy then return
+    form = DirectForm()
+    if form = "address" then
+        m.session.callFunc("setOrigin", m.address.value)
+        m.session.callFunc("connect")
+    else if form = "password" then
+        m.session.callFunc("setOrigin", m.address.value)
+        m.session.callFunc("signIn", { username: m.user.value, password: m.secret.value })
+    else if form = "device-pending" then
+        m.session.callFunc("retrySignIn")
+    else if form = "password-change" then
+        m.session.callFunc("changeRequiredPassword", m.secret.value)
+    else
+        m.session.callFunc("completeChallenge", m.secret.value)
+    end if
+end sub
+
+sub onDirectConnected()
+    if DirectForm() = "address" then m.top.codeWanted = true
+end sub
+
+sub onDirectAlternative()
+    m.top.step = "password"
+    onDirectLayout()
+end sub
+
+sub onDirectDismiss()
+    m.session.callFunc("clearError")
+end sub
+
+' Back walks one step at a time, through the same cleanup as each form's own Back.
+function back() as boolean
+    if m.session.directStep <> "" then
+        m.session.callFunc("cancelStep")
+        return true
+    end if
+    if m.top.step = "password" then
+        m.session.callFunc("clearError")
+        m.top.step = "address"
+        onDirectLayout()
+        return true
+    end if
+    return false
+end function

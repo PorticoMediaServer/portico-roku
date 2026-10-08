@@ -1,0 +1,399 @@
+' A QR code for the link a phone opens to approve this television (the Apple TV app draws it with
+' react-native-qrcode-svg; Roku has nothing that draws one). ISO/IEC 18004 Model 2: byte mode,
+' error correction level M (the Apple component's default), versions 1 to 20, the mask chosen by
+' the standard's penalty rules.
+'
+' QrEncode(text) returns {size, rows}: `rows` is `size` arrays of `size` booleans, true for a dark
+' module; or invalid when the text does not fit.
+
+function QrEccCodewordsPerBlock() as object
+    ' Level M, by version (index 0 unused).
+    return [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26]
+end function
+
+function QrEccBlocks() as object
+    return [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16]
+end function
+
+function QrRawModules(version as integer) as integer
+    result = (16 * version + 128) * version + 64
+    if version >= 2 then
+        align = version \ 7 + 2
+        result = result - ((25 * align - 10) * align - 55)
+        if version >= 7 then result = result - 36
+    end if
+    return result
+end function
+
+function QrDataCodewords(version as integer) as integer
+    return QrRawModules(version) \ 8 - QrEccCodewordsPerBlock()[version] * QrEccBlocks()[version]
+end function
+
+function QrXor(a as integer, b as integer) as integer
+    return (a or b) and not (a and b)
+end function
+
+' The exponent and logarithm tables of GF(256) under x^8 + x^4 + x^3 + x^2 + 1.
+function QrField() as object
+    exp = []
+    logs = []
+    for i = 0 to 255
+        logs.push(0)
+    end for
+    value = 1
+    for i = 0 to 254
+        exp.push(value)
+        logs[value] = i
+        value = value << 1
+        if value >= 256 then value = QrXor(value, 285)
+    end for
+    for i = 255 to 511
+        exp.push(exp[i - 255])
+    end for
+    return { exp: exp, logs: logs }
+end function
+
+function QrMultiply(field as object, a as integer, b as integer) as integer
+    if a = 0 or b = 0 then return 0
+    return field.exp[field.logs[a] + field.logs[b]]
+end function
+
+' The Reed–Solomon generator polynomial of the given degree (coefficients, highest first, without the leading 1).
+function QrDivisor(field as object, degree as integer) as object
+    result = []
+    for i = 0 to degree - 1
+        result.push(0)
+    end for
+    result[degree - 1] = 1
+    root = 1
+    for i = 0 to degree - 1
+        for j = 0 to degree - 1
+            result[j] = QrMultiply(field, result[j], root)
+            if j + 1 < degree then result[j] = QrXor(result[j], result[j + 1])
+        end for
+        root = QrMultiply(field, root, 2)
+    end for
+    return result
+end function
+
+function QrRemainder(field as object, data as object, divisor as object) as object
+    degree = divisor.count()
+    result = []
+    for i = 0 to degree - 1
+        result.push(0)
+    end for
+    for each value in data
+        factor = QrXor(value, result[0])
+        result.shift()
+        result.push(0)
+        for i = 0 to degree - 1
+            result[i] = QrXor(result[i], QrMultiply(field, divisor[i], factor))
+        end for
+    end for
+    return result
+end function
+
+function QrAlignmentPositions(version as integer, size as integer) as object
+    if version = 1 then return []
+    count = version \ 7 + 2
+    ' The patterns are spread evenly between the first and the last: an even step, rounded up.
+    stride = ((version * 4 + 4 + (count * 2 - 2) - 1) \ (count * 2 - 2)) * 2
+    positions = []
+    position = size - 7
+    while positions.count() < count - 1
+        positions.unshift(position)
+        position = position - stride
+    end while
+    positions.unshift(6)
+    return positions
+end function
+
+sub QrSet(grid as object, x as integer, y as integer, dark as boolean)
+    grid.rows[y][x] = dark
+    grid.fixed[y][x] = true
+end sub
+
+sub QrFinder(grid as object, cx as integer, cy as integer)
+    for dy = -4 to 4
+        for dx = -4 to 4
+            x = cx + dx
+            y = cy + dy
+            if x >= 0 and x < grid.size and y >= 0 and y < grid.size then
+                distance = Abs(dx)
+                if Abs(dy) > distance then distance = Abs(dy)
+                QrSet(grid, x, y, distance <> 2 and distance <> 4)
+            end if
+        end for
+    end for
+end sub
+
+sub QrFormatBits(grid as object, mask as integer)
+    ' Level M has the format value 0, so the fifteen bits depend on the mask alone.
+    data = mask
+    remainder = data
+    for i = 1 to 10
+        remainder = QrXor(remainder << 1, (remainder >> 9) * 1335)
+    end for
+    bits = QrXor((data << 10) or remainder, 21522)
+    size = grid.size
+    for i = 0 to 5
+        QrSet(grid, 8, i, ((bits >> i) and 1) = 1)
+    end for
+    QrSet(grid, 8, 7, ((bits >> 6) and 1) = 1)
+    QrSet(grid, 8, 8, ((bits >> 7) and 1) = 1)
+    QrSet(grid, 7, 8, ((bits >> 8) and 1) = 1)
+    for i = 9 to 14
+        QrSet(grid, 14 - i, 8, ((bits >> i) and 1) = 1)
+    end for
+    for i = 0 to 7
+        QrSet(grid, size - 1 - i, 8, ((bits >> i) and 1) = 1)
+    end for
+    for i = 8 to 14
+        QrSet(grid, 8, size - 15 + i, ((bits >> i) and 1) = 1)
+    end for
+    QrSet(grid, 8, size - 8, true)
+end sub
+
+sub QrVersionBits(grid as object, version as integer)
+    if version < 7 then return
+    remainder = version
+    for i = 1 to 12
+        remainder = QrXor(remainder << 1, (remainder >> 11) * 7973)
+    end for
+    bits = (version << 12) or remainder
+    for i = 0 to 17
+        dark = ((bits >> i) and 1) = 1
+        a = grid.size - 11 + i mod 3
+        b = i \ 3
+        QrSet(grid, a, b, dark)
+        QrSet(grid, b, a, dark)
+    end for
+end sub
+
+function QrMasked(mask as integer, x as integer, y as integer) as boolean
+    if mask = 0 then return (x + y) mod 2 = 0
+    if mask = 1 then return y mod 2 = 0
+    if mask = 2 then return x mod 3 = 0
+    if mask = 3 then return (x + y) mod 3 = 0
+    if mask = 4 then return (x \ 3 + y \ 2) mod 2 = 0
+    if mask = 5 then return (x * y) mod 2 + (x * y) mod 3 = 0
+    if mask = 6 then return ((x * y) mod 2 + (x * y) mod 3) mod 2 = 0
+    return ((x + y) mod 2 + (x * y) mod 3) mod 2 = 0
+end function
+
+sub QrApplyMask(grid as object, mask as integer)
+    for y = 0 to grid.size - 1
+        row = grid.rows[y]
+        fixed = grid.fixed[y]
+        for x = 0 to grid.size - 1
+            if not fixed[x] and QrMasked(mask, x, y) then row[x] = not row[x]
+        end for
+    end for
+end sub
+
+' The standard's four penalty rules.
+function QrPenalty(grid as object) as integer
+    size = grid.size
+    total = 0
+    dark = 0
+    for pass = 0 to 1
+        for a = 0 to size - 1
+            streak = 0
+            colour = false
+            history = 0
+            for b = 0 to size - 1
+                module = grid.rows[a][b]
+                if pass = 1 then module = grid.rows[b][a]
+                if pass = 0 and module then dark = dark + 1
+                if b > 0 and module = colour then
+                    streak = streak + 1
+                    if streak = 5 then
+                        total = total + 3
+                    else if streak > 5 then
+                        total = total + 1
+                    end if
+                else
+                    colour = module
+                    streak = 1
+                end if
+                ' The finder-like pattern 1011101 with four light modules on either side.
+                history = (history << 1) and 2047
+                if module then history = history or 1
+                if b >= 10 and (history = 1488 or history = 93) then total = total + 40
+            end for
+        end for
+    end for
+    for y = 0 to size - 2
+        for x = 0 to size - 2
+            c = grid.rows[y][x]
+            if c = grid.rows[y][x + 1] and c = grid.rows[y + 1][x] and c = grid.rows[y + 1][x + 1] then total = total + 3
+        end for
+    end for
+    cells = size * size
+    k = (Abs(dark * 20 - cells * 10) + cells - 1) \ cells - 1
+    if k < 0 then k = 0
+    return total + k * 10
+end function
+
+' `forcedMask` (0–7) fixes the mask; -1 chooses by penalty.
+function QrEncode(text as string, forcedMask = -1 as integer) as dynamic
+    bytes = CreateObject("roByteArray")
+    bytes.fromAsciiString(text)
+    length = bytes.count()
+    version = 0
+    for candidate = 1 to 20
+        countBits = 8
+        if candidate >= 10 then countBits = 16
+        if 4 + countBits + length * 8 <= QrDataCodewords(candidate) * 8 then
+            version = candidate
+            exit for
+        end if
+    end for
+    if version = 0 then return invalid
+    capacity = QrDataCodewords(version)
+
+    ' The bit stream: mode 0100, the length, the bytes, a terminator, then padding.
+    bits = [0, 1, 0, 0]
+    countBits = 8
+    if version >= 10 then countBits = 16
+    for i = countBits - 1 to 0 step -1
+        bits.push((length >> i) and 1)
+    end for
+    for each value in bytes
+        for i = 7 to 0 step -1
+            bits.push((value >> i) and 1)
+        end for
+    end for
+    terminator = capacity * 8 - bits.count()
+    if terminator > 4 then terminator = 4
+    for i = 1 to terminator
+        bits.push(0)
+    end for
+    while bits.count() mod 8 <> 0
+        bits.push(0)
+    end while
+    data = []
+    for i = 0 to bits.count() - 1 step 8
+        value = 0
+        for j = 0 to 7
+            value = (value << 1) or bits[i + j]
+        end for
+        data.push(value)
+    end for
+    pad = 236
+    while data.count() < capacity
+        data.push(pad)
+        if pad = 236 then
+            pad = 17
+        else
+            pad = 236
+        end if
+    end while
+
+    ' Split into blocks, add each block's error correction, and interleave.
+    field = QrField()
+    blockCount = QrEccBlocks()[version]
+    eccLength = QrEccCodewordsPerBlock()[version]
+    rawCodewords = QrRawModules(version) \ 8
+    shortBlocks = blockCount - rawCodewords mod blockCount
+    shortLength = rawCodewords \ blockCount
+    divisor = QrDivisor(field, eccLength)
+    blocks = []
+    offset = 0
+    for i = 0 to blockCount - 1
+        dataLength = shortLength - eccLength
+        if i >= shortBlocks then dataLength = dataLength + 1
+        block = []
+        for j = 0 to dataLength - 1
+            block.push(data[offset + j])
+        end for
+        offset = offset + dataLength
+        ecc = QrRemainder(field, block, divisor)
+        if i < shortBlocks then block.push(0)
+        block.append(ecc)
+        blocks.push(block)
+    end for
+    codewords = []
+    for i = 0 to blocks[0].count() - 1
+        for j = 0 to blockCount - 1
+            if i <> shortLength - eccLength or j >= shortBlocks then codewords.push(blocks[j][i])
+        end for
+    end for
+
+    ' The grid and its function patterns.
+    size = version * 4 + 17
+    grid = { size: size, rows: [], fixed: [] }
+    for y = 0 to size - 1
+        row = []
+        fixed = []
+        for x = 0 to size - 1
+            row.push(false)
+            fixed.push(false)
+        end for
+        grid.rows.push(row)
+        grid.fixed.push(fixed)
+    end for
+    for i = 0 to size - 1
+        QrSet(grid, 6, i, i mod 2 = 0)
+        QrSet(grid, i, 6, i mod 2 = 0)
+    end for
+    QrFinder(grid, 3, 3)
+    QrFinder(grid, size - 4, 3)
+    QrFinder(grid, 3, size - 4)
+    positions = QrAlignmentPositions(version, size)
+    last = positions.count() - 1
+    for i = 0 to last
+        for j = 0 to last
+            if not ((i = 0 and j = 0) or (i = 0 and j = last) or (i = last and j = 0)) then
+                for dy = -2 to 2
+                    for dx = -2 to 2
+                        distance = Abs(dx)
+                        if Abs(dy) > distance then distance = Abs(dy)
+                        QrSet(grid, positions[i] + dx, positions[j] + dy, distance <> 1)
+                    end for
+                end for
+            end if
+        end for
+    end for
+    QrFormatBits(grid, 0)
+    QrVersionBits(grid, version)
+
+    ' The codewords, in the zigzag from the bottom right.
+    index = 0
+    total = codewords.count() * 8
+    right = size - 1
+    while right >= 1
+        if right = 6 then right = 5
+        for vertical = 0 to size - 1
+            for j = 0 to 1
+                x = right - j
+                upward = ((right + 1) and 2) = 0
+                y = vertical
+                if upward then y = size - 1 - vertical
+                if not grid.fixed[y][x] and index < total then
+                    grid.rows[y][x] = ((codewords[index >> 3] >> (7 - (index and 7))) and 1) = 1
+                    index = index + 1
+                end if
+            end for
+        end for
+        right = right - 2
+    end while
+
+    mask = forcedMask
+    if mask < 0 then
+        best = -1
+        for candidate = 0 to 7
+            QrApplyMask(grid, candidate)
+            QrFormatBits(grid, candidate)
+            penalty = QrPenalty(grid)
+            if best < 0 or penalty < best then
+                best = penalty
+                mask = candidate
+            end if
+            QrApplyMask(grid, candidate)
+        end for
+    end if
+    QrApplyMask(grid, mask)
+    QrFormatBits(grid, mask)
+    return { size: size, rows: grid.rows, version: version, mask: mask }
+end function

@@ -1,0 +1,237 @@
+' apps/native/src/screens/title/SavedPages.tsx `SavedResourceScreen`. A collection (the viewer's
+' own, or one shared with everyone) or a saved view, on the shared hero: its name, how many
+' titles, its summary, Play and Shuffle, then its titles as a grid that grows as focus nears its
+' end. A saved view's titles come from the server running its saved query; a collection plays as
+' one server request on Playback v1.
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/source/core/Saved.bs"
+import "pkg:/components/screens/title/Common.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    m.hero = m.page.body.createChild("TitleHero")
+    m.hero.heroWidth = m.width
+    m.hero.observeField("pressed", "onResourceHero")
+    m.area = m.page.body.createChild("Group")
+    m.value = invalid
+    m.grid = invalid
+    m.task = invalid
+    m.pageTask = invalid
+    m.cursor = ""
+    m.claimed = false
+    m.generation = 0
+end sub
+
+sub enter()
+    hero = { loading: true }
+    if m.top.route.title <> invalid then hero.title = m.top.route.title
+    m.hero.content = hero
+    m.page.contentHeight = Theme.screen.height
+    ResourceLoad()
+end sub
+
+sub resume()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.pageTask = invalid
+end sub
+
+sub focusEntry()
+    if m.hero.callFunc("focusPrimary") then
+        m.page.callFunc("follow")
+    else if m.grid <> invalid then
+        m.grid.callFunc("focusGrid")
+        m.page.callFunc("follow")
+    else if not m.page.callFunc("focusEntry") then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function ResourceServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function ResourceRequest(cursor as string, shape as string) as object
+    id = m.top.route.resourceId
+    return { path: SavedResourceContentPath(id, cursor), reader: "savedResource", context: { origin: ViewerOrigin(), serverId: ResourceServerId(), resourceId: id, shape: shape } }
+end function
+
+sub ResourceLoad()
+    m.generation = m.generation + 1
+    m.task = ApiStart(ResourceRequest("", ""), "onResourceLoaded")
+    m.task.addFields({ generation: m.generation })
+end sub
+
+sub onResourceLoaded(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.grid = invalid
+    if not result.ok or result.value.ok <> true then
+        m.hero.visible = false
+        TitleFailure(m.area, result.error, "saved", Theme.apple.pageTopInset)
+        Place(m.area, 0, 0)
+        ResourceClaim()
+        return
+    end if
+    value = result.value
+    m.value = value
+    m.cursor = value.nextCursor
+    resource = value.resource
+    view = resource.kind = "view"
+    cards = task.content.getChild(0)
+    eyebrow = T("title.kind", { kind: "collection" })
+    if view then
+        eyebrow = T("title.savedView")
+    else if resource.visibility = "server" then
+        eyebrow = T("title.sharedCollection")
+    end if
+    facts = ""
+    if resource.entryCount > 0 then facts = T("count.items", { count: resource.entryCount })
+    covers = []
+    playable = 0
+    for each card in cards.getChildren(-1, 0)
+        if card.entry.playback <> invalid then playable = playable + 1
+        if covers.count() < 2 * 2 and card.artUri <> "" then covers.push(card.artUri)
+    end for
+    icon = "collection"
+    if view then icon = "filter"
+    hero = { loading: false, title: resource.name, eyebrow: eyebrow, facts: facts, art: { uri: "", shape: "poster", icon: icon, mosaic: covers } }
+    if covers.count() > 0 then hero.art.icon = ""
+    if resource.summary <> "" then hero.synopsis = resource.summary
+    if playable > 0 then hero.primary = { label: T("entry.play"), icon: "play" }
+    hero.actions = []
+    if playable > 1 then hero.actions.push({ id: "shuffle", icon: "shuffle", label: T("title.shuffle"), selected: false })
+    m.hero.visible = true
+    m.hero.content = hero
+    y = m.hero.heroHeight
+    Place(m.area, 0, y)
+    if cards.getChildCount() = 0 then
+        state = m.area.createChild("UiStateView")
+        state.icon = icon
+        if view then
+            state.title = T("title.viewEmpty")
+        else
+            state.title = T("title.collectionEmpty")
+        end if
+        state.stateWidth = m.width
+        y = y + state.boundingRect().height
+    else
+        m.grid = m.area.createChild("UiGrid")
+        m.grid.shape = value.shape
+        m.grid.gridWidth = m.width
+        m.grid.gridHeight = Theme.screen.height
+        m.grid.items = cards
+        m.grid.observeField("itemSelected", "onResourceSelected")
+        m.grid.observeField("itemMenu", "onResourceMenu")
+        m.grid.observeField("visibleRange", "onResourceRange")
+        rows = (cards.getChildCount() + m.grid.columns - 1) \ m.grid.columns
+        y = y + Max(Theme.screen.height, rows * m.grid.rowStride)
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    ResourceClaim()
+end sub
+
+sub ResourceClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onTitleRetry()
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.hero.visible = true
+    ResourceLoad()
+end sub
+
+sub ResourcePlay(shuffle as boolean)
+    if m.grid = invalid then return
+    queue = []
+    for each card in m.grid.items.getChildren(-1, 0)
+        if card.entry.playback <> invalid then queue.push(card.entry)
+    end for
+    if queue.count() = 0 then return
+    request = { itemId: queue[0].playback.itemId, startSeconds: 0, entry: queue[0], queue: queue, index: 0 }
+    ' A collection plays as one server request; a saved view has no container (Shuffle then
+    ' shuffles what is loaded).
+    if m.value.resource.kind = "collection" then
+        request.container = { kind: "collection", id: m.top.route.resourceId }
+        if shuffle then request.container.shuffle = true
+    else if shuffle then
+        request.shuffle = true
+    end if
+    scene = m.top.getScene()
+    if scene <> invalid then scene.callFunc("play", request)
+end sub
+
+sub onResourceHero()
+    if m.hero.pressed = "primary" then ResourcePlay(false)
+    if m.hero.pressed = "shuffle" then ResourcePlay(true)
+end sub
+
+function ResourceEntry(index as integer) as dynamic
+    if m.grid = invalid or index < 0 or index >= m.grid.items.getChildCount() then return invalid
+    return m.grid.items.getChild(index).entry
+end function
+
+sub onResourceSelected()
+    entry = ResourceEntry(m.grid.itemSelected)
+    if entry <> invalid then OpenEntry(entry)
+end sub
+
+sub onResourceMenu()
+    entry = ResourceEntry(m.grid.itemMenu)
+    if entry <> invalid then OpenEntry(entry, "more")
+end sub
+
+sub onResourceRange()
+    if m.grid = invalid or m.cursor = "" or m.pageTask <> invalid then return
+    range = m.grid.visibleRange
+    if range = invalid or range.count() < 2 or range[1] < m.grid.items.getChildCount() - 1 then return
+    m.pageTask = ApiStart(ResourceRequest(m.cursor, m.grid.shape), "onResourcePage")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub onResourcePage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.grid = invalid then return
+    m.pageTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.cursor = ""
+        return
+    end if
+    items = m.grid.items
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each card in items.getChildren(-1, 0)
+        seen[card.entryId] = true
+    end for
+    fresh = []
+    for each card in task.content.getChild(0).getChildren(-1, 0)
+        if not seen.doesExist(card.entryId) then fresh.push(card)
+    end for
+    items.appendChildren(fresh)
+    m.cursor = result.value.nextCursor
+end sub
+
+sub onTitleShelfSelected()
+end sub
+
+sub onTitleShelfMenu()
+end sub
+
+sub onTitleShelfSeeAll()
+end sub
+
+sub onTitleGenre()
+end sub

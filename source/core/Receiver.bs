@@ -1,0 +1,222 @@
+' packages/client-core/src/remote-playback.ts (`ReceiverHost`) and social-playback.ts (the
+' receiver, grant and handoff documents): being a television that a phone on the same profile
+' can send something to. The television registers itself, asks its own viewer before it accepts
+' a phone it has not met, and tells the server it has taken over only once it is really playing.
+'
+' Difference from the Apple TV app: no event stream (a Roku request cannot be read while it is
+' still arriving). The television waits on the inbox itself instead (`GET …/inbox/wait`, which
+' the server holds until something arrives); on a server without that read it falls back to the
+' poll, reading every second for a while after a phone was just allowed.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Bytes.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Time.bs"
+
+function SocialProtocol() as string
+    return "1.0"
+end function
+
+' receiver.tsx: the device a television registers as. The fingerprint fences a re-installed
+' channel from the grants given to the old one. invalid when the digest cannot be made.
+function ReceiverDevice(installationId as string, displayName as string) as dynamic
+    digest = CryptoDigest("sha256", BytesFromText("portico-receiver:" + installationId))
+    if digest = invalid then return invalid
+    id = ""
+    for index = 1 to Len(installationId)
+        ch = Mid(installationId, index, 1)
+        if MatchesPattern(ch, "^[A-Za-z0-9_-]$") then id = id + ch
+    end for
+    id = Left(id, 120)
+    if id = "" then id = "tv"
+    return { deviceId: id, displayName: Left(displayName, 64), platform: "roku", keyFingerprint: Base64UrlEncode(digest) }
+end function
+
+function ReceiverRegisterBody(device as object) as object
+    return { "protocolVersion": SocialProtocol(), "deviceId": device.deviceId, "displayName": device.displayName, "platform": device.platform, "keyFingerprint": device.keyFingerprint, "supportedCommands": ["load", "play", "pause", "seek", "stop"], "grantPolicy": "per-device" }
+end function
+
+function ReceiverHeartbeatBody(device as object) as object
+    return { "protocolVersion": SocialProtocol(), "keyFingerprint": device.keyFingerprint }
+end function
+
+function ReceiverDecisionBody(allow as boolean) as object
+    decision = "decline"
+    if allow then decision = "accept"
+    return { "protocolVersion": SocialProtocol(), "decision": decision }
+end function
+
+function ReceiverPath(id as string, suffix = "" as string) as string
+    return "/v1/receivers/" + id.encodeUriComponent() + suffix
+end function
+
+' The held read of the inbox: answered as soon as something is waiting, or empty after `seconds`.
+function ReceiverInboxWaitPath(id as string, seconds as integer) as string
+    return ReceiverPath(id, "/inbox/wait?waitSeconds=" + seconds.toStr())
+end function
+
+' A server from before the held read answers 404 or 405 for it.
+function ReceiverWaitUnsupported(status as dynamic) as boolean
+    return status <> invalid and (status = 404 or status = 405)
+end function
+
+function ReceiverDecisionPath(receiverId as string, grantId as string) as string
+    return ReceiverPath(receiverId, "/grants/" + grantId.encodeUriComponent() + "/decision")
+end function
+
+function HandoffReadinessPath(handoffId as string) as string
+    return "/v1/handoffs/" + handoffId.encodeUriComponent() + "/readiness"
+end function
+
+function IsSocialId(value as dynamic) as boolean
+    return IsString(value) and MatchesPattern(value, "^[A-Za-z0-9_-]{1,128}$")
+end function
+
+' A counter the server writes as text ("0", "12000000").
+function IsSocialCounter(value as dynamic) as boolean
+    return IsString(value) and MatchesPattern(value, "^(0|[1-9][0-9]{0,18})$")
+end function
+
+function IsSocialText(value as dynamic, limit as integer) as boolean
+    return IsString(value) and Len(value) <= limit
+end function
+
+function IsSocialTexts(value as dynamic, limit as integer) as boolean
+    if not IsArray(value) then return false
+    for each entry in value
+        if not IsSocialText(entry, limit) then return false
+    end for
+    return true
+end function
+
+' `parseReceiver` ({receiver} or the receiver itself): {id, deviceId, displayName, state}, or invalid.
+function ParseReceiver(raw as dynamic) as dynamic
+    v = raw
+    if IsObject(raw) and IsObject(raw.receiver) then v = raw.receiver
+    if not IsObject(v) or not IsSocialId(v.id) or not ArrayIncludes(["portico", "cast"], v.kind) or not IsSocialText(v.deviceId, 128) or not IsSocialText(v.displayName, 256) or not IsSocialText(v.platform, 64) or not IsSocialText(v.keyFingerprint, 64) then return invalid
+    if not IsSocialTexts(v.supportedCommands, 32) or not ArrayIncludes(["per-device", "always-ask", "open"], v.grantPolicy) or not IsSocialCounter(v.authorizationRevision) or not ArrayIncludes(["active", "retired"], v.state) or not ArrayIncludes(["online", "offline"], v.presence) then return invalid
+    if not IsSocialText(v.lastSeenAt, 64) or not IsSocialText(v.createdAt, 64) then return invalid
+    return { id: v.id, deviceId: v.deviceId, displayName: v.displayName, state: v.state }
+end function
+
+' `parseReceiverGrant`: {id, receiverId, controllerDisplayName, state}, or invalid. A grant that is
+' accepted but cannot load is refused: it could not be a handoff's target.
+function ParseReceiverGrant(raw as dynamic) as dynamic
+    g = raw
+    if IsObject(raw) and IsObject(raw.grant) then g = raw.grant
+    if not IsObject(g) or not IsSocialId(g.id) or not IsSocialId(g.receiverId) or not IsSocialText(g.controllerDeviceId, 128) or not IsSocialText(g.controllerDisplayName, 256) or not IsSocialText(g.receiverKeyFingerprint, 64) then return invalid
+    if not IsSocialTexts(g.allowedCommands, 32) or not IsSocialCounter(g.authorizationRevision) or not ArrayIncludes(["pending", "accepted", "declined", "revoked", "expired"], g.state) or not IsSocialText(g.expiresAt, 64) or not IsSocialText(g.createdAt, 64) then return invalid
+    if g.decidedAt <> invalid and not IsSocialText(g.decidedAt, 64) then return invalid
+    if g.state = "accepted" and not ArrayIncludes(g.allowedCommands, "load") then return invalid
+    return { id: g.id, receiverId: g.receiverId, controllerDisplayName: g.controllerDisplayName, state: g.state }
+end function
+
+' `parseHandoff`: {id, receiverId, state, outcome, revision, itemId, requestedPositionUs,
+' expiresAt}, or invalid, with the invariants a client may rely on checked.
+function ParseHandoff(raw as dynamic) as dynamic
+    h = raw
+    if IsObject(raw) and IsObject(raw.handoff) then h = raw.handoff
+    if not IsObject(h) or not IsSocialId(h.id) or not IsSocialId(h.receiverId) or not IsSocialId(h.grantId) or not IsSocialText(h.requestId, 128) then return invalid
+    if not ArrayIncludes(["prepared", "committing", "committed", "rolled_back", "expired", "failed"], h.state) or not ArrayIncludes(["waiting", "pending", "accepted", "rejected"], h.outcome) or not IsSocialText(h.reason, 64) or not IsSocialCounter(h.revision) then return invalid
+    if not IsSocialText(h.itemId, 128) or not IsSocialId(h.sourcePlaybackId) or not IsSocialText(h.receiverPlaybackId, 128) then return invalid
+    if not IsSocialCounter(h.requestedPositionUs) or not IsSocialCounter(h.readyPositionUs) or not IsSocialCounter(h.committedPositionUs) or not IsBoolean(h.sourceRetired) or not IsSocialText(h.createdAt, 64) or not IsSocialText(h.expiresAt, 64) then return invalid
+    if h.settledAt <> invalid and not IsSocialText(h.settledAt, 64) then return invalid
+    committed = h.state = "committed"
+    if h.sourceRetired <> committed or (h.outcome = "accepted") <> committed then return invalid
+    if committed and (h.receiverPlaybackId = "" or h.committedPositionUs <> h.readyPositionUs) then return invalid
+    if h.outcome = "pending" and h.receiverPlaybackId = "" then return invalid
+    return { id: h.id, receiverId: h.receiverId, state: h.state, outcome: h.outcome, revision: h.revision, itemId: h.itemId, requestedPositionUs: h.requestedPositionUs, expiresAt: h.expiresAt }
+end function
+
+' `refreshInbox`: {ok, asking (the first grant waiting for an answer, or invalid), handoffs (the
+' ones waiting for this television to play)}. One unreadable entry rejects the inbox.
+function ParseReceiverInbox(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) then return bad
+    out = { ok: true, asking: invalid, handoffs: [] }
+    if raw.grants <> invalid then
+        if not IsArray(raw.grants) then return bad
+        for index = 0 to raw.grants.count() - 1
+            grant = ParseReceiverGrant(raw.grants[index])
+            if grant = invalid then return bad
+            if index = 0 then out.asking = grant
+        end for
+    end if
+    if raw.handoffs <> invalid then
+        if not IsArray(raw.handoffs) then return bad
+        for each item in raw.handoffs
+            handoff = ParseHandoff(item)
+            if handoff = invalid then return bad
+            if handoff.outcome = "waiting" then out.handoffs.push(handoff)
+        end for
+    end if
+    return out
+end function
+
+' Where a handoff starts, in seconds, from its microseconds ("12500000" is 12.5).
+function HandoffStartSeconds(microseconds as string) as double
+    whole = "0"
+    if Len(microseconds) > 6 then whole = Left(microseconds, Len(microseconds) - 6)
+    part = Right("000000" + microseconds, 6)
+    seconds# = Val(whole)
+    ' To the millisecond, as the Apple client reads it.
+    seconds# = seconds# + Val(Left(part, 3)) / 1000
+    return seconds#
+end function
+
+' A position in microseconds, as text.
+function MicrosecondsText(seconds as dynamic) as string
+    if seconds = invalid or seconds <= 0 then return "0"
+    whole& = Int(seconds)
+    part& = Int((seconds - whole&) * 1000000 + 0.5)
+    if part& >= 1000000 then
+        whole& = whole& + 1
+        part& = part& - 1000000
+    end if
+    total& = whole& * 1000000 + part&
+    return total&.toStr()
+end function
+
+' `take`: the television says it is playing, with its own playback and where it is.
+function HandoffReadinessBody(handoff as object, playbackId as string, positionSeconds as dynamic) as object
+    return { "protocolVersion": SocialProtocol(), "readiness": "playing", "receiverPlaybackId": playbackId, "positionUs": MicrosecondsText(positionSeconds), "expectedRevision": handoff.revision }
+end function
+
+' When a handoff stops being waited for: its own expiry, else two minutes from now.
+function HandoffDeadline(handoff as object, clock as dynamic) as dynamic
+    expires = IsoToSeconds(handoff.expiresAt)
+    if expires <> invalid and expires > 0 then return expires
+    return clock + 120
+end function
+
+' `receiverPollDelay`: the idle inbox delay, the base ± 20% (`roll` is 0 up to 1).
+function ReceiverPollDelayMs(baseMs as dynamic, roll as dynamic) as integer
+    r = roll
+    if r < 0 then r = 0
+    if r > 0.999999 then r = 0.999999
+    return Int(baseMs * (0.8 + 0.4 * r) + 0.5)
+end function
+
+' What the television waits between turns: {pollMs, heartbeatMs, expectingMs}. While a phone that
+' was just allowed is about to send, the inbox is read every second (`expectingMs`).
+function ReceiverTimings() as object
+    ' `waitSeconds` is the held read's length; its request is given ten seconds more than that.
+    return { pollMs: 30000, heartbeatMs: 45000, expectingMs: 1000, expectingForMs: 90000, waitSeconds: 25, waitTimeoutMs: 35000, afterWaitMs: 250 }
+end function
+
+' After failures the wait doubles from the poll delay, to a minute at most.
+function ReceiverBackoffMs(failures as integer) as integer
+    doubling = failures
+    if doubling > 5 then doubling = 5
+    wait = ReceiverTimings().pollMs
+    for index = 1 to doubling
+        wait = wait * 2
+    end for
+    if wait > 60000 then wait = 60000
+    return wait
+end function
+
+' The server forgot this receiver (or never knew it): it registers again.
+function ReceiverForgotten(status as dynamic) as boolean
+    return status <> invalid and status = 404
+end function

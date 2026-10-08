@@ -1,0 +1,88 @@
+' apps/native/src/ui/Sheet.tsx `Menu` (componentSpec.menu): a picker sheet of rows. Destructive
+' items go last in a group of their own (ui/MenuModel.bs); a section label or a hairline starts a
+' group; the current choice carries an accent check, and the menu opens on it (else on the first
+' row). Choosing a row reports it and closes the menu.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/MenuModel.bs"
+
+sub init()
+    m.sheet = m.top.createChild("UiSheet")
+    m.sheet.kind = "picker"
+    m.sheet.observeField("closed", "onMenuClosed")
+    m.rows = []
+    m.pending = ""
+end sub
+
+sub open()
+    items = m.top.items
+    if items = invalid then items = []
+    items = OrderMenuItems(items)
+    m.sheet.title = m.top.title
+    m.sheet.subtitle = m.top.subtitle
+    m.sheet.placement = m.top.placement
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    pad = Theme.spec.row.paddingX
+    y = 0
+    m.rows = []
+    for index = 0 to items.count() - 1
+        item = items[index]
+        if item.section <> invalid then
+            if item.section = "" then
+                if index > 0 then
+                    y = y + Theme.spec.menu.separator.marginY
+                    line = MakeRect(body, width - Theme.spec.menu.separator.insetX * 2, 1, ThemeColor(Theme.spec.menu.separator.color))
+                    Place(line, Theme.spec.menu.separator.insetX, y)
+                    y = y + 1 + Theme.spec.menu.separator.marginY
+                end if
+            else
+                label = MakeText(body, Theme.spec.menu.sectionLabel.role, "tertiary", item.section)
+                top = Theme.space.lg
+                if index = 0 then top = Theme.space.xs
+                Place(label, pad, y + top)
+                y = y + top + label.height + Theme.space.xs
+            end if
+        end if
+        row = body.createChild("UiListRow")
+        row.rowId = item.id
+        row.title = item.label
+        if item.detail <> invalid then row.subtitle = item.detail
+        if item.icon <> invalid then row.icon = item.icon
+        row.selected = item.selected = true
+        row.checked = item.selected = true
+        row.disabled = item.disabled = true
+        if item.destructive = true then row.tone = "destructive"
+        row.rowWidth = width
+        Place(row, 0, y)
+        row.observeField("pressed", "onMenuRow")
+        y = y + row.rowHeight
+        m.rows.push(row)
+    end for
+    m.sheet.callFunc("setBody", body, y)
+    m.sheet.callFunc("open")
+    entry = MenuEntryIndex(items)
+    if entry >= 0 then m.sheet.callFunc("focusBody", m.rows[entry])
+end sub
+
+sub close()
+    m.sheet.callFunc("close")
+end sub
+
+sub onMenuRow(event as object)
+    row = event.getRoSGNode()
+    if row = invalid then return
+    ' The choice is reported once the menu has closed and focus is back on its opener, so a choice
+    ' that opens another sheet presents it over a settled page.
+    m.pending = row.rowId
+    m.sheet.callFunc("close")
+end sub
+
+sub onMenuClosed()
+    chosen = m.pending
+    m.pending = ""
+    if chosen <> "" then m.top.chosen = chosen
+    m.top.closed = true
+end sub

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/title/TitleHero.tsx: the one fixture every title page opens with. -->
+<component name="TitleHero" extends="Group">
+    <interface>
+        <!-- {loading, backdropUri, art: {uri, shape, icon, initial, mosaic}, eyebrow, eyebrowLink, title, originalTitle, logoUri,
+             facts, rating, scores: [{provider, value}], tagline, synopsis, credits: [line], primary: {label, icon, progress},
+             actions: [{id, icon, label, selected}]} -->
+        <field id="content" type="assocarray" onChange="onHeroContent" />
+        <field id="heroWidth" type="float" value="0" />
+        <field id="heroHeight" type="float" value="0" />
+        <!-- "primary", "eyebrow", or the id of the action pressed. -->
+        <field id="pressed" type="string" value="" alwaysNotify="true" />
+        <function name="focusPrimary" />
+    </interface>
+</component>

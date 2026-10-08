@@ -1,0 +1,36 @@
+' packages/client-core/src/artwork/buckets.ts and apps/native/src/ui/ArtworkPipeline.ts `sizedUri`:
+' exactly one server variant per rendered size, so a card never downloads the display image.
+
+' The server's variants by long edge, ascending (buckets.ts `artworkSizeBuckets`).
+function ArtworkSizeBuckets() as object
+    return [400, 800, 1920]
+end function
+
+' The variant to request for artwork rendered `pixelWidth` wide. `aspect` is width ÷ height; a
+' variant may be up to 10% smaller than the rendered pixels (buckets.ts `tolerance`).
+function ArtworkWidthBucket(pixelWidth as dynamic, aspect = 1.0 as float) as integer
+    buckets = ArtworkSizeBuckets()
+    if aspect <= 0 then aspect = 1
+    if pixelWidth = invalid or pixelWidth <= 0 then return buckets[0]
+    longEdge = pixelWidth
+    if aspect < 1 then longEdge = pixelWidth / aspect
+    needed = longEdge / 1.1
+    for each bucket in buckets
+        if bucket >= needed then return bucket
+    end for
+    return buckets[buckets.count() - 1]
+end function
+
+' ArtworkPipeline.ts `sizedUri`: adds `w=<bucket>` (and `size=thumbnail` up to 800) unless the URL
+' already names a size. Roku draws FHD pixels one to one, so the scale is 1.
+function SizedArtworkUri(uri as string, width as dynamic, aspect = 1.0 as float) as string
+    ' Only a server image has variants; a packaged image (pkg:/) is used as it is.
+    if Left(uri, 4) <> "http" then return uri
+    if Instr(1, uri, "?w=") > 0 or Instr(1, uri, "&w=") > 0 or Instr(1, uri, "?size=") > 0 or Instr(1, uri, "&size=") > 0 then return uri
+    bucket = ArtworkWidthBucket(width, aspect)
+    joiner = "?"
+    if Instr(1, uri, "?") > 0 then joiner = "&"
+    out = uri + joiner + "w=" + bucket.toStr()
+    if bucket <= 800 then out = out + "&size=thumbnail"
+    return out
+end function

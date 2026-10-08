@@ -1,0 +1,391 @@
+' apps/native/src/screens/Detail.tsx. A single title (movie, song, audiobook file) on the shared
+' hero (Spec — Title Pages §1): facts and scores, tagline, synopsis, credit lines, then one action
+' row: Play/Resume · My List · Favorite · Watched · ⋯. Below it: the first twelve of the cast (See
+' all shows the rest), key crew, related rows (three titles or more each), extras, Details and
+' Files. An episode is not a page of its own: it opens its show's page with the episode's panel.
+'
+' A movie's related rows come from the recommendations endpoint, in its order; the page's own
+' related rows stand in only where that is not read. A personal-state change is one explicit
+' command against the revision the page was read at; the page shows the server's answer.
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/components/screens/title/Common.bs"
+import "pkg:/components/screens/title/Rate.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    m.hero = m.page.body.createChild("TitleHero")
+    m.hero.heroWidth = m.width
+    m.hero.observeField("pressed", "onDetailHero")
+    m.below = m.page.body.createChild("Group")
+    m.data = invalid
+    m.content = invalid
+    m.task = invalid
+    m.rowsTask = invalid
+    m.rows = invalid
+    m.rowsContent = invalid
+    m.rowsPhase = "empty"
+    m.rowsError = invalid
+    m.command = invalid
+    m.commandTask = invalid
+    m.saveError = ""
+    m.allCast = false
+    m.allCrew = false
+    m.heroActions = invalid
+    m.menu = invalid
+    m.claimed = false
+    m.shelves = []
+end sub
+
+sub enter()
+    m.hero.content = { loading: true }
+    DetailLayout()
+    DetailLoad()
+end sub
+
+' Back from the player (or from a page above): Resume and the watched mark are current again.
+sub resume()
+    if m.task = invalid then DetailLoad()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.rowsTask = invalid
+    m.commandTask = invalid
+end sub
+
+sub focusEntry()
+    if not m.hero.callFunc("focusPrimary") then
+        if not m.page.callFunc("focusEntry") then m.top.setFocus(true)
+        return
+    end if
+    m.page.callFunc("follow")
+end sub
+
+function DetailServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+sub DetailLoad()
+    route = m.top.route
+    target = { libraryId: route.libraryId, itemId: route.itemId }
+    m.task = ApiStart({ path: "/v1/items/" + route.itemId.encodeUriComponent() + "/detail?related=all", reader: "detail", context: { origin: ViewerOrigin(), serverId: DetailServerId(), target: target } }, "onDetailLoaded")
+end sub
+
+sub onDetailLoaded(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        if m.data <> invalid then return
+        m.hero.visible = false
+        m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+        TitleFailure(m.below, result.error, "detail", Theme.apple.pageTopInset)
+        m.page.contentHeight = Theme.screen.height
+        DetailClaim()
+        return
+    end if
+    value = result.value
+    item = value.detail.item
+    ' Spec §3: an episode opens on its show's page, with the episode's panel over it.
+    if item.episode <> invalid then
+        NavReplace("ScreenShow", { libraryId: item.libraryId, showId: item.episode.showId, episodeId: item.id })
+        return
+    end if
+    first = m.data = invalid
+    m.data = value
+    m.content = task.content
+    m.hero.visible = true
+    DetailHero()
+    if first and item.kind = "movie" then DetailRowsLoad()
+    DetailLayout()
+    DetailClaim()
+end sub
+
+sub DetailClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onTitleRetry()
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    m.hero.visible = true
+    m.hero.content = { loading: true }
+    DetailLoad()
+end sub
+
+' The hero, from the page's current state (drawn again after a personal-state change).
+sub DetailHero()
+    hero = {}
+    hero.append(m.data.hero)
+    m.heroActions = DetailHeroActions(m.data.detail)
+    if m.heroActions.primary <> invalid then hero.primary = m.heroActions.primary
+    hero.actions = m.heroActions.actions
+    m.hero.content = hero
+end sub
+
+' A movie's rows from the recommendations endpoint (`limit` is entries per row).
+sub DetailRowsLoad()
+    item = m.data.detail.item
+    m.rowsPhase = "loading"
+    m.rowsTask = ApiStart({ path: "/v1/items/" + item.id.encodeUriComponent() + "/recommendations?limit=" + DetailRelatedEntries().toStr(), reader: "titleRows", context: { origin: ViewerOrigin(), field: "itemId", id: item.id } }, "onDetailRows")
+end sub
+
+function DetailRelatedEntries() as integer
+    return Theme.apple.relatedEntries
+end function
+
+sub onDetailRows(event as object)
+    task = event.getRoSGNode()
+    if m.rowsTask = invalid or not task.isSameNode(m.rowsTask) then return
+    m.rowsTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.rowsPhase = "error"
+        m.rowsError = result.error
+    else
+        m.rowsPhase = "ready"
+        m.rows = result.value.sections
+        m.rowsContent = task.content
+    end if
+    DetailLayout()
+end sub
+
+sub onDetailRowsRetry()
+    DetailRowsLoad()
+    DetailLayout()
+end sub
+
+' Everything under the hero, top to bottom: notices, people, related rows, extras, Details.
+sub DetailLayout()
+    held = TitleShelfState()
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    m.shelves = []
+    y = m.hero.heroHeight
+    if m.data = invalid then
+        m.page.contentHeight = Max(y, Theme.screen.height)
+        return
+    end if
+    item = m.data.detail.item
+    if m.saveError <> "" then y = y + TitleNotice(m.below, "error", m.saveError, T("title.retry"), "onDetailRetrySave", y) + Theme.space.md
+    if not item.available then y = y + TitleNotice(m.below, "warning", T("title.fileUnavailable"), "", "", y) + Theme.space.xl
+    sections = m.data.sections
+    hasAllCast = false
+    hasAllCrew = false
+    for each section in sections
+        if section.kind = "allCast" then hasAllCast = true
+        if section.kind = "allCrew" then hasAllCrew = true
+    end for
+    related = []
+    for index = 0 to sections.count() - 1
+        section = sections[index]
+        kind = section.kind
+        show = false
+        if kind = "cast" then
+            show = not (m.allCast and hasAllCast)
+        else if kind = "allCast" then
+            show = m.allCast
+        else if kind = "crew" then
+            show = not (m.allCrew and hasAllCrew)
+        else if kind = "allCrew" then
+            show = m.allCrew
+        else if kind = "related" then
+            ' The page's own related rows stand in only until the endpoint answers, and where it is not read.
+            if m.rowsPhase <> "ready" then related.push(index)
+        end if
+        if show then y = y + DetailShelf(section, m.content.getChild(index), index, "page", y)
+    end for
+    ' Spec §0.3: people, then related, then extras.
+    if m.rowsPhase = "loading" then
+        block = m.below.createChild("UiSkeleton")
+        block.blockHeight = Int(Theme.metrics.posterWidth / ArtworkRatio("poster") + 0.5)
+        block.blockWidth = Theme.metrics.posterWidth
+        Place(block, Theme.space.page, y)
+        y = y + block.blockHeight + Theme.space.lg
+    else if m.rowsPhase = "error" then
+        failure = m.rowsError
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        y = y + TitleNotice(m.below, "error", PresentError(failure, "detail").body, T("action.tryAgain"), "onDetailRowsRetry", y) + Theme.space.lg
+    else if m.rowsPhase = "ready" then
+        for index = 0 to m.rows.count() - 1
+            y = y + DetailShelf(m.rows[index], m.rowsContent.getChild(index), index, "rows", y)
+        end for
+    end if
+    for each index in related
+        y = y + DetailShelf(sections[index], m.content.getChild(index), index, "page", y)
+    end for
+    for index = 0 to sections.count() - 1
+        if sections[index].kind = "extra" then y = y + DetailShelf(sections[index], m.content.getChild(index), index, "page", y)
+    end for
+    y = y + TitleDetails(m.below, m.data.details, m.data.genres, m.data.files, y)
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    if held <> invalid then TitleShelfRestore(held)
+end sub
+
+function DetailShelf(section as object, items as object, index as integer, source as string, top as dynamic) as float
+    shelf = TitleShelf(m.below, section, items, index)
+    shelf.addFields({ shelfSource: source })
+    Place(shelf, 0, top)
+    m.shelves.push(shelf)
+    return shelf.shelfHeight
+end function
+
+' A redraw keeps the viewer where they were: the same shelf and card.
+function TitleShelfState() as dynamic
+    for each shelf in m.shelves
+        if shelf.hasListFocus then return { kind: shelf.sectionKind, index: shelf.sectionIndex, source: shelf.shelfSource, at: shelf.focusedIndex }
+    end for
+    return invalid
+end function
+
+sub TitleShelfRestore(state as object)
+    target = invalid
+    for each shelf in m.shelves
+        if shelf.shelfSource = state.source and shelf.sectionIndex = state.index then target = shelf
+        ' "See all" swaps the short shelf for the full one of the same people.
+        if target = invalid and shelf.shelfSource = state.source and LCase(shelf.sectionKind) = "all" + state.kind then target = shelf
+    end for
+    if target = invalid then
+        focusEntry()
+        return
+    end if
+    target.active = true
+    target.callFunc("jumpTo", state.at)
+    target.callFunc("focusList")
+    m.page.callFunc("follow")
+end sub
+
+function DetailCard(shelf as object, index as integer) as dynamic
+    items = shelf.items
+    if items = invalid or index < 0 or index >= items.getChildCount() then return invalid
+    return items.getChild(index)
+end function
+
+sub onTitleShelfSelected(event as object)
+    shelf = event.getRoSGNode()
+    card = DetailCard(shelf, event.getData())
+    if card = invalid then return
+    if shelf.shape = "person" then
+        TitleOpenPerson(card)
+    else if shelf.sectionKind = "extra" then
+        if card.entry.playback <> invalid then PlayItem(card.entry.playback.itemId, 0, card.entry)
+    else
+        OpenEntry(card.entry, "open", m.data.detail.item.libraryId)
+    end if
+end sub
+
+sub onTitleShelfMenu(event as object)
+    shelf = event.getRoSGNode()
+    card = DetailCard(shelf, event.getData())
+    if card = invalid or shelf.shape = "person" or shelf.sectionKind = "extra" then return
+    OpenEntry(card.entry, "more", m.data.detail.item.libraryId, "recommendation")
+end sub
+
+sub onTitleShelfSeeAll(event as object)
+    shelf = event.getRoSGNode()
+    if shelf.sectionKind = "cast" then m.allCast = true
+    if shelf.sectionKind = "crew" then m.allCrew = true
+    DetailLayout()
+end sub
+
+' Genres are links: each opens this title's library filtered to it.
+sub onTitleGenre(event as object)
+    button = event.getRoSGNode()
+    NavPush("ScreenLibrary", { libraryId: m.data.detail.item.libraryId, tab: "browse", genre: button.genre })
+end sub
+
+sub onDetailHero()
+    id = m.hero.pressed
+    if m.data = invalid or m.heroActions = invalid then return
+    detail = m.data.detail
+    personal = detail.personal
+    if id = "primary" then
+        playback = m.heroActions.playback
+        if playback <> invalid then PlayItem(playback.itemId, playback.startSeconds, m.data.entry)
+    else if id = "watchlist" then
+        DetailMutate("watchlist", not personal.watchlisted)
+    else if id = "favorite" then
+        DetailMutate("favorite", not personal.favorite)
+    else if id = "watched" then
+        DetailMutate("watched", not personal.watched)
+    else if id = "more" then
+        if m.menu = invalid then
+            m.menu = m.top.createChild("UiMenu")
+            m.menu.observeField("chosen", "onDetailMenu")
+        end if
+        m.menu.title = detail.item.title
+        m.menu.subtitle = m.data.menuFacts
+        m.menu.items = m.heroActions.menu
+        m.menu.callFunc("open")
+    end if
+end sub
+
+sub onDetailMenu()
+    id = m.menu.chosen
+    detail = m.data.detail
+    if id = "start_over" then
+        PlayItem(detail.item.id, 0, m.data.entry)
+    else if id = "rate" then
+        TitleRateOpen(detail.item.title, detail.personal.rating)
+    else if id = "playlist" or id = "collection" then
+        scene = m.top.getScene()
+        if scene <> invalid then scene.callFunc("organize", { kind: id, entry: m.data.entry })
+    end if
+end sub
+
+sub onTitleRate()
+    DetailMutate("rating", m.rateValue)
+end sub
+
+' One explicit command against the revision the page was read at.
+sub DetailMutate(action as string, value as dynamic)
+    if m.commandTask <> invalid then return
+    m.command = { action: action, value: value, operationId: NewRequestId() }
+    DetailSend()
+end sub
+
+sub DetailSend()
+    detail = m.data.detail
+    command = m.command
+    body = PersonalStateBody(command.operationId, detail.personal.revision, command.action, command.value)
+    m.commandTask = ApiStart({ path: "/v1/items/" + detail.item.id.encodeUriComponent() + "/personal-state", method: "PUT", body: body, reader: "receipt", context: { operationId: command.operationId, scope: detail.scope } }, "onDetailReceipt")
+end sub
+
+sub onDetailReceipt(event as object)
+    task = event.getRoSGNode()
+    if m.commandTask = invalid or not task.isSameNode(m.commandTask) then return
+    m.commandTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        m.saveError = PresentError(failure, "detail", { operation: "save" }).body
+        DetailLayout()
+        return
+    end if
+    m.command = invalid
+    had = m.saveError <> ""
+    m.saveError = ""
+    personal = result.value.personal
+    detail = m.data.detail
+    if personal.revision >= detail.personal.revision then
+        detail.personal = personal
+        detail.item.progressSeconds = personal.progressSeconds
+        m.data.detail = detail
+        DetailHero()
+    end if
+    if had then DetailLayout()
+    ' The page is read again, so what the change moved (Resume, the watched mark) is the server's.
+    if m.task = invalid then DetailLoad()
+end sub
+
+sub onDetailRetrySave()
+    if m.command <> invalid and m.commandTask = invalid then DetailSend()
+end sub

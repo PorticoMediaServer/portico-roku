@@ -1,0 +1,1216 @@
+{
+ "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+ "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df",
+ "revision": 740,
+ "period": "all",
+ "libraryId": "",
+ "entries": [
+  {
+   "id": "vyaimivGRUAeNpWL_meEay5agFOJrEdqEtZCazIjRi4",
+   "startedAt": "2026-10-05T19:32:04.392Z",
+   "updatedAt": "2026-10-05T19:32:04.392Z",
+   "positionSeconds": 0,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   }
+  },
+  {
+   "id": "fMxgm4eal2xldgPWCupwtJFI3F92QpbntGNQ9ayXPh4",
+   "startedAt": "2026-10-05T19:30:25.577Z",
+   "updatedAt": "2026-10-05T19:30:25.577Z",
+   "positionSeconds": 0,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   }
+  },
+  {
+   "id": "lm2xipXGTvWelPJotzutT6ZYxZHFTkSLck9RKGb7_jo",
+   "startedAt": "2026-10-05T19:30:10.979Z",
+   "updatedAt": "2026-10-05T19:30:10.979Z",
+   "positionSeconds": 0,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   }
+  },
+  {
+   "id": "3ZF0tnG-SRThivP1aChf1ff7Jp2JaKk40Etv8Of9a00",
+   "startedAt": "2026-10-05T19:28:17.747Z",
+   "updatedAt": "2026-10-05T19:28:17.747Z",
+   "positionSeconds": 0,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   }
+  },
+  {
+   "id": "XGHJLcYOOcJY1ZxGDsqeEEIb5GSa0ImxCMO8o2Vqv6k",
+   "startedAt": "2026-10-05T19:08:08.644Z",
+   "updatedAt": "2026-10-05T19:08:08.644Z",
+   "positionSeconds": 0,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   }
+  },
+  {
+   "id": "V_sXMxCcuZgoP8T6C1n4Pe5Hts756PjAzjM74-T2jUg",
+   "startedAt": "2026-10-03T10:28:03.843Z",
+   "updatedAt": "2026-10-03T10:28:16.992Z",
+   "positionSeconds": 13.024,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 3,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "0i5vd9HvqCde7z6y37YK7g",
+    "kind": "song",
+    "title": "Maxwell's Silver Hammer (2019 Mix)",
+    "subtitle": "The Beatles",
+    "posterUrl": "/v1/metadata/item/0i5vd9HvqCde7z6y37YK7g/art/poster?v=ed3a7dcc945176da386721298f5b765ad2d4359f1ec6a3224210adf1ed8c7b37&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "LAsz4Phs_niSJDCE7EZFQw",
+     "name": "Abbey Road (2019 Mix)"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:38.284Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "0i5vd9HvqCde7z6y37YK7g"
+    },
+    "playback": {
+     "itemId": "0i5vd9HvqCde7z6y37YK7g"
+    }
+   }
+  },
+  {
+   "id": "V0yG0SvqfgnF-dNDcsMaK4Yuk45EH1Nw2AvpofykdUw",
+   "startedAt": "2026-10-03T10:27:03.169Z",
+   "updatedAt": "2026-10-03T10:28:03.255Z",
+   "positionSeconds": 59.981,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "trackNumber": 2,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "V8YQMp9Rf_COanvdtM94LQ",
+    "kind": "song",
+    "title": "Something (2019 Mix)",
+    "subtitle": "The Beatles",
+    "posterUrl": "/v1/metadata/item/V8YQMp9Rf_COanvdtM94LQ/art/poster?v=ed3a7dcc945176da386721298f5b765ad2d4359f1ec6a3224210adf1ed8c7b37&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "LAsz4Phs_niSJDCE7EZFQw",
+     "name": "Abbey Road (2019 Mix)"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:38.292Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "V8YQMp9Rf_COanvdtM94LQ"
+    },
+    "playback": {
+     "itemId": "V8YQMp9Rf_COanvdtM94LQ"
+    }
+   }
+  },
+  {
+   "id": "fgjzZjhaNsTEoYwfSwhMkIhks4MJkClLi8n7yKCbvL0",
+   "startedAt": "2026-10-03T10:26:02.552Z",
+   "updatedAt": "2026-10-03T10:27:02.671Z",
+   "positionSeconds": 59.981,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "0QSwb7ewlC365gd9RX9clw",
+    "kind": "song",
+    "title": "Come Together (2019 Mix)",
+    "subtitle": "The Beatles",
+    "posterUrl": "/v1/metadata/item/0QSwb7ewlC365gd9RX9clw/art/poster?v=ed3a7dcc945176da386721298f5b765ad2d4359f1ec6a3224210adf1ed8c7b37&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "LAsz4Phs_niSJDCE7EZFQw",
+     "name": "Abbey Road (2019 Mix)"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:38.295Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "0QSwb7ewlC365gd9RX9clw"
+    },
+    "playback": {
+     "itemId": "0QSwb7ewlC365gd9RX9clw"
+    }
+   }
+  },
+  {
+   "id": "woQ4PQvE58GJdnTetBsyR0pwXt5av2-3ZpRamOY9FQQ",
+   "startedAt": "2026-10-03T10:23:51.746Z",
+   "updatedAt": "2026-10-03T10:24:51.878Z",
+   "positionSeconds": 59.981,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "Z26v8k9qScZQVeNeT2Ouew",
+    "kind": "song",
+    "title": "Second Hand News",
+    "subtitle": "Fleetwood Mac",
+    "posterUrl": "/v1/metadata/item/Z26v8k9qScZQVeNeT2Ouew/art/poster?v=a491ebaae8cb30e575c1eccc0debebfd3077853a6a0ecbd97edca97d38356444&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "HkrzVCrxBUFUsxgiU7GgSw",
+     "name": "Rumours"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:31.527Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "Z26v8k9qScZQVeNeT2Ouew"
+    },
+    "playback": {
+     "itemId": "Z26v8k9qScZQVeNeT2Ouew"
+    }
+   }
+  },
+  {
+   "id": "wqnYMdwxNaWh4Y8bl3ktHVcio415vhUXC2LXMKJG0HU",
+   "startedAt": "2026-10-03T10:20:34.231Z",
+   "updatedAt": "2026-10-03T10:21:34.337Z",
+   "positionSeconds": 59.981,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "OkEFn-DCUObN_muZERs2Ew",
+    "kind": "song",
+    "title": "In the Flesh?",
+    "subtitle": "Pink Floyd",
+    "posterUrl": "/v1/metadata/item/OkEFn-DCUObN_muZERs2Ew/art/poster?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "nmI8wllIvQQkhKIRHgNJqg",
+     "name": "The Wall"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:35.512Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "OkEFn-DCUObN_muZERs2Ew"
+    },
+    "playback": {
+     "itemId": "OkEFn-DCUObN_muZERs2Ew"
+    }
+   }
+  },
+  {
+   "id": "5CGak0u_j_69fvjNE6oqmVzhVYLUN9NxhL1GK2_PNbU",
+   "startedAt": "2026-10-03T10:16:29.430Z",
+   "updatedAt": "2026-10-03T10:17:29.576Z",
+   "positionSeconds": 59.981,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "0QSwb7ewlC365gd9RX9clw",
+    "kind": "song",
+    "title": "Come Together (2019 Mix)",
+    "subtitle": "The Beatles",
+    "posterUrl": "/v1/metadata/item/0QSwb7ewlC365gd9RX9clw/art/poster?v=ed3a7dcc945176da386721298f5b765ad2d4359f1ec6a3224210adf1ed8c7b37&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "LAsz4Phs_niSJDCE7EZFQw",
+     "name": "Abbey Road (2019 Mix)"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:38.295Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "0QSwb7ewlC365gd9RX9clw"
+    },
+    "playback": {
+     "itemId": "0QSwb7ewlC365gd9RX9clw"
+    }
+   }
+  },
+  {
+   "id": "W-gPB3WufrpS8OkLNei1JbuYivBCcgw9ByKVNrZdXus",
+   "startedAt": "2026-10-03T10:14:09.272Z",
+   "updatedAt": "2026-10-03T10:15:09.405Z",
+   "positionSeconds": 59.981,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "dYbuFki3U4_xD4yQrBG1jg",
+    "kind": "song",
+    "title": "Give Life Back to Music",
+    "subtitle": "Daft Punk",
+    "posterUrl": "/v1/metadata/item/dYbuFki3U4_xD4yQrBG1jg/art/poster?v=5cec0c02f2ec12ce6ac92bbf68531a4882d028e572dc35ce1579c93cb084ee7e&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "pmdRQzqNlaS5BqlffxbmkA",
+     "name": "Random Access Memories"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:30.236Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "dYbuFki3U4_xD4yQrBG1jg"
+    },
+    "playback": {
+     "itemId": "dYbuFki3U4_xD4yQrBG1jg"
+    }
+   }
+  },
+  {
+   "id": "YWhVBQJgp-hzcOMKdtVO7zmixtaILi3e3s1lK5oyEHo",
+   "startedAt": "2026-10-03T10:12:24.750Z",
+   "updatedAt": "2026-10-03T10:12:48.026Z",
+   "positionSeconds": 23.139,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "dYbuFki3U4_xD4yQrBG1jg",
+    "kind": "song",
+    "title": "Give Life Back to Music",
+    "subtitle": "Daft Punk",
+    "posterUrl": "/v1/metadata/item/dYbuFki3U4_xD4yQrBG1jg/art/poster?v=5cec0c02f2ec12ce6ac92bbf68531a4882d028e572dc35ce1579c93cb084ee7e&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "pmdRQzqNlaS5BqlffxbmkA",
+     "name": "Random Access Memories"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:30.236Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "dYbuFki3U4_xD4yQrBG1jg"
+    },
+    "playback": {
+     "itemId": "dYbuFki3U4_xD4yQrBG1jg"
+    }
+   }
+  },
+  {
+   "id": "jj4AHcx7xC5XJsSyvVXmBW1kklST2EVbmYq9mQfUKzQ",
+   "startedAt": "2026-10-03T10:00:19.797Z",
+   "updatedAt": "2026-10-03T10:01:14.018Z",
+   "positionSeconds": 27.582,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "YEa_W0N2olpVOk2F8yR1mA",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 27.582,
+    "addedAt": "2026-10-02T04:02:29.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+    },
+    "playback": {
+     "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+    }
+   }
+  },
+  {
+   "id": "DvfGEC_9ALZZ7FQeL1FkP_Hx5iM7RyVxBS8dmNxMwLg",
+   "startedAt": "2026-10-03T09:54:50.825Z",
+   "updatedAt": "2026-10-03T09:55:10.619Z",
+   "positionSeconds": 44.999,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/m5Z19_CTiIXoc6CoCa0_vA/art/backdrop?v=8b5fb6d694fcda3c1440513bebda293255ba71419af2e2061b4774340f133f2a&w=1920",
+    "id": "m5Z19_CTiIXoc6CoCa0_vA",
+    "kind": "movie",
+    "title": "Your Name.",
+    "subtitle": "2016",
+    "posterUrl": "/v1/metadata/item/m5Z19_CTiIXoc6CoCa0_vA/art/poster?v=7b0b4c9db5287b6c7eabd383e1e17e9037627727b721c0cde1fe759b5820f731&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:02.285Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "m5Z19_CTiIXoc6CoCa0_vA"
+    },
+    "playback": {
+     "itemId": "m5Z19_CTiIXoc6CoCa0_vA"
+    }
+   }
+  },
+  {
+   "id": "JjcNMa89v2rFogP9RbgnQY-n6OorHz9gvJWoz5yKrQw",
+   "startedAt": "2026-10-03T09:52:37.985Z",
+   "updatedAt": "2026-10-03T09:53:28.979Z",
+   "positionSeconds": 44.999,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/wvbgAqyZ3z1zaMtce5c3ug/art/backdrop?v=9374cea27f314ae5b25bedfa341fa97c86ef946a851aa019c58a707ffc09b999&w=1920",
+    "id": "wvbgAqyZ3z1zaMtce5c3ug",
+    "kind": "movie",
+    "title": "Dune",
+    "subtitle": "2021",
+    "posterUrl": "/v1/metadata/item/wvbgAqyZ3z1zaMtce5c3ug/art/poster?v=6e1907651f0f3fa03f451e65205c8c0d25f40bcf618f9e27df54b8b2b6ec420b&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:22.580Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "wvbgAqyZ3z1zaMtce5c3ug"
+    },
+    "playback": {
+     "itemId": "wvbgAqyZ3z1zaMtce5c3ug"
+    }
+   }
+  },
+  {
+   "id": "-vGQFnGIwJfnzl5RhfQX5mnUuv6zbQVLkhGAuqfEneA",
+   "startedAt": "2026-10-03T09:50:23.631Z",
+   "updatedAt": "2026-10-03T09:51:53.706Z",
+   "positionSeconds": 0,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/wvbgAqyZ3z1zaMtce5c3ug/art/backdrop?v=9374cea27f314ae5b25bedfa341fa97c86ef946a851aa019c58a707ffc09b999&w=1920",
+    "id": "wvbgAqyZ3z1zaMtce5c3ug",
+    "kind": "movie",
+    "title": "Dune",
+    "subtitle": "2021",
+    "posterUrl": "/v1/metadata/item/wvbgAqyZ3z1zaMtce5c3ug/art/poster?v=6e1907651f0f3fa03f451e65205c8c0d25f40bcf618f9e27df54b8b2b6ec420b&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:22.580Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "wvbgAqyZ3z1zaMtce5c3ug"
+    },
+    "playback": {
+     "itemId": "wvbgAqyZ3z1zaMtce5c3ug"
+    }
+   }
+  },
+  {
+   "id": "6iUlEUAfiBI_7TWF8i8oGUuhn1lVoAM-KGTUzTRsuYY",
+   "startedAt": "2026-10-03T09:48:44.656Z",
+   "updatedAt": "2026-10-03T09:49:38.574Z",
+   "positionSeconds": 45,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/KC-CUfhKbXASZccFLIQLZg/art/backdrop?v=8f39e8d1cee7994daf17959fce6ea8642b62877dcf29af5139d16e1ce3fcf563&w=1920",
+    "id": "KC-CUfhKbXASZccFLIQLZg",
+    "kind": "movie",
+    "title": "Dune: Part Two",
+    "subtitle": "2024",
+    "posterUrl": "/v1/metadata/item/KC-CUfhKbXASZccFLIQLZg/art/poster?v=cc84d63ea94a04f144076dc524651b80e79996e3fb0b87a4b03c5c58585b3e83&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:23.188Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "KC-CUfhKbXASZccFLIQLZg"
+    },
+    "playback": {
+     "itemId": "KC-CUfhKbXASZccFLIQLZg"
+    }
+   }
+  },
+  {
+   "id": "6I_O5aIxZmuP8l_-JpjX-BiUqiDJmL5kbGvWC8_WwJQ",
+   "startedAt": "2026-10-03T09:43:01.947Z",
+   "updatedAt": "2026-10-03T09:43:21.264Z",
+   "positionSeconds": 21.896,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "-isptUH61HsE6Qva7FR6TDUFmmoVb71fSTvZ3Y9Raiw",
+   "startedAt": "2026-10-03T09:42:17.611Z",
+   "updatedAt": "2026-10-03T09:42:28.733Z",
+   "positionSeconds": 8.568,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "YEa_W0N2olpVOk2F8yR1mA",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 27.582,
+    "addedAt": "2026-10-02T04:02:29.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+    },
+    "playback": {
+     "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+    }
+   }
+  },
+  {
+   "id": "LAzQ77hT_Tcb3Z1z3X8M1SO3yHSz2ouM6Eh3TftIg-E",
+   "startedAt": "2026-10-03T09:39:18.048Z",
+   "updatedAt": "2026-10-03T09:40:00.571Z",
+   "positionSeconds": 45,
+   "completed": true,
+   "media": {
+    "watched": false,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "YEa_W0N2olpVOk2F8yR1mA",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 27.582,
+    "addedAt": "2026-10-02T04:02:29.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+    },
+    "playback": {
+     "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+    }
+   }
+  },
+  {
+   "id": "bsb3hgjZRVyPwGZgmvkvzRwBnNswaqsum8Di-kpUTlA",
+   "startedAt": "2026-10-03T09:38:59.158Z",
+   "updatedAt": "2026-10-03T09:39:04.825Z",
+   "positionSeconds": 7.903,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "FGeSxhUgu5jT4oXOC2R7FcT3sIDxABCvNUmpU8RlyYM",
+   "startedAt": "2026-10-03T09:38:30.008Z",
+   "updatedAt": "2026-10-03T09:38:40.139Z",
+   "positionSeconds": 7.498,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "YEa_W0N2olpVOk2F8yR1mA",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 27.582,
+    "addedAt": "2026-10-02T04:02:29.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+    },
+    "playback": {
+     "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+    }
+   }
+  },
+  {
+   "id": "n5N2wvdk7msWFlFhhLrwC4cenN3mkI69VhNTz87ZQUY",
+   "startedAt": "2026-10-03T09:35:32.969Z",
+   "updatedAt": "2026-10-03T09:36:52.675Z",
+   "positionSeconds": 229.756,
+   "completed": true,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "5z16dE7IyIlNQHZH3YWJJQ",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 240.023,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T05:08:59.527Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "5z16dE7IyIlNQHZH3YWJJQ"
+    },
+    "playback": {
+     "itemId": "5z16dE7IyIlNQHZH3YWJJQ"
+    }
+   }
+  },
+  {
+   "id": "0sFbl6li7ARatL4zL6x_gv40cKwIgXliVabaVmZD1FA",
+   "startedAt": "2026-10-03T09:28:30.818Z",
+   "updatedAt": "2026-10-03T09:28:59.380Z",
+   "positionSeconds": 45,
+   "completed": true,
+   "media": {
+    "watched": false,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "YEa_W0N2olpVOk2F8yR1mA",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 27.582,
+    "addedAt": "2026-10-02T04:02:29.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+    },
+    "playback": {
+     "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+    }
+   }
+  },
+  {
+   "id": "JXTxj8VaGGbZvJmbZZQDYB0Y8Iz1Txtua2AaWIarK5o",
+   "startedAt": "2026-10-03T09:02:21.212Z",
+   "updatedAt": "2026-10-03T09:02:26.293Z",
+   "positionSeconds": 5.378,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "s-7uX4jmRAesCp4tc1f5oCkK96kTzwlS9Gpspye6J9o",
+   "startedAt": "2026-10-03T09:02:18.206Z",
+   "updatedAt": "2026-10-03T09:02:18.206Z",
+   "positionSeconds": 0.361,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 2,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "g1J6DuMOwlvzGcI8dtjQrQ",
+    "kind": "song",
+    "title": "Rumour Has It",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/g1J6DuMOwlvzGcI8dtjQrQ/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.427Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "g1J6DuMOwlvzGcI8dtjQrQ"
+    },
+    "playback": {
+     "itemId": "g1J6DuMOwlvzGcI8dtjQrQ"
+    }
+   }
+  },
+  {
+   "id": "LFcEP07RdMJ6Z6Xsv_l8FT90nfkYpqDMXJpExIjmstQ",
+   "startedAt": "2026-10-03T09:02:12.187Z",
+   "updatedAt": "2026-10-03T09:02:12.187Z",
+   "positionSeconds": 0.259,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "sTDzEhskmivCGwzdIx14AMAmzqyeqqS6y4tbHJwdvgo",
+   "startedAt": "2026-10-03T09:01:44.265Z",
+   "updatedAt": "2026-10-03T09:01:57.807Z",
+   "positionSeconds": 4.889,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 2,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "g1J6DuMOwlvzGcI8dtjQrQ",
+    "kind": "song",
+    "title": "Rumour Has It",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/g1J6DuMOwlvzGcI8dtjQrQ/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.427Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "g1J6DuMOwlvzGcI8dtjQrQ"
+    },
+    "playback": {
+     "itemId": "g1J6DuMOwlvzGcI8dtjQrQ"
+    }
+   }
+  },
+  {
+   "id": "WXU6azADTRfMaLmso9W-jj3KqdNetzxoPRfhEqDE7v0",
+   "startedAt": "2026-10-03T09:01:36.221Z",
+   "updatedAt": "2026-10-03T09:01:36.221Z",
+   "positionSeconds": 0.177,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "t0M7vdczK2v-YK8ULz5c_rrQ7HUSfr6T6mHGxqSIfT8",
+   "startedAt": "2026-10-03T08:58:22.013Z",
+   "updatedAt": "2026-10-03T08:59:19.682Z",
+   "positionSeconds": 46.312,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 2,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "g1J6DuMOwlvzGcI8dtjQrQ",
+    "kind": "song",
+    "title": "Rumour Has It",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/g1J6DuMOwlvzGcI8dtjQrQ/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.427Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "g1J6DuMOwlvzGcI8dtjQrQ"
+    },
+    "playback": {
+     "itemId": "g1J6DuMOwlvzGcI8dtjQrQ"
+    }
+   }
+  },
+  {
+   "id": "9nxFI75Cqx00TAVXzu9ae3O-zRop2Rhrj9gzvTP-P4c",
+   "startedAt": "2026-10-03T08:57:27.363Z",
+   "updatedAt": "2026-10-03T08:58:21.003Z",
+   "positionSeconds": 60,
+   "completed": true,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "nftZyla_ImjJKQdIb58b5yqkFp76ecE1HPERYHR2iGM",
+   "startedAt": "2026-10-03T08:55:44.680Z",
+   "updatedAt": "2026-10-03T08:56:45.844Z",
+   "positionSeconds": 51.295,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "7GuYGuUazLsXnOY0shiWX34BuyDLQbO0gjW6Rpp4ovg",
+   "startedAt": "2026-10-03T08:54:42.412Z",
+   "updatedAt": "2026-10-03T08:55:19.525Z",
+   "positionSeconds": 39.764,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "Jiwx_2yGlrQuYpdObjtwegQcn0OwJIAtm5JNpuZRNY4",
+   "startedAt": "2026-10-03T08:52:43.402Z",
+   "updatedAt": "2026-10-03T08:53:21.849Z",
+   "positionSeconds": 38.941,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "iCD7bOPyJd7IJYl_uQGYBMR_WY12Ds0TMBO9bP3JwPs",
+   "startedAt": "2026-10-03T08:42:24.493Z",
+   "updatedAt": "2026-10-03T08:45:48.149Z",
+   "positionSeconds": 203.526,
+   "completed": false,
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+    "id": "5z16dE7IyIlNQHZH3YWJJQ",
+    "kind": "movie",
+    "title": "Interstellar",
+    "subtitle": "2014",
+    "posterUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+    "available": true,
+    "duration": 240.023,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T05:08:59.527Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "5z16dE7IyIlNQHZH3YWJJQ"
+    },
+    "playback": {
+     "itemId": "5z16dE7IyIlNQHZH3YWJJQ"
+    }
+   }
+  },
+  {
+   "id": "Gu7nBF0m2wiGJaFzL1drCEPmQdruhnZWv81MepiRVDE",
+   "startedAt": "2026-10-03T08:44:33.562Z",
+   "updatedAt": "2026-10-03T08:45:23.672Z",
+   "positionSeconds": 52.797,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 3,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "uUrxAytYUZ5ggKC7sJdBZQ",
+    "kind": "song",
+    "title": "Turning Tables",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/uUrxAytYUZ5ggKC7sJdBZQ/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.416Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "uUrxAytYUZ5ggKC7sJdBZQ"
+    },
+    "playback": {
+     "itemId": "uUrxAytYUZ5ggKC7sJdBZQ"
+    }
+   }
+  },
+  {
+   "id": "I3Jr07ZjJIVVjEm2Vn1OlbRQqOvspJ9Z2hxa-a-pFqc",
+   "startedAt": "2026-10-03T08:42:55.009Z",
+   "updatedAt": "2026-10-03T08:43:18.476Z",
+   "positionSeconds": 23.371,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+    "id": "vFbrAmJZ2VjaW84Pr-pD-g",
+    "kind": "audiobook_file",
+    "title": "Dune",
+    "subtitle": "Dune",
+    "posterUrl": "/v1/metadata/item/vFbrAmJZ2VjaW84Pr-pD-g/art/poster?v=d1462ee4047d4298fdaf537092f14374e43540878fcd6c4619d46bf877be40da&w=400",
+    "available": true,
+    "duration": 60,
+    "progressSeconds": 23.371,
+    "addedAt": "2026-10-02T04:03:45.651Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "vFbrAmJZ2VjaW84Pr-pD-g"
+    },
+    "playback": {
+     "itemId": "vFbrAmJZ2VjaW84Pr-pD-g"
+    }
+   }
+  },
+  {
+   "id": "40T3HTCEgiXnVPn34-15ULIE_6U7V4DM5YLL_8v5YDM",
+   "startedAt": "2026-10-03T08:42:49.952Z",
+   "updatedAt": "2026-10-03T08:42:49.952Z",
+   "positionSeconds": 2.149,
+   "completed": false,
+   "media": {
+    "watched": false,
+    "trackNumber": 1,
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+    "kind": "song",
+    "title": "Rolling in the Deep",
+    "subtitle": "Adele",
+    "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+    "available": true,
+    "duration": 60,
+    "album": {
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "name": "21"
+    },
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:03:27.424Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    },
+    "playback": {
+     "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+    }
+   }
+  },
+  {
+   "id": "qmIQH87JLS19vctyX2kIVE3GMbYm7iqyvmIxkds7pPI",
+   "startedAt": "2026-10-03T08:40:12.938Z",
+   "updatedAt": "2026-10-03T08:41:13.117Z",
+   "positionSeconds": 60,
+   "completed": true,
+   "media": {
+    "watched": false,
+    "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+    "id": "vFbrAmJZ2VjaW84Pr-pD-g",
+    "kind": "audiobook_file",
+    "title": "Dune",
+    "subtitle": "Dune",
+    "posterUrl": "/v1/metadata/item/vFbrAmJZ2VjaW84Pr-pD-g/art/poster?v=d1462ee4047d4298fdaf537092f14374e43540878fcd6c4619d46bf877be40da&w=400",
+    "available": true,
+    "duration": 60,
+    "progressSeconds": 23.371,
+    "addedAt": "2026-10-02T04:03:45.651Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "vFbrAmJZ2VjaW84Pr-pD-g"
+    },
+    "playback": {
+     "itemId": "vFbrAmJZ2VjaW84Pr-pD-g"
+    }
+   }
+  }
+ ],
+ "nextCursor": "stripped-cursor"
+}

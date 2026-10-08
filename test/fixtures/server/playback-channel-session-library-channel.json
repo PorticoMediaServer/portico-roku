@@ -1,0 +1,42 @@
+{
+ "id": "ps_ThfO9aqQ5ztEsQ-zAzBe",
+ "revision": "1",
+ "kind": "channel",
+ "role": "local",
+ "state": "playing",
+ "channelId": "library:7cc5918cefc9f531686ac39f267bd24e1fbb1799e2627739",
+ "lease": {
+  "expiresAt": "2026-10-05T20:08:32.977Z",
+  "reportEveryMs": 10000
+ },
+ "presentation": {
+  "generation": 0,
+  "mode": "stream",
+  "url": "",
+  "startPositionMs": 0,
+  "subtitles": [],
+  "decision": {},
+  "linear": {
+   "name": "Movie channel",
+   "programme": {
+    "id": "37386890c8c71b46fc380bef5d3f39e92242cdaa7f06c33d",
+    "itemId": "cV7RBrFN52KA1vXPyvT3VQ",
+    "title": "The Fix",
+    "startMs": 1791230770967,
+    "endMs": 1791230815967
+   },
+   "next": {
+    "id": "60068a5a451a426d2bad43cbe4135fccca9e7fa6c74c202d",
+    "itemId": "2E4gInreHdz4hMk_d3Uybg",
+    "title": "Three Colors: Red",
+    "startMs": 1791230815967,
+    "endMs": 1791230860967
+   },
+   "originMs": 0,
+   "windowStartMs": 0,
+   "windowEndMs": 0,
+   "liveEdgeMs": 0,
+   "state": "preparing"
+  }
+ }
+}

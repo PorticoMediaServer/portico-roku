@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Toast.tsx `ToastHost`: the result of an action. One at a time, newest wins. -->
+<component name="UiToast" extends="Group">
+    <interface>
+        <!-- {message, icon} -->
+        <field id="toast" type="assocarray" onChange="onToastShow" alwaysNotify="true" />
+    </interface>
+</component>

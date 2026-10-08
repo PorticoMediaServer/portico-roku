@@ -1,0 +1,47 @@
+' The QR code on its white plate, as apps/native/src/screens/auth/Activation.tsx draws it: the
+' plate padded by Theme.space.md with a Theme.apple.activationQrRadius corner, the modules in the
+' canvas colour on white. The grid comes from source/core/Qr.bs (level M, as the Apple component's
+' default); each row's dark modules are drawn as runs.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Qr.bs"
+
+sub init()
+    m.plate = m.top.createChild("Poster")
+    m.modules = m.top.createChild("Group")
+    m.drawn = ""
+end sub
+
+sub onQrDraw()
+    size = m.top.qrSize
+    if size <= 0 then return
+    padding = Theme.space.md
+    side = size + padding * 2
+    StyleShape(m.plate, side, side, Theme.apple.activationQrRadius, Theme.colors.white)
+    m.top.boxWidth = side
+    m.top.boxHeight = side
+    key = m.top.value + "|" + size.toStr()
+    if key = m.drawn then return
+    m.drawn = key
+    m.modules.removeChildrenIndex(m.modules.getChildCount(), 0)
+    if m.top.value = "" then return
+    code = QrEncode(m.top.value)
+    if code = invalid then return
+    cell = size / code.size
+    for y = 0 to code.size - 1
+        row = code.rows[y]
+        start = -1
+        for x = 0 to code.size
+            dark = x < code.size and row[x]
+            if dark and start < 0 then
+                start = x
+            else if not dark and start >= 0 then
+                rect = MakeRect(m.modules, Int((x - start) * cell + 0.5) + 1, Int(cell + 0.5) + 1, Theme.colors.ink)
+                Place(rect, padding + Int(start * cell), padding + Int(y * cell))
+                start = -1
+            end if
+        end for
+    end for
+end sub

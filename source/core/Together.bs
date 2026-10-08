@@ -1,0 +1,540 @@
+' Watch Together: packages/client-core/src/social-playback.ts (the group documents, the group's
+' clock and the correction bands) and group-session.ts (`GroupSessionService`: what is sent;
+' `GroupFollower`: how one player is kept on the group's clock). The server owns the clock; each
+' member plays its own copy and follows it. A member reports how it is doing and never commands
+' the group by doing so.
+'
+' Differences from the Apple TV app: no event stream (a Roku request cannot be read while it is
+' still arriving), so the room is read again every second while it is open. Like the Apple
+' player, this one has no private speed nudge: a small drift that lasts is closed by a seek.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Receiver.bs"
+import "pkg:/source/core/Messages.bs"
+
+function GroupPath(id as string, rest = "" as string) as string
+    return "/v1/groups/" + id.encodeUriComponent() + rest
+end function
+
+function IsGroupStamp(value as dynamic) as boolean
+    return value = invalid or IsSocialText(value, 64)
+end function
+
+function IsGroupIndex(value as dynamic) as boolean
+    return IsNatural(value) and value <= 100000
+end function
+
+function IsGroupCount(value as dynamic) as boolean
+    return IsNatural(value) and value <= 1024
+end function
+
+function ParseGroupRate(v as dynamic) as dynamic
+    if not IsObject(v) or not IsSocialCounter(v.numerator) or not IsSocialCounter(v.denominator) or v.numerator = "0" or v.denominator = "0" then return invalid
+    return { numerator: v.numerator, denominator: v.denominator }
+end function
+
+function ParseGroupTimeline(v as dynamic) as dynamic
+    if not IsObject(v) or not IsSocialText(v.itemId, 128) or not IsSocialText(v.currentEntryId, 128) or not ArrayIncludes(["idle", "playing", "paused", "stopped"], v.state) then return invalid
+    if not IsSocialCounter(v.anchorPositionUs) or not IsSocialText(v.anchorAt, 64) or not IsGroupIndex(v.queuePosition) then return invalid
+    rate = ParseGroupRate(v.rate)
+    if rate = invalid then return invalid
+    return { itemId: v.itemId, currentEntryId: v.currentEntryId, state: v.state, anchorPositionUs: v.anchorPositionUs, anchorAt: v.anchorAt, rate: rate, queuePosition: v.queuePosition }
+end function
+
+function ParseGroupSync(v as dynamic) as dynamic
+    if not IsObject(v) or not IsSocialText(v.rateCorrectionMinimum, 16) or not IsSocialText(v.rateCorrectionMaximum, 16) then return invalid
+    for each key in ["noCorrectionUnderMs", "rateCorrectionMaxMs", "seekAtOrOverMs"]
+        if not IsNatural(v[key]) or v[key] > 600000 then return invalid
+    end for
+    ' The bands must be ordered, or a client cannot pick a correction at all.
+    if v.noCorrectionUnderMs > v.seekAtOrOverMs then return invalid
+    return { noCorrectionUnderMs: v.noCorrectionUnderMs, rateCorrectionMaxMs: v.rateCorrectionMaxMs, seekAtOrOverMs: v.seekAtOrOverMs }
+end function
+
+function ParseGroupMember(v as dynamic) as dynamic
+    if not IsObject(v) or not IsSocialId(v.id) or not IsSocialText(v.displayName, 256) or not ArrayIncludes(["host", "member"], v.role) or not ArrayIncludes(["invited", "joined", "left", "removed"], v.state) then return invalid
+    if not ArrayIncludes(["buffering", "ready", "lagging"], v.readiness) or not IsSocialCounter(v.positionUs) or not IsGroupStamp(v.reportedAt) or not ArrayIncludes(["connected", "away", "disconnected"], v.presence) or not IsSocialText(v.joinedAt, 64) then return invalid
+    return { id: v.id, displayName: v.displayName, role: v.role, state: v.state, readiness: v.readiness, presence: v.presence }
+end function
+
+' `parseGroupQueue`: {revision, position, entries: [{entryId, position, itemId ("" when
+' unavailable), unavailable}], blocked: [names]}, or invalid. An unavailable entry is an opaque
+' placeholder: only its id and position survive.
+function ParseGroupQueue(raw as dynamic) as dynamic
+    if not IsObject(raw) or not IsSocialCounter(raw.revision) or not IsGroupIndex(raw.position) or not IsArray(raw.entries) or raw.entries.count() > 1024 then return invalid
+    seen = {}
+    seen.setModeCaseSensitive()
+    entries = []
+    for at = 0 to raw.entries.count() - 1
+        e = raw.entries[at]
+        if not IsObject(e) or not IsSocialId(e.entryId) or not IsGroupIndex(e.position) or e.position <> at or not IsBoolean(e.unavailable) or not IsSocialText(e.addedBy, 128) then return invalid
+        if e.itemId <> invalid and not IsSocialId(e.itemId) then return invalid
+        if e.unavailable and (e.itemId <> invalid or e.addedBy <> "") then return invalid
+        if not e.unavailable and e.itemId = invalid then return invalid
+        if seen.doesExist(e.entryId) then return invalid
+        seen[e.entryId] = true
+        itemId = ""
+        if e.itemId <> invalid then itemId = e.itemId
+        entries.push({ entryId: e.entryId, position: e.position, itemId: itemId, unavailable: e.unavailable })
+    end for
+    blocked = []
+    if raw.eligibility <> invalid then
+        el = raw.eligibility
+        if not IsObject(el) or not IsGroupIndex(el.blockedEntries) or not IsBoolean(el.currentEntryBlocked) or not IsArray(el.members) or el.members.count() > 64 then return invalid
+        for each member in el.members
+            if not IsObject(member) or not IsSocialId(member.memberId) or not IsSocialText(member.displayName, 256) or not IsArray(member.blockedEntryIds) or member.blockedEntryIds.count() > 1024 then return invalid
+            for each id in member.blockedEntryIds
+                if not IsSocialId(id) then return invalid
+            end for
+            if member.blockedEntryIds.count() > 0 then blocked.push(member.displayName)
+        end for
+    end if
+    return { revision: raw.revision, position: raw.position, entries: entries, blocked: blocked }
+end function
+
+' `parseGroup`: the room as this viewer sees it, or invalid. The invariants a client relies on
+' are checked: a host can control, the counts add up, and `state` agrees with the timeline.
+function ParseGroup(raw as dynamic) as dynamic
+    if not IsObject(raw) or not IsSocialId(raw.id) or not IsSocialText(raw.name, 512) or not IsSocialId(raw.hostMemberId) then return invalid
+    states = ["creating", "lobby", "preparing", "ready", "playing", "paused", "host-reconnecting-playing", "host-reconnecting-paused", "degraded", "ending", "ended", "failed"]
+    if not ArrayIncludes(states, raw.state) or not ArrayIncludes(["host-only", "anyone"], raw.hostAuthority) then return invalid
+    for each key in ["revision", "playbackRevision", "queueRevision", "reconnectGeneration", "eventOrdinal"]
+        if not IsSocialCounter(raw[key]) then return invalid
+    end for
+    if not IsSocialText(raw.lastCommand, 64) or not IsSocialText(raw.lastCommandId, 128) or not IsSocialText(raw.endedReason, 64) or not IsSocialText(raw.createdAt, 64) or not IsSocialText(raw.updatedAt, 64) or not IsSocialText(raw.viewerMemberId, 128) then return invalid
+    p = raw.permissions
+    if not IsObject(p) or not IsBoolean(p.isHost) or not IsBoolean(p.canControl) or not IsBoolean(p.canManageQueue) or (p.isHost and not p.canControl) then return invalid
+    a = raw.authority
+    if not IsObject(a) or not IsSocialText(a.deviceId, 128) or not ArrayIncludes(["fresh", "bound", "retired"], a.state) then return invalid
+    if a.playbackId <> invalid and not IsSocialId(a.playbackId) then return invalid
+    h = raw.host
+    if not IsObject(h) or not ArrayIncludes(["connected", "reconnecting", "absent"], h.presence) or not IsSocialText(h.lastSeenAt, 64) or not IsGroupStamp(h.pauseAt) or not IsGroupStamp(h.endAt) then return invalid
+    if not IsArray(raw.members) or raw.members.count() > 256 then return invalid
+    members = []
+    hosts = 0
+    joined = 0
+    for each entry in raw.members
+        member = ParseGroupMember(entry)
+        if member = invalid then return invalid
+        if member.role = "host" then hosts = hosts + 1
+        if member.state = "joined" then joined = joined + 1
+        members.push(member)
+    end for
+    if hosts > 1 then return invalid
+    timeline = ParseGroupTimeline(raw.timeline)
+    if timeline = invalid then return invalid
+    expected = "paused"
+    if raw.state = "playing" or raw.state = "host-reconnecting-playing" then expected = "playing"
+    if raw.state = "lobby" or raw.state = "creating" then expected = "idle"
+    if raw.state = "ended" or raw.state = "failed" then expected = "stopped"
+    if timeline.state <> expected then return invalid
+    s = raw.settings
+    if not IsObject(s) or not IsBoolean(s.shuffleEnabled) or not ArrayIncludes(["none", "one", "all"], s.repeatMode) then return invalid
+    sync = ParseGroupSync(raw.sync)
+    if sync = invalid then return invalid
+    r = raw.readiness
+    if not IsObject(r) or not ArrayIncludes(["ready", "buffering", "lagging"], r.aggregate) then return invalid
+    for each key in ["ready", "buffering", "lagging", "stale", "memberCount"]
+        if not IsGroupCount(r[key]) then return invalid
+    end for
+    if r.memberCount <> joined or r.ready + r.buffering + r.lagging + r.stale <> joined then return invalid
+    worst = "ready"
+    if r.lagging > 0 or r.stale > 0 then
+        worst = "lagging"
+    else if r.buffering > 0 or joined = 0 then
+        worst = "buffering"
+    end if
+    if r.aggregate <> worst then return invalid
+    group = { id: raw.id, name: raw.name, state: raw.state, revision: raw.revision, queueRevision: raw.queueRevision, endedReason: raw.endedReason, viewerMemberId: raw.viewerMemberId, hostMemberId: raw.hostMemberId }
+    group.permissions = { isHost: p.isHost, canControl: p.canControl, canManageQueue: p.canManageQueue }
+    group.host = { presence: h.presence, pauseAt: h.pauseAt, endAt: h.endAt }
+    group.timeline = timeline
+    group.sync = sync
+    group.readiness = { aggregate: r.aggregate, ready: r.ready, buffering: r.buffering, lagging: r.lagging, stale: r.stale, memberCount: r.memberCount }
+    group.members = members
+    if raw.queue <> invalid then
+        queue = ParseGroupQueue(raw.queue)
+        if queue = invalid then return invalid
+        group.queue = queue
+    end if
+    return group
+end function
+
+function GroupEnvelope(raw as dynamic) as boolean
+    return IsObject(raw) and IsString(raw.protocolVersion) and raw.protocolVersion = SocialProtocol() and IsSocialText(raw.serverTime, 64)
+end function
+
+' `parseGroupSnapshot`: {ok, serverTime, group}.
+function ParseGroupSnapshot(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not GroupEnvelope(raw) then return bad
+    group = ParseGroup(raw.group)
+    if group = invalid then return bad
+    return { ok: true, serverTime: raw.serverTime, group: group }
+end function
+
+' `parseGroupList`, as `refreshDirectory` keeps it: {ok, groups} without the ones that are over.
+function ParseGroupList(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not GroupEnvelope(raw) or not IsArray(raw.groups) or raw.groups.count() > 256 then return bad
+    out = []
+    for each entry in raw.groups
+        group = ParseGroup(entry)
+        if group = invalid then return bad
+        if group.state <> "ended" and group.state <> "failed" then out.push(group)
+    end for
+    return { ok: true, groups: out }
+end function
+
+' `parseGroupTransportReceipt`: {ok, revision, timeline}.
+function ParseGroupReceipt(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not GroupEnvelope(raw) or not IsSocialId(raw.groupId) or not IsSocialText(raw.idempotencyKey, 120) or not ArrayIncludes(["accepted", "duplicate"], raw.disposition) then return bad
+    if not ArrayIncludes(["play", "pause", "stop", "seek", "next", "previous", "load", "set-queue-position"], raw.command) or not IsSocialCounter(raw.revision) or not IsSocialCounter(raw.queueRevision) or not IsSocialText(raw.recordedAt, 64) then return bad
+    if raw.override <> invalid then
+        o = raw.override
+        if not IsObject(o) or not IsSocialText(o.reason, 64) or not IsArray(o.blockedMemberIds) then return bad
+        for each id in o.blockedMemberIds
+            if not IsSocialId(id) then return bad
+        end for
+    end if
+    timeline = ParseGroupTimeline(raw.timeline)
+    s = raw.settings
+    if timeline = invalid or not IsObject(s) or not IsBoolean(s.shuffleEnabled) or not ArrayIncludes(["none", "one", "all"], s.repeatMode) then return bad
+    return { ok: true, revision: raw.revision, timeline: timeline }
+end function
+
+' `parseGroupInvite`: {ok, code, expiresAt, maxUses}.
+function ParseGroupInvite(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not GroupEnvelope(raw) then return bad
+    i = raw.invite
+    if not IsObject(i) or not IsSocialId(i.id) or not IsSocialId(i.groupId) or not IsString(i.code) or not MatchesPattern(i.code, "^[A-Z2-9]{4,16}$") or not IsSocialText(i.expiresAt, 64) then return bad
+    if not IsGroupCount(i.maxUses) or not IsGroupCount(i.uses) or not IsSocialText(i.recipientProfileId, 128) then return bad
+    return { ok: true, inviteCode: i.code, expiresAt: i.expiresAt, maxUses: i.maxUses }
+end function
+
+' ---- What is sent (group-session.ts) ----------------------------------------------------------------
+
+function GroupCreateBody(name as string, displayName as string, hostAuthority as string) as object
+    return { "protocolVersion": SocialProtocol(), "name": name.trim(), "displayName": displayName.trim(), "hostAuthority": hostAuthority }
+end function
+
+' An invitation code as it is sent: without spaces or dashes, in capitals.
+function GroupTidyCode(code as string) as string
+    out = ""
+    for index = 1 to Len(code)
+        ch = Mid(code, index, 1)
+        if ch <> " " and ch <> "-" and ch <> Chr(9) and ch <> Chr(10) then out = out + UCase(ch)
+    end for
+    return out
+end function
+
+function GroupJoinBody(code as string, displayName as string) as object
+    return { "protocolVersion": SocialProtocol(), "code": GroupTidyCode(code), "displayName": displayName.trim() }
+end function
+
+' `transport`: a command fenced on the revision last seen. `input` may hold positionUs, entryId,
+' queuePosition and allowUnavailable.
+function GroupTransportBody(group as object, key as string, command as string, input = invalid as dynamic) as object
+    body = { "protocolVersion": SocialProtocol(), "idempotencyKey": key, "expectedRevision": group.revision, "command": command }
+    if input <> invalid then
+        if input.positionUs <> invalid then body["positionUs"] = input.positionUs
+        if input.entryId <> invalid and input.entryId <> "" then body["entryId"] = input.entryId
+        if input.queuePosition <> invalid then body["queuePosition"] = input.queuePosition
+        if input.allowUnavailable = true then body["allowUnavailable"] = true
+    end if
+    return body
+end function
+
+' `queueChange`: {operation: append|replace|remove|move, ...} against the queue's revision.
+function GroupQueueBody(revision as string, key as string, change as object) as object
+    body = { "protocolVersion": SocialProtocol(), "idempotencyKey": key, "expectedRevision": revision }
+    for each name in change.keys()
+        body[name] = change[name]
+    end for
+    return body
+end function
+
+function GroupInviteBody() as object
+    return { "protocolVersion": SocialProtocol(), "expiresInSeconds": 900, "maxUses": 8 }
+end function
+
+function GroupReadinessBody(readiness as string, positionSeconds as dynamic) as object
+    return { "protocolVersion": SocialProtocol(), "readiness": readiness, "positionUs": MicrosecondsText(positionSeconds) }
+end function
+
+function GroupHostBody(group as object, memberId as string) as object
+    return { "protocolVersion": SocialProtocol(), "memberId": memberId, "expectedRevision": group.revision }
+end function
+
+function GroupEndBody(group as object) as object
+    return { "protocolVersion": SocialProtocol(), "expectedRevision": group.revision }
+end function
+
+' ---- The group's clock -----------------------------------------------------------------------------
+
+' `sample`: one request that answered with the server's time is a sample (offset = server time −
+' the request's midpoint). The clock follows the sample with the least round trip among the last
+' eight taken within two minutes. `clock` is {samples: [{offsetMs, rttMs, at}], offsetMs}; times
+' are milliseconds. Returns the clock to keep.
+function GroupClockSample(clock as dynamic, serverMs as dynamic, sentMs as dynamic, receivedMs as dynamic) as object
+    kept = []
+    offset = 0
+    if clock <> invalid then
+        offset = clock.offsetMs
+        for each sample in clock.samples
+            if receivedMs - sample.at <= 120000 then kept.push(sample)
+        end for
+    end if
+    if serverMs = invalid or receivedMs < sentMs then return { samples: kept, offsetMs: offset }
+    kept.push({ offsetMs: serverMs - (sentMs + receivedMs) / 2, rttMs: receivedMs - sentMs, at: receivedMs })
+    while kept.count() > 8
+        kept.shift()
+    end while
+    best = kept[0]
+    for each sample in kept
+        if sample.rttMs < best.rttMs then best = sample
+    end for
+    whole& = best.offsetMs
+    if best.offsetMs - whole& >= 0.5 then whole& = whole& + 1
+    if whole& - best.offsetMs > 0.5 then whole& = whole& - 1
+    return { samples: kept, offsetMs: whole& }
+end function
+
+' `groupTargetPositionUs`, in seconds: where a member should be now. Extrapolates only while the
+' group is playing; a paused anchor is already the answer. `groupNowMs` is this device's clock
+' plus the group clock's offset.
+function GroupTargetSeconds(timeline as object, groupNowMs as dynamic) as double
+    whole = "0"
+    if Len(timeline.anchorPositionUs) > 6 then whole = Left(timeline.anchorPositionUs, Len(timeline.anchorPositionUs) - 6)
+    anchor# = Val(whole) + Val(Right("000000" + timeline.anchorPositionUs, 6)) / 1000000
+    if timeline.state <> "playing" then return anchor#
+    anchorAt = IsoToMilliseconds(timeline.anchorAt)
+    if anchorAt = invalid then return anchor#
+    elapsed# = groupNowMs - anchorAt
+    if elapsed# < 0 then elapsed# = 0
+    return anchor# + elapsed# / 1000 * Val(timeline.rate.numerator) / Val(timeline.rate.denominator)
+end function
+
+' An instant with its milliseconds ("2026-10-05T10:00:00.250Z"), or invalid.
+function IsoToMilliseconds(value as dynamic) as dynamic
+    seconds = IsoToSeconds(value)
+    if seconds = invalid then return invalid
+    ms# = seconds
+    ms# = ms# * 1000
+    dot = Instr(1, value, ".")
+    if dot > 0 then
+        digits = ""
+        for index = dot + 1 to Len(value)
+            ch = Mid(value, index, 1)
+            if ch >= "0" and ch <= "9" then
+                digits = digits + ch
+            else
+                exit for
+            end if
+        end for
+        ms# = ms# + Val(Left(digits + "000", 3))
+    end if
+    return ms#
+end function
+
+' `groupCorrection`: which correction the bands call for, given the drift in seconds (positive
+' when the member is behind the group): "none", "rate" (a small drift) or "seek".
+function GroupCorrection(sync as object, driftSeconds as dynamic) as string
+    ms = Abs(driftSeconds) * 1000
+    if ms < sync.noCorrectionUnderMs then return "none"
+    if ms >= sync.seekAtOrOverMs then return "seek"
+    return "rate"
+end function
+
+' `GroupFollower.tick`: what one player should do now to stay on the group's clock, and what it
+' reports. `local` is {itemId, positionSeconds, playing, buffering, ready}; `memory` is what the
+' follower remembers ({loadedFor, correctingUntil}); `nowMs` is this device's clock. Returns
+' {actions: [{kind: load|play|pause|seek, itemId, seconds, playing}], readiness ("" for none),
+' memory}. A player that cannot change speed lets a small drift be for the band's hold time and
+' then closes it with a seek.
+function GroupFollowStep(group as object, live as boolean, local as object, memory as object, nowMs as dynamic, groupNowMs as dynamic) as object
+    out = { actions: [], readiness: "", memory: { loadedFor: memory.loadedFor, correctingUntil: memory.correctingUntil } }
+    if group = invalid or not live then return out
+    timeline = group.timeline
+    if timeline.itemId = "" or timeline.state = "idle" or timeline.state = "stopped" then
+        if timeline.itemId <> "" and timeline.state = "stopped" and local.playing then out.actions.push({ kind: "pause" })
+        return out
+    end if
+    target = GroupTargetSeconds(timeline, groupNowMs)
+    wantPlaying = timeline.state = "playing"
+    key = timeline.itemId + "/" + timeline.currentEntryId
+    if local.itemId <> timeline.itemId then
+        ' Load once per entry; a player still starting up is not asked again every second.
+        if memory.loadedFor <> key then
+            out.memory.loadedFor = key
+            out.actions.push({ kind: "load", itemId: timeline.itemId, seconds: target, playing: wantPlaying })
+        end if
+        out.readiness = "buffering"
+        return out
+    end if
+    out.memory.loadedFor = key
+    if not local.ready then
+        out.readiness = "buffering"
+        return out
+    end if
+    if wantPlaying and not local.playing and not local.buffering then out.actions.push({ kind: "play" })
+    if not wantPlaying and local.playing then out.actions.push({ kind: "pause" })
+    correction = GroupCorrection(group.sync, target - local.positionSeconds)
+    if correction = "seek" or (not wantPlaying and correction = "rate") then
+        out.memory.correctingUntil = 0
+        out.actions.push({ kind: "seek", seconds: target })
+    else if correction = "rate" and wantPlaying then
+        if memory.correctingUntil = 0 then
+            out.memory.correctingUntil = nowMs + group.sync.rateCorrectionMaxMs
+        else if nowMs > memory.correctingUntil then
+            out.memory.correctingUntil = 0
+            out.actions.push({ kind: "seek", seconds: target })
+        end if
+    else if memory.correctingUntil <> 0 then
+        out.memory.correctingUntil = 0
+    end if
+    if local.buffering then
+        out.readiness = "buffering"
+    else if correction = "seek" then
+        out.readiness = "lagging"
+    else
+        out.readiness = "ready"
+    end if
+    return out
+end function
+
+' `GroupFollower.report`: often enough that the server never counts this member stale, and at
+' once on a change.
+function GroupShouldReport(readiness as string, lastReadiness as string, sinceLastMs as dynamic) as boolean
+    if readiness = "" then return false
+    return readiness <> lastReadiness or sinceLastMs >= 10000
+end function
+
+' What the room read again says about this viewer's place in it: "live", "ended" (the group is
+' over) or "gone" (403, 404 or 410: removed, or it ended while away).
+function GroupReadOutcome(result as object) as string
+    if not result.ok then
+        if result.status <> invalid and (result.status = 403 or result.status = 404 or result.status = 410) then return "gone"
+        return "live"
+    end if
+    return "live"
+end function
+
+' How often the room is asked about, in milliseconds: {beat (the heartbeat, which binds a host's
+' device), read (the room itself, in place of the event stream)}.
+function GroupTimings() as object
+    return { beatMs: 10000, readMs: 1000, followMs: 1000 }
+end function
+
+' `refreshDirectory`: a server without Watch Together answers 404 or 503 for the list.
+function GroupsUnavailable(status as dynamic) as boolean
+    return status <> invalid and (status = 404 or status = 503)
+end function
+
+' ---- What the room says (apps/native/src/screens/Together.tsx, player/GroupPill.tsx) ----------------
+
+function GroupJoined(group as object) as object
+    out = []
+    for each member in group.members
+        if member.state = "joined" then out.push(member)
+    end for
+    return out
+end function
+
+function GroupStateLabel(state as string) as string
+    ids = { "lobby": "web.together.state.lobby", "preparing": "web.together.state.preparing", "ready": "web.together.state.ready", "playing": "web.together.state.playing", "degraded": "web.together.state.playing", "paused": "web.nowPlaying.state.paused", "host-reconnecting-playing": "web.together.state.hostReconnecting", "host-reconnecting-paused": "web.together.state.hostReconnecting", "ending": "web.together.state.ending", "ended": "web.together.state.ended", "failed": "web.together.state.ended" }
+    id = ids[state]
+    if id = invalid then return state
+    return T(id)
+end function
+
+' How ready the group is to play, in a line.
+function GroupReadinessLine(group as object) as string
+    r = group.readiness
+    if r.aggregate = "ready" then
+        if r.memberCount > 1 then return T("web.together.allReady")
+        return T("web.together.state.ready")
+    end if
+    return T("web.together.waiting", { ready: r.ready, total: r.memberCount, count: r.buffering + r.lagging + r.stale })
+end function
+
+function GroupMemberStatus(member as object) as string
+    if member.presence <> "connected" then return T("web.together.away")
+    if member.readiness = "ready" then return T("web.together.inStep")
+    if member.readiness = "buffering" then return T("web.together.loading")
+    return T("web.together.catchingUp")
+end function
+
+' A member's row: {title, subtitle}.
+function GroupMemberRow(group as object, member as object) as object
+    title = member.displayName
+    if member.id = group.viewerMemberId then title = T("web.together.you", { name: member.displayName })
+    status = GroupMemberStatus(member)
+    if member.role = "host" then status = T("web.together.hostStatus", { status: status })
+    return { title: title, subtitle: status }
+end function
+
+function GroupEndedWords(reason as string) as string
+    ids = { "host-ended": "web.together.ended.host", "host-unavailable": "web.together.ended.away", "empty": "web.together.ended.empty" }
+    id = ids[reason]
+    if id = invalid then id = "web.together.ended.other"
+    return T(id)
+end function
+
+' A group in the viewer's list: {title, subtitle, meta}.
+function GroupDirectoryRow(group as object) as object
+    row = { title: group.name, subtitle: T("web.together.groupLine", { count: GroupJoined(group).count(), state: GroupStateLabel(group.state) }), meta: "" }
+    if group.permissions.isHost then row.meta = T("web.together.youHost")
+    return row
+end function
+
+' GroupPill.tsx `describe`: {tone: ok | wait | warn, label}.
+function GroupPillStatus(group as object) as object
+    if group.host.presence <> "connected" and not group.permissions.isHost then return { tone: "warn", label: T("web.together.pill.hostAway") }
+    for each member in GroupJoined(group)
+        if member.id <> group.viewerMemberId and member.readiness = "buffering" then return { tone: "wait", label: T("web.together.pill.waitingFor", { name: member.displayName }) }
+    end for
+    return { tone: "ok", label: T("web.together.pill.inStep") }
+end function
+
+' GroupPill.tsx: what is said beside a member in the pill's list ("" for nothing).
+function GroupPillRole(member as object) as string
+    if member.role = "host" then return T("web.together.pill.host")
+    if member.readiness = "buffering" then return T("web.together.pill.catchingUp")
+    if member.presence <> "connected" then return T("web.together.pill.away")
+    return ""
+end function
+
+' An invitation's code as it is read out: "ABCD EFGH".
+function GroupCodeShown(code as string) as string
+    if Len(code) <= 4 then return code
+    return Left(code, 4) + " " + Mid(code, 5)
+end function
+
+' Whether a code typed so far can be sent.
+function GroupCodeReady(code as string) as boolean
+    return Len(GroupTidyCode(code)) >= 4
+end function
+
+' What the queue's menu offers for an entry: [{id, label, icon, destructive}].
+function GroupEntryActions(group as object, entry as object) as object
+    items = []
+    if entry.entryId <> group.timeline.currentEntryId and not entry.unavailable then items.push({ id: "load", label: T("web.together.watchThis"), icon: "play" })
+    items.push({ id: "remove", label: T("player.queueRemove"), icon: "trash", destructive: true })
+    return items
+end function
+
+' When the host is away: the moment the group pauses or ends unless they return ({kind: pauses |
+' ends, at (ms)}), or invalid.
+function GroupHostDeadline(group as object, groupNowMs as dynamic) as dynamic
+    pauseAt = invalid
+    if group.host.pauseAt <> invalid then pauseAt = IsoToMilliseconds(group.host.pauseAt)
+    if pauseAt <> invalid and pauseAt > groupNowMs then return { kind: "pauses", at: pauseAt }
+    endAt = invalid
+    if group.host.endAt <> invalid then endAt = IsoToMilliseconds(group.host.endAt)
+    if endAt <> invalid then return { kind: "ends", at: endAt }
+    return invalid
+end function

@@ -1,0 +1,390 @@
+' The owner's Dashboard on television: packages/client-core/src/playback-v1/types.ts
+' (`parseAdminSession`), server-admin/now-playing.ts, server-admin/dashboard.ts,
+' server-admin/console-words.ts and console.ts (alerts, measurements, telemetry, jobs). The words
+' the shared code keeps as English tables are generated into SettingsTables.bs.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/SettingsTables.bs"
+
+' console-words.ts `duration`: "2d 4h", "3h 12m", "40m", "12s".
+function AdminDuration(seconds as dynamic) as string
+    total& = Int(seconds + 0.5)
+    days = total& \ 86400
+    hours = (total& mod 86400) \ 3600
+    minutes = (total& mod 3600) \ 60
+    if days > 0 then return days.toStr() + "d " + hours.toStr() + "h"
+    if hours > 0 then return hours.toStr() + "h " + minutes.toStr() + "m"
+    if minutes > 0 then return minutes.toStr() + "m"
+    return total&.toStr() + "s"
+end function
+
+' console-words.ts `when`: the time today, the day and the time before; a dash for none.
+' `clock` is the clock (tests pass their own).
+function AdminWhenSeconds(seconds as dynamic, clock = invalid as dynamic) as string
+    if seconds = invalid or seconds <= 0 then return "—"
+    if clock = invalid then clock = NowSeconds()
+    at = FormatDateParts(seconds)
+    today = FormatDateParts(clock)
+    if at = invalid then return "—"
+    time = FormatTime(seconds)
+    if today <> invalid and at.year = today.year and at.month = today.month and at.day = today.day then return time
+    return FormatMonthName(at.month, true) + " " + at.day.toStr() + ", " + time
+end function
+
+function AdminWhen(milliseconds as dynamic, clock = invalid as dynamic) as string
+    if milliseconds = invalid or milliseconds <= 0 then return "—"
+    ' Whole-number arithmetic: a 32-bit float cannot hold today's milliseconds.
+    seconds& = milliseconds
+    seconds& = seconds& \ 1000
+    return AdminWhenSeconds(seconds&, clock)
+end function
+
+' The console wraps its documents as {scope, data}.
+function ConsoleData(raw as dynamic) as dynamic
+    if IsObject(raw) and raw.data <> invalid and IsObject(raw.scope) then return raw.data
+    return raw
+end function
+
+function AdminText(value as dynamic) as string
+    if IsString(value) then return value
+    return ""
+end function
+
+' A user, profile or device: its name, else its id, else the text itself.
+function AdminNamed(value as dynamic) as string
+    if IsObject(value) then
+        if IsString(value.name) then return value.name
+        return AdminText(value.id)
+    end if
+    return AdminText(value)
+end function
+
+function AdminDecision(value as dynamic) as dynamic
+    if not IsObject(value) or not IsString(value.action) then return invalid
+    return { action: value.action }
+end function
+
+' GET /v1/admin/sessions: {ok, sessions: [{id, user, profile, device, itemId, title, kind, state,
+' decision, bitrateKbps, bandwidthKbps, location, startedAt}]}.
+function ParseAdminSessions(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) or not IsArray(FieldOf(raw, "items")) then return bad
+    out = []
+    for each v in FieldOf(raw, "items")
+        if not IsObject(v) or not IsString(v.id) or v.id = "" or Len(v.id) > 256 then return bad
+        session = { id: v.id, user: AdminNamed(v.user), profile: AdminNamed(v.profile), device: AdminNamed(v.device), title: AdminText(v.title), state: AdminText(v.state), decision: {}, location: "other", kind: "other" }
+        if IsObject(v.item) then
+            session.title = AdminText(v.item.title)
+            if IsString(v.item.id) then session.itemId = v.item.id
+        else if IsString(v.itemId) then
+            session.itemId = v.itemId
+        end if
+        if ArrayIncludes(["vod", "audio", "live", "channel"], v.kind) then session.kind = v.kind
+        if ArrayIncludes(["local", "remote"], v.location) then session.location = v.location
+        if IsObject(v.decision) then
+            for each lane in ["video", "audio", "subtitles"]
+                decision = AdminDecision(v.decision[lane])
+                if decision <> invalid then session.decision[lane] = decision
+            end for
+        end if
+        if IsNumber(v.bitrateKbps) then session.bitrateKbps = v.bitrateKbps
+        if IsNumber(v.bandwidthKbps) then session.bandwidthKbps = v.bandwidthKbps
+        if IsString(v.startedAt) then session.startedAt = v.startedAt
+        out.push(session)
+    end for
+    return { ok: true, sessions: out }
+end function
+
+function AdminAction(decision as object, lane as string) as string
+    if decision[lane] = invalid then return ""
+    return decision[lane].action
+end function
+
+' How a session is delivered, as a catalogue id: converting beats repackaging beats direct.
+function SessionDeliveryId(decision as object) as string
+    video = AdminAction(decision, "video")
+    audio = AdminAction(decision, "audio")
+    subtitles = AdminAction(decision, "subtitles")
+    if video = "transcode" or subtitles = "burn" or video = "burn" then return "web.nowPlaying.delivery.convertVideo"
+    if audio = "transcode" then return "web.nowPlaying.delivery.convertAudio"
+    if video = "copy" or audio = "copy" then return "web.nowPlaying.delivery.directStream"
+    if video = "direct" or audio = "direct" then return "web.nowPlaying.delivery.directPlay"
+    return ""
+end function
+
+function SessionStateId(state as string) as string
+    if state = "playing" then return "web.nowPlaying.state.playing"
+    if state = "paused" then return "web.nowPlaying.state.paused"
+    if state = "buffering" or state = "preparing" then return "web.nowPlaying.state.starting"
+    return ""
+end function
+
+function SessionLocationId(location as string) as string
+    if location = "local" then return "web.nowPlaying.location.local"
+    if location = "remote" then return "web.nowPlaying.location.remote"
+    return ""
+end function
+
+' Megabits per second, one decimal below 10 (the delivered rate, else the chosen bit rate); "" for none.
+' An exact half (0.95) rounds up here; JavaScript's toFixed rounds the nearest double, which may be under it.
+function SessionRateMbps(session as object) as string
+    kbps = session.bandwidthKbps
+    if kbps = invalid or kbps = 0 then kbps = session.bitrateKbps
+    if kbps = invalid or kbps <= 0 then return ""
+    mbps = kbps / 1000
+    if mbps >= 10 then return Int(mbps + 0.5).toStr()
+    tenths = Int(mbps * 10 + 0.5)
+    return (tenths \ 10).toStr() + "." + (tenths mod 10).toStr()
+end function
+
+' Who is watching: the profile, with its account when they differ.
+function SessionViewer(session as object) as string
+    if session.profile <> "" and session.user <> "" and session.profile <> session.user then return T("web.nowPlaying.viewerWithAccount", { profile: session.profile, account: session.user })
+    if session.profile <> "" then return session.profile
+    if session.user <> "" then return session.user
+    return T("web.nowPlaying.viewer")
+end function
+
+' One session's line under its title: who, on what, how it is delivered, how fast, since when.
+function SessionFacts(session as object) as string
+    parts = [SessionViewer(session)]
+    if session.device <> "" then parts.push(T("web.nowPlaying.onDevice", { device: session.device }))
+    for each id in [SessionStateId(session.state), SessionDeliveryId(session.decision), SessionLocationId(session.location)]
+        if id <> "" then parts.push(T(id))
+    end for
+    rate = SessionRateMbps(session)
+    if rate <> "" then parts.push(T("web.nowPlaying.rate", { rate: rate }))
+    if session.startedAt <> invalid then
+        started = IsoToSeconds(session.startedAt)
+        if started <> invalid then parts.push(T("web.nowPlaying.started", { time: AdminWhenSeconds(started) }))
+    end if
+    return parts.join(" · ")
+end function
+
+' console-words.ts `sentence`: "state-permissions" reads "State permissions".
+function AdminSentence(value as string) as string
+    out = ""
+    previous = ""
+    for index = 1 to Len(value)
+        ch = Mid(value, index, 1)
+        if ch = "_" or ch = "." or ch = "-" then
+            ch = " "
+        else if previous <> "" and LCase(previous) = previous and UCase(previous) <> previous and UCase(ch) = ch and LCase(ch) <> ch then
+            out = out + " "
+        end if
+        if not (ch = " " and Right(out, 1) = " ") then out = out + ch
+        previous = Mid(value, index, 1)
+    end for
+    out = LCase(out.trim())
+    return UCase(Left(out, 1)) + Mid(out, 2)
+end function
+
+' GET /v1/admin/console/alerts: {ok, alerts: [{id, code, severity, status, firstAt, lastAt,
+' occurrences, revision}]}.
+function ParseAdminAlerts(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    data = ConsoleData(raw)
+    if not IsArray(data) then return bad
+    out = []
+    for each a in data
+        if not IsObject(a) or not IsString(a.id) or a.id = "" or not IsString(a.code) or a.code = "" or not IsNatural(a.revision) then return bad
+        alert = { id: a.id, code: a.code, severity: AdminText(a.severity), status: AdminText(a.status), occurrences: 1, revision: a.revision }
+        if IsNumber(a.occurrences) then alert.occurrences = a.occurrences
+        if IsNumber(a.firstAt) then alert.firstAt = a.firstAt
+        if IsNumber(a.lastAt) then alert.lastAt = a.lastAt
+        out.push(alert)
+    end for
+    return { ok: true, alerts: out }
+end function
+
+function AlertLabel(alert as object) as string
+    known = ServerAlertLabels()[alert.code]
+    if known <> invalid then return known
+    return AdminSentence(alert.code)
+end function
+
+' Dashboard.tsx `AlertsPanel`: what is shown is what is not resolved.
+function OpenAlerts(alerts as object) as object
+    out = []
+    for each alert in alerts
+        if alert.status <> "resolved" then out.push(alert)
+    end for
+    return out
+end function
+
+' The line under an alert: how often and when, and whether it was acknowledged.
+function AlertLine(alert as object) as string
+    parts = []
+    if alert.occurrences > 1 and alert.lastAt <> invalid then
+        parts.push(T("server.alert.seen", { count: alert.occurrences, when: AdminWhen(alert.lastAt) }))
+    else if alert.firstAt <> invalid then
+        parts.push(T("server.alert.firstSeen", { when: AdminWhen(alert.firstAt) }))
+    end if
+    if alert.status = "acknowledged" then parts.push(T("server.alert.acknowledged"))
+    return parts.join(" · ")
+end function
+
+' GET /v1/admin/console/panels/{name}: {ok, facts: {name: {state, value}}}.
+function ParseMeasurement(raw as dynamic, name as string) as object
+    bad = { ok: false, code: "invalid_response" }
+    data = ConsoleData(raw)
+    if not IsObject(data) or data.name <> name or not IsObject(data.facts) or data.facts.count() > 30 then return bad
+    facts = {}
+    facts.setModeCaseSensitive()
+    for each key in data.facts.keys()
+        fact = data.facts[key]
+        if not IsObject(fact) or not IsString(fact.state) or fact.state = "" or Len(fact.state) > 40 then return bad
+        facts[key] = { state: fact.state, value: fact.value }
+    end for
+    return { ok: true, facts: facts }
+end function
+
+function FactMeasured(fact as dynamic) as boolean
+    if fact = invalid or fact.value = invalid then return false
+    return fact.state = "available" or fact.state = "measured" or fact.state = "ok" or fact.state = "limited"
+end function
+
+function FactNumber(fact as dynamic) as dynamic
+    if FactMeasured(fact) and IsNumber(fact.value) then return fact.value
+    return invalid
+end function
+
+' dashboard.ts `healthFacts`: {degraded, uptimeSeconds, freeBytes, databaseBytes}; a figure the
+' server did not measure is absent.
+function HealthFacts(health as dynamic, storage as dynamic) as object
+    out = { degraded: false }
+    if health <> invalid and health.ok = true then
+        out.degraded = health.facts["database"] <> invalid and not FactMeasured(health.facts["database"])
+        uptime = FactNumber(health.facts["uptime"])
+        if uptime <> invalid then out.uptimeSeconds = uptime
+    end if
+    if storage <> invalid and storage.ok = true then
+        free = FactNumber(storage.facts["stateVolumeAvailable"])
+        if free <> invalid then out.freeBytes = free
+        database = FactNumber(storage.facts["databaseBytes"])
+        if database <> invalid then out.databaseBytes = database
+    end if
+    return out
+end function
+
+' Dashboard.tsx `HealthPanel`: {title, line}.
+function HealthWords(facts as object) as object
+    parts = []
+    if facts.uptimeSeconds <> invalid then parts.push(T("settings.server.health.upFor", { duration: AdminDuration(facts.uptimeSeconds) }))
+    if facts.freeBytes <> invalid then parts.push(T("settings.server.health.free", { bytes: FormatBytes(facts.freeBytes) }))
+    if facts.databaseBytes <> invalid then parts.push(T("settings.server.health.database", { bytes: FormatBytes(facts.databaseBytes) }))
+    title = T("settings.server.health.running")
+    if facts.degraded then title = T("settings.server.health.attention")
+    return { title: title, line: parts.join(" · "), degraded: facts.degraded }
+end function
+
+' GET /v1/admin/telemetry: {ok, status: {metric: {status, value}}}. The series are not drawn here.
+function ParseTelemetry(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    data = ConsoleData(raw)
+    if not IsObject(data) or not IsObject(data.status) then return bad
+    status = {}
+    status.setModeCaseSensitive()
+    for each key in data.status.keys()
+        metric = data.status[key]
+        if not IsObject(metric) or not IsString(metric.status) then return bad
+        value = 0
+        if IsNumber(metric.value) then value = metric.value
+        status[key] = { status: metric.status, value: value }
+    end for
+    return { ok: true, status: status }
+end function
+
+' dashboard.ts `measuredLoadTiles` and `loadValue`: [{metric, label, value}] for what this server
+' measures, in the order they are shown.
+function LoadRows(telemetry as dynamic) as object
+    out = []
+    if telemetry = invalid or telemetry.ok <> true then return out
+    for each tile in ServerLoadTiles()
+        metric = telemetry.status[tile.metric]
+        if metric <> invalid and metric.status <> "unavailable" then
+            value = ""
+            if tile.unit = "percent" then
+                value = Int(metric.value + 0.5).toStr() + "%"
+            else
+                value = FormatBytes(metric.value) + "/s"
+            end if
+            out.push({ metric: tile.metric, label: tile.label, value: value })
+        end if
+    end for
+    return out
+end function
+
+function JobStates() as object
+    return ["queued", "running", "paused", "reconciling", "cancellation-requested", "cancelled", "failed", "succeeded"]
+end function
+
+' GET /v1/admin/console/jobs: {ok, jobs: [{id, kind, state, revision, actions, resource, phase,
+' createdAt, processed, errorCode}], more}.
+function ParseAdminJobs(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    data = ConsoleData(raw)
+    if not IsObject(data) or not IsArray(FieldOf(data, "items")) then return bad
+    out = []
+    for each j in FieldOf(data, "items")
+        if not IsObject(j) or not IsString(j.id) or j.id = "" or not IsString(j.kind) or j.kind = "" or not IsNatural(j.revision) or not IsArray(j.actions) or not ArrayIncludes(JobStates(), j.state) then return bad
+        actions = []
+        for each action in j.actions
+            if not ArrayIncludes(["retry", "cancel", "pause", "resume"], action) then return bad
+            actions.push(action)
+        end for
+        job = { id: j.id, kind: j.kind, state: j.state, revision: j.revision, actions: actions, resource: AdminText(j.resource), phase: AdminText(j.phase) }
+        if IsNumber(j.createdAt) then job.createdAt = j.createdAt
+        if IsNumber(j.processed) then job.processed = j.processed
+        if IsString(j.errorCode) and j.errorCode <> "" then job.errorCode = j.errorCode
+        out.push(job)
+    end for
+    return { ok: true, jobs: out, more: IsString(data.nextCursor) and data.nextCursor <> "" }
+end function
+
+function JobLabel(kind as string) as string
+    known = ServerJobLabels()[kind]
+    if known <> invalid then return known
+    return AdminSentence(kind)
+end function
+
+function JobStateLabel(state as string) as string
+    known = ServerJobStateLabels()[state]
+    if known <> invalid then return known
+    return AdminSentence(state)
+end function
+
+' Dashboard.tsx `JobsPanel`: the line under a task.
+function JobLine(job as object) as string
+    parts = []
+    if job.resource <> "" then parts.push(job.resource)
+    if job.processed <> invalid then parts.push(MessageNumber(job.processed))
+    if job.createdAt <> invalid then parts.push(AdminWhen(job.createdAt))
+    if job.errorCode <> invalid then parts.push(T("web.console.jobFailed"))
+    return parts.join(" · ")
+end function
+
+function JobActionLabel(action as string) as string
+    labels = { "pause": "action.pause", "resume": "entry.resume", "retry": "action.tryAgain", "cancel": "action.cancel" }
+    return T(labels[action])
+end function
+
+function JobCommandPath(job as object, action as string) as string
+    return "/v1/admin/console/jobs/" + job.id.encodeUriComponent() + "/" + action
+end function
+
+function AlertAcknowledgePath(alert as object) as string
+    return "/v1/admin/console/alerts/" + alert.id.encodeUriComponent() + "/acknowledge"
+end function
+
+function SessionTerminatePath(session as object) as string
+    return "/v1/admin/sessions/" + session.id.encodeUriComponent() + ":terminate"
+end function
+
+' admin-sessions.ts `terminate`: a session that is already gone was stopped.
+function TerminateSucceeded(result as object) as boolean
+    return result.ok = true or (result.status <> invalid and result.status = 404)
+end function

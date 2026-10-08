@@ -1,0 +1,217 @@
+' Run-time access to the generated theme: apps/native/src/ui/theme.ts (alpha, the palette lookup, the
+' scaled type roles) and ui/Icon.tsx (which drawing an icon id names). Values come from
+' ThemeTables.bs; nothing here declares a colour or a size.
+
+' theme.ts `alpha('#rrggbb', 0.4)`: the colour with its opacity replaced.
+function ColorAlpha(color as string, opacity as float) as string
+    clamped = opacity
+    if clamped < 0 then clamped = 0
+    if clamped > 1 then clamped = 1
+    value = Int(clamped * 255 + 0.5)
+    digits = "0123456789ABCDEF"
+    return Left(color, 8) + Mid(digits, (value \ 16) + 1, 1) + Mid(digits, (value mod 16) + 1, 1)
+end function
+
+' A palette colour by token name ("accent", "raisedHigh", "transparent"), optionally at an opacity.
+function ThemeColor(token as string, opacity = invalid as dynamic) as string
+    if m.styleColors = invalid then m.styleColors = ThemeColorTable()
+    color = m.styleColors[token]
+    if color = invalid then color = m.styleColors["transparent"]
+    if opacity = invalid or token = "transparent" then return color
+    return ColorAlpha(color, opacity)
+end function
+
+' ui/Text.tsx tones → palette colours.
+function ToneColor(tone as string) as string
+    tones = {
+        "primary": "text"
+        "secondary": "textSecondary"
+        "tertiary": "textTertiary"
+        "accent": "accent"
+        "danger": "danger"
+        "amber": "amber"
+        "healthy": "healthy"
+        "inverse": "accentInk"
+    }
+    token = tones[tone]
+    if token = invalid then token = "text"
+    return ThemeColor(token)
+end function
+
+' A type role, scaled as theme.ts `scaled()` scales the ten-foot roles for the "Text size" preference.
+function TypeRole(role as string, factor = 1.0 as float) as object
+    if m.styleTypes = invalid then m.styleTypes = ThemeTypeTable()
+    base = m.styleTypes[role]
+    if base = invalid then base = m.styleTypes["body"]
+    if factor = 1 then return base
+    scaled = {}
+    scaled.append(base)
+    scaled.size = Int(base.size * factor + 0.5)
+    scaled.lineHeight = Int(base.lineHeight * factor + 0.5)
+    scaled.lineSpacing = Int(base.lineSpacing * factor + 0.5)
+    return scaled
+end function
+
+' The device's "Text size" preference (1 or Theme.apple.textScaleLarge), published on the global node.
+function TextScale() as float
+    if m.global <> invalid and m.global.hasField("textScale") and m.global.textScale > 0 then return m.global.textScale
+    return 1.0
+end function
+
+function ReduceMotion() as boolean
+    return m.global <> invalid and m.global.hasField("reduceMotion") and m.global.reduceMotion = true
+end function
+
+' A duration in seconds for an Animation node; zero under Reduce Motion (theme.ts `motion.reduce`).
+function MotionSeconds(milliseconds as integer) as float
+    if ReduceMotion() then return 0.001
+    return milliseconds / 1000
+end function
+
+function ApplyFont(label as object, role as string) as object
+    style = TypeRole(role, TextScale())
+    font = CreateObject("roSGNode", "Font")
+    font.uri = style.font
+    font.size = style.size
+    label.font = font
+    if label.hasField("lineSpacing") then label.lineSpacing = style.lineSpacing
+    return style
+end function
+
+' The 9-patch a rounded fill of this radius is drawn with (images/shapes, generated).
+function ShapeUri(radius as dynamic) as string
+    return "pkg:/images/shapes/round-" + ShapeRadius(radius).toStr() + ".9.png"
+end function
+
+function RingUri(radius as dynamic, width as dynamic) as string
+    return "pkg:/images/shapes/ring-" + ShapeRadius(radius).toStr() + "-" + Int(width).toStr() + ".9.png"
+end function
+
+function GlowUri(radius as dynamic) as string
+    return "pkg:/images/shapes/glow-" + ShapeRadius(radius).toStr() + ".9.png"
+end function
+
+function ShapeRadius(radius as dynamic) as integer
+    value = Int(radius + 0.5)
+    if value < 1 then value = 1
+    limit = Theme.shapes.maxRadius
+    if value <= limit then return value
+    ' Past the dense range only a few large circles are generated: the nearest one not larger.
+    chosen = limit
+    for each radius in ThemeLargeRadii()
+        if radius <= value then chosen = radius
+    end for
+    return chosen
+end function
+
+' A rounded fill: sizes and tints a Poster holding the 9-patch for `radius`.
+sub StyleShape(poster as object, width as dynamic, height as dynamic, radius as dynamic, color as string)
+    r = radius
+    if r * 2 > height then r = height / 2
+    if r * 2 > width then r = width / 2
+    poster.uri = ShapeUri(r)
+    poster.width = width
+    poster.height = height
+    poster.blendColor = color
+end sub
+
+sub StyleRing(poster as object, width as dynamic, height as dynamic, radius as dynamic, stroke as dynamic, color as string)
+    r = radius
+    if r * 2 > height then r = height / 2
+    if r * 2 > width then r = width / 2
+    poster.uri = RingUri(r, stroke)
+    poster.width = width
+    poster.height = height
+    poster.blendColor = color
+end sub
+
+' ui/Icon.tsx: the drawing for an icon id at a size. Sizes are generated at the television sizes;
+' another size takes the next one up and lets the Poster scale it.
+function IconUri(name as string, size as dynamic, bare = false as boolean) as string
+    if m.styleIconSizes = invalid then m.styleIconSizes = ThemeIconSizes()
+    if m.styleIconIds = invalid then m.styleIconIds = ThemeIconIds()
+    if m.styleIconIds[name] = invalid then return ""
+    chosen = m.styleIconSizes[m.styleIconSizes.count() - 1]
+    for each candidate in m.styleIconSizes
+        if candidate >= size then
+            chosen = candidate
+            exit for
+        end if
+    end for
+    suffix = ""
+    if bare and (name = "back10" or name = "forward10") then suffix = "-bare"
+    return "pkg:/images/icons/" + name + suffix + "-" + chosen.toStr() + ".png"
+end function
+
+sub StyleIcon(poster as object, name as string, size as dynamic, color as string)
+    poster.uri = IconUri(name, size)
+    poster.width = size
+    poster.height = size
+    poster.blendColor = color
+end sub
+
+function MaskUri(width as dynamic, height as dynamic, radius as dynamic) as string
+    return "pkg:/images/masks/mask-" + Int(width + 0.5).toStr() + "x" + Int(height + 0.5).toStr() + "-" + Int(radius + 0.5).toStr() + ".png"
+end function
+
+' ui/Artwork.tsx `artworkRatio`: width ÷ height.
+function ArtworkRatio(shape as string) as float
+    if shape = "poster" then return 2 / 3
+    if shape = "landscape" then return 16 / 9
+    return 1.0
+end function
+
+' ui/Card.tsx: the card width a shape takes when none is given.
+function ShapeWidth(shape as string) as integer
+    if shape = "landscape" then return Theme.metrics.landscapeWidth
+    if shape = "poster" then return Theme.metrics.posterWidth
+    return Theme.metrics.squareWidth
+end function
+
+' ui/Card.tsx PersonCard and ui/Artwork.tsx: the placeholder initials for a name (first letters of
+' the first two words, upper case).
+function Initials(name as string) as string
+    out = ""
+    count = 0
+    for each part in name.tokenize(" " + Chr(9) + Chr(10))
+        if count >= 2 then exit for
+        out = out + UCase(Left(part, 1))
+        count = count + 1
+    end for
+    return out
+end function
+
+' ui/Card.tsx: the height of a card's body (artwork, then the caption block) for a shape and width.
+' The caption block is at least Theme.apple.cardCaptionMinHeight; a two-line title (books) grows it.
+function CardBodyHeight(shape as string, width as dynamic, titleLines = 1 as integer, captionless = false as boolean) as integer
+    ratio = ArtworkRatio(shape)
+    artHeight = Int(width / ratio + 0.5)
+    if captionless then return artHeight
+    caption = titleLines * Theme.typeScale.captionStrong.lineHeight + Theme.apple.cardSubtitleGap + Theme.typeScale.micro.lineHeight
+    if caption < Theme.apple.cardCaptionMinHeight then caption = Theme.apple.cardCaptionMinHeight
+    return artHeight + Theme.space.sm + caption
+end function
+
+' ui/Card.tsx PersonCard: a circular portrait with the name and role beneath, centred.
+function PersonCardWidth() as integer
+    return Theme.apple.personCardSize + Theme.space.sm
+end function
+
+function PersonCardHeight() as integer
+    return Theme.apple.personCardSize + Theme.space.sm + Theme.typeScale.captionStrong.lineHeight + Theme.typeScale.micro.lineHeight
+end function
+
+' ui/ListRow.tsx: the height of a media row (artwork, a one-line title and its subtitle), as
+' components/ui/ListRow lays it out. A grid of rows needs it before any row exists.
+function MediaRowHeight(shape as string) as integer
+    thumbWidth = Theme.spec.row.artwork.poster
+    if shape = "landscape" then thumbWidth = Theme.spec.row.artwork.landscape
+    if shape = "square" then thumbWidth = Theme.spec.row.artwork.square
+    thumbHeight = Int(thumbWidth / ArtworkRatio(shape) + 0.5)
+    copyHeight = TypeRole(Theme.spec.row.title, TextScale()).lineHeight + TypeRole(Theme.spec.row.subtitle.role, TextScale()).lineHeight * Theme.spec.row.subtitle.lines.media
+    height = thumbHeight
+    if copyHeight > height then height = copyHeight
+    height = height + Theme.spec.row.paddingY * 2
+    if height < Theme.spec.row.minHeight.media then height = Theme.spec.row.minHeight.media
+    return height
+end function

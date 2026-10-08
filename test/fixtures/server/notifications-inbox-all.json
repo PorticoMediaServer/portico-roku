@@ -1,0 +1,505 @@
+{
+ "data": {
+  "revision": 13,
+  "audience": "profile",
+  "audiences": [
+   "profile"
+  ],
+  "state": "all",
+  "counts": {
+   "unread": 12,
+   "read": 0,
+   "archived": 0,
+   "total": 12
+  },
+  "items": [
+   {
+    "id": "18dff5de360d7e162606fb3e43015615",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Fire TV (vega)",
+     "deviceId": "Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ"
+      }
+     }
+    ],
+    "dedupeKey": "device:Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ",
+    "revision": 13,
+    "createdAt": 1791022422326,
+    "updatedAt": 1791022422326,
+    "expiresAt": 1806574422326,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "d8cd15cd56ec4281a5240053fdd9c499",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "sdk_google_atv64_arm64 (androidtv)",
+     "deviceId": "bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ"
+      }
+     }
+    ],
+    "dedupeKey": "device:bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ",
+    "revision": 12,
+    "createdAt": 1791020491872,
+    "updatedAt": 1791020491872,
+    "expiresAt": 1806572491872,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "26cd877c94c078e5a0482cfa3c79f23c",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "sdk_google_atv64_arm64 (androidtv)",
+     "deviceId": "B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo"
+      }
+     }
+    ],
+    "dedupeKey": "device:B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo",
+    "revision": 11,
+    "createdAt": 1791019607589,
+    "updatedAt": 1791019607589,
+    "expiresAt": 1806571607589,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "fb2c001ec4f792e6aac685389d4516ce",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Fire TV (vega)",
+     "deviceId": "ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk"
+      }
+     }
+    ],
+    "dedupeKey": "device:ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk",
+    "revision": 10,
+    "createdAt": 1791016114613,
+    "updatedAt": 1791016114613,
+    "expiresAt": 1806568114613,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "fb2b49e1868c762f2591091d48787c0b",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Fire TV (vega)",
+     "deviceId": "462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs"
+      }
+     }
+    ],
+    "dedupeKey": "device:462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs",
+    "revision": 9,
+    "createdAt": 1791013548629,
+    "updatedAt": 1791013548629,
+    "expiresAt": 1806565548629,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "e94ed0246473f7a14e009d1745ce1fec",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Fire TV (vega)",
+     "deviceId": "24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4"
+      }
+     }
+    ],
+    "dedupeKey": "device:24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4",
+    "revision": 8,
+    "createdAt": 1791012648852,
+    "updatedAt": 1791012648852,
+    "expiresAt": 1806564648852,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "5f5d1a1209ec09a43c9a0822c4334180",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Fire TV (vega)",
+     "deviceId": "5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ"
+      }
+     }
+    ],
+    "dedupeKey": "device:5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ",
+    "revision": 7,
+    "createdAt": 1791012111058,
+    "updatedAt": 1791012111058,
+    "expiresAt": 1806564111058,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "f9aed34aa09ddf5dd1c785ab202df71e",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Fire TV (vega)",
+     "deviceId": "MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI"
+      }
+     }
+    ],
+    "dedupeKey": "device:MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI",
+    "revision": 6,
+    "createdAt": 1791011580567,
+    "updatedAt": 1791011580567,
+    "expiresAt": 1806563580567,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "5dcda003206f360abb2b065777a2c5cb",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "sdk_google_atv64_arm64 (androidtv)",
+     "deviceId": "LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4"
+      }
+     }
+    ],
+    "dedupeKey": "device:LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4",
+    "revision": 5,
+    "createdAt": 1791007799656,
+    "updatedAt": 1791007799656,
+    "expiresAt": 1806559799656,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "bcecc07e976ccd4a8ad56021e14fda3e",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Portico TV (tvos)",
+     "deviceId": "rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA"
+      }
+     }
+    ],
+    "dedupeKey": "device:rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA",
+    "revision": 4,
+    "createdAt": 1790945803738,
+    "updatedAt": 1790945803738,
+    "expiresAt": 1806497803738,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "ddcf83b2b6720c24814cf76394d3cc85",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Portico TV (tvos)",
+     "deviceId": "Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M"
+      }
+     }
+    ],
+    "dedupeKey": "device:Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M",
+    "revision": 3,
+    "createdAt": 1790930309701,
+    "updatedAt": 1790930309701,
+    "expiresAt": 1806482309701,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   },
+   {
+    "id": "79dab82470fd8f9d58e402f6cd3715fe",
+    "audience": "profile",
+    "severity": "warning",
+    "source": "security",
+    "category": "security.new-device",
+    "title": "New device signed in",
+    "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+    "arguments": {
+     "device": "Portico TV (tvos)",
+     "deviceId": "fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0"
+    },
+    "actions": [
+     {
+      "kind": "navigate",
+      "label": "Review security",
+      "target": {
+       "view": "settings-security"
+      }
+     },
+     {
+      "kind": "command",
+      "label": "Review device",
+      "command": "review-device",
+      "arguments": {
+       "deviceId": "fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0"
+      }
+     }
+    ],
+    "dedupeKey": "device:fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0",
+    "revision": 2,
+    "createdAt": 1790922063987,
+    "updatedAt": 1790922063987,
+    "expiresAt": 1806474063987,
+    "readAt": null,
+    "archivedAt": null,
+    "read": false,
+    "archived": false,
+    "cursor": "stripped-cursor"
+   }
+  ],
+  "nextCursor": "",
+  "observedAt": 1791230793003,
+  "retentionDays": 180
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+ }
+}

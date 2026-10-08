@@ -1,0 +1,557 @@
+' apps/native/src/screens/Search.tsx: one field, a row of type chips, and server-grouped results.
+' The server owns matching and ranking; this screen only says which words and which group, and
+' pages within a group. Selecting the field opens the system keyboard (voice entry included).
+'
+' With every type searched: a Top result when one title is what the words name, then one shelf
+' per type in the chips' order, each with a See all that narrows to it. With one type chosen:
+' its results as a grid that grows as focus nears its end. A group that failed is named in a
+' notice beside the results that arrived. Recent searches are this device's, per viewer.
+'
+' Difference from the Apple TV app: a search runs when the keyboard is closed (the Apple field
+' searches as letters are typed, after 300 ms).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Search.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.field = body.createChild("UiField")
+    m.field.placeholder = T("search.placeholder")
+    m.field.fieldWidth = m.width - Theme.space.page * 2
+    m.field.observeField("submitted", "onSearchSubmitted")
+    m.chips = body.createChild("Group")
+    m.results = body.createChild("Group")
+    m.chipButtons = []
+    m.text = ""
+    m.chip = "all"
+    m.phase = "idle"
+    m.value = invalid
+    m.content = invalid
+    m.failure = invalid
+    m.task = invalid
+    m.pageTask = invalid
+    m.grid = invalid
+    m.shelves = []
+    m.cursor = ""
+    m.generation = 0
+end sub
+
+sub enter()
+    SearchLayout()
+    NavClaimFocus()
+end sub
+
+sub resume()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.pageTask = invalid
+end sub
+
+sub focusEntry()
+    FocusOn(m.field)
+end sub
+
+function SearchServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+' Recent searches on this device, per viewer (server and profile): another profile never sees them.
+function SearchViewerKey() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid then return ""
+    key = ""
+    if viewer.serverId <> invalid then key = viewer.serverId
+    if viewer.viewer <> invalid and viewer.viewer.profileId <> invalid then key = key + "/" + viewer.viewer.profileId
+    return key
+end function
+
+function SearchRecent() as object
+    if not m.global.hasField("recentSearches") then return []
+    recent = m.global.recentSearches[SearchViewerKey()]
+    if recent = invalid then return []
+    return recent
+end function
+
+sub SearchRemember(q as string)
+    value = q.trim()
+    if Len(value) < 2 then return
+    all = {}
+    if m.global.hasField("recentSearches") then all = m.global.recentSearches
+    kept = [value]
+    for each earlier in SearchRecent()
+        if LCase(earlier) <> LCase(value) and kept.count() < Theme.apple.searchRecentMax then kept.push(earlier)
+    end for
+    all[SearchViewerKey()] = kept
+    if m.global.hasField("recentSearches") then
+        m.global.recentSearches = all
+    else
+        m.global.addFields({ recentSearches: all })
+    end if
+end sub
+
+sub onSearchSubmitted()
+    m.text = Left(m.field.value.trim(), SearchMaxQuery())
+    SearchRun()
+end sub
+
+' A short query never errors: it simply waits (the results clear).
+sub SearchRun()
+    m.generation = m.generation + 1
+    m.pageTask = invalid
+    m.cursor = ""
+    if not Searchable(m.text) then
+        m.task = invalid
+        m.phase = "idle"
+        m.value = invalid
+        SearchLayout()
+        return
+    end if
+    m.phase = "loading"
+    asked = { q: SearchNormalize(m.text) }
+    group = ""
+    if m.chip <> "all" then
+        group = m.chip
+        asked.group = group
+    end if
+    m.task = ApiStart({ path: SearchPath(asked.q, group), reader: "search", context: { origin: ViewerOrigin(), serverId: SearchServerId(), asked: asked } }, "onSearchLoaded")
+    m.task.addFields({ generation: m.generation, q: asked.q })
+    if m.value = invalid then SearchLayout()
+end sub
+
+sub onSearchLoaded(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.phase = "error"
+        m.failure = result.error
+        m.value = invalid
+        SearchLayout()
+        return
+    end if
+    m.phase = "ready"
+    m.value = result.value
+    m.content = task.content
+    m.query = task.q
+    if result.value.groups.count() > 0 then SearchRemember(m.text)
+    SearchLayout()
+end sub
+
+' The chips under the field, in client-core's authored order, each with its count.
+sub SearchChipRow(top as dynamic)
+    held = ""
+    current = FocusCurrent(m.chips)
+    if current <> invalid then held = current.chipId
+    m.chips.removeChildrenIndex(m.chips.getChildCount(), 0)
+    m.chipButtons = []
+    x = Theme.space.page
+    counts = {}
+    if m.value <> invalid then counts = m.value.counts
+    for each chip in SearchChips()
+        button = m.chips.createChild("UiButton")
+        button.addFields({ chipId: chip.id })
+        button.size = "sm"
+        button.variant = "secondary"
+        label = T(chip.label)
+        total = counts[chip.id]
+        if chip.id <> "all" and total <> invalid and total > 0 then label = label + " · " + total.toStr()
+        button.label = label
+        button.selected = chip.id = m.chip
+        button.observeField("pressed", "onSearchChip")
+        Place(button, x, 0)
+        x = x + button.controlWidth + Theme.space.sm
+        m.chipButtons.push(button)
+        if chip.id = held then FocusOn(button)
+    end for
+    Place(m.chips, 0, top)
+end sub
+
+sub onSearchChip(event as object)
+    button = event.getRoSGNode()
+    if button.chipId = m.chip then return
+    m.chip = button.chipId
+    if m.text.trim() <> "" then
+        SearchRun()
+    else
+        SearchLayout()
+    end if
+end sub
+
+sub SearchLayout()
+    page = Theme.space.page
+    y = Theme.apple.pageTopInset - Theme.space.lg + Theme.space.lg
+    Place(m.field, page, y)
+    y = y + m.field.fieldHeight + Theme.space.md
+    SearchChipRow(y)
+    chipHeight = 0
+    if m.chipButtons.count() > 0 then chipHeight = m.chipButtons[0].controlHeight
+    y = y + chipHeight + Theme.space.md + Theme.space.sm
+    inResults = FocusCurrent(m.results) <> invalid or (m.grid <> invalid and m.grid.hasGridFocus)
+    m.results.removeChildrenIndex(m.results.getChildCount(), 0)
+    m.grid = invalid
+    m.shelves = []
+    Place(m.results, 0, y)
+    height = 0
+    hasQuery = m.text.trim() <> ""
+    if m.phase = "idle" then
+        recent = SearchRecent()
+        if not hasQuery and recent.count() > 0 then
+            height = SearchRecentList(recent)
+        else if not hasQuery then
+            height = SearchState("search", T("web.search.emptyTitle"), T("web.search.emptyBody"), "", "")
+        end if
+    else if m.phase = "error" then
+        failure = m.failure
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        notice = m.results.createChild("UiNotice")
+        notice.tone = "error"
+        notice.title = T("error.title.load", { subject: "search" })
+        notice.message = PresentError(failure, "search").body
+        notice.action = T("action.tryAgain")
+        notice.noticeWidth = m.width - page * 2
+        notice.observeField("actionPressed", "onSearchRetry")
+        Place(notice, page, 0)
+        height = notice.noticeHeight + Theme.space.lg
+    else if m.phase = "loading" and m.value = invalid then
+        height = SearchSkeleton()
+    else if m.value <> invalid then
+        height = SearchResults()
+    end if
+    m.page.contentHeight = y + height + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    ' Results that held focus were replaced: focus goes to the first of the new ones, else the field.
+    if inResults then
+        if m.grid <> invalid then
+            m.grid.callFunc("focusGrid")
+        else if not FocusFirst(m.results) then
+            FocusOn(m.field)
+        end if
+        m.page.callFunc("follow")
+    end if
+end sub
+
+sub onSearchRetry()
+    SearchRun()
+end sub
+
+function SearchState(icon as string, title as string, message as string, action as string, handler as string) as float
+    state = m.results.createChild("UiStateView")
+    state.icon = icon
+    state.title = title
+    state.message = message
+    state.action = action
+    state.stateWidth = m.width
+    if handler <> "" then state.observeField("actionPressed", handler)
+    return state.boundingRect().height
+end function
+
+function SearchRecentList(recent as object) as float
+    page = Theme.space.page
+    heading = MakeText(m.results, "heading", "primary", T("web.search.recent"))
+    Place(heading, page, 0)
+    clear = m.results.createChild("UiButton")
+    clear.variant = "ghost"
+    clear.size = "sm"
+    clear.label = T("web.search.clearRecent")
+    clear.observeField("pressed", "onSearchClearRecent")
+    Place(clear, m.width - page - clear.controlWidth, 0)
+    y = Max(heading.height, clear.controlHeight) + Theme.space.xs
+    for each words in recent
+        row = m.results.createChild("UiListRow")
+        row.addFields({ words: words })
+        row.icon = "clock"
+        row.title = words
+        row.rowWidth = m.width - page * 2
+        row.observeField("pressed", "onSearchRecent")
+        Place(row, page, y)
+        y = y + row.rowHeight + Theme.space.xs
+    end for
+    return y + Theme.space.lg
+end function
+
+sub onSearchClearRecent()
+    if m.global.hasField("recentSearches") then
+        all = m.global.recentSearches
+        all.delete(SearchViewerKey())
+        m.global.recentSearches = all
+    end if
+    SearchLayout()
+    FocusOn(m.field)
+end sub
+
+sub onSearchRecent(event as object)
+    row = event.getRoSGNode()
+    m.field.value = row.words
+    m.text = row.words
+    SearchRun()
+    FocusOn(m.field)
+end sub
+
+function SearchSkeleton() as float
+    page = Theme.space.page
+    y = 0
+    cardHeight = Int(Theme.metrics.posterWidth / ArtworkRatio("poster") + 0.5)
+    for row = 0 to 1
+        block = m.results.createChild("UiSkeleton")
+        block.radius = Theme.metrics.radius.small
+        block.blockHeight = Theme.metrics.icon
+        block.blockWidth = Theme.apple.homeSkeletonHeadingWidth
+        Place(block, page, y)
+        y = y + Theme.metrics.icon + Theme.space.md
+        for index = 0 to Theme.apple.searchSkeletonCards - 1
+            card = m.results.createChild("UiSkeleton")
+            card.blockHeight = cardHeight
+            card.blockWidth = Theme.metrics.posterWidth
+            Place(card, page + index * (Theme.metrics.posterWidth + Theme.space.gutter), y)
+        end for
+        y = y + cardHeight + Theme.space.xl
+    end for
+    return y
+end function
+
+function SearchResults() as float
+    page = Theme.space.page
+    value = m.value
+    y = 0
+    if value.failed.count() > 0 then
+        notice = m.results.createChild("UiNotice")
+        notice.tone = "warning"
+        notice.message = T("web.search.partial", { groups: FormatList(value.failed) })
+        notice.action = T("action.tryAgain")
+        notice.noticeWidth = m.width - page * 2
+        notice.observeField("actionPressed", "onSearchRetry")
+        Place(notice, page, y)
+        y = y + notice.noticeHeight + Theme.space.lg
+    end if
+    if value.groups.count() = 0 then
+        if m.chip <> "all" then
+            return y + SearchState("search", T("web.search.noMatches", { query: m.query }), T("web.search.nothingIn", { group: T(SearchGroupLabel(m.chip)) }), T("web.search.everything"), "onSearchEverything")
+        end if
+        return y + SearchState("search", T("web.search.noMatches", { query: m.query }), T("web.search.noMatchesBody"), "", "")
+    end if
+    if m.chip <> "all" then
+        ' One type: its results as a grid that grows as focus nears its end.
+        group = value.groups[0]
+        m.cursor = group.nextCursor
+        heading = MakeText(m.results, "heading", "primary", group.title)
+        Place(heading, page, y)
+        items = m.content.getChild(0)
+        shown = items.getChildCount()
+        words = T("web.search.results", { count: group.totalCount })
+        if group.totalCount > shown then words = T("web.search.someOf", { shown: shown, total: group.totalCount })
+        count = MakeText(m.results, "caption", "tertiary", words)
+        Place(count, m.width - page - TextWidth(count), y + heading.height - count.height)
+        m.countNode = count
+        y = y + heading.height + Theme.space.md
+        m.grid = m.results.createChild("UiGrid")
+        shape = group.shape
+        if shape = "person" then shape = "square"
+        m.grid.shape = shape
+        m.grid.gridWidth = m.width
+        m.grid.gridHeight = Theme.screen.height
+        m.grid.items = items
+        m.grid.observeField("itemSelected", "onSearchGridSelected")
+        m.grid.observeField("itemMenu", "onSearchGridMenu")
+        m.grid.observeField("visibleRange", "onSearchRange")
+        Place(m.grid, 0, y)
+        rows = (shown + m.grid.columns - 1) \ m.grid.columns
+        return y + Max(Theme.screen.height, rows * m.grid.rowStride)
+    end if
+    if value.top <> invalid then y = y + SearchTop(value.top, y)
+    for index = 0 to value.groups.count() - 1
+        group = value.groups[index]
+        shelf = m.results.createChild("UiShelf")
+        shelf.addFields({ groupId: group.id })
+        shelf.shelfWidth = m.width
+        shelf.shape = group.shape
+        shelf.title = group.title
+        shelf.seeAllLabel = group.seeAllLabel
+        shelf.seeAll = group.seeAll
+        shelf.active = false
+        shelf.items = m.content.getChild(index)
+        shelf.observeField("itemSelected", "onSearchShelfSelected")
+        shelf.observeField("itemMenu", "onSearchShelfMenu")
+        shelf.observeField("seeAllPressed", "onSearchSeeAll")
+        Place(shelf, 0, y)
+        y = y + shelf.shelfHeight
+        m.shelves.push(shelf)
+    end for
+    return y
+end function
+
+' The one title the words name: its art, what it is, and the way in.
+function SearchTop(top as object, at as dynamic) as float
+    page = Theme.space.page
+    heading = MakeText(m.results, "heading", "primary", T("search.topResult"))
+    Place(heading, page, at)
+    y = at + heading.height + Theme.space.sm
+    pad = Theme.space.md
+    artWidth = Theme.apple.searchTopArt
+    artShape = top.shape
+    ratio = 1.0
+    if artShape = "poster" then ratio = ArtworkRatio("poster")
+    artHeight = Int(artWidth / ratio + 0.5)
+    block = m.results.createChild("UiFocusable")
+    block.addFields({ topEntry: top.entry })
+    plate = MakeShape(block, m.width - page * 2, artHeight + pad * 2, Theme.metrics.radius.card, Theme.colors.raised)
+    art = block.createChild("UiArtwork")
+    art.shape = artShape
+    if artShape = "circle" then art.radius = artWidth / 2
+    art.artWidth = artWidth
+    art.title = top.title
+    if top.icon <> "" then art.icon = top.icon
+    art.uri = top.artUri
+    Place(art, pad, pad)
+    textLeft = pad + artWidth + Theme.space.lg
+    copyWidth = m.width - page * 2 - textLeft - pad
+    title = MakeText(block, "title")
+    title.lines = 2
+    title.maxWidth = copyWidth
+    title.value = top.title
+    line = MakeText(block, "body", "secondary", top.line)
+    line.maxWidth = copyWidth
+    copyHeight = TextHeight(title) + Theme.space.xs + line.height
+    Place(title, textLeft, pad + (artHeight - copyHeight) / 2)
+    Place(line, textLeft, pad + (artHeight - copyHeight) / 2 + TextHeight(title) + Theme.space.xs)
+    block.radius = Theme.metrics.radius.card
+    block.controlWidth = m.width - page * 2
+    block.controlHeight = artHeight + pad * 2
+    block.observeField("pressed", "onSearchTop")
+    block.observeField("menuRequested", "onSearchTopMenu")
+    Place(block, page, y)
+    return y - at + artHeight + pad * 2 + Theme.space.xl
+end function
+
+sub SearchOpen(entry as object, intent as string)
+    if entry.kind = "person" then
+        if intent = "open" then NavPush("ScreenPerson", { personId: entry.navigation.entityId, name: entry.title })
+    else if entry.kind = "channel" then
+        if intent = "open" then
+            shell = m.global.shell
+            if shell <> invalid then shell.callFunc("select", "Channels")
+        end if
+    else
+        OpenEntry(entry, intent)
+    end if
+end sub
+
+sub onSearchTop(event as object)
+    SearchOpen(event.getRoSGNode().topEntry, "open")
+end sub
+
+sub onSearchTopMenu(event as object)
+    SearchOpen(event.getRoSGNode().topEntry, "more")
+end sub
+
+function SearchCardEntry(items as object, index as integer) as dynamic
+    if items = invalid or index < 0 or index >= items.getChildCount() then return invalid
+    return items.getChild(index).entry
+end function
+
+sub onSearchShelfSelected(event as object)
+    entry = SearchCardEntry(event.getRoSGNode().items, event.getData())
+    if entry <> invalid then SearchOpen(entry, "open")
+end sub
+
+sub onSearchShelfMenu(event as object)
+    entry = SearchCardEntry(event.getRoSGNode().items, event.getData())
+    if entry <> invalid then SearchOpen(entry, "more")
+end sub
+
+sub onSearchSeeAll(event as object)
+    shelf = event.getRoSGNode()
+    m.chip = shelf.groupId
+    SearchRun()
+    for each button in m.chipButtons
+        button.selected = button.chipId = m.chip
+        if button.chipId = m.chip then FocusOn(button)
+    end for
+    m.page.callFunc("follow")
+end sub
+
+sub onSearchEverything()
+    m.chip = "all"
+    SearchRun()
+    for each button in m.chipButtons
+        if button.chipId = "all" then FocusOn(button)
+    end for
+end sub
+
+sub onSearchGridSelected()
+    entry = SearchCardEntry(m.grid.items, m.grid.itemSelected)
+    if entry <> invalid then SearchOpen(entry, "open")
+end sub
+
+sub onSearchGridMenu()
+    entry = SearchCardEntry(m.grid.items, m.grid.itemMenu)
+    if entry <> invalid then SearchOpen(entry, "more")
+end sub
+
+' The narrowed group's next page, by its own cursor.
+sub onSearchRange()
+    if m.grid = invalid or m.cursor = "" or m.pageTask <> invalid or m.chip = "all" then return
+    range = m.grid.visibleRange
+    if range = invalid or range.count() < 2 or range[1] < m.grid.items.getChildCount() - 1 then return
+    asked = { q: m.query, group: m.chip }
+    m.pageTask = ApiStart({ path: SearchPath(asked.q, m.chip, m.cursor), reader: "search", context: { origin: ViewerOrigin(), serverId: SearchServerId(), asked: asked } }, "onSearchPage")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub onSearchPage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.grid = invalid then return
+    m.pageTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        ' The results changed under the viewer: the search is run again.
+        code = ""
+        if result.error <> invalid and result.error.code <> invalid then code = result.error.code
+        if code = "stale_continuation" or code = "invalid_cursor" then SearchRun()
+        return
+    end if
+    value = result.value
+    if value.groups.count() = 0 then
+        m.cursor = ""
+        return
+    end if
+    if value.revision.catalog <> m.value.revision.catalog or value.viewerFence <> m.value.viewerFence then
+        SearchRun()
+        return
+    end if
+    items = m.grid.items
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each card in items.getChildren(-1, 0)
+        seen[card.entryId] = true
+    end for
+    fresh = []
+    for each card in task.content.getChild(0).getChildren(-1, 0)
+        if not seen.doesExist(card.entryId) then fresh.push(card)
+    end for
+    items.appendChildren(fresh)
+    m.cursor = value.groups[0].nextCursor
+    total = value.groups[0].totalCount
+    shown = items.getChildCount()
+    if m.countNode <> invalid then
+        if total > shown then
+            m.countNode.value = T("web.search.someOf", { shown: shown, total: total })
+        else
+            m.countNode.value = T("web.search.results", { count: total })
+        end if
+    end if
+end sub

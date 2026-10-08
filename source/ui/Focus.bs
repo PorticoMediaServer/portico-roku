@@ -1,0 +1,194 @@
+' Focus by geometry. tvOS moves focus to the nearest focusable control in the direction pressed, and
+' the Apple TV app relies on it (ui/Focusable.tsx, FocusGroup). SceneGraph has no focus engine: a
+' node has focus only when code gives it. This is that engine, so screens are laid out and the
+' remote finds its way, as on Apple TV, without each screen wiring its own keys.
+'
+' A node takes part when it has a `focusable` field that is true. A container with a `focusGroup`
+' field remembers the control last focused inside it (FocusGroup in ui/Focusable.tsx): entering the
+' group again returns there, and the first arrival goes to the nearest control.
+
+' The index of the best candidate in `direction` ("up", "down", "left", "right") from `current`,
+' or -1. Rectangles are {x, y, width, height}. A candidate must lie beyond the current control in
+' the direction; one that overlaps it across the direction (in its beam) beats one that does not;
+' then the nearest wins, and the smaller sideways offset breaks a tie.
+function FocusPick(current as object, candidates as object, direction as string) as integer
+    best = -1
+    bestScore = 0
+    bestOffset = 0
+    horizontal = direction = "left" or direction = "right"
+    forward = direction = "right" or direction = "down"
+    curStart = current.y
+    curSize = current.height
+    curCrossStart = current.x
+    curCrossSize = current.width
+    if horizontal then
+        curStart = current.x
+        curSize = current.width
+        curCrossStart = current.y
+        curCrossSize = current.height
+    end if
+    curCenter = curStart + curSize / 2
+    curCrossCenter = curCrossStart + curCrossSize / 2
+    for index = 0 to candidates.count() - 1
+        c = candidates[index]
+        start = c.y
+        size = c.height
+        crossStart = c.x
+        crossSize = c.width
+        if horizontal then
+            start = c.x
+            size = c.width
+            crossStart = c.y
+            crossSize = c.height
+        end if
+        center = start + size / 2
+        beyond = false
+        distance = 0
+        if forward then
+            beyond = center > curCenter and start + size > curStart + curSize
+            distance = start - (curStart + curSize)
+        else
+            beyond = center < curCenter and start < curStart
+            distance = curStart - (start + size)
+        end if
+        if beyond then
+            if distance < 0 then distance = 0
+            gap = 0
+            if crossStart >= curCrossStart + curCrossSize then
+                gap = crossStart - (curCrossStart + curCrossSize) + 1
+            else if crossStart + crossSize <= curCrossStart then
+                gap = curCrossStart - (crossStart + crossSize) + 1
+            end if
+            score = distance
+            if gap > 0 then score = FocusOutOfBeam() + distance + gap * 2
+            offset = Abs((crossStart + crossSize / 2) - curCrossCenter)
+            if best < 0 or score < bestScore or (score = bestScore and offset < bestOffset) then
+                best = index
+                bestScore = score
+                bestOffset = offset
+            end if
+        end if
+    end for
+    return best
+end function
+
+' Larger than any distance on the screen: a control in the beam always beats one outside it.
+function FocusOutOfBeam() as integer
+    return Theme.screen.width * Theme.screen.height
+end function
+
+function FocusIsCandidate(node as object) as boolean
+    if not node.hasField("focusable") or node.focusable <> true then return false
+    if node.hasField("disabled") and node.disabled = true then return false
+    return true
+end function
+
+sub FocusCollect(node as object, out as object)
+    if node.visible = false then return
+    if FocusIsCandidate(node) then
+        out.push(node)
+        return
+    end if
+    for each child in node.getChildren(-1, 0)
+        FocusCollect(child, out)
+    end for
+end sub
+
+function FocusRect(node as object) as object
+    rect = node.sceneBoundingRect()
+    if node.hasField("focusWidth") and node.focusWidth > 0 then rect.width = node.focusWidth
+    if node.hasField("focusHeight") and node.focusHeight > 0 then rect.height = node.focusHeight
+    return rect
+end function
+
+' The focusable control inside `root` that holds focus now, or invalid.
+function FocusCurrent(root as object) as dynamic
+    found = []
+    FocusCollect(root, found)
+    for each node in found
+        if node.isInFocusChain() then return node
+    end for
+    return invalid
+end function
+
+' Gives focus to a control, and records it in every focus group around it.
+sub FocusOn(node as object)
+    if node = invalid then return
+    parent = node.getParent()
+    while parent <> invalid
+        if parent.hasField("focusGroup") and parent.focusGroup = true then parent.lastFocus = node
+        parent = parent.getParent()
+    end while
+    if node.hasField("focusTarget") and node.focusTarget <> invalid then
+        node.focusTarget.setFocus(true)
+    else
+        node.setFocus(true)
+    end if
+end sub
+
+function FocusGroupOf(node as object, root as object) as dynamic
+    parent = node.getParent()
+    while parent <> invalid and not parent.isSameNode(root)
+        if parent.hasField("focusGroup") and parent.focusGroup = true then return parent
+        parent = parent.getParent()
+    end while
+    return invalid
+end function
+
+' Moves focus inside `root` in a direction. False when nothing lies that way (the key is then the
+' parent's: the shell gives Left to the rail).
+function FocusMove(root as object, direction as string) as boolean
+    found = []
+    FocusCollect(root, found)
+    current = invalid
+    rects = []
+    others = []
+    for each node in found
+        if current = invalid and node.isInFocusChain() then
+            current = node
+        else
+            others.push(node)
+            rects.push(FocusRect(node))
+        end if
+    end for
+    if current = invalid then return false
+    index = FocusPick(FocusRect(current), rects, direction)
+    if index < 0 then return false
+    target = others[index]
+    group = FocusGroupOf(target, root)
+    if group <> invalid then
+        from = FocusGroupOf(current, root)
+        remembered = group.lastFocus
+        if (from = invalid or not from.isSameNode(group)) and remembered <> invalid and remembered.visible and FocusIsCandidate(remembered) and remembered.getParent() <> invalid then target = remembered
+    end if
+    FocusOn(target)
+    return true
+end function
+
+' Gives focus to the first control inside `root` (reading order: top, then left), or to the one a
+' focus group remembers. False when there is none.
+function FocusFirst(root as object) as boolean
+    if root.hasField("focusGroup") and root.focusGroup = true and root.lastFocus <> invalid and root.lastFocus.visible and FocusIsCandidate(root.lastFocus) then
+        FocusOn(root.lastFocus)
+        return true
+    end if
+    found = []
+    FocusCollect(root, found)
+    best = invalid
+    bestRect = invalid
+    for each node in found
+        rect = FocusRect(node)
+        if best = invalid or rect.y < bestRect.y or (rect.y = bestRect.y and rect.x < bestRect.x) then
+            best = node
+            bestRect = rect
+        end if
+    end for
+    if best = invalid then return false
+    FocusOn(best)
+    return true
+end function
+
+function FocusDirection(key as string) as string
+    if key = "up" or key = "down" or key = "left" or key = "right" then return key
+    return ""
+end function

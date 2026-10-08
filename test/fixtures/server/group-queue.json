@@ -1,0 +1,23 @@
+{
+ "protocolVersion": "1.0",
+ "serverTime": "2026-10-05T20:06:32.91Z",
+ "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+ "queue": {
+  "revision": "2",
+  "position": 0,
+  "entries": [
+   {
+    "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+    "position": 0,
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "unavailable": false,
+    "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+   }
+  ],
+  "eligibility": {
+   "blockedEntries": 0,
+   "currentEntryBlocked": false,
+   "members": []
+  }
+ }
+}

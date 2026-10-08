@@ -1,0 +1,897 @@
+{
+ "protocol": "1.0",
+ "receivers": [
+  {
+   "name": "a television",
+   "document": {
+    "id": "rcv_1",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": "3",
+    "state": "active",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": true,
+   "expected": {
+    "id": "rcv_1",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "state": "active"
+   }
+  },
+  {
+   "name": "a kind that is not one",
+   "document": {
+    "id": "rcv_1",
+    "kind": "airplay",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": "3",
+    "state": "active",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an id with a space",
+   "document": {
+    "id": "a b",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": "3",
+    "state": "active",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a policy that is not one",
+   "document": {
+    "id": "rcv_1",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "never",
+    "authorizationRevision": "3",
+    "state": "active",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a revision that is a number",
+   "document": {
+    "id": "rcv_1",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": 3,
+    "state": "active",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "commands that are not text",
+   "document": {
+    "id": "rcv_1",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     1
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": "3",
+    "state": "active",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a presence that is not one",
+   "document": {
+    "id": "rcv_1",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": "3",
+    "state": "active",
+    "presence": "asleep",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "retired",
+   "document": {
+    "id": "rcv_1",
+    "kind": "portico",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "platform": "roku",
+    "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "supportedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "grantPolicy": "per-device",
+    "authorizationRevision": "3",
+    "state": "retired",
+    "presence": "online",
+    "lastSeenAt": "2026-10-05T10:00:00Z",
+    "createdAt": "2026-10-01T10:00:00Z"
+   },
+   "ok": true,
+   "expected": {
+    "id": "rcv_1",
+    "deviceId": "dev-1",
+    "displayName": "Living Room",
+    "state": "retired"
+   }
+  }
+ ],
+ "grants": [
+  {
+   "name": "a phone asking",
+   "document": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDeviceId": "phone-1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "allowedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "authorizationRevision": "3",
+    "state": "pending",
+    "expiresAt": "2026-10-05T10:01:00Z",
+    "createdAt": "2026-10-05T10:00:00Z",
+    "decidedAt": null
+   },
+   "ok": true,
+   "expected": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "state": "pending"
+   }
+  },
+  {
+   "name": "wrapped as the server sends one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "",
+    "grant": {
+     "id": "gr_1",
+     "receiverId": "rcv_1",
+     "controllerDeviceId": "phone-1",
+     "controllerDisplayName": "Justin’s iPhone",
+     "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+     "allowedCommands": [
+      "load",
+      "play",
+      "pause",
+      "seek",
+      "stop"
+     ],
+     "authorizationRevision": "3",
+     "state": "pending",
+     "expiresAt": "2026-10-05T10:01:00Z",
+     "createdAt": "2026-10-05T10:00:00Z",
+     "decidedAt": null
+    }
+   },
+   "ok": true,
+   "expected": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "state": "pending"
+   }
+  },
+  {
+   "name": "accepted",
+   "document": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDeviceId": "phone-1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "allowedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "authorizationRevision": "3",
+    "state": "accepted",
+    "expiresAt": "2026-10-05T10:01:00Z",
+    "createdAt": "2026-10-05T10:00:00Z",
+    "decidedAt": "2026-10-05T10:00:20Z"
+   },
+   "ok": true,
+   "expected": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "state": "accepted"
+   }
+  },
+  {
+   "name": "accepted but unable to load",
+   "document": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDeviceId": "phone-1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "allowedCommands": [
+     "pause"
+    ],
+    "authorizationRevision": "3",
+    "state": "accepted",
+    "expiresAt": "2026-10-05T10:01:00Z",
+    "createdAt": "2026-10-05T10:00:00Z",
+    "decidedAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a state that is not one",
+   "document": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDeviceId": "phone-1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "allowedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "authorizationRevision": "3",
+    "state": "maybe",
+    "expiresAt": "2026-10-05T10:01:00Z",
+    "createdAt": "2026-10-05T10:00:00Z",
+    "decidedAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a decision time that is a number",
+   "document": {
+    "id": "gr_1",
+    "receiverId": "rcv_1",
+    "controllerDeviceId": "phone-1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "allowedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "authorizationRevision": "3",
+    "state": "pending",
+    "expiresAt": "2026-10-05T10:01:00Z",
+    "createdAt": "2026-10-05T10:00:00Z",
+    "decidedAt": 5
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "no receiver",
+   "document": {
+    "id": "gr_1",
+    "controllerDeviceId": "phone-1",
+    "controllerDisplayName": "Justin’s iPhone",
+    "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+    "allowedCommands": [
+     "load",
+     "play",
+     "pause",
+     "seek",
+     "stop"
+    ],
+    "authorizationRevision": "3",
+    "state": "pending",
+    "expiresAt": "2026-10-05T10:01:00Z",
+    "createdAt": "2026-10-05T10:00:00Z",
+    "decidedAt": null
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "handoffs": [
+  {
+   "name": "waiting for the television",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "waiting",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": true,
+   "expected": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "state": "prepared",
+    "outcome": "waiting",
+    "revision": "1",
+    "itemId": "item_1",
+    "requestedPositionUs": "754250000",
+    "expiresAt": "2026-10-05T10:02:10Z"
+   }
+  },
+  {
+   "name": "wrapped as the server sends one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "",
+    "handoff": {
+     "id": "ho_1",
+     "receiverId": "rcv_1",
+     "grantId": "gr_1",
+     "requestId": "req-1",
+     "state": "prepared",
+     "outcome": "waiting",
+     "reason": "",
+     "revision": "1",
+     "itemId": "item_1",
+     "sourcePlaybackId": "ps_1",
+     "receiverPlaybackId": "",
+     "requestedPositionUs": "754250000",
+     "readyPositionUs": "0",
+     "committedPositionUs": "0",
+     "sourceRetired": false,
+     "createdAt": "2026-10-05T10:00:10Z",
+     "expiresAt": "2026-10-05T10:02:10Z",
+     "settledAt": null
+    }
+   },
+   "ok": true,
+   "expected": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "state": "prepared",
+    "outcome": "waiting",
+    "revision": "1",
+    "itemId": "item_1",
+    "requestedPositionUs": "754250000",
+    "expiresAt": "2026-10-05T10:02:10Z"
+   }
+  },
+  {
+   "name": "the television is playing",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "pending",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "ps_tv",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "754250000",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": true,
+   "expected": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "state": "prepared",
+    "outcome": "pending",
+    "revision": "1",
+    "itemId": "item_1",
+    "requestedPositionUs": "754250000",
+    "expiresAt": "2026-10-05T10:02:10Z"
+   }
+  },
+  {
+   "name": "pending without the television's playback",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "pending",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "committed",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "committed",
+    "outcome": "accepted",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "ps_tv",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "754250000",
+    "committedPositionUs": "754250000",
+    "sourceRetired": true,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": "2026-10-05T10:00:30Z"
+   },
+   "ok": true,
+   "expected": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "state": "committed",
+    "outcome": "accepted",
+    "revision": "1",
+    "itemId": "item_1",
+    "requestedPositionUs": "754250000",
+    "expiresAt": "2026-10-05T10:02:10Z"
+   }
+  },
+  {
+   "name": "committed somewhere else than it was ready",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "committed",
+    "outcome": "accepted",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "ps_tv",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "1",
+    "committedPositionUs": "2",
+    "sourceRetired": true,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "retired without committing",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "waiting",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": true,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "accepted without committing",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "accepted",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a position that is a number",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "waiting",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": 5,
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a position with a leading zero",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "prepared",
+    "outcome": "waiting",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "05",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "expired",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "expired",
+    "outcome": "rejected",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": true,
+   "expected": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "state": "expired",
+    "outcome": "rejected",
+    "revision": "1",
+    "itemId": "item_1",
+    "requestedPositionUs": "754250000",
+    "expiresAt": "2026-10-05T10:02:10Z"
+   }
+  },
+  {
+   "name": "a state that is not one",
+   "document": {
+    "id": "ho_1",
+    "receiverId": "rcv_1",
+    "grantId": "gr_1",
+    "requestId": "req-1",
+    "state": "lost",
+    "outcome": "waiting",
+    "reason": "",
+    "revision": "1",
+    "itemId": "item_1",
+    "sourcePlaybackId": "ps_1",
+    "receiverPlaybackId": "",
+    "requestedPositionUs": "754250000",
+    "readyPositionUs": "0",
+    "committedPositionUs": "0",
+    "sourceRetired": false,
+    "createdAt": "2026-10-05T10:00:10Z",
+    "expiresAt": "2026-10-05T10:02:10Z",
+    "settledAt": null
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "delays": [
+  {
+   "base": 30000,
+   "roll": 0,
+   "delay": 24000
+  },
+  {
+   "base": 30000,
+   "roll": 0.5,
+   "delay": 30000
+  },
+  {
+   "base": 30000,
+   "roll": 1,
+   "delay": 36000
+  },
+  {
+   "base": 60000,
+   "roll": 0.25,
+   "delay": 54000
+  },
+  {
+   "base": 30000,
+   "roll": -3,
+   "delay": 24000
+  }
+ ],
+ "starts": [
+  {
+   "us": "0",
+   "seconds": 0
+  },
+  {
+   "us": "999",
+   "seconds": 0
+  },
+  {
+   "us": "1000",
+   "seconds": 0.001
+  },
+  {
+   "us": "754250000",
+   "seconds": 754.25
+  },
+  {
+   "us": "12500000",
+   "seconds": 12.5
+  },
+  {
+   "us": "86400000000",
+   "seconds": 86400
+  }
+ ],
+ "micros": [
+  {
+   "seconds": 0,
+   "us": "0"
+  },
+  {
+   "seconds": 0.5,
+   "us": "500000"
+  },
+  {
+   "seconds": 12.5,
+   "us": "12500000"
+  },
+  {
+   "seconds": 754.25,
+   "us": "754250000"
+  },
+  {
+   "seconds": 86400,
+   "us": "86400000000"
+  },
+  {
+   "seconds": 3.9999996,
+   "us": "4000000"
+  },
+  {
+   "seconds": -2,
+   "us": "0"
+  }
+ ],
+ "receiver": {
+  "id": "rcv_1",
+  "kind": "portico",
+  "deviceId": "dev-1",
+  "displayName": "Living Room",
+  "platform": "roku",
+  "keyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+  "supportedCommands": [
+   "load",
+   "play",
+   "pause",
+   "seek",
+   "stop"
+  ],
+  "grantPolicy": "per-device",
+  "authorizationRevision": "3",
+  "state": "active",
+  "presence": "online",
+  "lastSeenAt": "2026-10-05T10:00:00Z",
+  "createdAt": "2026-10-01T10:00:00Z"
+ },
+ "grant": {
+  "id": "gr_1",
+  "receiverId": "rcv_1",
+  "controllerDeviceId": "phone-1",
+  "controllerDisplayName": "Justin’s iPhone",
+  "receiverKeyFingerprint": "fffffffffffffffffffffffffffffffffffffffffff",
+  "allowedCommands": [
+   "load",
+   "play",
+   "pause",
+   "seek",
+   "stop"
+  ],
+  "authorizationRevision": "3",
+  "state": "pending",
+  "expiresAt": "2026-10-05T10:01:00Z",
+  "createdAt": "2026-10-05T10:00:00Z",
+  "decidedAt": null
+ },
+ "handoff": {
+  "id": "ho_1",
+  "receiverId": "rcv_1",
+  "grantId": "gr_1",
+  "requestId": "req-1",
+  "state": "prepared",
+  "outcome": "waiting",
+  "reason": "",
+  "revision": "1",
+  "itemId": "item_1",
+  "sourcePlaybackId": "ps_1",
+  "receiverPlaybackId": "",
+  "requestedPositionUs": "754250000",
+  "readyPositionUs": "0",
+  "committedPositionUs": "0",
+  "sourceRetired": false,
+  "createdAt": "2026-10-05T10:00:10Z",
+  "expiresAt": "2026-10-05T10:02:10Z",
+  "settledAt": null
+ }
+}

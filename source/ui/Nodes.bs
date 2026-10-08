@@ -1,0 +1,87 @@
+' Small constructors the design-system components build their children with. SceneGraph XML holds
+' no styles here (no colour, size or spacing literal may sit in a component), so a component makes
+' its nodes in BrightScript and reads every measurement from Theme.
+
+function MakeText(parent as object, role as string, tone = "primary" as string, value = "" as string) as object
+    node = parent.createChild("UiText")
+    node.role = role
+    node.tone = tone
+    if value <> "" then node.value = value
+    return node
+end function
+
+function MakeIcon(parent as object, name as string, size as dynamic, color as string) as object
+    node = parent.createChild("Poster")
+    StyleIcon(node, name, size, color)
+    return node
+end function
+
+' A rounded fill (a 9-patch tinted with `color`).
+function MakeShape(parent as object, width as dynamic, height as dynamic, radius as dynamic, color as string) as object
+    node = parent.createChild("Poster")
+    StyleShape(node, width, height, radius, color)
+    return node
+end function
+
+function MakeRing(parent as object, width as dynamic, height as dynamic, radius as dynamic, stroke as dynamic, color as string) as object
+    node = parent.createChild("Poster")
+    StyleRing(node, width, height, radius, stroke, color)
+    return node
+end function
+
+function MakeRect(parent as object, width as dynamic, height as dynamic, color as string) as object
+    node = parent.createChild("Rectangle")
+    node.width = width
+    node.height = height
+    node.color = color
+    return node
+end function
+
+' The rendered width of a text node (its own width when one was set).
+function TextWidth(node as object) as float
+    return node.boundingRect().width
+end function
+
+function TextHeight(node as object) as float
+    return node.boundingRect().height
+end function
+
+sub Place(node as object, x as dynamic, y as dynamic)
+    node.translation = [x, y]
+end sub
+
+' An Animation driving one float field from → to over `milliseconds`, eased as the Apple app eases
+' (Easing.out(Easing.cubic)). The target node needs an id inside the same component.
+function MakeFloatAnimation(parent as object, target as string, milliseconds as integer) as object
+    animation = parent.createChild("Animation")
+    animation.duration = MotionSeconds(milliseconds)
+    animation.easeFunction = "outCubic"
+    interpolator = animation.createChild("FloatFieldInterpolator")
+    interpolator.key = [0, 1]
+    interpolator.keyValue = [0, 1]
+    interpolator.fieldToInterp = target
+    return animation
+end function
+
+sub RunFloatAnimation(animation as object, from as float, target as float, milliseconds as integer)
+    animation.control = "stop"
+    animation.duration = MotionSeconds(milliseconds)
+    animation.getChild(0).keyValue = [from, target]
+    animation.control = "start"
+end sub
+
+function Clamp(value as dynamic, low as dynamic, high as dynamic) as dynamic
+    if value < low then return low
+    if value > high then return high
+    return value
+end function
+
+function Max(a as dynamic, b as dynamic) as dynamic
+    if a > b then return a
+    return b
+end function
+
+function Min(a as dynamic, b as dynamic) as dynamic
+    if a < b then return a
+    return b
+end function

@@ -1,0 +1,166 @@
+' Watch Together against the real TypeScript (scripts/golden.mjs `together`): social-playback.ts
+' parsers over the development server's own group (made, loaded, playing, ended), the group's
+' clock and bands, and group-session.ts `GroupFollower` stepped through with a recorded player.
+import "pkg:/source/core/Together.bs"
+
+sub Test_Together_documents()
+    fixture = TestFixture("golden/together.json")
+    if fixture = invalid then return
+    for each item in fixture.snapshots
+        parsed = ParseGroupSnapshot(item.document)
+        AssertEqual(parsed.ok, item.ok, "the room, " + item.name)
+        if parsed.ok and item.ok then AssertSame({ serverTime: parsed.serverTime, group: parsed.group }, item.expected, "what the room holds, " + item.name)
+    end for
+    for each item in fixture.lists
+        parsed = ParseGroupList(item.document)
+        AssertEqual(parsed.ok, item.ok, "the viewer's groups, " + item.name)
+        if parsed.ok and item.ok then AssertSame(parsed.groups, item.expected, "the groups that are not over, " + item.name)
+    end for
+    for each item in fixture.queues
+        parsed = ParseGroupQueue(item.document)
+        AssertEqual(parsed <> invalid, item.ok, "the group's queue, " + item.name)
+        if parsed <> invalid and item.ok then AssertSame(parsed, item.expected, "what the queue holds, " + item.name)
+    end for
+    for each item in fixture.receipts
+        parsed = ParseGroupReceipt(item.document)
+        AssertEqual(parsed.ok, item.ok, "a command's receipt, " + item.name)
+        if parsed.ok and item.ok then AssertSame({ revision: parsed.revision, timeline: parsed.timeline }, item.expected, "what the receipt holds, " + item.name)
+    end for
+    for each item in fixture.invites
+        parsed = ParseGroupInvite(item.document)
+        AssertEqual(parsed.ok, item.ok, "an invitation, " + item.name)
+        if parsed.ok and item.ok then AssertSame({ inviteCode: parsed.inviteCode, expiresAt: parsed.expiresAt, maxUses: parsed.maxUses }, item.expected, "what the invitation holds, " + item.name)
+    end for
+    AssertTrue(not ParseGroupSnapshot(invalid).ok, "no document")
+end sub
+
+sub Test_Together_clock()
+    fixture = TestFixture("golden/together.json")
+    if fixture = invalid then return
+    for each item in fixture.targets
+        got = GroupTargetSeconds(item.timeline, item.serverNowMs)
+        AssertTrue(Abs(got - item.seconds) < 0.002, "where the group is " + Str(item.seconds).trim() + " (got " + Str(got).trim() + ")")
+    end for
+    for each item in fixture.corrections
+        AssertEqual(GroupCorrection(fixture.sync, item.drift), item.action, "a drift of " + Str(item.drift).trim() + " s")
+    end for
+    AssertEqual(IsoToMilliseconds("2026-10-05T10:00:00.250Z") - IsoToMilliseconds("2026-10-05T10:00:00Z"), 250, "an instant keeps its milliseconds")
+    AssertEqual(IsoToMilliseconds("soon"), invalid, "an instant that is not one")
+    ' The clock follows the answer with the least round trip.
+    clock = GroupClockSample(invalid, 10000, 1000, 1200)
+    AssertEqual(clock.offsetMs, 8900, "the first answer sets the clock: server time less the request's midpoint")
+    clock = GroupClockSample(clock, 12000, 2000, 2020)
+    AssertEqual(clock.offsetMs, 9990, "a quicker answer is believed over a slower one")
+    clock = GroupClockSample(clock, 99000, 3000, 3900)
+    AssertEqual(clock.offsetMs, 9990, "one slow answer does not drag the clock")
+    clock = GroupClockSample(clock, invalid, 4000, 4010)
+    AssertEqual(clock.offsetMs, 9990, "an answer without a time changes nothing")
+    AssertEqual(GroupClockSample(clock, 500000, 400000, 400100).samples.count(), 1, "answers older than two minutes are forgotten")
+end sub
+
+sub Test_Together_follower()
+    fixture = TestFixture("golden/together.json")
+    if fixture = invalid then return
+    for each scenario in fixture.follow
+        memory = { loadedFor: "", correctingUntil: 0 }
+        lastReadiness = ""
+        lastReportMs = 0
+        number = 0
+        for each item in scenario.steps
+            number = number + 1
+            result = GroupFollowStep(item.group, item.live, item.local, memory, item.nowMs, item.serverNowMs)
+            memory = result.memory
+            name = scenario.name + ", step " + number.toStr()
+            kinds = []
+            for each action in result.actions
+                kinds.push(action.kind)
+            end for
+            wanted = []
+            for each action in item.actions
+                wanted.push(action.kind)
+            end for
+            AssertSame(kinds, wanted, "what the player is asked: " + name)
+            for index = 0 to item.actions.count() - 1
+                if index < result.actions.count() and item.actions[index].seconds <> invalid then AssertTrue(Abs(result.actions[index].seconds - item.actions[index].seconds) < 0.002, "where to: " + name)
+                if index < result.actions.count() and item.actions[index].itemId <> invalid then AssertEqual(result.actions[index].itemId, item.actions[index].itemId, "which title: " + name)
+            end for
+            said = ""
+            if GroupShouldReport(result.readiness, lastReadiness, item.nowMs - lastReportMs) then
+                said = result.readiness
+                lastReadiness = said
+                lastReportMs = item.nowMs
+            end if
+            AssertEqual(said, item.reported, "what is said of this member, when it is said: " + name)
+        end for
+    end for
+    AssertTrue(GroupShouldReport("ready", "buffering", 10), "a change is said at once")
+    AssertTrue(not GroupShouldReport("ready", "ready", 5000), "the same again is not, yet")
+    AssertTrue(GroupShouldReport("ready", "ready", 10000), "but it is said every ten seconds")
+    AssertTrue(not GroupShouldReport("", "ready", 60000), "nothing to say")
+end sub
+
+sub Test_Together_bodies()
+    group = { id: "g 1", revision: "7", queueRevision: "3" }
+    AssertEqual(GroupTidyCode("ab2c-d3 f4"), "AB2CD3F4", "a code as it is sent")
+    AssertSame(GroupJoinBody(" ab2c d3f4 ", " Justin "), { protocolVersion: "1.0", code: "AB2CD3F4", displayName: "Justin" }, "joining")
+    AssertSame(GroupCreateBody(" Movie night ", "Justin", "anyone"), { protocolVersion: "1.0", name: "Movie night", displayName: "Justin", hostAuthority: "anyone" }, "starting a group")
+    AssertSame(GroupTransportBody(group, "k1", "play"), { protocolVersion: "1.0", idempotencyKey: "k1", expectedRevision: "7", command: "play" }, "a command is fenced on the revision last seen")
+    AssertSame(GroupTransportBody(group, "k2", "seek", { positionUs: "12500000" }), { protocolVersion: "1.0", idempotencyKey: "k2", expectedRevision: "7", command: "seek", positionUs: "12500000" }, "moving the group")
+    AssertEqual(GroupTransportBody(group, "k3", "load", { entryId: "e1", allowUnavailable: true })["allowUnavailable"], true, "the host going ahead although someone cannot see it")
+    AssertSame(GroupQueueBody("3", "k4", { operation: "append", itemIds: ["i1"] }), { protocolVersion: "1.0", idempotencyKey: "k4", expectedRevision: "3", operation: "append", itemIds: ["i1"] }, "adding to the queue")
+    AssertSame(GroupReadinessBody("ready", 12.5), { protocolVersion: "1.0", readiness: "ready", positionUs: "12500000" }, "how this member is doing")
+    AssertSame(GroupHostBody(group, "m2"), { protocolVersion: "1.0", memberId: "m2", expectedRevision: "7" }, "handing over the host")
+    AssertSame(GroupEndBody(group), { protocolVersion: "1.0", expectedRevision: "7" }, "ending the group")
+    AssertEqual(GroupInviteBody()["maxUses"], 8, "an invitation is for eight people")
+    AssertEqual(GroupPath("g 1", "/transport"), "/v1/groups/g%201/transport", "where a command goes")
+    AssertEqual(GroupReadOutcome({ ok: false, status: 404 }), "gone", "a room this viewer is no longer in")
+    AssertEqual(GroupReadOutcome({ ok: false, status: 503 }), "live", "a server that is busy keeps the room")
+end sub
+
+sub Test_Together_words()
+    fixture = TestFixture("golden/together.json")
+    if fixture = invalid then return
+    GetGlobalAA().messageCatalogue = { "web.together.state.lobby": "Waiting to start", "web.together.state.ready": "Ready", "web.together.state.playing": "Playing", "web.nowPlaying.state.paused": "Paused", "web.together.allReady": "Everyone is ready.", "web.together.waiting": "{ready} of {total} ready · {count, plural, one {waiting for one person} other {waiting for # people}}", "web.together.away": "Away", "web.together.inStep": "In step", "web.together.loading": "Buffering", "web.together.catchingUp": "Catching up", "web.together.you": "{name} (you)", "web.together.hostStatus": "Host · {status}", "web.together.ended.host": "The host ended the group.", "web.together.ended.other": "The group is over.", "web.together.groupLine": "{count} here · {state}", "web.together.youHost": "You host", "web.together.pill.hostAway": "Host reconnecting", "web.together.pill.waitingFor": "Waiting for {name}…", "web.together.pill.inStep": "In step", "web.together.pill.host": "Host", "web.together.pill.catchingUp": "Catching up", "web.together.pill.away": "Away", "web.together.watchThis": "Watch this", "player.queueRemove": "Remove from queue" }
+    group = invalid
+    for each item in fixture.snapshots
+        if item.ok and group = invalid then group = ParseGroupSnapshot(item.document).group
+    end for
+    if group = invalid then return
+    AssertEqual(GroupStateLabel("lobby"), "Waiting to start", "a group that has not started")
+    AssertEqual(GroupStateLabel("degraded"), "Playing", "a group playing with someone behind still reads as playing")
+    AssertEqual(GroupStateLabel("paused"), "Paused", "a paused group")
+    AssertEqual(GroupJoined(group).count(), group.readiness.memberCount, "the people here are the ones who joined")
+    row = GroupMemberRow(group, group.members[0])
+    AssertTrue(Instr(1, row.title, "(you)") > 0, "this viewer is marked as you")
+    AssertTrue(Left(row.subtitle, 7) = "Host · ", "and as the host")
+    AssertEqual(GroupDirectoryRow(group).meta, "You host", "a group this viewer hosts says so")
+    two = { readiness: { aggregate: "buffering", ready: 1, buffering: 1, lagging: 0, stale: 0, memberCount: 2 } }
+    AssertEqual(GroupReadinessLine(two), "1 of 2 ready · waiting for one person", "who is being waited for")
+    two.readiness = { aggregate: "ready", ready: 2, buffering: 0, lagging: 0, stale: 0, memberCount: 2 }
+    AssertEqual(GroupReadinessLine(two), "Everyone is ready.", "everyone ready")
+    two.readiness.memberCount = 1
+    AssertEqual(GroupReadinessLine(two), "Ready", "one person ready")
+    AssertEqual(GroupMemberStatus({ presence: "away", readiness: "ready" }), "Away", "someone who stepped away")
+    AssertEqual(GroupMemberStatus({ presence: "connected", readiness: "lagging" }), "Catching up", "someone behind")
+    AssertEqual(GroupEndedWords("host-ended"), "The host ended the group.", "why a group ended")
+    AssertEqual(GroupEndedWords("something-new"), "The group is over.", "an ending this build does not know")
+    watching = { viewerMemberId: "me", permissions: { isHost: false }, host: { presence: "connected" }, members: [{ id: "me", state: "joined", readiness: "ready", presence: "connected", displayName: "Me", role: "member" }, { id: "x", state: "joined", readiness: "buffering", presence: "connected", displayName: "Sam", role: "host" }] }
+    AssertEqual(GroupPillStatus(watching).label, "Waiting for Sam…", "the pill says who is being waited for")
+    watching.host.presence = "reconnecting"
+    AssertEqual(GroupPillStatus(watching).tone, "warn", "and warns when the host is away")
+    watching.host.presence = "connected"
+    watching.members[1].readiness = "ready"
+    AssertEqual(GroupPillStatus(watching).label, "In step", "or that everyone is in step")
+    AssertEqual(GroupPillRole(watching.members[1]), "Host", "the host in the pill's list")
+    AssertEqual(GroupCodeShown("ABCDEFGH"), "ABCD EFGH", "a code as it is read out")
+    AssertTrue(GroupCodeReady("ab-2c") and not GroupCodeReady("a b"), "a code long enough to send")
+    current = { timeline: { currentEntryId: "e1" } }
+    AssertEqual(GroupEntryActions(current, { entryId: "e1", unavailable: false }).count(), 1, "what is on can only be removed")
+    AssertEqual(GroupEntryActions(current, { entryId: "e2", unavailable: false })[0].id, "load", "another entry can be watched")
+    AssertEqual(GroupEntryActions(current, { entryId: "e3", unavailable: true })[0].id, "remove", "an entry this viewer cannot see can only be removed")
+    away = { host: { pauseAt: "2026-10-05T10:00:30Z", endAt: "2026-10-05T10:05:00Z" } }
+    AssertEqual(GroupHostDeadline(away, IsoToMilliseconds("2026-10-05T10:00:00Z")).kind, "pauses", "the group pauses first")
+    AssertEqual(GroupHostDeadline(away, IsoToMilliseconds("2026-10-05T10:01:00Z")).kind, "ends", "then ends")
+    AssertEqual(GroupHostDeadline({ host: { pauseAt: invalid, endAt: invalid } }, 0), invalid, "a host who is here has no deadline")
+    GetGlobalAA().messageCatalogue = invalid
+end sub

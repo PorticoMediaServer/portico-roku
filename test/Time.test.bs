@@ -1,0 +1,17 @@
+' core/Time.bs: strict UTC timestamps (local-session.ts `currentUTCTimestamp`, Date.parse) and
+' the ordering key. Expected values are JavaScript's (scripts/golden.mjs).
+
+sub Test_Time_golden()
+    cases = TestFixture("golden/time.json")
+    if cases = invalid then return
+    for each item in cases
+        seconds = IsoToSeconds(item.value)
+        if item.valid then
+            AssertTrue(seconds <> invalid, item.value + " is a timestamp")
+            if seconds <> invalid then AssertEqual(seconds.toStr(), item.seconds, item.value)
+            AssertEqual(UtcOrderKey(item.value), item.orderKey, item.value + " order key")
+        else
+            AssertTrue(seconds = invalid, item.value + " is refused")
+        end if
+    end for
+end sub

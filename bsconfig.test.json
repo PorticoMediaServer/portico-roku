@@ -1,0 +1,11 @@
+{
+  "extends": "bsconfig.json",
+  "files": [
+    "manifest",
+    "source/**/*",
+    "!source/Main.bs",
+    { "src": "test/**/*.bs", "dest": "source/test" },
+    { "src": "test/fixtures/**/*.json", "dest": "test/fixtures" }
+  ],
+  "stagingDir": "build/test"
+}

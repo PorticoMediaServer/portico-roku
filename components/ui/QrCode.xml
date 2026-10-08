@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The QR code a phone scans to approve this television (apps/native: react-native-qrcode-svg on a white plate). -->
+<component name="UiQrCode" extends="Group">
+    <interface>
+        <field id="value" type="string" value="" onChange="onQrDraw" />
+        <!-- The side of the code itself; the plate adds its padding. -->
+        <field id="qrSize" type="float" value="0" onChange="onQrDraw" />
+        <field id="boxWidth" type="float" value="0" />
+        <field id="boxHeight" type="float" value="0" />
+    </interface>
+</component>

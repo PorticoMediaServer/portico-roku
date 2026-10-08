@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/DirectSignIn.tsx: direct sign-in to one server, and the steps it can stop at. -->
+<component name="ScreenDirectSignIn" extends="Group">
+    <interface>
+        <!-- address | password -->
+        <field id="step" type="string" value="address" />
+        <!-- The server proved itself: show its Quick Connect code. -->
+        <field id="codeWanted" type="boolean" value="false" alwaysNotify="true" />
+        <field id="exit" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

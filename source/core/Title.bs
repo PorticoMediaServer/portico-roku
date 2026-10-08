@@ -1,0 +1,572 @@
+' The title pages' shared rules (Spec — Title Pages; Spec — Page Content by Media Type):
+' packages/client-core/src/presentation/title-page.ts, entry-actions.ts and detail-actions.ts, with
+' apps/native/src/screens/title/facts.ts and the helpers screens/Detail.tsx, Show.tsx and
+' Entity.tsx keep beside them. What a page prints and offers is decided here, the same on every
+' client; the screens only draw it.
+import "pkg:/source/core/CardCaption.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Messages.bs"
+
+' facts.ts `factsLine`: `·`-separated facts, dropping blanks.
+function FactsLine(parts as object) as string
+    out = []
+    for each part in parts
+        if part <> invalid then
+            if IsString(part) then
+                if part <> "" then out.push(part)
+            else if not IsBoolean(part) then
+                out.push(part.toStr())
+            end if
+        end if
+    end for
+    return out.join(" · ")
+end function
+
+' facts.ts `episodeCode`: "S2 E4", "E4" (no season, or Specials) or "" (no number).
+function TitleEpisodeCode(entry as object) as string
+    if entry.absoluteNumber <> invalid then return T("title.episodeAbsolute", { number: entry.absoluteNumber })
+    if entry.episodeNumber = invalid then return ""
+    if entry.seasonNumber <> invalid and entry.seasonNumber > 0 then return T("title.episodeCode", { season: entry.seasonNumber, episode: entry.episodeNumber })
+    return T("title.episodeOnly", { episode: entry.episodeNumber })
+end function
+
+' screens/title/Episodes.tsx `episodeTitle`: "S2 E4 · Title".
+function EpisodeTitle(entry as object) as string
+    code = TitleEpisodeCode(entry)
+    if code <> "" then return code + " · " + entry.title
+    return entry.title
+end function
+
+' Episodes.tsx `episodeMeta`: "Aired Jan 20, 2008 · 47m", or "".
+function EpisodeMeta(entry as object, duration = invalid as dynamic) as string
+    parts = []
+    if entry.airDate <> invalid and entry.airDate <> "" then parts.push(T("title.airedOn", { date: FormatDate(entry.airDate, "medium") }))
+    length = duration
+    if length = invalid then length = entry.duration
+    if length <> invalid and length > 0 then parts.push(FormatDuration(length))
+    return parts.join(" · ")
+end function
+
+' facts.ts `seasonLabel`: "Season 2" or "Specials"; the server's own title wins when it has one.
+function SeasonLabel(season as object) as string
+    if season.number = 0 then return T("title.specials")
+    if season.title <> invalid and season.title <> "" then return season.title
+    return T("title.season", { number: season.number })
+end function
+
+' facts.ts `orderSeasons`: Specials (season 0) go last; the rest keep the server's order.
+function OrderSeasons(seasons as object) as object
+    out = []
+    for each season in seasons
+        if season.number <> 0 then out.push(season)
+    end for
+    for each season in seasons
+        if season.number = 0 then out.push(season)
+    end for
+    return out
+end function
+
+' facts.ts `nextUpIn`: the episode in progress, else the first unwatched, else invalid.
+function NextUpIn(entries as object) as dynamic
+    for each entry in entries
+        if entry.playback <> invalid and entry.progressSeconds <> invalid and entry.progressSeconds > 0 and entry.watched <> true then return entry
+    end for
+    for each entry in entries
+        if entry.playback <> invalid and entry.watched <> true then return entry
+    end for
+    return invalid
+end function
+
+' facts.ts `resumeFraction`: how far in, 0–1, or invalid when there is nothing to resume.
+function ResumeFraction(entry as dynamic) as dynamic
+    if entry = invalid or entry.watched = true or entry.duration = invalid or entry.duration = 0 or entry.progressSeconds = invalid or entry.progressSeconds = 0 then return invalid
+    value = entry.progressSeconds / entry.duration
+    if value < 0 then return 0
+    if value > 1 then return 1
+    return value
+end function
+
+' facts.ts `namesIn`: names from credits in the given departments, in server order, once each.
+function NamesIn(credits as object, departments as object) as object
+    out = []
+    for each credit in credits
+        department = ""
+        if credit.department <> invalid then department = LCase(credit.department)
+        if ArrayIncludes(departments, department) and not ArrayIncludes(out, credit.name) then out.push(credit.name)
+    end for
+    return out
+end function
+
+function IsActing(department as dynamic) as boolean
+    if not IsString(department) then return false
+    return ArrayIncludes(["acting", "cast", "actors"], LCase(department))
+end function
+
+' facts.ts `crewRank`: Directing, Writing, Screenplay, Creator, Composer, Producer; -1 for the rest.
+function CrewRank(department as dynamic, role as dynamic) as integer
+    d = ""
+    r = ""
+    if IsString(department) then d = LCase(department.trim())
+    if IsString(role) then r = LCase(role.trim())
+    if d = "directing" or Instr(1, r, "director") > 0 then return 0
+    if d = "writing" or Instr(1, r, "writ") > 0 then return 1
+    if Instr(1, r, "screenplay") > 0 then return 2
+    if d = "creator" or Instr(1, r, "creator") > 0 or Instr(1, r, "created by") > 0 then return 3
+    if d = "music" or Instr(1, r, "composer") > 0 then return 4
+    if Instr(1, r, "producer") > 0 or (d = "production" and r = "") then return 5
+    return -1
+end function
+
+' A stable sort of {item, rank, order} by rank, then order.
+function RankedSort(ranked as object) as object
+    out = []
+    for each candidate in ranked
+        at = out.count()
+        for index = 0 to out.count() - 1
+            other = out[index]
+            if at = out.count() and (other.rank > candidate.rank or (other.rank = candidate.rank and other.order > candidate.order)) then at = index
+        end for
+        later = []
+        while out.count() > at
+            later.unshift(out.pop())
+        end while
+        out.push(candidate)
+        out.append(later)
+    end for
+    return out
+end function
+
+' facts.ts `keyCrew`: key crew in credit order, one row per person, at most 8.
+function KeyCrew(credits as object) as object
+    ranked = []
+    for index = 0 to credits.count() - 1
+        credit = credits[index]
+        rank = CrewRank(credit.department, credit.role)
+        if rank >= 0 then ranked.push({ item: credit, rank: rank, order: index })
+    end for
+    seen = {}
+    seen.setModeCaseSensitive()
+    out = []
+    for each candidate in RankedSort(ranked)
+        credit = candidate.item
+        key = "name:" + LCase(credit.name.trim())
+        if credit.personId <> invalid then key = credit.personId
+        if not seen.doesExist(key) and out.count() < 8 then
+            seen[key] = true
+            out.push(credit)
+        end if
+    end for
+    return out
+end function
+
+' title-page.ts `dedupeNames`: names once each, in first-seen order, at most `limit`.
+function DedupeNames(names as object, limit = 3 as integer) as object
+    seen = {}
+    out = []
+    for each name in names
+        trimmed = name.trim()
+        if trimmed <> "" and not seen.doesExist(LCase(trimmed)) then
+            seen[LCase(trimmed)] = true
+            if out.count() < limit then out.push(trimmed)
+        end if
+    end for
+    return out
+end function
+
+' title-page.ts `relatedRowsForPage`: a related row earns a heading with three or more titles; two
+' rows with the same titles are one row.
+function RelatedRowsForPage(rows as object, minimum = 3 as integer) as object
+    seen = {}
+    seen.setModeCaseSensitive()
+    out = []
+    for each row in rows
+        if row.entries.count() >= minimum then
+            ids = []
+            for each entry in row.entries
+                ids.push(entry.id)
+            end for
+            key = ids.join("|")
+            if not seen.doesExist(key) then
+                seen[key] = true
+                out.push(row)
+            end if
+        end if
+    end for
+    return out
+end function
+
+' title-page.ts `showPeople`: a show's people as the page prints them: cast in billing order, then
+' key crew by role, one row per person, at most `maxCrew`. {cast, crew}.
+function ShowPeople(credits as dynamic, maxCrew = 8 as integer) as object
+    if credits = invalid or credits.count() = 0 then return { cast: [], crew: [] }
+    cast = []
+    ranked = []
+    patterns = ["creator|created by", "showrunner", "directing|director", "writing|writer|screenplay|teleplay", "composer|music", "executive producer|producer"]
+    for each credit in credits
+        department = ""
+        if credit.department <> invalid then department = LCase(credit.department.trim())
+        hasRole = credit.role <> invalid and credit.role <> ""
+        if ArrayIncludes(["acting", "cast", "actor", "actors", "guest star", "guest stars"], department) or (department = "" and not hasRole) then
+            cast.push({ item: credit, rank: 0, order: credit.ordinal })
+        else
+            haystack = ""
+            if credit.department <> invalid then haystack = credit.department
+            haystack = LCase(haystack + " ")
+            if credit.role <> invalid then haystack = haystack + LCase(credit.role)
+            rank = -1
+            for index = 0 to patterns.count() - 1
+                if rank < 0 and MatchesPattern(haystack, patterns[index]) then rank = index
+            end for
+            if rank >= 0 then ranked.push({ item: credit, rank: rank, order: credit.ordinal })
+        end if
+    end for
+    seen = {}
+    seen.setModeCaseSensitive()
+    crew = []
+    for each candidate in RankedSort(ranked)
+        credit = candidate.item
+        key = "name:" + LCase(credit.name)
+        if credit.id <> invalid then key = credit.id
+        if not seen.doesExist(key) and crew.count() < maxCrew then
+            seen[key] = true
+            crew.push(credit)
+        end if
+    end for
+    billed = []
+    for each candidate in RankedSort(cast)
+        billed.push(candidate.item)
+    end for
+    return { cast: billed, crew: crew }
+end function
+
+' title-page.ts `showCreditLines` as screens/Show.tsx labels it: "Created by A, B", "Directed by
+' …", "Written by …": the first names in each key role.
+function ShowCreditLines(crew as object, limit = 3 as integer) as object
+    lines = []
+    for each rule in [["creator|created by|showrunner", "title.createdBy"], ["directing|director", "title.directedBy"], ["writing|writer|screenplay|teleplay", "title.writtenBy"]]
+        names = []
+        for each credit in crew
+            haystack = ""
+            if credit.department <> invalid then haystack = credit.department
+            haystack = LCase(haystack + " ")
+            if credit.role <> invalid then haystack = haystack + LCase(credit.role)
+            if MatchesPattern(haystack, rule[0]) then names.push(credit.name)
+        end for
+        names = DedupeNames(names, limit)
+        if names.count() > 0 then lines.push(T(rule[1], { names: names.join(", ") }))
+    end for
+    return lines
+end function
+
+' title-page.ts `seasonProgress`: {watched, total}, or invalid for a season without episodes.
+function SeasonProgress(watchedCount as dynamic, unwatchedCount as dynamic) as dynamic
+    if watchedCount = invalid or unwatchedCount = invalid then return invalid
+    total = watchedCount + unwatchedCount
+    if total <= 0 then return invalid
+    return { watched: watchedCount, total: total }
+end function
+
+' title-page.ts `nextUpPin`: the next-up episode when it belongs to the season on screen and is not
+' already its first row.
+function NextUpPin(nextUp as dynamic, first as dynamic, seasonNumber as dynamic) as dynamic
+    if nextUp = invalid or first = invalid or nextUp.id = first.id then return invalid
+    if seasonNumber <> invalid and nextUp.seasonNumber <> invalid and nextUp.seasonNumber <> seasonNumber then return invalid
+    return nextUp
+end function
+
+' title-page.ts `activeYearsLabel`: "1965–1970", "since 1996", or "".
+function ActiveYearsLabel(begin as dynamic, finish as dynamic) as string
+    hasBegin = begin <> invalid and begin > 0
+    if hasBegin and finish <> invalid and finish > 0 then return begin.toStr() + "–" + finish.toStr()
+    if hasBegin then return T("title.activeSince", { year: begin })
+    return ""
+end function
+
+' title-page.ts `networkName`: a library's kind is not a network ("Anime" is never printed as one).
+function NetworkName(network as dynamic) as string
+    if not IsString(network) then return ""
+    name = network.trim()
+    if LCase(name) = "anime" then return ""
+    return name
+end function
+
+' title-page.ts `originalTitleLine`: the original title when it differs from the title.
+function OriginalTitleLine(title as dynamic, original as dynamic) as string
+    if not IsString(original) then return ""
+    value = original.trim()
+    shown = ""
+    if IsString(title) then shown = LCase(title.trim())
+    if value = "" or LCase(value) = shown then return ""
+    return value
+end function
+
+' screens/Detail.tsx `providerLabel`: a rating's source as its badge names it.
+function RatingProviderLabel(provider as string) as string
+    key = LCase(provider)
+    if key = "effective" then return T("title.rating.overall")
+    if key = "community" then return T("title.rating.community")
+    if key = "audience" then return T("title.rating.audience")
+    if key = "critic" or key = "critics" then return T("title.rating.critics")
+    names = { "tmdb": "TMDB", "imdb": "IMDb", "tvdb": "TVDB", "anilist": "AniList", "mal": "MyAnimeList", "rottentomatoes": "Rotten Tomatoes", "metacritic": "Metacritic" }
+    if names[key] <> invalid then return names[key]
+    return UCase(Left(provider, 1)) + Mid(provider, 2)
+end function
+
+' screens/Detail.tsx `ratingLabel`: "87%" out of a hundred, else "7.8/10".
+function RatingLabel(value as dynamic, outOf as dynamic) as string
+    if outOf = 100 then
+        whole% = Int(value + 0.5)
+        return whole%.toStr() + "%"
+    end if
+    tenths% = Int(value * 10 + 0.5)
+    units% = tenths% \ 10
+    return units%.toStr() + "." + (tenths% mod 10).toStr() + "/" + BrowsePlainNumber(outOf)
+end function
+
+' A number as JavaScript prints it in a template: no grouping, no trailing ".0".
+function BrowsePlainNumber(value as dynamic) as string
+    if value = Fix(value) then
+        whole& = value
+        return whole&.toStr()
+    end if
+    return value.toStr()
+end function
+
+' screens/Detail.tsx `formatDay`: "September 15, 2021", without a time zone shift for a calendar date.
+function FormatDay(iso as string) as string
+    text = ""
+    if MatchesPattern(iso, "^\d{4}-\d{2}-\d{2}") then
+        text = FormatDate(Left(iso, 10), "long")
+    else
+        text = FormatDate(iso, "long")
+    end if
+    if text = "" then return iso
+    return text
+end function
+
+' ---- Actions -----------------------------------------------------------------------------------
+
+' container-state.ts `containerKindFor`: kinds with title-level personal state, or "".
+function ContainerKindFor(kind as dynamic) as string
+    if kind = "show" or kind = "season" or kind = "album" or kind = "book" or kind = "artist" then return kind
+    return ""
+end function
+
+' container-state.ts `containerCarries`: My List is for shows and books; Favorite for shows,
+' albums, books and artists; the watched default for shows, seasons, albums and books.
+function ContainerCarries(kind as dynamic, flag as string) as boolean
+    if flag = "watched" then return kind = "show" or kind = "season" or kind = "album" or kind = "book"
+    if flag = "watchlisted" then return kind = "show" or kind = "book"
+    return kind = "show" or kind = "album" or kind = "book" or kind = "artist"
+end function
+
+' entry-actions.ts `entryActions`: the entry menu, one model for every client. `c` says what the
+' server and the device offer (a flag left out is not offered): {kind, playable, progressSeconds,
+' queue, watchlisted, favorite, watched, continueWatching, notInterested, rating, hasRating,
+' addToPlaylist, addToCollection, details}. Groups are [{id, title, actions: [{id, label, icon,
+' selected, destructive}]}]. Television has no downloads or metadata editing.
+function EntryActions(c as object) as object
+    progress = 0
+    if c.progressSeconds <> invalid then progress = c.progressSeconds
+    resumes = c.playable = true and progress > 0
+    starts = []
+    if c.playable = true then
+        if resumes then
+            starts.push({ id: "resume", label: "entry.resume", icon: "play" })
+            starts.push({ id: "playFromStart", label: "entry.playFromBeginning", icon: "restart" })
+        else
+            starts.push({ id: "play", label: "entry.play", icon: "play" })
+        end if
+        if c.queue = true then
+            starts.push({ id: "playNext", label: "entry.playNext", icon: "next" })
+            starts.push({ id: "addToQueue", label: "entry.addToQueue", icon: "queue" })
+        end if
+    end if
+    ' In a Watch Together group that lets this viewer add.
+    together = []
+    if c.playable = true and c.group = true then
+        together.push({ id: "watchWithGroup", label: "entry.watchWithGroup", icon: "people" })
+        together.push({ id: "addToGroupQueue", label: "entry.addToGroupQueue", icon: "queue" })
+    end if
+    personal = []
+    if c.watchlisted <> invalid then
+        if c.watchlisted then
+            personal.push({ id: "watchlist", label: "entry.removeFromWatchlist", icon: "bookmarkFilled", selected: true })
+        else
+            personal.push({ id: "watchlist", label: "entry.addToWatchlist", icon: "bookmark", selected: false })
+        end if
+    end if
+    if c.favorite <> invalid then
+        if c.favorite then
+            personal.push({ id: "favorite", label: "entry.removeFromFavorites", icon: "heartFilled", selected: true })
+        else
+            personal.push({ id: "favorite", label: "entry.addToFavorites", icon: "heart", selected: false })
+        end if
+    end if
+    if c.watched <> invalid then
+        words = WatchedWords(c.kind)
+        if c.watched then
+            personal.push({ id: "watched", label: words.unmark, icon: "eyeOff" })
+        else
+            personal.push({ id: "watched", label: words.mark, icon: "watched" })
+        end if
+    end if
+    if c.continueWatching = true then personal.push({ id: "removeFromContinueWatching", label: "entry.removeFromContinueWatching", icon: "close" })
+    if c.notInterested = true then personal.push({ id: "notInterested", label: "entry.notInterested", icon: "eyeOff" })
+    if c.hasRating = true then
+        if c.rating <> invalid then
+            personal.push({ id: "rate", label: "title.rated", icon: "starFilled", selected: true })
+        else
+            personal.push({ id: "rate", label: "entry.rate", icon: "star", selected: false })
+        end if
+    end if
+    organize = []
+    if c.addToPlaylist = true then organize.push({ id: "addToPlaylist", label: "entry.addToPlaylist", icon: "listPlus" })
+    if c.addToCollection = true then organize.push({ id: "addToCollection", label: "entry.addToCollection", icon: "collection" })
+    opens = []
+    if c.details = true then opens.push({ id: "details", label: "action.details", icon: "info" })
+    groups = []
+    for each group in [{ id: "play", actions: starts }, { id: "together", actions: together }, { id: "personal", actions: personal }, { id: "organize", actions: organize }, { id: "open", actions: opens }]
+        if group.actions.count() > 0 then groups.push(group)
+    end for
+    return groups
+end function
+
+' detail-actions.ts `detailActions` for a television: the primary Play or Resume, the row every
+' title has (My List · Favorite · Watched), and the rest in More. `detail` is {item, personal,
+' actions}. {primary: {id, label, remaining, playback} | invalid, quick: [{id, label, icon,
+' selected}], more: groups}.
+function DetailActions(detail as object) as object
+    item = detail.item
+    personal = detail.personal
+    enabled = {}
+    starter = invalid
+    for each action in detail.actions
+        if action.enabled then
+            enabled[action.id] = true
+            if starter = invalid and action.playback <> invalid and action.id <> "start_over" then starter = action
+        end if
+    end for
+    progress = 0
+    if item.progressSeconds <> invalid then progress = item.progressSeconds
+    resuming = progress > 0 and starter <> invalid and starter.playback.startSeconds > 0
+    primary = invalid
+    if starter <> invalid then
+        primary = { id: "play", label: "entry.play", remaining: "", playback: starter.playback }
+        if resuming then
+            primary.id = "resume"
+            primary.label = "entry.resume"
+            if item.duration <> invalid and item.duration > 0 then
+                left = item.duration - progress
+                if left < 0 then left = 0
+                primary.remaining = FormatDuration(left)
+            end if
+        end if
+    end if
+    quick = []
+    if enabled.doesExist("watchlist") then
+        if personal.watchlisted then
+            quick.push({ id: "watchlist", label: "entry.removeFromWatchlist", icon: "bookmarkFilled", selected: true })
+        else
+            quick.push({ id: "watchlist", label: "entry.addToWatchlist", icon: "bookmark", selected: false })
+        end if
+    end if
+    if enabled.doesExist("favorite") then
+        if personal.favorite then
+            quick.push({ id: "favorite", label: "entry.removeFromFavorites", icon: "heartFilled", selected: true })
+        else
+            quick.push({ id: "favorite", label: "entry.addToFavorites", icon: "heart", selected: false })
+        end if
+    end if
+    if enabled.doesExist("watched") then
+        words = WatchedWords(item.kind)
+        if personal.watched then
+            quick.push({ id: "watched", label: words.unmark, icon: "watched", selected: true })
+        else
+            quick.push({ id: "watched", label: words.mark, icon: "check", selected: false })
+        end if
+    end if
+    capabilities = { playable: starter <> invalid, progressSeconds: 0, hasRating: enabled.doesExist("rating"), rating: personal.rating, addToPlaylist: enabled.doesExist("add_to_playlist"), addToCollection: enabled.doesExist("add_to_collection") }
+    if resuming then capabilities.progressSeconds = progress
+    more = []
+    for each group in EntryActions(capabilities)
+        kept = []
+        for each action in group.actions
+            if not ArrayIncludes(["play", "resume", "watchlist", "favorite"], action.id) then kept.push(action)
+        end for
+        if kept.count() > 0 then more.push({ id: group.id, actions: kept })
+    end for
+    return { primary: primary, quick: quick, more: more }
+end function
+
+' ---- Entity pages (screens/Entity.tsx) ---------------------------------------------------------
+
+' The performer from a song's server subtitle ("Disc 1 · Track 3 · Adele" → "Adele"), or "".
+function SongArtist(entry as object) as string
+    if not IsString(entry.subtitle) or entry.subtitle = "" then return ""
+    last = ""
+    for each part in CaptionSplit(entry.subtitle, " · ")
+        if not MatchesPattern(part, "^(Disc|Track) \d+$") then last = part
+    end for
+    return last
+end function
+
+' The chapter a resume point falls in: the last chapter of that part starting at or before it.
+function ChapterAt(chapters as object, itemId as string, position as dynamic) as dynamic
+    hit = invalid
+    for each chapter in chapters
+        if chapter.playback <> invalid and chapter.playback.itemId = itemId then
+            start = 0
+            if chapter.playback.startSeconds <> invalid then start = chapter.playback.startSeconds
+            if start <= position + 1 then hit = chapter
+        end if
+    end for
+    return hit
+end function
+
+function EntityViewKind(view as string) as string
+    if ArrayIncludes(["album", "artist", "book", "author", "book_series", "collection", "category", "disc"], view) then return view
+    return "collection"
+end function
+
+' Spec §1 facts per type. Counts come from the server's section totals, never from a page.
+' `totals` is {songs, releases, chapters, rest (the single remaining section's total, or invalid),
+' author, series}.
+function EntityFacts(entity as object, totals as object) as object
+    length = invalid
+    if entity.duration <> invalid and entity.duration > 0 then length = FormatDuration(entity.duration)
+    kind = entity.kind
+    if kind = "album" or kind = "disc" then
+        total = totals.songs
+        if total = invalid or total = 0 then total = FieldOf(entity, "count")
+        lead = entity.subtitle
+        if entity.artist <> invalid and entity.artist.name <> invalid then
+            lead = entity.albumType
+            if lead = invalid then lead = T("title.kind", { kind: "album" })
+        end if
+        year = invalid
+        if entity.year <> invalid then year = entity.year.toStr()
+        songs = invalid
+        if total <> invalid and total > 0 then songs = T("title.songCount", { count: total })
+        return [lead, year, songs, length]
+    end if
+    if kind = "artist" then
+        albums = invalid
+        if totals.releases <> invalid and totals.releases > 0 then albums = T("title.albumCount", { count: totals.releases })
+        songs = invalid
+        if totals.songs <> invalid and totals.songs > 0 then songs = T("title.songCount", { count: totals.songs })
+        return [albums, songs, entity.country, ActiveYearsLabel(entity.activeBeginYear, entity.activeEndYear)]
+    end if
+    if kind = "book" then
+        author = totals.author
+        if author = invalid then author = entity.subtitle
+        chapters = invalid
+        if totals.chapters <> invalid and totals.chapters > 0 then chapters = T("title.chapterCount", { count: totals.chapters })
+        return [author, totals.series, chapters, length]
+    end if
+    total = FieldOf(entity, "count")
+    if total = invalid then total = totals.rest
+    items = invalid
+    if total <> invalid and total > 0 then items = T("count.items", { count: total })
+    return [entity.subtitle, items, length]
+end function

@@ -1,0 +1,548 @@
+' core/Session.bs, core/Hosted.bs and core/SetupCode.bs: the steps of signing in, with a transport
+' that answers from a table. The proofs, routes and challenges are the ones scripts/golden.mjs
+' signed with Node's Ed25519 (test/fixtures/golden/route-identity.json).
+
+function TestSend(request as object) as object
+    transport = m.transport
+    transport.requests.push(request)
+    queue = transport.answers[request.method + " " + request.url]
+    if queue = invalid or queue.count() = 0 then return { status: 0, headers: {}, body: "", failure: "no answer" }
+    answer = queue[0]
+    if queue.count() > 1 then queue.shift()
+    body = ""
+    if answer.data <> invalid then body = FormatJson(answer.data)
+    headers = {}
+    if answer.headers <> invalid then headers = answer.headers
+    return { status: answer.status, headers: headers, body: body, failure: "" }
+end function
+
+function TestContext() as object
+    fixture = RouteFixture()
+    proof = fixture.proofs[0]
+    transport = { answers: {}, requests: [] }
+    return {
+        store: StoreInMemory()
+        send: TestSend
+        transport: transport
+        installation: { installationId: "inst_0123456789abcdef0123456789abcdef", name: "Living Room", platform: "roku", app: "Portico", appVersion: "0.1.0" }
+        hostedUrl: "https://account.example.com"
+        now: proof.now
+        nonce: proof.nonce
+        requestId: "0b9d2f0e-3c4a-4d1e-9f6a-2b7c8d9e0f1a"
+        base: proof.baseUrl
+        fixture: fixture
+    }
+end function
+
+sub TestAnswer(ctx as object, method as string, url as string, status as integer, data = invalid as dynamic, headers = invalid as dynamic)
+    key = method + " " + url
+    if ctx.transport.answers[key] = invalid then ctx.transport.answers[key] = []
+    ctx.transport.answers[key].push({ status: status, data: data, headers: headers })
+end sub
+
+function TestRequests(ctx as object, method as string, url as string) as object
+    found = []
+    for each request in ctx.transport.requests
+        if request.method = method and request.url = url then found.push(request)
+    end for
+    return found
+end function
+
+function TestPin(ctx as object) as object
+    return ctx.fixture.proofs[1].pin
+end function
+
+function TestSessionJson(ctx as object, role as string, profileId = "prof_1" as string, extra = invalid as dynamic) as object
+    pin = TestPin(ctx)
+    session = {
+        "accessToken": "access-" + role + "-" + profileId
+        "expiresAt": "2099-01-01T00:00:00Z"
+        "sessionFamilyId": "fam_1"
+        "tokenGeneration": "1"
+        "authorizationHorizon": "2099-06-01T00:00:00Z"
+        "viewer": { "accountId": "acct_1", "profileId": profileId, "serverId": pin.serverId, "authority": "local", "role": role }
+        "serverIdentity": { "publicKey": pin.publicKey, "fingerprint": pin.fingerprint }
+    }
+    if extra <> invalid then session.append(extra)
+    return session
+end function
+
+function TestProfile(id as string, name as string, primary as boolean, pinRequired = false as boolean) as object
+    position = 1
+    if primary then position = 0
+    return { "id": id, "name": name, "primary": primary, "position": position, "art": "blue", "revision": 1, "pinRevision": 1, "pinRequired": pinRequired }
+end function
+
+function TestSnapshot(ctx as object, profiles as object) as object
+    return {
+        "authority": "local"
+        "serverId": TestPin(ctx).serverId
+        "canManage": true
+        "account": { "id": "acct_1", "username": "justin", "primaryProfileId": "prof_1", "role": "owner", "revision": 1, "disabled": false, "allowedLibraries": [] }
+        "profiles": profiles
+    }
+end function
+
+function TestConnected(ctx as object) as object
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "setupRequired": false })
+    return SessionConnect(ctx, "192.168.1.20:32500")
+end function
+
+sub Test_Session_connectProvesTheServerBeforeAnythingElse()
+    ctx = TestContext()
+    result = TestConnected(ctx)
+    AssertTrue(result.ok, "the server at the typed address is connected")
+    if not result.ok then return
+    AssertEqual(result.connection.origin, "http://192.168.1.20:32500")
+    AssertEqual(result.connection.pin.serverId, TestPin(ctx).serverId)
+    probe = ctx.transport.requests[0]
+    AssertEqual(probe.url, ctx.base + "/v1/networking/identity-proof", "the proof is asked for first")
+    body = ParseJson(probe.body)
+    AssertEqual(body.baseUrl, ctx.base)
+    AssertEqual(body.nonce, ctx.nonce)
+    AssertTrue(probe.headers["Authorization"] = invalid, "no credential travels with the proof request")
+end sub
+
+sub Test_Session_connectFailures()
+    ctx = TestContext()
+    silent = SessionConnect(ctx, "192.168.1.20:32500")
+    AssertEqual(silent.ok, false)
+    AssertEqual(silent.failure.shown, "apple.connect.unreachable", "a server that does not answer")
+
+    ctx = TestContext()
+    public = SessionConnect(ctx, "http://8.8.8.8:32500")
+    AssertEqual(public.failure.code, "invalid_address", "public HTTP is refused")
+    AssertEqual(ctx.transport.requests.count(), 0, "and nothing is sent to it")
+
+    ctx = TestContext()
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "setupRequired": true })
+    setup = SessionConnect(ctx, "192.168.1.20:32500")
+    AssertEqual(setup.failure.shown, "apple.connect.setupRequired", "a server that has not finished setup")
+
+    ' A pinned address that now answers as a different server.
+    ctx = TestContext()
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[2].answer)
+    other = SessionConnect(ctx, "192.168.1.20:32500", TestPin(ctx))
+    AssertEqual(other.failure.code, "identity_mismatch")
+    AssertEqual(ctx.transport.requests.count(), 1, "nothing follows a failed proof")
+end sub
+
+sub Test_Session_signInWithOneProfileIsReadyAndSaved()
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    answer["session"] = TestSessionJson(ctx, "viewer")
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, answer)
+    result = SessionSignIn(ctx, connection, "justin", "correct horse")
+    AssertTrue(result.ok)
+    AssertEqual(result.kind, "ready")
+    request = TestRequests(ctx, "POST", ctx.base + "/v1/direct/sign-in")[0]
+    AssertEqual(request.headers["X-Portico-Installation-Id"], ctx.installation.installationId, "the installation claim travels with sign-in")
+    AssertEqual(request.headers["X-Portico-Device-Platform"], "roku")
+    AssertEqual(request.headers["X-Portico-Device-Class"], "television")
+    AssertTrue(request.headers["Authorization"] = invalid)
+    sent = ParseJson(request.body)
+    AssertEqual(sent.username, "justin")
+    record = SessionRecord(ctx)
+    AssertTrue(record <> invalid, "the sign-in is saved")
+    if record <> invalid then
+        AssertEqual(record["logicalOrigin"], ctx.base)
+        AssertEqual(record["session"].accessToken, "access-viewer-prof_1")
+        AssertEqual(record["username"], "justin")
+        AssertEqual(record["profileName"], "Justin")
+    end if
+end sub
+
+sub Test_Session_signInWithSeveralProfilesAsksWhoIsWatching()
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true), TestProfile("prof_2", "Kids", false, true)])
+    answer["session"] = TestSessionJson(ctx, "account")
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, answer)
+    pending = SessionSignIn(ctx, connection, "justin", "correct horse")
+    AssertEqual(pending.kind, "profiles")
+    AssertTrue(SessionRecord(ctx) = invalid, "an account session is never saved as the viewer")
+
+    bad = SessionChooseProfile(ctx, connection, pending, "prof_2", "12")
+    AssertEqual(bad.failure.code, "invalid_pin", "a PIN is four digits")
+
+    selectUrl = ctx.base + "/v1/direct/profiles/prof_2/select"
+    TestAnswer(ctx, "POST", selectUrl, 200, { "session": TestSessionJson(ctx, "viewer", "prof_2") })
+    chosen = SessionChooseProfile(ctx, connection, pending, "prof_2", "1234")
+    AssertTrue(chosen.ok)
+    request = TestRequests(ctx, "POST", selectUrl)[0]
+    AssertEqual(request.headers["Authorization"], "Bearer access-account-prof_1", "the account session chooses the profile")
+    sent = ParseJson(request.body)
+    AssertEqual(sent.pin, "1234")
+    AssertEqual(sent.installationId, ctx.installation.installationId)
+    record = SessionRecord(ctx)
+    AssertEqual(record["session"].viewer.profileId, "prof_2")
+    AssertEqual(record["profileName"], "Kids")
+end sub
+
+sub Test_Session_signInRefusals()
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    AssertEqual(SessionSignIn(ctx, connection, " ", "x").failure.code, "credentials_required")
+
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 401, { "error": { "code": "invalid_credentials", "message": "nope" } })
+    wrong = SessionSignIn(ctx, connection, "justin", "wrong")
+    AssertEqual(wrong.failure.code, "invalid_credentials")
+    AssertEqual(SignInMessageFacts(wrong.failure).messageId, "signIn.error.notAccepted")
+
+    ' A session that names another server's key is not kept.
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    stranger = ctx.fixture.proofs[2]
+    foreign = ParseJson(BytesToText(Base64UrlDecode(stranger.answer.payload)))
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    answer["session"] = TestSessionJson(ctx, "viewer", "prof_1", { "serverIdentity": { "publicKey": foreign.publicKey, "fingerprint": foreign.fingerprint } })
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, answer)
+    mismatch = SessionSignIn(ctx, connection, "justin", "correct horse")
+    AssertEqual(mismatch.failure.code, "identity_mismatch")
+    AssertTrue(SessionRecord(ctx) = invalid)
+
+    ' A direct sign-in must carry the server's key.
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    bare = TestSessionJson(ctx, "viewer")
+    bare.delete("serverIdentity")
+    answer["session"] = bare
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, answer)
+    AssertEqual(SessionSignIn(ctx, connection, "justin", "correct horse").failure.code, "missing_server_key")
+end sub
+
+sub Test_Session_twoStepAndDeviceApproval()
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, { "challenge": { "token": "chal_token", "expiresAt": "2099-01-01T00:00:00Z" } })
+    challenged = SessionSignIn(ctx, connection, "justin", "correct horse")
+    AssertEqual(challenged.kind, "challenge")
+    AssertEqual(challenged.token, "chal_token")
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    answer["session"] = TestSessionJson(ctx, "viewer")
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/two-factor/challenge", 200, answer)
+    done = SessionCompleteChallenge(ctx, connection, challenged.token, " 123456 ", "justin")
+    AssertEqual(done.kind, "ready")
+    sent = ParseJson(TestRequests(ctx, "POST", ctx.base + "/v1/auth/two-factor/challenge")[0].body)
+    AssertEqual(sent.code, "123456", "the code is trimmed")
+    AssertEqual(sent.token, "chal_token")
+
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, { "deviceApprovalPending": true, "deviceId": "dev_1", "installationId": "inst_1" })
+    AssertEqual(SessionSignIn(ctx, connection, "justin", "correct horse").kind, "device-pending")
+end sub
+
+function TestSignedIn(ctx as object, extra = invalid as dynamic) as object
+    connection = TestConnected(ctx).connection
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    answer["session"] = TestSessionJson(ctx, "viewer", "prof_1", extra)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, answer)
+    SessionSignIn(ctx, connection, "justin", "correct horse")
+    ctx.transport.requests.clear()
+    ctx.transport.answers.clear()
+    return connection
+end function
+
+sub Test_Session_restore()
+    ctx = TestContext()
+    AssertEqual(SessionRestore(ctx).state, "none")
+
+    TestSignedIn(ctx)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/me", 200, { "viewer": {} })
+    ready = SessionRestore(ctx)
+    AssertEqual(ready.state, "ready")
+    AssertEqual(ctx.transport.requests[0].url, ctx.base + "/v1/networking/identity-proof", "the pinned server proves itself first")
+    AssertEqual(TestRequests(ctx, "GET", ctx.base + "/v1/me")[0].headers["Authorization"], "Bearer access-viewer-prof_1")
+
+    ' The server does not answer: the sign-in is kept.
+    ctx.transport.requests.clear()
+    ctx.transport.answers.clear()
+    offline = SessionRestore(ctx)
+    AssertEqual(offline.state, "offline")
+    AssertTrue(SessionRecord(ctx) <> invalid)
+
+    ' The address now answers as another server: the token is never sent.
+    ctx.transport.requests.clear()
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[2].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/me", 200, { "viewer": {} })
+    changed = SessionRestore(ctx)
+    AssertEqual(changed.state, "changed")
+    AssertEqual(TestRequests(ctx, "GET", ctx.base + "/v1/me").count(), 0, "no credential goes to a server that is not the pinned one")
+    for each request in ctx.transport.requests
+        AssertTrue(request.headers["Authorization"] = invalid, "no bearer on " + request.url)
+    end for
+
+    ' The server refuses the session and it cannot be renewed: the sign-in is over.
+    ctx.transport.requests.clear()
+    ctx.transport.answers.clear()
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/me", 401, { "error": { "code": "unauthorized" } })
+    ended = SessionRestore(ctx)
+    AssertEqual(ended.state, "ended")
+    AssertEqual(ended.record["username"], "justin", "the username reopens the sign-in screen")
+    AssertTrue(SessionRecord(ctx) = invalid)
+end sub
+
+sub Test_Session_renew()
+    ctx = TestContext()
+    TestSignedIn(ctx)
+    record = SessionRecord(ctx)
+    fresh = SessionRenew(ctx, record)
+    AssertTrue(fresh.ok)
+    AssertEqual(ctx.transport.requests.count(), 0, "a fresh session is not renewed")
+
+    ' Refused by the server, with nothing to renew it with.
+    AssertEqual(SessionRenew(ctx, record, record["session"].accessToken).failure.code, "refresh_unavailable")
+
+    ctx = TestContext()
+    TestSignedIn(ctx, { "refreshToken": "refresh-token-0123456789abcdef" })
+    record = SessionRecord(ctx)
+    url = ctx.base + "/v1/auth/refresh"
+    TestAnswer(ctx, "POST", url, 500, { "error": { "code": "internal_error" } })
+    failed = SessionRenew(ctx, record, record["session"].accessToken)
+    AssertEqual(failed.ok, false)
+    AssertEqual(failed.signOut, false, "a server fault keeps the sign-in")
+    firstId = ParseJson(TestRequests(ctx, "POST", url)[0].body).requestId
+    AssertEqual(SessionRecord(ctx)["pendingRefresh"], firstId, "the request id is saved before sending")
+
+    ctx.transport.answers.clear()
+    TestAnswer(ctx, "POST", url, 200, TestSessionJson(ctx, "viewer", "prof_1", { "accessToken": "access-renewed", "tokenGeneration": "2", "refreshToken": "refresh-token-next-0123456789" }))
+    renewed = SessionRenew(ctx, SessionRecord(ctx), record["session"].accessToken)
+    AssertTrue(renewed.ok)
+    requests = TestRequests(ctx, "POST", url)
+    sent = ParseJson(requests[requests.count() - 1].body)
+    AssertEqual(sent.requestId, firstId, "a retry replays the same request")
+    AssertEqual(sent.refreshToken, "refresh-token-0123456789abcdef")
+    AssertEqual(sent.installationId, ctx.installation.installationId)
+    saved = SessionRecord(ctx)
+    AssertEqual(saved["session"].accessToken, "access-renewed")
+    AssertTrue(saved["pendingRefresh"] = invalid)
+
+    ctx.transport.answers.clear()
+    TestAnswer(ctx, "POST", url, 401, { "error": { "code": "refresh_reused" } })
+    refused = SessionRenew(ctx, SessionRecord(ctx), "access-renewed")
+    AssertEqual(refused.signOut, true)
+    AssertTrue(SessionRecord(ctx) = invalid, "a refusal ends the sign-in")
+end sub
+
+function TestAuthorization(ctx as object, origin as string) as object
+    return { "deviceCode": String(43, "d"), "userCode": "ABCD-EFGH", "verificationUri": origin + "/device", "verificationUriComplete": origin + "/device#code=ABCD-EFGH", "expiresAt": "2026-10-03T12:09:00Z", "expiresIn": 540, "interval": 5 }
+end function
+
+sub Test_SetupCode_validation()
+    ctx = TestContext()
+    good = TestAuthorization(ctx, "https://web.getportico.tv")
+    AssertEqual(SetupCodeValid(good, ctx.now), true)
+    AssertEqual(SetupCodeValid(TestAuthorization(ctx, ctx.base), ctx.now), true, "a server's own page on the home network")
+    cases = [
+        ["userCode", "abcd-efgh"], ["userCode", "ABCDEFGH"], ["userCode", "ABCD-EFG0"], ["deviceCode", "short"], ["interval", 4], ["interval", 301], ["interval", 5.5],
+        ["expiresAt", "2026-10-03T12:11:00Z"], ["expiresAt", "soon"], ["verificationUri", "https://web.getportico.tv/activate"], ["verificationUri", "http://example.com/device"],
+        ["verificationUriComplete", "https://web.getportico.tv/device#code=WXYZ-2345"], ["verificationUriComplete", "https://evil.example/device#code=ABCD-EFGH"]
+    ]
+    for each change in cases
+        bad = TestAuthorization(ctx, "https://web.getportico.tv")
+        bad[change[0]] = change[1]
+        AssertEqual(SetupCodeValid(bad, ctx.now), false, change[0] + " = " + TestText(change[1]))
+    end for
+    AssertEqual(NormalizeSetupCode("abcd efgh"), "ABCD-EFGH")
+    AssertEqual(NormalizeSetupCode("abcd-efgh"), "ABCD-EFGH")
+    AssertTrue(NormalizeSetupCode("abcd-efg1") = invalid, "1, 0, I, L and O are not in the alphabet")
+    AssertTrue(NormalizeSetupCode("abc") = invalid)
+end sub
+
+sub Test_SetupCode_pollDecisions()
+    AssertEqual(SetupCodeAfterPoll(5, { code: "authorization_pending", status: 400 }).next, "pending")
+    AssertEqual(SetupCodeAfterPoll(5, { code: "authorization_pending", status: 400 }).interval, 5)
+    AssertEqual(SetupCodeAfterPoll(5, { code: "slow_down", status: 400 }).interval, 10)
+    AssertEqual(SetupCodeAfterPoll(10, { code: "authorization_pending", status: 400, retryAfterSeconds: 30 }).interval, 30)
+    AssertEqual(SetupCodeAfterPoll(298, { code: "slow_down", status: 400 }).interval, 300)
+    AssertEqual(SetupCodeAfterPoll(5, { code: "access_denied", status: 400 }).next, "denied")
+    AssertEqual(SetupCodeAfterPoll(5, { code: "expired_token", status: 400 }).next, "replace")
+    AssertEqual(SetupCodeAfterPoll(5, { code: "invalid_grant", status: 400 }).next, "replace")
+    AssertEqual(SetupCodeAfterPoll(5, { code: "network", status: 0 }).next, "retry")
+    AssertEqual(SetupCodeAfterPoll(5, { code: "network", status: 0 }).waitSeconds, 5)
+    AssertEqual(SetupCodeAfterPoll(5, { code: "rate_limited", status: 429, retryAfterSeconds: 20 }).waitSeconds, 20)
+    AssertEqual(SetupCodeBackoffSeconds(0), 0)
+    AssertEqual(SetupCodeBackoffSeconds(1), 5)
+    AssertEqual(SetupCodeBackoffSeconds(2), 10)
+    AssertEqual(SetupCodeBackoffSeconds(3), 20)
+    AssertEqual(SetupCodeBackoffSeconds(4), 30)
+    AssertEqual(SetupCodeBackoffSeconds(9), 30)
+    AssertEqual(SetupCodeNeedsReplacing(invalid, 0), true)
+    AssertEqual(SetupCodeNeedsReplacing({ expiresAt: "2026-10-03T12:09:00Z" }, 1791028800), false)
+    AssertEqual(SetupCodeNeedsReplacing({ expiresAt: "2026-10-03T12:00:50Z" }, 1791028800), true)
+end sub
+
+sub Test_SetupCode_approvalLink()
+    ' apps/native/src/app/approval-link.ts.
+    AssertEqual(ApprovalLink("http://192.168.1.20:32500", "http://192.168.1.20:32500/device#code=ABCD-EFGH", "ABCD-EFGH"), "http://192.168.1.20:32500/device#code=ABCD-EFGH")
+    AssertEqual(ApprovalLink("http://192.168.1.20:32500/", "https://web.getportico.tv/device#code=ABCD-EFGH", "ABCD-EFGH"), "http://192.168.1.20:32500/device#code=ABCD-EFGH", "a link elsewhere is replaced by this server's page")
+    AssertEqual(ApprovalLink("http://192.168.1.20:32500", invalid, ""), "http://192.168.1.20:32500/device")
+end sub
+
+sub Test_Session_quickConnect()
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    TestAnswer(ctx, "POST", ctx.base + "/v1/quick-connect", 201, TestAuthorization(ctx, ctx.base))
+    created = QuickConnectCreate(ctx, connection)
+    AssertTrue(created.ok)
+    sent = ParseJson(TestRequests(ctx, "POST", ctx.base + "/v1/quick-connect")[0].body)
+    AssertEqual(sent.platform, "roku")
+    AssertEqual(sent.deviceName, "Living Room")
+    AssertEqual(sent.requestId, ctx.requestId)
+
+    tokenUrl = ctx.base + "/v1/quick-connect/token"
+    TestAnswer(ctx, "POST", tokenUrl, 400, { "error": { "code": "authorization_pending" } })
+    TestAnswer(ctx, "POST", tokenUrl, 200, TestSessionJson(ctx, "viewer"))
+    AssertEqual(QuickConnectPoll(ctx, connection, created.authorization).next, "pending")
+    approved = QuickConnectPoll(ctx, connection, created.authorization)
+    AssertEqual(approved.next, "approved")
+    AssertTrue(approved.outcome.ok)
+    AssertEqual(SessionRecord(ctx)["session"].accessToken, "access-viewer-prof_1")
+end sub
+
+function TestGrant() as object
+    return { "accessToken": "hosted-access", "refreshToken": "hosted-refresh", "familyId": "hfam_1", "expiresAt": "2026-10-03T13:00:00Z", "refreshExpiresAt": "2026-12-31T00:00:00Z", "account": { "id": "acct_1", "username": "justin", "displayName": "Justin" }, "profiles": [] }
+end function
+
+sub Test_Hosted_activationCode()
+    ctx = TestContext()
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations", 201, TestAuthorization(ctx, "https://account.example.com"))
+    created = HostedCodeCreate(ctx)
+    AssertTrue(created.ok)
+    sent = ParseJson(TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations")[0].body)
+    AssertEqual(sent.platform, "roku")
+    AssertTrue(sent.protocol = invalid, "the plain code flow, with no key exchange")
+    tokenUrl = ctx.hostedUrl + "/v1/device-authorizations/token"
+    TestAnswer(ctx, "POST", tokenUrl, 400, { "error": { "code": "slow_down" } })
+    TestAnswer(ctx, "POST", tokenUrl, 400, { "error": { "code": "access_denied" } })
+    AssertEqual(HostedCodePoll(ctx, created.authorization).interval, 10)
+    AssertEqual(HostedCodePoll(ctx, created.authorization).next, "denied")
+    ctx.transport.answers.clear()
+    TestAnswer(ctx, "POST", tokenUrl, 200, TestGrant())
+    approved = HostedCodePoll(ctx, created.authorization)
+    AssertEqual(approved.next, "approved")
+    AssertEqual(HostedLoad(ctx).account.id, "acct_1", "the account's session is saved")
+end sub
+
+sub Test_Hosted_sessionRenewal()
+    ctx = TestContext()
+    AssertEqual(HostedLive(ctx).signOut, true, "no account")
+    HostedSave(ctx, TestGrant())
+    AssertTrue(HostedLive(ctx).ok)
+    AssertEqual(ctx.transport.requests.count(), 0, "a fresh account session is not renewed")
+    stale = TestGrant()
+    stale["expiresAt"] = "2026-10-03T12:00:30Z"
+    HostedSave(ctx, stale)
+    renewedGrant = TestGrant()
+    renewedGrant["accessToken"] = "hosted-access-2"
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions/refresh", 200, renewedGrant)
+    AssertEqual(HostedLive(ctx).hosted.accessToken, "hosted-access-2")
+    HostedSave(ctx, stale)
+    ctx.transport.answers.clear()
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions/refresh", 401, { "error": { "code": "invalid_grant" } })
+    AssertEqual(HostedLive(ctx).signOut, true)
+    AssertTrue(HostedLoad(ctx) = invalid, "a refusal signs the account out of this device")
+end sub
+
+sub Test_Hosted_presenceAndLanding()
+    fixture = TestFixture("golden/presence.json")
+    if fixture = invalid then return
+    servers = []
+    for each raw in fixture.servers
+        server = { id: raw.id, name: raw.name }
+        presence = ParseServerPresence(raw.presence)
+        if presence <> invalid then server.presence = presence
+        servers.push(server)
+    end for
+    order = []
+    for each server in SortServersByPresence(servers)
+        order.push(server.id)
+    end for
+    AssertEqual(order, fixture.order, "presence order")
+    for index = 0 to servers.count() - 1
+        label = PresenceLabel(servers[index].presence, fixture.now)
+        expected = fixture.labels[index].label
+        AssertEqual(label.kind, expected.kind, "presence label for " + servers[index].id)
+        if expected.kind = "lastSeen" then AssertEqual(label.recent, expected.recent, "recent for " + servers[index].id)
+    end for
+    ' apps/native/src/app/portico-landing.ts.
+    AssertEqual(LandingChoice([], invalid).kind, "none")
+    AssertEqual(LandingChoice([{ id: "a" }], invalid).kind, "open")
+    AssertEqual(LandingChoice([{ id: "a" }, { id: "b" }], invalid).kind, "pick")
+    AssertEqual(LandingChoice([{ id: "a" }, { id: "b" }], "b").server.id, "b")
+    AssertEqual(LandingChoice([{ id: "a" }, { id: "b" }], "gone").kind, "pick")
+end sub
+
+sub Test_Hosted_openingAServer()
+    ctx = TestContext()
+    fixture = ctx.fixture
+    routes = fixture.routes[0]
+    pin = TestPin(ctx)
+    HostedSave(ctx, TestGrant())
+    server = { id: pin.serverId, name: "Den", baseUrl: "https://den.example.com", publicKey: pin.publicKey, policyRevision: 3 }
+    TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
+    TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, routes.value)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.proofs[0].answer)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/portico-challenge", 200, fixture.challenges[0].answer)
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/identity", 200, { "payload": "assertion-payload", "signature": "assertion-signature", "keyId": "hosted-key-1" })
+    answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    session = TestSessionJson(ctx, "viewer")
+    session.delete("serverIdentity")
+    answer["session"] = session
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, answer)
+    opened = HostedOpen(ctx, server)
+    AssertTrue(opened.ok, "the account is signed in to its server")
+    if not opened.ok then
+        AssertEqual(opened.failure.code, "", "why it failed")
+        return
+    end if
+    AssertEqual(opened.kind, "ready")
+    AssertEqual(opened.connection.origin, ctx.base, "the home-network address is tried first")
+    identity = TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/identity")[0]
+    AssertEqual(identity.headers["Authorization"], "Bearer hosted-access", "the account asks for the assertion")
+    AssertEqual(ParseJson(identity.body).challenge, "chal_abc", "for the challenge the server proved")
+    signIn = TestRequests(ctx, "POST", ctx.base + "/v1/direct/sign-in")[0]
+    AssertEqual(ParseJson(signIn.body).porticoIdentity.payload, "assertion-payload")
+    AssertTrue(signIn.headers["Authorization"] = invalid, "the account's bearer never goes to the server")
+    record = SessionRecord(ctx)
+    AssertEqual(record["hosted"].accountId, "acct_1")
+    AssertEqual(record["serverName"], "Den")
+    AssertEqual(ctx.store.read("portico", "lastHostedServer"), pin.serverId)
+
+    ' A server that cannot prove the challenge gets no assertion.
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
+    TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, routes.value)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.proofs[0].answer)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/direct/portico-challenge", 200, fixture.challenges[4].answer)
+    relay = HostedOpen(ctx, server)
+    AssertEqual(relay.failure.code, "challenge_not_proven")
+    AssertEqual(TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/identity").count(), 0, "nothing is asked of the account service for it")
+
+    ' Routes the account service did not sign are not followed.
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
+    TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, fixture.routes[6].value)
+    forged = HostedOpen(ctx, server)
+    AssertEqual(forged.failure.code, "invalid_signature")
+    AssertEqual(forged.stage, "route")
+    AssertEqual(TestRequests(ctx, "POST", ctx.base + "/v1/networking/identity-proof").count(), 0)
+end sub
+
+sub Test_Session_savedServerBackoff()
+    ' apps/native/src/screens/auth/SavedServerUnavailable.tsx: 2, 4, 8, 15, 30, then every 60 seconds.
+    waits = []
+    for attempt = 0 to 7
+        waits.push(SavedServerBackoffSeconds(attempt))
+    end for
+    AssertEqual(waits, [2, 4, 8, 15, 30, 60, 60, 60])
+end sub

@@ -1,0 +1,50 @@
+{
+ "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+ "installationId": "fixtures-roku-0000000000000000000000000000",
+ "authority": "local",
+ "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+ "account": {
+  "id": "JSnvphCti4WXjd1OlrN_OSEUTz4Dz6nrsSs8kkUCbNQ",
+  "username": "dev",
+  "primaryProfileId": "ufz_ILzAtRkMv3b0OJEyQv8AKLf7k6l-xFaAk5yBtOs",
+  "role": "owner",
+  "revision": 1,
+  "disabled": false,
+  "allowedLibraries": []
+ },
+ "profiles": [
+  {
+   "id": "ufz_ILzAtRkMv3b0OJEyQv8AKLf7k6l-xFaAk5yBtOs",
+   "name": "dev",
+   "primary": true,
+   "position": 0,
+   "art": "blue",
+   "revision": 1,
+   "pinRevision": 1,
+   "pinRequired": false,
+   "allowedLibraries": []
+  }
+ ],
+ "canManage": true,
+ "session": {
+  "serverIdentity": {
+   "publicKey": "Stifp83_bElGlJIJHCGNoqjrz92yvL8kYzkht-xN8ho",
+   "fingerprint": "Pv4O0PfPPUpB6EgPfOWFKp7uMxfRjweQx6O2L05rGRo"
+  },
+  "accessToken": "stripped-token-000000000000000000000000000",
+  "refreshToken": "stripped-token-000000000000000000000000000",
+  "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+  "installationId": "fixtures-roku-0000000000000000000000000000",
+  "expiresAt": "2026-10-05T20:21:32Z",
+  "viewer": {
+   "accountId": "JSnvphCti4WXjd1OlrN_OSEUTz4Dz6nrsSs8kkUCbNQ",
+   "profileId": "ufz_ILzAtRkMv3b0OJEyQv8AKLf7k6l-xFaAk5yBtOs",
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "authority": "local",
+   "role": "owner"
+  },
+  "sessionFamilyId": "oaTcwTgIkrnb40EN5UoWXAtRaI4Jp72F6LrCpG6rXN0",
+  "tokenGeneration": "1",
+  "authorizationHorizon": "2027-01-03T20:06:32Z"
+ }
+}

@@ -1,0 +1,105 @@
+' packages/client-core/src/setup-code.ts `SetupCodeService`, as a Task: ask for a code, poll at
+' the interval the authority gives, replace the code when under a minute of it remains, back off
+' after failures, stop on a denial until asked for a new code. The decisions are in
+' source/core/SetupCode.bs; the secret (the device code) never leaves this thread.
+import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/Hosted.bs"
+
+sub init()
+    m.top.functionName = "work"
+end sub
+
+sub work()
+    ctx = SessionContextNew()
+    port = CreateObject("roMessagePort")
+    m.top.observeField("command", port)
+    account = m.top.mode = "account"
+    connection = m.top.connection
+    authorization = invalid
+    failures = 0
+    createAfter = 0
+    nextPoll = 0
+    halted = false
+    m.top.state = { phase: "creating" }
+    while true
+        now = NowSeconds()
+        if not halted then
+            if SetupCodeNeedsReplacing(authorization, now) and now >= createAfter then
+                previous = authorization
+                created = invalid
+                if account then
+                    created = HostedCodeCreate(ctx)
+                else
+                    created = QuickConnectCreate(ctx, connection)
+                end if
+                if created.ok then
+                    failures = 0
+                    authorization = created.authorization
+                    nextPoll = NowSeconds() + authorization.interval
+                    m.top.state = { phase: "waiting", userCode: authorization.userCode, verificationUri: authorization.verificationUri, verificationUriComplete: authorization.verificationUriComplete }
+                    SetupCancel(ctx, account, connection, previous)
+                else
+                    failures = failures + 1
+                    delay = SetupCodeBackoffSeconds(failures)
+                    if created.failure.retryAfterSeconds <> invalid and created.failure.retryAfterSeconds > delay then delay = created.failure.retryAfterSeconds
+                    createAfter = NowSeconds() + delay
+                    ' The code on show stays while a replacement fails; with none, say so.
+                    if authorization = invalid or SetupCodeExpired(authorization, NowSeconds()) then
+                        authorization = invalid
+                        phase = "creating"
+                        if failures >= 2 then phase = "error"
+                        m.top.state = { phase: phase }
+                    end if
+                end if
+            else if authorization <> invalid and now >= nextPoll then
+                polled = invalid
+                if account then
+                    polled = HostedCodePoll(ctx, authorization)
+                else
+                    polled = QuickConnectPoll(ctx, connection, authorization)
+                end if
+                if polled.next = "approved" then
+                    m.top.state = { phase: "approved" }
+                    if account then
+                        m.top.outcome = { ok: true, account: polled.grant.account }
+                    else
+                        m.top.outcome = polled.outcome
+                    end if
+                    return
+                else if polled.next = "denied" then
+                    authorization = invalid
+                    halted = true
+                    m.top.state = { phase: "denied" }
+                else if polled.next = "replace" then
+                    authorization = invalid
+                    createAfter = 0
+                else
+                    authorization.interval = polled.interval
+                    nextPoll = NowSeconds() + polled.waitSeconds
+                end if
+            end if
+        end if
+        message = wait(1000, port)
+        if message <> invalid then
+            command = message.getData()
+            if command = "stop" then
+                SetupCancel(ctx, account, connection, authorization)
+                return
+            else if command = "restart" then
+                halted = false
+                failures = 0
+                createAfter = 0
+                if authorization = invalid then m.top.state = { phase: "creating" }
+            end if
+        end if
+    end while
+end sub
+
+sub SetupCancel(ctx as object, account as boolean, connection as dynamic, authorization as dynamic)
+    if authorization = invalid then return
+    if account then
+        HostedCodeCancel(ctx, authorization)
+    else
+        QuickConnectCancel(ctx, connection, authorization)
+    end if
+end sub

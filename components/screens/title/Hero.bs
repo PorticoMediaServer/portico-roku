@@ -1,0 +1,389 @@
+' apps/native/src/screens/title/TitleHero.tsx (Spec — Title Pages §1), the television form: the
+' one fixture every title page opens with, filled per type. Its height is 60 % of the screen; with
+' no backdrop it is the compact hero instead (the art beside the identity, never a tall empty
+' band). The art sits beside the identity, bottom-aligned: the eyebrow (the kind, or the artist as
+' a link), the title in the display role (or the title's logo), the original title, one facts line
+' with the content rating as a chip and up to three scores, the tagline, the synopsis (two lines,
+' "More" opens the rest), the credit lines, then one action row: Play/Resume with its progress,
+' and icon buttons whose name shows beside the row while one has focus. While loading, the
+' skeleton keeps the geometry so the page does not jump.
+'
+' Differences from the Apple TV app: the tagline is not italic (the font has no italic face); a
+' compact hero has no blurred copy of the art behind it (SceneGraph has no blur).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Validate.bs"
+
+sub init()
+    m.backdrop = m.top.createChild("UiBackdrop")
+    m.backdrop.visible = false
+    m.body = m.top.createChild("Group")
+    m.primary = invalid
+    m.buttons = []
+    m.sheet = invalid
+    m.synopsis = ""
+end sub
+
+function HeroWidth() as float
+    if m.top.heroWidth > 0 then return m.top.heroWidth
+    return Theme.screen.width - Theme.metrics.railWidth
+end function
+
+sub onHeroContent()
+    c = m.top.content
+    if c = invalid then return
+    ' A button that had focus keeps it across a redraw (a toggled Favorite, a refreshed Play).
+    held = ""
+    if m.primary <> invalid and m.primary.isInFocusChain() then held = "primary"
+    for each button in m.buttons
+        if button.isInFocusChain() then held = button.actionId
+    end for
+    m.body.removeChildrenIndex(m.body.getChildCount(), 0)
+    m.primary = invalid
+    m.buttons = []
+    width = HeroWidth()
+    padX = Theme.spec.hero.paddingX
+    band = Int(Theme.screen.height * Theme.spec.hero.height.viewportFraction + 0.5)
+    loading = c.loading = true
+    backdropUri = ""
+    if c.backdropUri <> invalid then backdropUri = c.backdropUri
+    compact = backdropUri = "" and not loading
+
+    ' The art beside the identity.
+    art = c.art
+    artWidth = 0
+    artHeight = 0
+    artNode = invalid
+    if art <> invalid then
+        shape = art.shape
+        artWidth = Theme.spec.hero.artwork.square
+        if shape = "poster" then artWidth = Theme.spec.hero.artwork.poster
+        artNode = HeroArt(art, artWidth, c.title)
+        artHeight = artNode.boundingRect().height
+        if artHeight <= 0 then artHeight = Int(artWidth / ArtworkRatio(shape) + 0.5)
+    end if
+    left = padX
+    if artNode <> invalid then left = padX + artWidth + Theme.spec.hero.gap
+    column = width - left - padX
+    gap = Theme.spec.hero.identity.gap / 2
+
+    ' The identity, top to bottom; each piece is {node, height, gap (above it)}.
+    pieces = []
+    if c.eyebrow <> invalid and c.eyebrow <> "" then
+        if c.eyebrowLink = true then
+            link = m.body.createChild("UiButton")
+            link.addFields({ actionId: "eyebrow" })
+            link.variant = "link"
+            link.size = "sm"
+            link.label = c.eyebrow
+            link.observeField("pressed", "onHeroAction")
+            pieces.push({ node: link, height: link.controlHeight, gap: 0, inset: -Theme.space.sm })
+        else
+            eyebrow = MakeText(m.body, Theme.spec.hero.identity.eyebrow, "tertiary", c.eyebrow)
+            eyebrow.maxWidth = column
+            pieces.push({ node: eyebrow, height: eyebrow.height, gap: 0 })
+        end if
+    else if loading then
+        pieces.push(HeroBlock(Theme.apple.heroSkeletonEyebrowWidth, Theme.apple.heroSkeletonEyebrowHeight, 0))
+    end if
+    if c.title <> invalid and c.title <> "" then
+        title = MakeText(m.body, Theme.spec.hero.identity.title)
+        title.lines = Theme.spec.hero.identity.titleLines
+        title.maxWidth = column
+        title.value = c.title
+        pieces.push({ node: title, height: TextHeight(title), gap: gap })
+        if c.originalTitle <> invalid and c.originalTitle <> "" then
+            original = MakeText(m.body, "caption", "secondary", c.originalTitle)
+            original.maxWidth = column
+            pieces.push({ node: original, height: original.height, gap: gap })
+        end if
+    else
+        pieces.push(HeroBlock(column * Theme.apple.heroSkeletonTitleFraction, Theme.metrics.iconLarge, gap))
+    end if
+    factsRow = HeroFacts(c, column)
+    if factsRow <> invalid then pieces.push({ node: factsRow.node, height: factsRow.height, gap: gap })
+    synopsisMax = Min(Theme.spec.hero.synopsis.maxWidth, column)
+    if c.tagline <> invalid and c.tagline <> "" then
+        tagline = MakeText(m.body, Theme.spec.hero.synopsis.role)
+        tagline.lines = Theme.apple.heroTaglineLines
+        tagline.maxWidth = synopsisMax
+        tagline.value = c.tagline
+        pieces.push({ node: tagline, height: TextHeight(tagline), gap: gap })
+    end if
+    m.synopsis = ""
+    if c.synopsis <> invalid and c.synopsis <> "" then
+        m.synopsis = c.synopsis
+        m.title = c.title
+        synopsis = MakeText(m.body, Theme.spec.hero.synopsis.role, "secondary")
+        synopsis.lines = Theme.spec.hero.synopsis.lines
+        synopsis.maxWidth = synopsisMax
+        synopsis.value = c.synopsis
+        pieces.push({ node: synopsis, height: TextHeight(synopsis), gap: gap })
+        if Len(c.synopsis) > Theme.apple.heroSynopsisMoreAt then
+            more = m.body.createChild("UiButton")
+            more.addFields({ actionId: "synopsis" })
+            more.variant = "link"
+            more.size = "sm"
+            more.label = T("title.more")
+            more.observeField("pressed", "onHeroAction")
+            pieces.push({ node: more, height: more.controlHeight, gap: 0, inset: -Theme.space.sm })
+        end if
+    else if loading then
+        pieces.push(HeroBlock(column * Theme.apple.heroSkeletonLineFraction, Theme.apple.heroSkeletonLineHeight, gap))
+    end if
+    if c.credits <> invalid and c.credits.count() > 0 then
+        first = true
+        for each line in c.credits
+            credit = MakeText(m.body, "caption", "tertiary", line)
+            credit.maxWidth = synopsisMax
+            above = Theme.space.xxs
+            if first then above = gap
+            pieces.push({ node: credit, height: credit.height, gap: above })
+            first = false
+        end for
+    end if
+    actions = HeroActions(c, held)
+    if actions <> invalid then pieces.push({ node: actions.node, height: actions.height, gap: gap + Theme.space.md })
+
+    content = 0
+    for each piece in pieces
+        content = content + piece.gap + piece.height
+    end for
+    inner = Max(content, artHeight)
+    height = Theme.space.xl + inner + Theme.spec.hero.paddingBottom
+    if not compact and height < band then height = band
+    ' The row is bottom-aligned in the band; a compact hero centres the art on the identity.
+    bottom = height - Theme.spec.hero.paddingBottom
+    y = bottom - content
+    if compact then y = Theme.space.xl + (inner - content) / 2
+    for each piece in pieces
+        y = y + piece.gap
+        x = left
+        if piece.inset <> invalid then x = left + piece.inset
+        Place(piece.node, x, y)
+        y = y + piece.height
+    end for
+    if artNode <> invalid then
+        if compact then
+            Place(artNode, padX, Theme.space.xl + (inner - artHeight) / 2)
+        else
+            Place(artNode, padX, bottom - artHeight)
+        end if
+    end if
+    m.backdrop.visible = backdropUri <> ""
+    if backdropUri <> "" then
+        m.backdrop.backdropWidth = width
+        m.backdrop.backdropHeight = band + Theme.space.xl
+        m.backdrop.imageOpacity = Theme.spec.hero.backdropOpacity
+        if m.backdrop.uri <> backdropUri then m.backdrop.uri = backdropUri
+    end if
+    m.top.heroHeight = height
+end sub
+
+function HeroBlock(width as dynamic, height as dynamic, gap as dynamic) as object
+    block = m.body.createChild("UiSkeleton")
+    block.blockHeight = height
+    block.blockWidth = width
+    return { node: block, height: height, gap: gap }
+end function
+
+' The hero's art: a 2×2 mosaic, an initial circle, or the single artwork.
+function HeroArt(art as object, width as dynamic, title as dynamic) as object
+    mosaic = []
+    if art.mosaic <> invalid then
+        for each uri in art.mosaic
+            if uri <> invalid and uri <> "" then mosaic.push(uri)
+        end for
+    end if
+    if mosaic.count() > 1 then
+        holder = m.body.createChild("Group")
+        tile = Int((width - Theme.space.sm) / 2)
+        tileHeight = Int(tile / ArtworkRatio("poster") + 0.5)
+        tiles = 2 * 2
+        for index = 0 to tiles - 1
+            cell = holder.createChild("UiArtwork")
+            cell.shape = "poster"
+            cell.artWidth = tile
+            if index < mosaic.count() then
+                cell.uri = mosaic[index]
+            else if art.icon <> invalid then
+                cell.icon = art.icon
+            end if
+            Place(cell, (index mod 2) * (tile + Theme.space.sm), (index \ 2) * (tileHeight + Theme.space.sm))
+        end for
+        return holder
+    end if
+    node = m.body.createChild("UiArtwork")
+    shape = art.shape
+    node.shape = shape
+    if shape = "circle" then node.radius = width / 2
+    node.artWidth = width
+    uri = ""
+    if mosaic.count() = 1 then
+        uri = mosaic[0]
+    else if art.uri <> invalid then
+        uri = art.uri
+    end if
+    if uri = "" and shape = "circle" and IsString(title) then
+        ' A person or an artist without an image: a neutral circle with the initial, never a glyph.
+        node.initials = UCase(Left(title, 1))
+    else
+        if IsString(title) then node.title = title
+        if art.icon <> invalid then node.icon = art.icon
+    end if
+    node.priority = true
+    node.uri = uri
+    return node
+end function
+
+' The facts line: the facts, the content rating as a chip, then up to three scores.
+function HeroFacts(c as object, column as dynamic) as dynamic
+    facts = ""
+    if c.facts <> invalid then facts = c.facts
+    scores = []
+    if c.scores <> invalid then scores = c.scores
+    rating = ""
+    if c.rating <> invalid then rating = c.rating
+    if facts = "" and rating = "" and scores.count() = 0 then return invalid
+    row = m.body.createChild("Group")
+    gap = Theme.spec.hero.facts.gap
+    badgeHeight = Theme.spec.hero.facts.badge.height
+    lineHeight = TypeRole(Theme.spec.hero.facts.role, TextScale()).lineHeight
+    height = lineHeight
+    if rating <> "" and badgeHeight > height then height = badgeHeight
+    x = 0
+    trailing = 0
+    chip = invalid
+    if rating <> "" then
+        chip = MakeText(row, Theme.spec.hero.facts.badge.role, "primary", rating)
+        trailing = trailing + gap + TextWidth(chip) + Theme.spec.hero.facts.badge.paddingX * 2
+    end if
+    scoreNodes = []
+    for index = 0 to Min(scores.count(), Theme.apple.scoresOnHero) - 1
+        provider = MakeText(row, "captionStrong", "tertiary", scores[index].provider + " ")
+        value = MakeText(row, Theme.spec.hero.facts.role, "secondary", scores[index].value)
+        scoreNodes.push({ provider: provider, value: value })
+        trailing = trailing + gap + TextWidth(provider) + TextWidth(value)
+    end for
+    if facts <> "" then
+        line = MakeText(row, Theme.spec.hero.facts.role, "secondary", facts)
+        room = column - trailing
+        if TextWidth(line) > room then line.maxWidth = Max(room, column / 2)
+        Place(line, 0, (height - line.height) / 2)
+        x = Min(TextWidth(line), Max(room, column / 2)) + gap
+    end if
+    if chip <> invalid then
+        chipWidth = TextWidth(chip) + Theme.spec.hero.facts.badge.paddingX * 2
+        border = MakeRing(row, chipWidth, badgeHeight, Theme.metrics.radius.small, 1, ThemeColor(Theme.spec.hero.facts.badge.border))
+        Place(border, x, (height - badgeHeight) / 2)
+        Place(chip, x + Theme.spec.hero.facts.badge.paddingX, (height - chip.height) / 2)
+        x = x + chipWidth + gap
+    end if
+    for each score in scoreNodes
+        Place(score.provider, x, (height - score.provider.height) / 2)
+        x = x + TextWidth(score.provider)
+        Place(score.value, x, (height - score.value.height) / 2)
+        x = x + TextWidth(score.value) + gap
+    end for
+    return { node: row, height: height }
+end function
+
+' One action group, in one row: the primary with its progress, then icon buttons, then the
+' focused button's name.
+function HeroActions(c as object, held as string) as dynamic
+    actions = []
+    if c.actions <> invalid then actions = c.actions
+    if c.primary = invalid and actions.count() = 0 then return invalid
+    row = m.body.createChild("Group")
+    gap = Theme.spec.hero.actions.gap
+    size = Theme.spec.hero.actions.size
+    x = 0
+    height = 0
+    if c.primary <> invalid then
+        m.primary = row.createChild("UiButton")
+        m.primary.addFields({ actionId: "primary", actionLabel: "" })
+        m.primary.variant = "primary"
+        m.primary.size = size
+        icon = "play"
+        if c.primary.icon <> invalid then icon = c.primary.icon
+        m.primary.icon = icon
+        m.primary.label = c.primary.label
+        if c.primary.progress <> invalid and c.primary.progress > 0 then m.primary.progress = c.primary.progress
+        m.primary.observeField("pressed", "onHeroAction")
+        m.primary.observeField("isFocused", "onHeroFocus")
+        x = m.primary.controlWidth + gap
+        height = m.primary.controlHeight
+        if held = "primary" then FocusOn(m.primary)
+    end if
+    for each action in actions
+        button = row.createChild("UiButton")
+        button.addFields({ actionId: action.id, actionLabel: action.label })
+        button.variant = "secondary"
+        button.size = size
+        button.icon = action.icon
+        button.selected = action.selected = true
+        button.observeField("pressed", "onHeroAction")
+        button.observeField("isFocused", "onHeroFocus")
+        Place(button, x, 0)
+        x = x + button.controlWidth + gap
+        if button.controlHeight > height then height = button.controlHeight
+        m.buttons.push(button)
+        if held = action.id then FocusOn(button)
+    end for
+    m.focusName = MakeText(row, "caption", "secondary")
+    Place(m.focusName, x - gap + Theme.space.sm + gap, (height - m.focusName.height) / 2)
+    onHeroFocus()
+    return { node: row, height: height }
+end function
+
+sub onHeroFocus()
+    if m.focusName = invalid then return
+    name = ""
+    for each button in m.buttons
+        if button.isFocused then name = button.actionLabel
+    end for
+    m.focusName.value = name
+end sub
+
+sub onHeroAction(event as object)
+    button = event.getRoSGNode()
+    if button.actionId = "synopsis" then
+        HeroRead()
+        return
+    end if
+    m.top.pressed = button.actionId
+end sub
+
+' Television: "More" opens the whole synopsis in a sheet.
+sub HeroRead()
+    if m.sheet = invalid then m.sheet = m.top.createChild("UiSheet")
+    m.sheet.kind = "picker"
+    title = ""
+    if IsString(m.title) then title = m.title
+    m.sheet.title = title
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    text = MakeText(body, "body", "secondary")
+    text.lines = 0
+    text.maxWidth = width - Theme.space.md * 2
+    text.value = m.synopsis
+    Place(text, Theme.space.md, 0)
+    m.sheet.callFunc("setBody", body, TextHeight(text))
+    m.sheet.callFunc("open")
+end sub
+
+function focusPrimary() as boolean
+    if m.primary <> invalid then
+        FocusOn(m.primary)
+        return true
+    end if
+    if m.buttons.count() > 0 then
+        FocusOn(m.buttons[0])
+        return true
+    end if
+    return false
+end function

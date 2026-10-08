@@ -1,0 +1,55 @@
+{
+ "data": {
+  "name": "storage",
+  "observedAt": 1791230792995,
+  "freshUntil": 1791230822995,
+  "facts": {
+   "databaseBytes": {
+    "state": "available",
+    "value": 63410176,
+    "unit": "bytes"
+   },
+   "databaseWALBytes": {
+    "state": "available",
+    "value": 4783352,
+    "unit": "bytes"
+   },
+   "mediaVolumes": {
+    "state": "available",
+    "value": [
+     {
+      "volume": "device-100000d",
+      "libraryIds": [
+       "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+       "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+       "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+       "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+       "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec"
+      ],
+      "availableBytes": 79720243200
+     }
+    ],
+    "unit": "bytes"
+   },
+   "processReadBytes": {
+    "state": "unavailable",
+    "value": null,
+    "reason": "Process I/O counters are unavailable on this platform."
+   },
+   "processWriteBytes": {
+    "state": "unavailable",
+    "value": null,
+    "reason": "Process I/O counters are unavailable on this platform."
+   },
+   "stateVolumeAvailable": {
+    "state": "available",
+    "value": 79720243200,
+    "unit": "bytes"
+   }
+  }
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+ }
+}

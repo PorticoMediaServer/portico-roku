@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/SavedServerUnavailable.tsx: a remembered server that cannot be reached right now. -->
+<component name="ScreenSavedServerUnavailable" extends="Group">
+    <interface>
+        <field id="elsewherePressed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

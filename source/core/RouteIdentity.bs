@@ -1,0 +1,256 @@
+' packages/client-core/src/route-identity.ts and apps/native/src/app/direct-connect.ts
+' `serverAddress`: what a server address may be, the server's pinned identity, and the proofs a
+' server and the account service sign. A server id is its key's own digest; a server proves an
+' address is its own by signing a fresh nonce; the account service signs the routes it publishes.
+' Nothing here grants a viewer anything: it only decides whether to speak to an address.
+'
+' Every check returns {ok: true, …} or {ok: false, code, message}, with route-identity.ts's codes.
+import "pkg:/source/core/Bytes.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Ed25519.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Validate.bs"
+
+function RouteFailure(code as string, message as string) as object
+    return { ok: false, code: code, message: message }
+end function
+
+' direct-connect.ts `serverAddress`: what a person types is rarely a URL. A bare host gets a
+' scheme: plain HTTP for an address on the home network (an IP, localhost, a .local name, a
+' single-label name), HTTPS for anything else.
+function ServerAddress(typed as string) as string
+    value = typed.trim()
+    while Right(value, 1) = "/"
+        value = Left(value, Len(value) - 1)
+    end while
+    if MatchesPattern(LCase(value), "^https?://") then return value
+    host = value
+    cut = CreateObject("roRegex", "[:/].*$", "").replace(host, "")
+    host = cut
+    if MatchesPattern(LCase(host), "^(localhost|\d{1,3}(\.\d{1,3}){3}|\[[0-9a-f:]+\]|[^.]+|.+\.local|.+\.lan|.+\.home)$") then return "http://" + value
+    return "https://" + value
+end function
+
+' route-identity.ts `privateRouteHost`: localhost, .local, and the private and link-local ranges.
+function PrivateRouteHost(host as string) as boolean
+    h = LCase(host)
+    if Left(h, 1) = "[" then h = Mid(h, 2)
+    if Right(h, 1) = "]" then h = Left(h, Len(h) - 1)
+    if h = "localhost" or h = "::1" or Right(h, 6) = ".local" then return true
+    if Instr(1, h, ":") > 0 then
+        if Instr(1, h, ".") > 0 or Instr(1, h, "%") > 0 then return false
+        return MatchesPattern(h, "^(fc|fd)[0-9a-f]{2}:") or MatchesPattern(h, "^fe[89ab][0-9a-f]:")
+    end if
+    if not MatchesPattern(h, "^(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){3}$") then return false
+    parts = []
+    for each piece in h.tokenize(".")
+        number = Val(piece, 10)
+        if number > 255 then return false
+        parts.push(number)
+    end for
+    return parts[0] = 10 or parts[0] = 127 or (parts[0] = 192 and parts[1] = 168) or (parts[0] = 172 and parts[1] >= 16 and parts[1] <= 31) or (parts[0] = 169 and parts[1] = 254)
+end function
+
+' route-identity.ts `routeOrigin`: an origin only. No userinfo, path, query or fragment, no
+' ambiguous host, and no public HTTP. Returns {ok, origin} with the origin as a URL parser would
+' write it (lower case, default port dropped).
+function RouteOrigin(raw as dynamic) as object
+    address = RouteFailure("invalid_address", "Enter an HTTPS server address or a private LAN address.")
+    if not IsString(raw) or Len(raw) > 300 or MatchesPattern(raw, "[\\\s\x00-\x1f\x7f]") then return address
+    if m.routeOriginPattern = invalid then m.routeOriginPattern = CreateObject("roRegex", "^(https?)://(\[[0-9a-fA-F:.]+\]|[^/:?#@\[\]]+)(?::(\d{1,5}))?/?$", "i")
+    parts = m.routeOriginPattern.match(raw)
+    if parts.count() < 3 then
+        if MatchesPattern(LCase(raw), "^https?://") then return RouteFailure("invalid_address", "Public server addresses require HTTPS.")
+        return address
+    end if
+    scheme = LCase(parts[1])
+    typedHost = parts[2]
+    host = LCase(typedHost)
+    public = RouteFailure("invalid_address", "Public server addresses require HTTPS.")
+    canonical = RouteFailure("invalid_address", "Use a canonical server address.")
+    if Right(host, 1) = "." or Instr(1, host, "%") > 0 then return public
+    if Left(host, 1) = "[" then
+        ' An IPv6 literal must already be written the short way (lower-case groups, no leading zeros).
+        if not MatchesPattern(host, "^\[(?:[0-9a-f]{1,4}|:)[0-9a-f:]*\]$") or MatchesPattern(host, "(^\[|:)0[0-9a-f]") then return canonical
+    else
+        if not MatchesPattern(host, "^[a-z0-9._-]+$") then return canonical
+        labels = host.tokenize(".")
+        last = labels[labels.count() - 1]
+        ' A host whose last label is a number is an IPv4 address to a URL parser: only the plain
+        ' dotted form is accepted, never decimal, octal or hexadecimal shorthand.
+        if MatchesPattern(last, "^(\d+|0x[0-9a-f]*)$") then
+            if not MatchesPattern(host, "^(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){3}$") then return canonical
+            for each label in labels
+                if Val(label, 10) > 255 then return canonical
+            end for
+        end if
+    end if
+    port = ""
+    if parts.count() > 3 and parts[3] <> "" then
+        number = Val(parts[3], 10)
+        if number > 65535 then return address
+        isDefault = (scheme = "http" and number = 80) or (scheme = "https" and number = 443)
+        if not isDefault then port = ":" + number.toStr()
+    end if
+    if scheme = "http" and not PrivateRouteHost(host) then return public
+    return { ok: true, origin: scheme + "://" + host + port, host: host, scheme: scheme }
+end function
+
+' route-identity.ts `serverPin`: a server id is "srv_" and the digest of its key under a fixed
+' context; the fingerprint is the key's own digest. Returns {ok, pin: {serverId, publicKey, fingerprint}}.
+function ServerPin(serverId as dynamic, publicKey as dynamic, fingerprint as dynamic) as object
+    mismatch = RouteFailure("identity_mismatch", "This address does not match the selected server identity.")
+    key = Base64UrlDecode(publicKey, 32)
+    if key = invalid then return RouteFailure("invalid_identity", "Invalid identity encoding.")
+    keyDigest = CryptoDigest("sha256", key)
+    context = BytesFromText("portico.server.identity.v1")
+    context.push(0)
+    idDigest = CryptoDigest("sha256", BytesConcat([context, key]))
+    if keyDigest = invalid or idDigest = invalid then return mismatch
+    digest = Base64UrlEncode(keyDigest)
+    if not IsString(serverId) or serverId <> "srv_" + Base64UrlEncode(idDigest) then return mismatch
+    if fingerprint <> invalid and (not IsString(fingerprint) or fingerprint <> digest) then return mismatch
+    return { ok: true, pin: { serverId: serverId, publicKey: publicKey, fingerprint: digest } }
+end function
+
+function SameServerPin(a as object, b as object) as boolean
+    return a.serverId = b.serverId and a.publicKey = b.publicKey and a.fingerprint = b.fingerprint
+end function
+
+' Ed25519 over `message`: the digest is SHA-512(R ‖ key ‖ message).
+function Ed25519Verify(publicKey as object, signature as object, message as object) as boolean
+    if publicKey = invalid or signature = invalid or message = invalid or signature.count() <> 64 then return false
+    r = CreateObject("roByteArray")
+    for index = 0 to 31
+        r.push(signature[index])
+    end for
+    digest = CryptoDigest("sha512", BytesConcat([r, publicKey, message]))
+    if digest = invalid then return false
+    verdict = CryptoKnownVerdict(publicKey, signature, digest)
+    if verdict <> invalid then return verdict
+    return Ed25519VerifyDigest(publicKey, signature, digest)
+end function
+
+' route-identity.ts `envelope` and `parseSignedJSON`: {payload, signature} (and, for the account
+' service, keyId and an optional certificate), with the payload a JSON object.
+function SignedEnvelope(value as dynamic, keyId = invalid as dynamic) as object
+    bad = RouteFailure("invalid_identity", "Invalid signed connection evidence.")
+    if not IsObject(value) then return bad
+    for each key in value.keys()
+        allowed = key = "payload" or key = "signature"
+        if keyId <> invalid and (key = "keyId" or key = "certificate") then allowed = true
+        if not allowed then return bad
+    end for
+    if value.certificate <> invalid and not IsObject(value.certificate) then return bad
+    if value.keyId <> invalid and value.keyId <> keyId then return bad
+    if not IsString(value.payload) or not IsString(value.signature) or Len(value.payload) > 43692 then return bad
+    payload = Base64UrlDecode(value.payload)
+    signature = Base64UrlDecode(value.signature, 64)
+    if payload = invalid or payload.count() > 32768 or signature = invalid then return RouteFailure("invalid_identity", "Invalid identity encoding.")
+    document = ParseJson(payload.toAsciiString())
+    if not IsObject(document) then return bad
+    return { ok: true, payload: payload, signature: signature, document: document, envelope: { payload: value.payload, signature: value.signature } }
+end function
+
+' route-identity.ts `times`: issued and expiry stamps within `maxAgeSeconds` of each other, not
+' issued more than two minutes ahead of this clock, and (unless allowed) not expired.
+function RouteTimesValid(document as object, maxAgeSeconds as integer, atSeconds as dynamic, allowExpired as boolean) as boolean
+    issued = IsoToSeconds(document.issuedAt)
+    expires = IsoToSeconds(document.expiresAt)
+    if issued = invalid or expires = invalid then return false
+    if issued > atSeconds + 120 or expires <= issued or expires - issued > maxAgeSeconds then return false
+    if not allowExpired and expires <= atSeconds then return false
+    return true
+end function
+
+' route-identity.ts `probeRoute`, after the request: the answer to
+' POST /v1/networking/identity-proof {baseUrl, nonce}. The server must have signed this address and
+' this nonce with the key its id is the digest of; with a `pin`, it must be that same server.
+' Returns {ok, pin}.
+function RouteProofCheck(answer as dynamic, baseUrl as string, nonce as string, pin as dynamic, atSeconds as dynamic) as object
+    signed = SignedEnvelope(answer)
+    if not signed.ok then return signed
+    v = signed.document
+    if v.kind <> "portico.route-proof" or v.version <> "1" or v.baseUrl <> baseUrl or v.nonce <> nonce or not IsString(v.serverId) or not IsString(v.publicKey) or not IsString(v.fingerprint) then return RouteFailure("identity_mismatch", "The server did not prove this connection.")
+    actual = ServerPin(v.serverId, v.publicKey, v.fingerprint)
+    if not actual.ok then return actual
+    if pin <> invalid and not SameServerPin(actual.pin, pin) then return RouteFailure("identity_mismatch", "This address belongs to a different server. No credentials were sent.")
+    if not RouteTimesValid(v, 30, atSeconds, false) then return RouteFailure("route_stale", "The connection evidence is expired or has an invalid clock.")
+    if not Ed25519Verify(Base64UrlDecode(actual.pin.publicKey, 32), signed.signature, signed.payload) then return RouteFailure("identity_mismatch", "The server could not prove its identity. No credentials were sent.")
+    return { ok: true, pin: actual.pin }
+end function
+
+function IsGeneration(value as dynamic) as boolean
+    if not MatchesPattern(value, "^[1-9][0-9]{0,18}$") then return false
+    return Len(value) < 19 or value <= "9223372036854775807"
+end function
+
+' Compares two generation numbers written as text.
+function GenerationGreater(a as string, b as string) as boolean
+    if Len(a) <> Len(b) then return Len(a) > Len(b)
+    return a > b
+end function
+
+' route-identity.ts `verifyRoutes`: the account service's signed routes for one server of one
+' account. `key` is the service's current signing key {keyId, publicKey}; `expected` is
+' {accountId, serverId, pin (optional), allowExpiredHint (optional)}. Returns {ok, document,
+' envelope}: the document carries the server's pin and its candidates [{baseUrl, class, quality,
+' generation}].
+function VerifyRoutes(value as dynamic, key as object, expected as object, atSeconds as dynamic) as object
+    if IsObject(value) and IsString(value.keyId) and value.keyId <> key.keyId then return RouteFailure("invalid_signature", "The account service signing key changed.")
+    signed = SignedEnvelope(value, key.keyId)
+    if not signed.ok then return signed
+    v = signed.document
+    notSigned = RouteFailure("invalid_signature", "The account service did not sign these server routes.")
+    if not IsText(key.keyId, 256) or v.keyId <> key.keyId then return notSigned
+    if not Ed25519Verify(Base64UrlDecode(key.publicKey, 32), signed.signature, signed.payload) then return notSigned
+    incompatible = RouteFailure("invalid_routes", "The account service returned incompatible connection information.")
+    if v.kind <> "portico.routes" or v.version <> "1" or v.algorithm <> "Ed25519" or v.audience <> expected.accountId or v.serverId <> expected.serverId then return incompatible
+    if not IsText(v.name, 2048) or not IsString(v.publicKey) or not IsString(v.fingerprint) or not IsGeneration(v.generation) or not IsGeneration(v.claimGeneration) or not IsGeneration(v.credentialGeneration) then return incompatible
+    if not IsNatural(v.policyRevision) or not IsArray(v.candidates) or v.candidates.count() > 24 then return incompatible
+    pinned = ServerPin(v.serverId, v.publicKey, v.fingerprint)
+    if not pinned.ok then return pinned
+    if expected.pin <> invalid and not SameServerPin(pinned.pin, expected.pin) then return RouteFailure("identity_mismatch", "The selected server identity changed.")
+    if not RouteTimesValid(v, 45 * 60, atSeconds, expected.allowExpiredHint = true) then return RouteFailure("route_stale", "The connection evidence is expired or has an invalid clock.")
+    candidates = []
+    seen = {}
+    badCandidate = RouteFailure("invalid_routes", "Invalid signed route candidate.")
+    for each c in v.candidates
+        if not IsObject(c) or not IsString(c["class"]) or not IsString(c.quality) or not IsString(c.baseUrl) then return badCandidate
+        if c["class"] <> "lan" and c["class"] <> "public" and c["class"] <> "manual" then return badCandidate
+        if c.quality <> "reachable" and c.quality <> "probe_required" then return badCandidate
+        if not IsGeneration(c.generation) or GenerationGreater(c.generation, v.generation) then return badCandidate
+        origin = RouteOrigin(c.baseUrl)
+        if not origin.ok then return origin
+        if origin.origin <> c.baseUrl then return badCandidate
+        if c["class"] <> "lan" and origin.scheme <> "https" then return badCandidate
+        if c["class"] = "lan" and not PrivateRouteHost(origin.host) then return badCandidate
+        if seen[c.baseUrl] <> invalid then return RouteFailure("invalid_routes", "Duplicate signed route candidates.")
+        seen[c.baseUrl] = true
+        candidates.push({ baseUrl: c.baseUrl, "class": c["class"], quality: c.quality, generation: c.generation })
+    end for
+    document = { serverId: pinned.pin.serverId, publicKey: pinned.pin.publicKey, fingerprint: pinned.pin.fingerprint, name: v.name, policyRevision: v.policyRevision, generation: v.generation, candidates: candidates }
+    return { ok: true, document: document, envelope: signed.envelope }
+end function
+
+' packages/client-core/src/portico-servers.ts `requestPorticoChallenge`, after the request: the
+' answer to POST /v1/direct/portico-challenge {nonce}. The proof is checked against the server id
+' before anything is asked of the account service, so a server or relay without that key cannot
+' collect an identity assertion for it. Returns {ok, challenge}.
+function ChallengeProofCheck(answer as dynamic, serverId as string, nonce as string) as object
+    unreadable = RouteFailure("invalid_response", "The server sent an answer Portico couldn't read.")
+    notProven = RouteFailure("challenge_not_proven", "This server could not prove it is the server you chose. Nothing was sent to it.")
+    if not IsObject(answer) or not IsString(answer.challenge) or Len(answer.challenge) = 0 or Len(answer.challenge) > 128 or not IsObject(answer.proof) then return unreadable
+    proof = answer.proof
+    if not IsString(proof.payload) or Len(proof.payload) = 0 or Len(proof.payload) > 8192 or not IsString(proof.signature) or Len(proof.signature) = 0 or Len(proof.signature) > 128 then return unreadable
+    payload = Base64UrlDecode(proof.payload)
+    if payload = invalid or payload.count() > 6144 then return notProven
+    v = ParseJson(payload.toAsciiString())
+    if not IsObject(v) or v.kind <> "portico.challenge-proof" or v.version <> "1" or v.serverId <> serverId or v.challenge <> answer.challenge or v.nonce <> nonce or not IsString(v.publicKey) or not IsString(v.fingerprint) then return notProven
+    pinned = ServerPin(serverId, v.publicKey, v.fingerprint)
+    if not pinned.ok then return notProven
+    signature = Base64UrlDecode(proof.signature, 64)
+    if signature = invalid then return notProven
+    if not Ed25519Verify(Base64UrlDecode(pinned.pin.publicKey, 32), signature, payload) then return notProven
+    return { ok: true, challenge: answer.challenge }
+end function

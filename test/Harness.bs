@@ -1,0 +1,115 @@
+' A plain test harness for the off-device `brs` interpreter (scripts/test.mjs). Every
+' `sub Test_…()` in test/*.test.bs is one test; the runner that calls them is written at build time.
+
+sub TestBegin(name as string)
+    if m.testState = invalid then
+        m.testState = { checks: 0, tests: 0, failures: [], current: "" }
+        ' Off-device: the interpreter has no roEVPDigest (core/Crypto.bs uses the registered digests).
+        GetGlobalAA().cryptoNative = false
+    end if
+    m.testState.tests = m.testState.tests + 1
+    m.testState.current = name
+end sub
+
+sub TestFail(label as string, detail as string)
+    m.testState.failures.push(m.testState.current + ": " + label + " — " + detail)
+end sub
+
+function TestText(value as dynamic) as string
+    if value = invalid then return "invalid"
+    kind = Type(value)
+    if kind = "String" or kind = "roString" then return value
+    if kind = "roAssociativeArray" or kind = "roArray" then return FormatJson(value)
+    if kind = "Boolean" or kind = "roBoolean" then
+        if value then return "true"
+        return "false"
+    end if
+    if GetInterface(value, "ifToStr") <> invalid then return value.toStr()
+    return "<" + kind + ">"
+end function
+
+sub AssertEqual(actual as dynamic, expected as dynamic, label = "" as string)
+    m.testState.checks = m.testState.checks + 1
+    a = TestText(actual)
+    e = TestText(expected)
+    if a <> e then TestFail(label, "expected " + e + ", got " + a)
+end sub
+
+sub AssertTrue(condition as dynamic, label = "" as string)
+    m.testState.checks = m.testState.checks + 1
+    if condition <> true then TestFail(label, "expected true")
+end sub
+
+'' A value as text that does not depend on the order an associative array lists its keys in or on
+' their case, and
+' that leaves out fields that are invalid (the TypeScript's undefined).
+function TestCanon(value as dynamic) as string
+    if value = invalid then return "null"
+    kind = Type(value)
+    if kind = "roAssociativeArray" then
+        ' A key set with dot notation is stored in lower case (BrightScript's associative arrays do
+        ' not tell `seeAll` from `seeall`), so keys are compared without their case.
+        parts = []
+        for each key in value.keys()
+            if value[key] <> invalid then parts.push(FormatJson(LCase(key)) + ":" + TestCanon(value[key]))
+        end for
+        parts.sort()
+        return "{" + parts.join(",") + "}"
+    end if
+    if kind = "roArray" then
+        parts = []
+        for each item in value
+            parts.push(TestCanon(item))
+        end for
+        return "[" + parts.join(",") + "]"
+    end if
+    if kind = "String" or kind = "roString" then return FormatJson(value)
+    if kind = "Boolean" or kind = "roBoolean" then
+        if value then return "true"
+        return "false"
+    end if
+    if kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" then
+        if value = Fix(value) then
+            whole& = value
+            return whole&.toStr()
+        end if
+    end if
+    return value.toStr()
+end function
+
+sub AssertSame(actual as dynamic, expected as dynamic, label = "" as string)
+    m.testState.checks = m.testState.checks + 1
+    a = TestCanon(actual)
+    e = TestCanon(expected)
+    if a = e then return
+    ' Shows the place the two part ways, with a little of what comes before it.
+    at = 1
+    while at <= Len(a) and at <= Len(e) and Mid(a, at, 1) = Mid(e, at, 1)
+        at = at + 1
+    end while
+    from = at - 60
+    if from < 1 then from = 1
+    TestFail(label, "at character " + at.toStr() + " expected …" + Mid(e, from, 260) + ", got …" + Mid(a, from, 260))
+end sub
+
+function TestFixture(path as string) as dynamic
+    text = ReadAsciiFile("pkg:/test/fixtures/" + path)
+    if text = "" then
+        m.testState.checks = m.testState.checks + 1
+        TestFail(path, "fixture missing or empty")
+        return invalid
+    end if
+    return ParseJson(text)
+end function
+
+sub TestReport()
+    state = m.testState
+    for each failure in state.failures
+        print "FAIL " + failure
+    end for
+    if state.failures.count() = 0 then
+        print "TESTS PASSED: " + state.checks.toStr() + " checks in " + state.tests.toStr() + " tests"
+    else
+        print "TESTS FAILED: " + state.failures.count().toStr() + " of " + state.checks.toStr() + " checks"
+    end if
+end sub

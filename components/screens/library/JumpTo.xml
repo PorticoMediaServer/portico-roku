@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/BrowseFilters.tsx `JumpTo`: large keys for the server's position anchors. -->
+<component name="LibraryJumpTo" extends="Group">
+    <interface>
+        <field id="anchors" type="array" />
+        <field id="current" type="string" value="" />
+        <field id="sortField" type="string" value="title" />
+        <field id="chosen" type="string" value="" alwaysNotify="true" />
+        <field id="picked" type="boolean" value="false" alwaysNotify="true" />
+        <function name="open" />
+    </interface>
+</component>

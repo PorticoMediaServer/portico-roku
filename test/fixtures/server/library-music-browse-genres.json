@@ -1,0 +1,99 @@
+{
+ "pivot": "genres",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ]
+ },
+ "entries": [
+  {
+   "id": "genre:Pop",
+   "kind": "category",
+   "title": "Pop",
+   "addedAt": null,
+   "count": 16,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:Pop"
+   }
+  },
+  {
+   "id": "genre:Rock",
+   "kind": "category",
+   "title": "Rock",
+   "addedAt": null,
+   "count": 12,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:Rock"
+   }
+  },
+  {
+   "id": "genre:Alternative",
+   "kind": "category",
+   "title": "Alternative",
+   "addedAt": null,
+   "count": 4,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:Alternative"
+   }
+  },
+  {
+   "id": "genre:Hip-Hop",
+   "kind": "category",
+   "title": "Hip-Hop",
+   "addedAt": null,
+   "count": 4,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:Hip-Hop"
+   }
+  },
+  {
+   "id": "genre:R&B",
+   "kind": "category",
+   "title": "R&B",
+   "addedAt": null,
+   "count": 4,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:R&B"
+   }
+  },
+  {
+   "id": "genre:Rap",
+   "kind": "category",
+   "title": "Rap",
+   "addedAt": null,
+   "count": 4,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:Rap"
+   }
+  },
+  {
+   "id": "genre:Soul",
+   "kind": "category",
+   "title": "Soul",
+   "addedAt": null,
+   "count": 4,
+   "navigation": {
+    "view": "browse",
+    "category": "genre:Soul"
+   }
+  }
+ ],
+ "pageInfo": {
+  "start": 0,
+  "total": 7,
+  "revision": "browse_8ad2830a5a8faa3c9dfa0ce5d7a9fae59be8c317f0a9135cc83e8d11b55f5b77",
+  "hasMore": false,
+  "nextCursor": ""
+ },
+ "positionIndex": []
+}

@@ -1,0 +1,268 @@
+' packages/client-core/src/presentation/card-caption.ts: the line under a card's title, one rule
+' for every client: an album always names its artist, a book its author, an episode its number and
+' show, and nothing ever reads "0 items". Continue Watching says what is left ("S1 E3 · 24 min
+' left"). Also card-shape.ts `shapeFor`: one card geometry rule.
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Validate.bs"
+
+function CaptionParts(subtitle as dynamic) as object
+    out = []
+    if Type(subtitle) <> "String" and Type(subtitle) <> "roString" then return out
+    if subtitle = "" then return out
+    for each piece in CaptionSplit(subtitle, " · ")
+        trimmed = piece.trim()
+        if trimmed <> "" then out.push(trimmed)
+    end for
+    return out
+end function
+
+function CaptionSplit(text as string, separator as string) as object
+    out = []
+    rest = text
+    while true
+        at = Instr(1, rest, separator)
+        if at = 0 then exit while
+        out.push(Left(rest, at - 1))
+        rest = Mid(rest, at + Len(separator))
+    end while
+    out.push(rest)
+    return out
+end function
+
+function CaptionIsYear(text as string) as boolean
+    return CreateObject("roRegex", "^(18|19|20)\d{2}$", "").isMatch(text)
+end function
+
+function CaptionJoin(pieces as object) as dynamic
+    out = ""
+    for each piece in pieces
+        if piece <> invalid and piece <> "" then
+            if out <> "" then out = out + " · "
+            out = out + piece
+        end if
+    end for
+    if out = "" then return invalid
+    return out
+end function
+
+' card-caption.ts `episodeCode`: "S1 E3", "E3" for a show without seasons, "Episode 1043" when the
+' show is numbered across its seasons.
+function EpisodeCode(entry as object) as dynamic
+    if entry.absoluteNumber <> invalid then return T("title.episodeAbsolute", { number: entry.absoluteNumber })
+    if entry.episodeNumber = invalid then return invalid
+    if entry.seasonNumber <> invalid then return T("title.episodeCode", { season: entry.seasonNumber, episode: entry.episodeNumber })
+    return T("title.episodeOnly", { episode: entry.episodeNumber })
+end function
+
+' card-caption.ts `shortDate`: "Oct 1" this year, "Oct 1, 2024" otherwise, from YYYY-MM-DD (read as
+' a calendar day, not an instant).
+function ShortDate(day as string, atSeconds as dynamic) as string
+    pieces = day.tokenize("-")
+    if pieces.count() < 3 then return day
+    y = Val(pieces[0], 10)
+    month = Val(pieces[1], 10)
+    d = Val(pieces[2], 10)
+    if y = 0 or month = 0 or d = 0 or month > 12 then return day
+    dayFirst = FormatRegion().locale = "en-GB"
+    name = FormatMonthName(month, true)
+    text = name + " " + d.toStr()
+    if dayFirst then text = d.toStr() + " " + name
+    current = CreateObject("roDateTime")
+    stamp& = atSeconds
+    current.fromSeconds(stamp&)
+    if not FormatRegion().utc then current.toLocalTime()
+    if y = current.getYear() then return text
+    if dayFirst then return text + " " + y.toStr()
+    return text + ", " + y.toStr()
+end function
+
+' card-caption.ts `cardCaption`: the caption of a card or list row, or invalid for none.
+function CardCaption(entry as object, atSeconds = invalid as dynamic) as dynamic
+    if atSeconds = invalid then atSeconds = NowSeconds()
+    count = 0
+    if FieldOf(entry, "count") <> invalid then count = FieldOf(entry, "count")
+    parts = CaptionParts(entry.subtitle)
+    kind = entry.kind
+    subtitle = entry.subtitle
+    if subtitle = "" then subtitle = invalid
+    if kind = "artist" then
+        if count > 0 then return T("title.songCount", { count: count })
+        return invalid
+    else if kind = "album" then
+        ' The artist first, always; then the year.
+        artist = invalid
+        if entry.artist <> invalid then artist = entry.artist.name
+        year = invalid
+        if entry.year <> invalid then year = entry.year.toStr()
+        for each part in parts
+            if artist = invalid and not CaptionIsYear(part) then artist = part
+            if year = invalid and CaptionIsYear(part) then year = part
+        end for
+        return CaptionJoin([artist, year])
+    else if kind = "book" then
+        if entry.author <> invalid then return entry.author
+        for each part in parts
+            if not CaptionIsYear(part) then return part
+        end for
+        return invalid
+    else if kind = "episode" then
+        ' The number first: a narrow card cuts the line short, and the show is already on the poster.
+        aired = invalid
+        if entry.airDate <> invalid then aired = ShortDate(entry.airDate, atSeconds)
+        show = invalid
+        if parts.count() > 0 then show = parts[0]
+        return CaptionJoin([EpisodeCode(entry), aired, show])
+    else if kind = "collection" or kind = "category" or kind = "author" or kind = "book_series" then
+        if count > 0 then return T("title.itemCount", { count: count })
+        return subtitle
+    else if kind = "show" then
+        ' Recently aired: the card is the show's, the line its newest episode, or how many aired that day.
+        if entry.latestEpisode <> invalid then
+            latest = entry.latestEpisode
+            what = EpisodeCode(latest)
+            if FieldOf(latest, "count") > 1 then what = T("card.episodesAired", { count: FieldOf(latest, "count") })
+            return CaptionJoin([what, ShortDate(latest.airDate, atSeconds)])
+        end if
+        if subtitle <> invalid then return subtitle
+        if entry.year <> invalid then return entry.year.toStr()
+        return invalid
+    else if kind = "movie" then
+        ' The year, so two titles of one name can be told apart.
+        if subtitle <> invalid then return subtitle
+        if entry.year <> invalid then return entry.year.toStr()
+        return invalid
+    end if
+    return subtitle
+end function
+
+' card-caption.ts `remainingLabel`: what is left of a started title; invalid for one not started.
+function RemainingLabel(entry as object) as dynamic
+    if entry.duration = invalid or entry.progressSeconds = invalid or entry.duration = 0 or entry.progressSeconds = 0 then return invalid
+    left = entry.duration - entry.progressSeconds
+    if left <= 0 then return invalid
+    minutes = Int(left / 60.0 + 0.5)
+    if minutes < 1 then minutes = 1
+    if minutes >= 60 then return T("card.hoursLeft", { hours: minutes \ 60, minutes: minutes mod 60 })
+    return T("card.minutesLeft", { count: minutes })
+end function
+
+' card-caption.ts `continueCaption`: what is left, with the episode's number when it is one.
+function ContinueCaption(entry as object, atSeconds = invalid as dynamic) as dynamic
+    lead = invalid
+    if entry.kind = "episode" then lead = EpisodeCode(entry)
+    joined = CaptionJoin([lead, RemainingLabel(entry)])
+    if joined <> invalid then return joined
+    return CardCaption(entry, atSeconds)
+end function
+
+' card-caption.ts `continueTitle`: the show for an episode, whose number is in the caption.
+function ContinueTitle(entry as object) as string
+    if entry.kind = "episode" then
+        parts = CaptionParts(entry.subtitle)
+        if parts.count() > 0 then return parts[0]
+    end if
+    return entry.title
+end function
+
+' card-caption.ts `watchedWords`: a book is finished, music is played, everything else is watched.
+function WatchedWords(kind as dynamic) as object
+    if kind = "book" or kind = "audiobook_file" or kind = "chapter" or kind = "book_series" then return { mark: "title.markFinished", unmark: "title.markNotFinished" }
+    if kind = "song" or kind = "album" or kind = "artist" or kind = "disc" then return { mark: "entry.markPlayed", unmark: "entry.markUnplayed" }
+    return { mark: "entry.markWatched", unmark: "entry.markUnwatched" }
+end function
+
+' card-shape.ts `shapeFor`: poster for film, TV and anime, episodes included; square for music and
+' audiobooks; an episode is landscape only inside its show's own page; people are circles.
+' `context`: shelf | grid | list | showWorkspace | detailExtras | hero.
+function ShapeFor(kind as string, context = "shelf" as string, family = "" as string) as string
+    if kind = "episode" then
+        if context = "showWorkspace" then return "landscape"
+        return "poster"
+    end if
+    if kind = "extra" then
+        if context = "detailExtras" or context = "showWorkspace" then return "landscape"
+        return "poster"
+    end if
+    if kind = "artist" then
+        if context = "hero" then return "circle"
+        return "square"
+    end if
+    if kind = "album" or kind = "song" or kind = "disc" or kind = "book" or kind = "audiobook_file" or kind = "book_series" or kind = "chapter" then return "square"
+    if kind = "author" then return "circle"
+    if (kind = "collection" or kind = "category") and (family = "music" or family = "audiobook") then return "square"
+    return "poster"
+end function
+
+' packages/client-core/src/presentation/home-hero.ts `homeHero`: what Home opens with: the entry the
+' server names (what the viewer was last in the middle of). Returns {row, entry, title, line, meta,
+' progress, playLabel, art: "backdrop" | "cover", coverShape}, or invalid when there is none.
+' screens/Home.tsx `heroDuration`: on Home's hero a length under two minutes is not said.
+function HomeHeroDurationFloor() as integer
+    return 120
+end function
+
+' `durationFloor`: lengths shorter than this many seconds are left out (0 says every length).
+function HomeHero(document as dynamic, hidden = invalid as dynamic, durationFloor = 0 as integer) as dynamic
+    if document = invalid or document.hero = invalid then return invalid
+    ref = document.hero
+    if hidden <> invalid and hidden[ref.entryId] <> invalid then return invalid
+    found = invalid
+    entry = invalid
+    for each row in document.rows
+        if row.id = ref.rowId then
+            found = row
+            for each candidate in row.entries
+                if candidate.id = ref.entryId then entry = candidate
+            end for
+        end if
+    end for
+    if found = invalid or entry = invalid then return invalid
+    video = entry.kind = "movie" or entry.kind = "episode"
+    year = invalid
+    if entry.year <> invalid then year = entry.year.toStr()
+    parts = CaptionParts(entry.subtitle)
+    show = invalid
+    if entry.kind = "episode" and parts.count() > 0 then show = parts[0]
+    meta = []
+    ' A movie's subtitle is its year, an episode's leads with its show: neither is said twice.
+    for each part in parts
+        if part <> year and part <> show and video and entry.kind <> "episode" then meta.push(part)
+    end for
+    meta.push(year)
+    meta.push(entry.contentRating)
+    if entry.duration <> invalid and entry.duration > 0 and entry.duration >= durationFloor then meta.push(FormatDuration(entry.duration))
+    if entry.genres <> invalid then
+        for index = 0 to entry.genres.count() - 1
+            if index < 2 then meta.push(entry.genres[index])
+        end for
+    end if
+    progress = 0
+    left = 0
+    if entry.duration <> invalid and entry.progressSeconds <> invalid and entry.duration > 0 and entry.progressSeconds > 0 then
+        progress = entry.progressSeconds / entry.duration
+        if progress > 1 then progress = 1
+        left = entry.duration - entry.progressSeconds
+        if left < 0 then left = 0
+    end if
+    playLabel = T("action.play")
+    if left >= 60 and left >= durationFloor then
+        playLabel = T("entry.resumeRemaining", { remaining: FormatDuration(left) })
+    else if progress > 0 then
+        playLabel = T("entry.resume")
+    end if
+    line = invalid
+    if entry.kind = "episode" then
+        line = CaptionJoin([EpisodeCode(entry), entry.title])
+    else if entry.artist <> invalid then
+        line = entry.artist.name
+        if entry.album <> invalid then line = entry.artist.name + " · " + entry.album.name
+    else if entry.author <> invalid then
+        line = entry.author
+    end if
+    art = "cover"
+    if entry.backdropUrl <> invalid and entry.backdropUrl <> "" then art = "backdrop"
+    coverShape = "poster"
+    if entry.kind = "song" or entry.kind = "album" or entry.kind = "artist" or entry.kind = "book" or entry.kind = "audiobook_file" or entry.kind = "chapter" or entry.kind = "disc" then coverShape = "square"
+    return { row: found, entry: entry, title: ContinueTitle(entry), line: line, meta: CaptionJoin(meta), progress: progress, playLabel: playLabel, art: art, coverShape: coverShape }
+end function

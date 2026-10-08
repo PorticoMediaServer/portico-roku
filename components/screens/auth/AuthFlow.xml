@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/AuthFlow.tsx: sequences the screens before sign-in. -->
+<component name="ScreenAuthFlow" extends="Group">
+    <interface>
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

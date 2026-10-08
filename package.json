@@ -1,0 +1,22 @@
+{
+  "name": "portico-roku",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portico for Roku: a BrightScript and SceneGraph translation of the Apple TV app.",
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "lint:literals": "node scripts/lint-literals.mjs",
+    "check": "npm run lint:literals && bsc --project bsconfig.json --copy-to-staging=false --create-package=false",
+    "build": "bsc --project bsconfig.json",
+    "package": "node scripts/package.mjs",
+    "test": "node scripts/test.mjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "@rokucommunity/brs": "0.47.6",
+    "brighterscript": "0.73.5",
+    "qrcode": "1.5.4",
+    "roku-deploy": "3.18.4"
+  }
+}

@@ -1,0 +1,50 @@
+' core/Errors.bs against packages/client-core/src/presentation/errors.ts: scripts/golden.mjs runs
+' presentError over codes and statuses in several contexts, and the BrightScript must choose the
+' same category, the same catalogue message and the same recovery. The words are the catalogue's
+' own (the fixture's title and body are the TypeScript's, formatted here from the same ids).
+
+sub Test_Errors_presentationGolden()
+    cases = TestFixture("golden/errors.json")
+    if cases = invalid then return
+    AssertTrue(cases.count() > 200, "there are presentation cases")
+    for each item in cases
+        label = FormatJson(item.error) + " in " + item.context + " " + FormatJson(item.options)
+        facts = PresentErrorFacts(item.error, item.context, item.options)
+        AssertEqual(facts.category, item.category, "category: " + label)
+        AssertEqual(facts.silent, item.silent, "silent: " + label)
+        if not item.silent then
+            AssertEqual(facts.messageId, item.messageId, "message: " + label)
+            AssertEqual(facts.action, item.action, "action: " + label)
+        end if
+    end for
+end sub
+
+sub Test_Errors_signInMessages()
+    ' apps/native/src/app/errors.ts `signInMessage`.
+    AssertEqual(SignInMessageFacts({ code: "invalid_credentials", status: 401 }).messageId, "signIn.error.notAccepted")
+    AssertEqual(SignInMessageFacts({ code: "invalid_pin", status: 403 }).messageId, "signIn.error.pinInvalid")
+    AssertEqual(SignInMessageFacts({ code: "profile_pin_locked", status: 429 }).messageId, "signIn.error.tooManyTries")
+    AssertEqual(SignInMessageFacts({ code: "challenge_invalid", status: 401 }).messageId, "signIn.error.codeInvalid")
+    AssertEqual(SignInMessageFacts({ code: "challenge_expired", status: 401 }).messageId, "signIn.error.expired")
+    AssertEqual(SignInMessageFacts({ code: "access_refused", status: 403 }).messageId, "portico.failure.noAccess.title")
+    AssertEqual(SignInMessageFacts({ code: "clock_skew", status: 401 }).messageId, "portico.failure.clockSkew.title")
+    AssertEqual(SignInMessageFacts({ code: "identity_mismatch" }).messageId, "portico.failure.identity.title")
+    AssertEqual(SignInMessageFacts({ code: "network", status: 0 }).messageId, "portico.failure.unreachable.title")
+    AssertEqual(SignInMessageFacts({ code: "device_approval_pending", status: 403 }).messageId, "device.approval.titleThisDevice")
+    AssertEqual(SignInMessageFacts({ code: "device_denied", status: 403 }).messageId, "portico.failure.deviceDenied.title")
+    AssertEqual(SignInMessageFacts({ code: "session_migrated", status: 401 }).messageId, "")
+    AssertEqual(SignInMessageFacts({ code: "something", status: 401 }).messageId, "signIn.error.notAccepted")
+    AssertEqual(SignInMessageFacts({ code: "something", status: 404 }).messageId, "portico.failure.incompatible.title")
+    AssertEqual(SignInMessageFacts({ code: "rate_limited", status: 429 }).messageId, "error.rateLimited")
+    AssertEqual(SignInMessageFacts({ shown: "auth.hostedUnreachable" }).messageId, "auth.hostedUnreachable")
+end sub
+
+sub Test_Errors_porticoFailures()
+    ' apps/native/src/app/portico-failure.ts `classifyPorticoFailure`.
+    AssertEqual(ClassifyPorticoFailure({ status: 403 }, "route", "permission"), "noAccess")
+    AssertEqual(ClassifyPorticoFailure({ status: 403 }, "signIn", "permission"), "other")
+    AssertEqual(ClassifyPorticoFailure({ code: "route_unavailable" }, "route", "unreachable"), "unreachable")
+    AssertEqual(ClassifyPorticoFailure({ code: "challenge_not_proven" }, "signIn", "unknown"), "identity")
+    AssertEqual(ClassifyPorticoFailure({ code: "invalid_response" }, "signIn", "invalid-response"), "incompatible")
+    AssertEqual(ClassifyPorticoFailure({ status: 500 }, "signIn", "unknown"), "other")
+end sub

@@ -1,0 +1,479 @@
+' packages/client-core/src/presentation/browse-toolbar.ts and apps/native/src/app/browse.ts: what
+' the browse toolbar makes of the vocabulary the server publishes (fields, operators, sorts, quick
+' filters), the same way on web, phone and television. Sort is one control showing the field and
+' the direction; every filter is in the side panel, in three groups; a field is chosen from the
+' library's own values, a yes/no, a short list of choices or a range offered as presets. Nothing
+' on a television is typed.
+import "pkg:/source/core/Browse.bs"
+import "pkg:/source/core/BrowseLabelTables.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Time.bs"
+
+function ToolbarPromoted() as object
+    return {
+        "movie": ["genre", "year", "resolution", "contentRating"]
+        "tv": ["genre", "year", "network", "contentRating"]
+        "anime": ["genre", "year", "studio"]
+        "music": ["genre", "decade", "artist"]
+        "audiobook": ["author", "narrator", "genre", "series"]
+        "recordings": ["genre", "year"]
+    }
+end function
+
+function ToolbarGroupOf(fieldId as string) as string
+    if ArrayIncludes(["playState", "favorite", "watchlisted", "personalRating", "lastPlayedAt"], fieldId) then return "activity"
+    if ArrayIncludes(["resolution", "dynamicRange", "audioLanguage", "durationSeconds", "dateAdded", "availability", "entityKind"], fieldId) then return "file"
+    return "title"
+end function
+
+' The order fields take inside a group: how often people reach for them, not registry order.
+function ToolbarRank(fieldId as string) as integer
+    order = ["genre", "year", "decade", "contentRating", "studio", "network", "collection", "series", "author", "narrator", "artist", "album", "actor", "director", "writer", "tag", "label", "communityRating", "criticRating", "releaseDate", "playState", "favorite", "watchlisted", "personalRating", "lastPlayedAt", "resolution", "dynamicRange", "audioLanguage", "durationSeconds", "dateAdded", "availability"]
+    for index = 0 to order.count() - 1
+        if order[index] = fieldId then return index
+    end for
+    return order.count()
+end function
+
+function SamePredicate(a as object, b as object) as boolean
+    return a.field = b.field and a.operator = b.operator and FormatJson(a.value) = FormatJson(b.value)
+end function
+
+function IsPredicate(node as dynamic) as boolean
+    return IsObject(node) and node.doesExist("field")
+end function
+
+' browse-toolbar.ts `filterControlOf`: "values", "toggle", "choice", "range" or "text".
+function FilterControlOf(field as object) as string
+    if field.id = "year" then return "values"
+    allowed = 0
+    if field.allowedValues <> invalid then allowed = field.allowedValues.count()
+    if field.controlHint = "facet-multi-select" or (field.type = "enum" and allowed > 4) then return "values"
+    if field.type = "boolean" or field.controlHint = "toggle" then return "toggle"
+    if field.type = "enum" and field.allowedValues <> invalid then return "choice"
+    if field.type = "number" or field.type = "date" or field.controlHint = "number-range" or field.controlHint = "date-range" then return "range"
+    return "text"
+end function
+
+' browse-toolbar.ts `filterValuesField`: the field a values list reads and writes (Year is offered
+' and stored by decade).
+function FilterValuesField(field as object) as object
+    if field.id = "year" then return { facet: "decade", field: "decade", operator: "in" }
+    facet = field.id
+    if field.facetSource <> invalid then facet = field.facetSource.field
+    operator = "in"
+    if ArrayIncludes(field.operators, "contains-any") then operator = "contains-any"
+    return { facet: facet, field: field.id, operator: operator }
+end function
+
+' browse-toolbar.ts `toolbarModel`, as a television draws it (textEntry false): {promoted, quick,
+' groups: [{id, fields}], sorts, sort: {field, direction, flippable}, applied}.
+function ToolbarModel(capabilities as object, family as string, predicates as object, sort as object, owner = false as boolean) as object
+    pivot = ""
+    if capabilities.resolvedPivot <> invalid then pivot = capabilities.resolvedPivot.id
+    audio = MatchesPattern(pivot, "artist|album|song")
+    fields = []
+    byId = {}
+    byId.setModeCaseSensitive()
+    for each field in capabilities.fields
+        hidden = field.id = "title" or field.id = "entityKind" or field.id = "decade"
+        ownerOnly = field.id = "availability" or field.id = "match"
+        if not hidden and (owner or not ownerOnly) and FilterControlOf(field) <> "text" then
+            fields.push(field)
+            byId[field.id] = field
+        end if
+    end for
+    wanted = ToolbarPromoted()[family]
+    if wanted = invalid then wanted = ToolbarPromoted()["movie"]
+    promoted = []
+    for each id in wanted
+        if byId.doesExist(id) and promoted.count() < 4 then promoted.push(byId[id])
+    end for
+    ' Music has no "watched": its quick toggle is favorites only.
+    quick = []
+    quickNodes = []
+    for each filter in capabilities.quickFilters
+        if ArrayIncludes(["unwatched", "in-progress", "favorites"], filter.id) and not (audio and filter.id <> "favorites") then
+            quick.push(filter)
+            if IsPredicate(filter.query) then quickNodes.push(filter.query)
+        end if
+    end for
+    applied = []
+    for each predicate in predicates
+        isQuick = false
+        for each node in quickNodes
+            if SamePredicate(node, predicate) then isQuick = true
+        end for
+        if not isQuick then applied.push(predicate)
+    end for
+    groups = []
+    for each id in ["title", "activity", "file"]
+        mine = []
+        for each field in fields
+            if ToolbarGroupOf(field.id) = id then
+                ' A stable insertion by rank.
+                at = mine.count()
+                for index = 0 to mine.count() - 1
+                    if at = mine.count() and ToolbarRank(mine[index].id) > ToolbarRank(field.id) then at = index
+                end for
+                later = []
+                while mine.count() > at
+                    later.unshift(mine.pop())
+                end while
+                mine.push(field)
+                mine.append(later)
+            end if
+        end for
+        if mine.count() > 0 then groups.push({ id: id, fields: mine })
+    end for
+    flippable = true
+    for each candidate in capabilities.sorts
+        if candidate.id = sort.field then flippable = candidate.directions.count() > 1
+    end for
+    return { promoted: promoted, quick: quick, groups: groups, sorts: capabilities.sorts, sort: { field: sort.field, direction: sort.direction, flippable: flippable }, applied: applied }
+end function
+
+' browse-toolbar.ts `nextToolbarSort`: the current field flips, another starts at its default.
+function NextToolbarSort(capabilities as object, sort as object, fieldId as string) as object
+    chosen = invalid
+    for each candidate in capabilities.sorts
+        if candidate.id = fieldId then chosen = candidate
+    end for
+    if chosen = invalid then return sort
+    if fieldId = sort.field then
+        flipped = "asc"
+        if sort.direction = "asc" then flipped = "desc"
+        if ArrayIncludes(chosen.directions, flipped) then return { field: fieldId, direction: flipped }
+        return sort
+    end if
+    return { field: fieldId, direction: chosen.defaultDirection }
+end function
+
+' browse-toolbar.ts `browseValueLabel`: enum values as people say them ("HDR10", "4K").
+function BrowseValueLabel(value as string) as string
+    labels = { "sdr": "SDR", "hdr": "HDR", "hdr10": "HDR10", "hdr10+": "HDR10+", "hdr10plus": "HDR10+", "hlg": "HLG", "dolby_vision": "Dolby Vision", "dolby-vision": "Dolby Vision", "4k": "4K", "8k": "8K", "uhd": "4K", "fhd": "1080p", "hd": "720p", "sd": "SD" }
+    known = labels[LCase(value)]
+    if known <> invalid then return known
+    if MatchesPattern(LCase(value), "^\d+p$") then return LCase(value)
+    if MatchesPattern(value, "^\d{4}$") then return value
+    words = CreateObject("roRegex", "[-_]+", "").replaceAll(value, " ").trim()
+    return UCase(Left(words, 1)) + Mid(words, 2)
+end function
+
+' A scalar as JavaScript's String() writes it.
+function BrowseScalarText(value as dynamic) as string
+    if IsString(value) then return value
+    if IsBoolean(value) then
+        if value then return "true"
+        return "false"
+    end if
+    ' String(null): a presence filter has no value, and the summary says so as the Apple app does.
+    if value = invalid then return "null"
+    kind = Type(value)
+    if kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "LongInteger" or kind = "roLongInteger" then return value.toStr()
+    if value = Fix(value) then
+        whole& = value
+        return whole&.toStr()
+    end if
+    return value.toStr()
+end function
+
+' screens/BrowseFilters.tsx `valueText`: a stored value as its chip and row say it.
+function FilterValueText(field as object, value as string) as string
+    if field.id = "year" and MatchesPattern(value, "^\d{3}0$") then return value + "s"
+    if field.type = "boolean" then
+        if value = "true" then return T("lib.yes")
+        return T("lib.no")
+    end if
+    return BrowseValueLabel(value)
+end function
+
+' browse-toolbar.ts `fieldSelectionSummary` with BrowseFilters.tsx `summaryOf`: the values a field
+' currently selects ("Drama, Comedy", "1990–1999", "Yes"), or "" for none.
+function FieldSelectionSummary(field as object, predicates as object) as string
+    parts = []
+    low = invalid
+    high = invalid
+    for each p in FieldPredicates(field, predicates)
+        op = p.operator
+        if op = "between" then
+            if IsArray(p.value) then
+                low = p.value[0]
+                high = p.value[1]
+            end if
+        else if op = "at-least" or op = "greater-than" then
+            low = p.value
+        else if op = "at-most" or op = "less-than" then
+            high = p.value
+        else if IsArray(p.value) then
+            words = []
+            for each v in p.value
+                words.push(FilterValueText(field, BrowseScalarText(v)))
+            end for
+            parts.push(words.join(", "))
+        else
+            parts.push(FilterValueText(field, BrowseScalarText(p.value)))
+        end if
+    end for
+    if low <> invalid and high <> invalid then
+        parts.push(FilterValueText(field, BrowseScalarText(low)) + "–" + FilterValueText(field, BrowseScalarText(high)))
+    else if low <> invalid then
+        parts.push("≥ " + FilterValueText(field, BrowseScalarText(low)))
+    else if high <> invalid then
+        parts.push("≤ " + FilterValueText(field, BrowseScalarText(high)))
+    end if
+    return parts.join(", ")
+end function
+
+' A field's own predicates; Year is stored by decade.
+function FieldPredicates(field as object, predicates as object) as object
+    mine = []
+    for each p in predicates
+        if p.field = field.id or (field.id = "year" and p.field = "decade") then mine.push(p)
+    end for
+    return mine
+end function
+
+' The predicates with a field's own replaced by `mine`.
+function ReplaceFieldPredicates(field as object, predicates as object, mine as object) as object
+    out = []
+    for each p in predicates
+        if not (p.field = field.id or (field.id = "year" and p.field = "decade")) then out.push(p)
+    end for
+    out.append(mine)
+    return out
+end function
+
+' browse-toolbar.ts `rangePresets`: a range as choices a person makes ("Under 90 min", "8 or
+' higher", "In the last 30 days"). `atSeconds` dates the recency windows. Each is {id, label:
+' {id, values}, predicates}.
+function RangePresets(field as object, atSeconds as dynamic) as object
+    id = field.id
+    out = []
+    if id = "durationSeconds" then
+        out.push({ id: "under-30", label: { id: "filter.preset.durationUnder", values: { minutes: 30 } }, predicates: [RangeAtMost(id, 30 * 60)] })
+        for each pair in [[30, 60], [60, 90], [90, 120]]
+            out.push({ id: pair[0].toStr() + "-" + pair[1].toStr(), label: { id: "filter.preset.durationBetween", values: { from: pair[0], to: pair[1] } }, predicates: RangeBetween(field, pair[0] * 60, pair[1] * 60) })
+        end for
+        out.push({ id: "over-120", label: { id: "filter.preset.durationOver", values: { minutes: 120 } }, predicates: [RangeAtLeast(id, 120 * 60)] })
+        return out
+    end if
+    if id = "personalRating" then
+        for each stars in [5, 4, 3, 2]
+            out.push({ id: "stars-" + stars.toStr(), label: { id: "filter.preset.stars", values: { count: stars } }, predicates: [RangeAtLeast(id, stars)] })
+        end for
+        return out
+    end if
+    if id = "criticRating" then
+        for each value in [90, 80, 70, 60]
+            out.push({ id: "critic-" + value.toStr(), label: { id: "filter.preset.percent", values: { value: value } }, predicates: [RangeAtLeast(id, value)] })
+        end for
+        return out
+    end if
+    if field.type = "number" then
+        for each value in [9, 8, 7, 6, 5]
+            out.push({ id: "rating-" + value.toStr(), label: { id: "filter.preset.atLeast", values: { value: value } }, predicates: [RangeAtLeast(id, value)] })
+        end for
+        return out
+    end if
+    if field.type = "date" then
+        for each days in [7, 30, 90]
+            out.push({ id: "last-" + days.toStr(), label: { id: "filter.preset.lastDays", values: { count: days } }, predicates: [RangeAtLeast(id, DateDaysBefore(atSeconds, days))] })
+        end for
+        out.push({ id: "last-365", label: { id: "filter.preset.lastYear" }, predicates: [RangeAtLeast(id, DateDaysBefore(atSeconds, 365))] })
+    end if
+    return out
+end function
+
+function RangeAtLeast(fieldId as string, value as dynamic) as object
+    return { "field": fieldId, "operator": "at-least", "value": value }
+end function
+
+function RangeAtMost(fieldId as string, value as dynamic) as object
+    return { "field": fieldId, "operator": "at-most", "value": value }
+end function
+
+function RangeBetween(field as object, low as dynamic, high as dynamic) as object
+    if ArrayIncludes(field.operators, "between") then return [{ "field": field.id, "operator": "between", "value": [low, high] }]
+    return [RangeAtLeast(field.id, low), RangeAtMost(field.id, high)]
+end function
+
+' The UTC calendar date `days` before a moment, as YYYY-MM-DD.
+function DateDaysBefore(atSeconds as dynamic, days as integer) as string
+    date = CreateObject("roDateTime")
+    date.fromSeconds(atSeconds - days * 86400)
+    return Left(date.toISOString(), 10)
+end function
+
+' browse-toolbar.ts `activeRangePreset`: the preset a field's current predicates match, or "".
+function ActiveRangePreset(presets as object, predicates as object) as string
+    mine = RangeKey(predicates)
+    for each preset in presets
+        if RangeKey(preset.predicates) = mine then return preset.id
+    end for
+    return ""
+end function
+
+function RangeKey(predicates as object) as string
+    parts = []
+    for each p in predicates
+        parts.push(p.operator + ":" + FormatJson(p.value))
+    end for
+    return parts.join("|")
+end function
+
+' browse-toolbar.ts `orderFilterValues`: decades newest first; everything else as the server
+' counts them.
+function OrderFilterValues(field as object, values as object) as object
+    if field.id <> "year" then return values
+    out = []
+    for each value in values
+        at = out.count()
+        for index = 0 to out.count() - 1
+            if at = out.count() and Val(out[index].value) < Val(value.value) then at = index
+        end for
+        later = []
+        while out.count() > at
+            later.unshift(out.pop())
+        end while
+        out.push(value)
+        out.append(later)
+    end for
+    return out
+end function
+
+' browse-toolbar.ts `genreFilter`: the filter a genre's name opens on a title page.
+function GenreFilter(name as string) as object
+    return { "field": "genre", "operator": "contains-any", "value": [name] }
+end function
+
+' app/browse.ts `fieldLabel`: the name of a field or a sort.
+function BrowseFieldLabel(id as string, labelKey = "" as string) as string
+    if labelKey = "sort.forYou" then return T("sort.forYou")
+    key = labelKey
+    if Left(key, Len("browse.field.")) = "browse.field." then key = Mid(key, Len("browse.field.") + 1)
+    if Left(key, Len("sort.")) = "sort." then key = Mid(key, Len("sort.") + 1)
+    if key = "" then key = id
+    if m.browseFieldNames = invalid then
+        m.browseFieldNames = {}
+        m.browseFieldNames.setModeCaseSensitive()
+        m.browseFieldNames.append(BrowseFieldNames())
+    end if
+    if m.browseFieldNames.doesExist(key) then return m.browseFieldNames[key]
+    if m.browseFieldNames.doesExist(id) then return m.browseFieldNames[id]
+    return BrowseSentence(key)
+end function
+
+' app/browse.ts `sentence`: "dateAdded" → "Date added".
+function BrowseSentence(key as string) as string
+    words = LCase(CreateObject("roRegex", "([A-Z])", "").replaceAll(key, " \1"))
+    return UCase(Left(words, 1)) + Mid(words, 2)
+end function
+
+function BrowseQuickFilterLabel(labelKey as string) as string
+    key = labelKey
+    if Left(key, Len("filter.")) = "filter." then key = Mid(key, Len("filter.") + 1)
+    if m.browseQuickNames = invalid then
+        m.browseQuickNames = {}
+        m.browseQuickNames.setModeCaseSensitive()
+        m.browseQuickNames.append(BrowseQuickFilterNames())
+    end if
+    if m.browseQuickNames.doesExist(key) then return m.browseQuickNames[key]
+    return BrowseSentence(key)
+end function
+
+function CapabilityField(capabilities as dynamic, id as string) as dynamic
+    if capabilities = invalid then return invalid
+    for each field in capabilities.fields
+        if field.id = id then return field
+    end for
+    return invalid
+end function
+
+' browse-toolbar.ts `appliedFilterLabel` with app/browse.ts `predicateLabel`: the words on an
+' applied filter ("Year: 1990s, 2000s", "Critic rating ≥ 8", "No collection").
+function PredicateLabel(p as object, capabilities = invalid as dynamic) as string
+    decade = p.field = "decade"
+    named = p.field
+    if decade then named = "year"
+    labelKey = ""
+    capability = CapabilityField(capabilities, named)
+    if capability <> invalid then labelKey = capability.labelKey
+    field = BrowseFieldLabel(named, labelKey)
+    value = ""
+    if IsArray(p.value) then
+        words = []
+        for each v in p.value
+            words.push(AppliedValue(v, decade))
+        end for
+        value = words.join(", ")
+    else if p.value <> invalid then
+        value = AppliedValue(p.value, decade)
+    end if
+    op = p.operator
+    if op = "is-present" then return T("filter.applied.has", { field: LCase(field) })
+    if op = "is-missing" then return T("filter.applied.missing", { field: LCase(field) })
+    if op = "not-equals" or op = "not-in" then return T("filter.applied.not", { field: field, value: value })
+    if op = "at-least" or op = "greater-than" then return field + " ≥ " + value
+    if op = "at-most" or op = "less-than" then return field + " ≤ " + value
+    if op = "between" then
+        if IsArray(p.value) then value = AppliedValue(p.value[0], decade) + "–" + AppliedValue(p.value[1], decade)
+        return T("filter.applied.is", { field: field, value: value })
+    end if
+    if op = "starts-with" then return T("filter.applied.startsWith", { field: field, value: value })
+    return T("filter.applied.is", { field: field, value: value })
+end function
+
+function AppliedValue(v as dynamic, decade as boolean) as string
+    if decade then return BrowseScalarText(v) + "s"
+    if IsBoolean(v) then
+        if v then return T("lib.yes")
+        return T("lib.no")
+    end if
+    return BrowseValueLabel(BrowseScalarText(v))
+end function
+
+' screens/BrowseFilters.tsx `directionLabel`: the direction as the sort's kind says it
+' ("A to Z", "Newest first").
+function SortDirectionLabel(field as string, direction as string) as string
+    kind = "other"
+    if MatchesPattern(field, "title|name|artist|album|author") then
+        kind = "alpha"
+    else if MatchesPattern(field, "added|date|year|release|played|last") then
+        kind = "date"
+    else if MatchesPattern(field, "rating") then
+        kind = "rating"
+    else if MatchesPattern(field, "duration|length") then
+        kind = "duration"
+    end if
+    return T("lib.direction", { kind: kind, dir: direction })
+end function
+
+' The label on the Sort control: the field and, when it can be flipped, the direction.
+function SortControlLabel(capabilities as object, sort as object) as string
+    labelKey = ""
+    flippable = true
+    for each candidate in capabilities.sorts
+        if candidate.id = sort.field then
+            labelKey = candidate.labelKey
+            flippable = candidate.directions.count() > 1
+        end if
+    end for
+    name = BrowseFieldLabel(sort.field, labelKey)
+    if not flippable then return name
+    return T("lib.sortChip", { field: name, direction: SortDirectionLabel(sort.field, sort.direction) })
+end function
+
+' The filter panel's rows carry what they choose in their id: "any", "yes", "no", or a kind and a
+' value ("value:Drama", "choice:hdr10", "preset:under-30"). {kind, value}.
+function FilterRowParts(id as string) as object
+    at = Instr(1, id, ":")
+    if at = 0 then return { kind: id, value: "" }
+    return { kind: Left(id, at - 1), value: Mid(id, at + 1) }
+end function
+
+' A chosen value as the query stores it: a number for Year (a decade) and numeric fields.
+function FilterStoredValue(value as string, numeric as boolean) as dynamic
+    if numeric then return Val(value, 10)
+    return value
+end function

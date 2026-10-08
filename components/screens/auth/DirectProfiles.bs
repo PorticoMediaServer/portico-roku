@@ -1,0 +1,235 @@
+' apps/native/src/screens/auth/DirectProfiles.tsx and ProfileAvatar.tsx. The profiles in a centred
+' row, Theme.space.xl apart: each a face Theme.apple.profileAvatar across in the profile's own
+' colour with its initial in the title role, the name beneath in body strong, and a small lock when
+' it has a PIN. Focus is a ring hugging the face and a gentle lift (Theme.apple.profileFocusScale).
+'
+' Difference from the Apple TV app: a profile's PIN is entered on Roku's own PIN pad
+' (StandardPinPadDialog) instead of the Apple app's on-screen keypad, and the pictures profiles
+' uploaded are not drawn (a Roku image cannot carry the session's bearer); the initial on the
+' profile's colour stands in, as it does on Apple TV while a picture loads.
+import "pkg:/source/core/DirectSignIn.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.session = m.global.session
+    m.frame = m.top.createChild("AuthFrame")
+    m.frame.centered = true
+    m.frame.wide = true
+    m.frame.observeField("errorDismissed", "onProfilesDismiss")
+    m.content = CreateObject("roSGNode", "Group")
+    m.tiles = []
+    m.pinFor = invalid
+    m.dialog = invalid
+    m.avatars = invalid
+    m.avatarTask = invalid
+    m.session.observeField("error", "onProfilesError")
+    m.session.observeField("busy", "onProfilesBusy")
+end sub
+
+sub enter()
+    ProfilesBuild()
+    ProfilesPictures()
+    m.frame.callFunc("focusContent", invalid)
+end sub
+
+sub leave()
+    if m.dialog <> invalid then m.dialog.close = true
+end sub
+
+function back() as boolean
+    m.session.callFunc("cancelPending")
+    return true
+end function
+
+sub ProfilesBuild()
+    pending = m.session.pending
+    width = m.frame.contentWidth
+    m.frame.title = T("auth.whosWatching")
+    m.frame.error = m.session.error
+    m.content.removeChildrenIndex(m.content.getChildCount(), 0)
+    m.tiles = []
+    if pending = invalid or pending.snapshot = invalid then
+        m.frame.callFunc("setContent", m.content, 0)
+        return
+    end if
+    avatar = Theme.apple.profileAvatar
+    tileWidth = avatar + Theme.apple.profileTileExtra
+    border = Theme.apple.profileBorder
+    for each profile in pending.snapshot.profiles
+        tile = m.content.createChild("UiFocusable")
+        tile.addFields({ profileId: profile.id, pinRequired: profile.pinRequired, profileName: profile.name })
+        tile.ring = false
+        tile.focusScale = Theme.apple.profileFocusScale
+        face = tile.createChild("Poster")
+        color = ThemeColor("profile" + UCase(Left(profile.art, 1)) + Mid(profile.art, 2))
+        StyleShape(face, avatar, avatar, avatar / 2, color)
+        Place(face, (tileWidth - avatar) / 2, 0)
+        ring = tile.createChild("Poster")
+        StyleRing(ring, avatar, avatar, avatar / 2, border, Theme.colors.focus)
+        Place(ring, (tileWidth - avatar) / 2, 0)
+        ring.opacity = 0
+        initial = MakeText(tile, "title")
+        initial.align = "center"
+        initial.maxWidth = avatar
+        initial.value = UCase(Left(profile.name, 1))
+        Place(initial, (tileWidth - avatar) / 2, (avatar - initial.height) / 2)
+        ' ui ProfileAvatar.tsx: the picture the profile uploaded shows over the initial once it has
+        ' loaded; one that does not load leaves the initial, never a hole.
+        masked = tile.createChild("MaskGroup")
+        masked.maskUri = MaskUri(avatar, avatar, avatar / 2)
+        masked.maskSize = [avatar, avatar]
+        masked.visible = false
+        Place(masked, (tileWidth - avatar) / 2, 0)
+        picture = masked.createChild("Poster")
+        picture.width = avatar
+        picture.height = avatar
+        picture.loadDisplayMode = "scaleToZoom"
+        picture.observeField("loadStatus", "onProfilesPicture")
+        ' The focus ring stays above the picture.
+        tile.removeChild(ring)
+        tile.appendChild(ring)
+        name = MakeText(tile, "bodyStrong")
+        name.align = "center"
+        name.maxWidth = tileWidth
+        name.value = profile.name
+        Place(name, 0, avatar + Theme.space.sm)
+        height = avatar + Theme.space.sm + name.height
+        if profile.pinRequired then
+            lock = MakeIcon(tile, "lock", Theme.apple.profileLock, Theme.colors.textTertiary)
+            Place(lock, (tileWidth - Theme.apple.profileLock) / 2, height)
+            height = height + Theme.apple.profileLock
+        end if
+        tile.radius = avatar / 2
+        tile.controlWidth = tileWidth
+        tile.controlHeight = height
+        tile.observeField("isFocused", "onProfilesFocus")
+        tile.observeField("pressed", "onProfilesChoose")
+        m.tiles.push({ node: tile, ring: ring, picture: picture })
+    end for
+    nodes = []
+    for each tile in m.tiles
+        nodes.push(tile.node)
+    end for
+    rowHeight = StackRow(nodes, 0, Theme.space.xl, width, 0, "center")
+    ' The row aligns its tiles to the top (a tile with a lock is taller).
+    for each node in nodes
+        node.translation = [node.translation[0], 0]
+    end for
+    m.frame.callFunc("setContent", m.content, rowHeight)
+    ProfilesApplyPictures()
+end sub
+
+' ProfileAvatar.tsx `useProfilePictures`: the pictures are read with the token the chooser holds,
+' and each image request under the chooser carries it.
+sub ProfilesPictures()
+    pending = m.session.pending
+    connection = m.session.connection
+    if pending = invalid or pending.accountSession = invalid or connection = invalid then return
+    token = pending.accountSession.accessToken
+    if token = invalid or token = "" then return
+    agent = CreateObject("roHttpAgent")
+    agent.addHeader("Authorization", "Bearer " + token)
+    m.content.setHttpAgent(agent)
+    m.avatarTask = CreateObject("roSGNode", "SessionTask")
+    m.avatarTask.job = { kind: "avatars", connection: connection, token: token }
+    m.avatarTask.observeField("result", "onProfilesAvatars")
+    m.avatarTask.control = "RUN"
+end sub
+
+sub onProfilesAvatars(event as object)
+    result = event.getData()
+    ' Without the pictures the chooser shows initials.
+    if result = invalid or result.ok <> true then return
+    m.avatars = result.avatars
+    ProfilesApplyPictures()
+end sub
+
+sub ProfilesApplyPictures()
+    connection = m.session.connection
+    if m.avatars = invalid or connection = invalid then return
+    for each tile in m.tiles
+        for each avatar in m.avatars
+            if avatar.profileId = tile.node.profileId then tile.picture.uri = ProfileAvatarUrl(connection.origin, avatar.url, Theme.apple.profileAvatar)
+        end for
+    end for
+end sub
+
+sub onProfilesPicture(event as object)
+    picture = event.getRoSGNode()
+    if picture.loadStatus = "ready" then picture.getParent().visible = true
+end sub
+
+sub onProfilesFocus()
+    for each tile in m.tiles
+        if tile.node.isFocused then
+            tile.ring.opacity = 1
+        else
+            tile.ring.opacity = 0
+        end if
+    end for
+end sub
+
+sub onProfilesBusy()
+    for each tile in m.tiles
+        tile.node.busy = m.session.busy
+    end for
+end sub
+
+sub onProfilesChoose(event as object)
+    tile = event.getRoSGNode()
+    if tile = invalid or m.session.busy then return
+    if not tile.pinRequired then
+        m.session.callFunc("chooseProfile", { profileId: tile.profileId })
+        return
+    end if
+    m.pinFor = tile
+    dialog = CreateObject("roSGNode", "StandardPinPadDialog")
+    dialog.title = T("auth.enterProfilePin")
+    dialog.message = [tile.profileName]
+    dialog.buttons = [T("action.continue"), T("action.cancel")]
+    palette = CreateObject("roSGNode", "RSGPalette")
+    palette.colors = {
+        DialogBackgroundColor: Theme.colors.overlaySurface
+        DialogTextColor: Theme.colors.text
+        DialogFocusColor: Theme.colors.focus
+        DialogFocusItemColor: Theme.colors.ink
+        DialogSecondaryTextColor: Theme.colors.textSecondary
+        DialogSecondaryItemColor: Theme.colors.textTertiary
+        DialogInputFieldColor: Theme.colors.raised
+        DialogKeyboardColor: Theme.colors.raised
+        DialogFootprintColor: Theme.colors.lineStrong
+    }
+    dialog.palette = palette
+    dialog.observeField("buttonSelected", "onProfilesPin")
+    dialog.observeField("wasClosed", "onProfilesPinClosed")
+    m.dialog = dialog
+    m.top.getScene().dialog = dialog
+end sub
+
+sub onProfilesPin()
+    if m.dialog = invalid or m.pinFor = invalid then return
+    confirmed = m.dialog.buttonSelected = 0
+    pin = m.dialog.pin
+    tile = m.pinFor
+    m.dialog.close = true
+    if confirmed then m.session.callFunc("chooseProfile", { profileId: tile.profileId, pin: pin })
+end sub
+
+sub onProfilesPinClosed()
+    m.dialog = invalid
+    if m.pinFor <> invalid then m.pinFor.setFocus(true)
+end sub
+
+' A wrong PIN says so above the faces; the profile is pressed again to try again.
+sub onProfilesError()
+    m.frame.error = m.session.error
+end sub
+
+sub onProfilesDismiss()
+    m.session.callFunc("clearError")
+end sub

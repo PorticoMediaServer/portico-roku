@@ -1,0 +1,78 @@
+{
+ "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+ "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df",
+ "revision": {
+  "catalog": 50170,
+  "viewer": 1525
+ },
+ "person": {
+  "id": "5d29d9d5d112cecb1996f10d7dc5e603",
+  "name": "Martin Balsam",
+  "sortName": "martin balsam",
+  "biography": "",
+  "birthDate": "",
+  "deathDate": "",
+  "portraitUrl": "/v1/people/5d29d9d5d112cecb1996f10d7dc5e603/portrait?v=804a81a5de3c4dd777bcd02436c053e523b2663387bde614b83a28797fc90dce&w=400",
+  "roles": [
+   "Acting"
+  ],
+  "knownFor": [
+   {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   }
+  ],
+  "providerIds": {},
+  "revision": 1
+ },
+ "credits": [
+  {
+   "media": {
+    "watched": true,
+    "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+    "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+    "id": "FnVfQzincjaryvRl0TA1jw",
+    "kind": "movie",
+    "title": "12 Angry Men",
+    "subtitle": "1957",
+    "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+    "available": true,
+    "duration": 45,
+    "progressSeconds": 0,
+    "addedAt": "2026-10-02T04:02:14.777Z",
+    "navigation": {
+     "view": "item",
+     "entityId": "FnVfQzincjaryvRl0TA1jw"
+    },
+    "playback": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw"
+    }
+   },
+   "role": "Juror 1",
+   "character": "Juror 1",
+   "department": "Acting",
+   "creditKind": "cast"
+  }
+ ],
+ "pageInfo": {
+  "total": 1,
+  "nextCursor": ""
+ }
+}

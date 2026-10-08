@@ -1,0 +1,167 @@
+{
+ "heading": {
+  "key": "library.discover",
+  "fallback": "Anime"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+  "libraryKind": "anime",
+  "view": "discover",
+  "entityId": "",
+  "viewerFence": "19953f596b475a2b42d9c110e0b5c892beed9f42a0aa6a95987e3edd6411595b"
+ },
+ "revision": {
+  "catalog": 5744,
+  "viewer": 0
+ },
+ "navigation": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "view": "discover"
+  },
+  {
+   "id": "browse",
+   "labelKey": "library.shows",
+   "view": "browse"
+  }
+ ],
+ "query": {
+  "sort": "server",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [],
+ "filters": [],
+ "sections": [
+  {
+   "id": "recently_added",
+   "type": "rail",
+   "heading": {
+    "key": "section.recently_added",
+    "fallback": "Recently added"
+   },
+   "entries": [
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "uwdbZDGGNfL0IVJ0sSTqIg",
+     "kind": "show",
+     "title": "Solo Leveling",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/uwdbZDGGNfL0IVJ0sSTqIg/art/poster?v=4f2f91cf25bdb0ced4459030192dc3a4d52803f30111e949786ee12ae4002747&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "uwdbZDGGNfL0IVJ0sSTqIg"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "apcMS4fou_ExuEc6TKp4sA",
+     "kind": "show",
+     "title": "One Piece",
+     "subtitle": "1999",
+     "posterUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/poster?v=d216451408e36dfc01fa7e094d95c407653a2a534e4e0dce16cfe63b859e769d&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "apcMS4fou_ExuEc6TKp4sA"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "hHKWlNLYCOb-NiTO8r7KhA",
+     "kind": "show",
+     "title": "Naruto Shippūden",
+     "subtitle": "2007",
+     "posterUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/poster?v=3336d0bcf49d2b50f37c1b4dc8c590d3caf2cd24c967b00bf1a7962fe4b7e4e1&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "hHKWlNLYCOb-NiTO8r7KhA"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "m4_eXzXJpNEzgoNyiq6DVQ",
+     "kind": "show",
+     "title": "My Hero Academia",
+     "subtitle": "2016",
+     "posterUrl": "/v1/metadata/show/m4_eXzXJpNEzgoNyiq6DVQ/art/poster?v=688e218cd493f68f7f4691004c54a5b6f8ffb31bd0223fc1c83d0ca018169179&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "m4_eXzXJpNEzgoNyiq6DVQ"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "-fm_-ji3RR-5EckgBVnEtA",
+     "kind": "show",
+     "title": "JUJUTSU KAISEN",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/show/-fm_-ji3RR-5EckgBVnEtA/art/poster?v=28eb7fa8a235be660f86bb73c0e660206e1f50406c01d1e6d433be5d5e708957&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "-fm_-ji3RR-5EckgBVnEtA"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "jD_LYSJVrrQCGVeqTV7g8A",
+     "kind": "show",
+     "title": "Hunter x Hunter",
+     "subtitle": "2011",
+     "posterUrl": "/v1/metadata/show/jD_LYSJVrrQCGVeqTV7g8A/art/poster?v=da94e688a45fee94b458a6f9dd68386ae3389502c46a717870efb074da3e12e9&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "jD_LYSJVrrQCGVeqTV7g8A"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "ryMRhHgEuQClvTRkWKeHzg",
+     "kind": "show",
+     "title": "Demon Slayer: Kimetsu no Yaiba",
+     "subtitle": "2019",
+     "posterUrl": "/v1/metadata/show/ryMRhHgEuQClvTRkWKeHzg/art/poster?v=5bb0d0f7a48592f2d8da1c108c78791efef52a07345ee3be498c1f034b5d18ce&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "ryMRhHgEuQClvTRkWKeHzg"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "id": "N3tK6PcOu3ZQBzDbG963tA",
+     "kind": "show",
+     "title": "Attack on Titan",
+     "subtitle": "2013",
+     "posterUrl": "/v1/metadata/show/N3tK6PcOu3ZQBzDbG963tA/art/poster?v=59e1a9258664b67c4e8523e4f0a2662bc975bbfdcf447fd10c50004e41c0df3b&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "N3tK6PcOu3ZQBzDbG963tA"
+     }
+    }
+   ],
+   "totalCount": 8,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

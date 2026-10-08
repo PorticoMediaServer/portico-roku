@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/DirectProfiles.tsx: who's watching. -->
+<component name="ScreenDirectProfiles" extends="Group">
+    <interface>
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

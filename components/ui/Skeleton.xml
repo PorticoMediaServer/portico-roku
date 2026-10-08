@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Feedback.tsx `Skeleton`: a pulsing placeholder block while shape is unknown. -->
+<component name="UiSkeleton" extends="Group">
+    <interface>
+        <field id="blockWidth" type="float" value="0" onChange="onSkeletonLayout" />
+        <field id="blockHeight" type="float" value="0" onChange="onSkeletonLayout" />
+        <field id="radius" type="float" value="-1" onChange="onSkeletonLayout" />
+        <field id="boxWidth" type="float" value="0" />
+        <field id="boxHeight" type="float" value="0" />
+    </interface>
+</component>

@@ -1,0 +1,80 @@
+' core/LocalSession.bs and core/DirectSignIn.bs against packages/client-core/src/local-session.ts
+' and profile-management.ts: scripts/golden.mjs runs the TypeScript parsers over each raw answer
+' and records what they accepted and returned.
+
+sub Test_Sessions_parseLocalSession()
+    fixture = TestFixture("golden/sessions.json")
+    if fixture = invalid then return
+    for each item in fixture.sessions
+        result = ParseLocalSession(item.raw, item.expected, item.stored, fixture.now)
+        AssertEqual(result.ok, item.ok, "session: " + item.name)
+        if not item.ok and not result.ok then AssertEqual(result.code, item.code, "session: " + item.name)
+        if item.ok and result.ok then
+            AssertEqual(result.session.accessToken, item.session.accessToken, "session: " + item.name)
+            AssertEqual(result.session.viewer.profileId, item.session.viewer.profileId, "session: " + item.name)
+            AssertEqual(result.session.tokenGeneration, item.session.tokenGeneration, "session: " + item.name)
+            AssertEqual(result.session.count(), item.session.count(), "session fields: " + item.name)
+            AssertEqual(result.session.viewer.count(), item.session.viewer.count(), "viewer fields: " + item.name)
+            AssertEqual(result.session.doesExist("refreshToken"), item.session.doesExist("refreshToken"), "refresh token: " + item.name)
+        end if
+    end for
+end sub
+
+sub Test_Sessions_storedRecordKeepsItsFieldNames()
+    ' A saved session is written as JSON and read back: the field names must survive.
+    fixture = TestFixture("golden/sessions.json")
+    if fixture = invalid then return
+    first = ParseLocalSession(fixture.sessions[1].raw, invalid, false, fixture.now)
+    AssertTrue(first.ok)
+    again = ParseLocalSession(ParseJson(FormatJson(first.session)), invalid, true, fixture.now)
+    AssertTrue(again.ok, "a saved session reads back")
+    AssertEqual(again.session.refreshToken, first.session.refreshToken)
+    AssertEqual(again.session.serverIdentity.publicKey, first.session.serverIdentity.publicKey)
+end sub
+
+sub Test_Sessions_parseManagedProfiles()
+    fixture = TestFixture("golden/sessions.json")
+    if fixture = invalid then return
+    for each item in fixture.profiles
+        result = ParseManagedProfiles(item.raw)
+        AssertEqual(result.ok, item.ok, "profiles: " + item.name)
+        if item.ok and result.ok then
+            ids = []
+            for each profile in result.profiles
+                ids.push(profile.id)
+            end for
+            AssertEqual(ids, item.ids, "profiles: " + item.name)
+        end if
+    end for
+end sub
+
+sub Test_Sessions_parseDirectSignIn()
+    fixture = TestFixture("golden/sessions.json")
+    if fixture = invalid then return
+    for each item in fixture.signIns
+        result = ParseDirectSignIn(item.raw, fixture.now)
+        AssertEqual(result.ok, item.ok, "sign-in: " + item.name)
+        if item.ok and result.ok then
+            AssertEqual(result.kind, item.kind, "sign-in: " + item.name)
+            if item.kind = "signed-in" then
+                AssertEqual(result.accountScoped, item.accountScoped, "sign-in: " + item.name)
+                AssertEqual(result.passwordChangeRequired, item.passwordChangeRequired, "sign-in: " + item.name)
+                AssertEqual(result.snapshot.account.role, item.role, "sign-in: " + item.name)
+                AssertEqual(result.snapshot.profiles.count(), item.profiles, "sign-in: " + item.name)
+                AssertEqual(result.snapshot.custodyPending, item.custodyPending, "sign-in: " + item.name)
+            else if item.kind = "challenge" then
+                AssertEqual(result.token, item.token, "sign-in: " + item.name)
+            else
+                AssertEqual(result.deviceId, item.deviceId, "sign-in: " + item.name)
+            end if
+        end if
+    end for
+end sub
+
+sub Test_Sessions_profilePin()
+    AssertEqual(ProfilePinValid(""), true)
+    AssertEqual(ProfilePinValid("1234"), true)
+    AssertEqual(ProfilePinValid("123"), false)
+    AssertEqual(ProfilePinValid("12345"), false)
+    AssertEqual(ProfilePinValid("12a4"), false)
+end sub

@@ -1,0 +1,1689 @@
+' apps/native/src/player: PlayerHost.tsx, VideoPlayer.tsx, Timeline.tsx, PlayerOptions.tsx,
+' SkipPrompt.tsx, PostPlay.tsx and MiniPlayer.tsx (`NowPlayingPill`), on the Playback v1 protocol
+' (core/Playback.bs). The server decides what plays and how; the channel asks for a session (or a
+' queue, when a list plays), gives the Video node the URL it is handed, reports the timeline, and
+' asks the queue to advance.
+'
+' Chrome (the Apple layout): the title at the top; at the bottom the timeline (a single focus
+' stop: Left and Right seek), the clocks, the transport (Previous, back, Pause/Play, forward,
+' Next; Pause/Play is the only filled control), and the option boxes (Audio · Subtitles ·
+' Quality · Sleep). It hides after Theme.apple.playerChromeMs of playback and returns on any key.
+' Back hides the chrome first, then leaves the player: audio keeps playing behind the
+' now-playing pill; video stops.
+'
+' Differences from the Apple TV app: no Speed box (the Video node has no rate control with
+' sound); no lyrics, Picture in Picture, Watch Together or cast controls; gapless and crossfade
+' are the platform's (none).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Scroll.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Playback.bs"
+import "pkg:/source/core/ClientProfileTables.bs"
+import "pkg:/source/core/Settings.bs"
+import "pkg:/source/core/Guide.bs"
+import "pkg:/source/core/Title.bs"
+import "pkg:/source/core/Cards.bs"
+import "pkg:/components/app/Nav.bs"
+import "pkg:/components/player/PlayerLyrics.bs"
+import "pkg:/source/core/Together.bs"
+
+sub init()
+    m.top.visible = false
+    width = Theme.screen.width
+    height = Theme.screen.height
+    m.ground = MakeRect(m.top, width, height, Theme.colors.black)
+    m.video = m.top.createChild("Video")
+    m.video.width = width
+    m.video.height = height
+    m.video.enableUI = false
+    m.video.notificationInterval = 0.5
+    m.video.observeField("state", "onPlayerVideoState")
+    m.video.observeField("position", "onPlayerPosition")
+    m.video.observeField("duration", "onPlayerPosition")
+    m.audioArt = m.top.createChild("UiArtwork")
+    m.audioArt.visible = false
+    LyricsInit()
+    m.chrome = m.top.createChild("Group")
+    m.chrome.id = "playerChrome"
+    m.chromeMotion = MakeFloatAnimation(m.top, "playerChrome.opacity", Theme.motion.standard)
+    m.card = m.top.createChild("Group")
+    m.skip = invalid
+    m.pill = m.top.createChild("UiFocusable")
+    m.pill.visible = false
+    m.pill.focusable = false
+    m.pill.observeField("pressed", "onPlayerPillPressed")
+    m.pill.observeField("isFocused", "onPlayerPillStyle")
+    m.pillBody = m.pill.createChild("Group")
+    m.hide = m.top.createChild("Timer")
+    m.hide.duration = Theme.apple.playerChromeMs / 1000
+    m.hide.observeField("fire", "onPlayerHide")
+    m.report = m.top.createChild("Timer")
+    m.report.observeField("fire", "onPlayerReport")
+    m.retry = m.top.createChild("Timer")
+    m.retry.observeField("fire", "onPlayerRetryStart")
+    m.countdown = m.top.createChild("Timer")
+    m.countdown.duration = 1
+    m.countdown.repeat = true
+    m.countdown.observeField("fire", "onPlayerCountdown")
+    m.channelPoll = m.top.createChild("Timer")
+    m.channelPoll.duration = 1
+    m.channelPoll.repeat = true
+    m.channelPoll.observeField("fire", "onPlayerChannelPoll")
+    m.sleep = m.top.createChild("Timer")
+    m.sleep.observeField("fire", "onPlayerSleep")
+    m.menu = invalid
+    ' In a Watch Together room the top bar's pill follows the room.
+    together = m.global.together
+    if together <> invalid then together.observeField("changed", "onPlayerRoomChanged")
+    m.prefs = invalid
+    m.generation = 0
+    m.timeline = invalid
+    m.playButton = invalid
+    PlayerReset()
+end sub
+
+sub PlayerReset()
+    m.request = invalid
+    m.session = invalid
+    m.queue = invalid
+    m.options = invalid
+    m.entry = invalid
+    m.identity = { title: "", subtitle: "", artUri: "" }
+    m.phase = "idle"
+    m.failure = invalid
+    m.seq = 0
+    m.startKey = ""
+    m.pending = invalid
+    m.choices = {}
+    m.quality = "original"
+    m.sleepMinutes = 0
+    m.seekTo = -1
+    m.skipped = invalid
+    m.upNext = invalid
+    m.counting = false
+    m.remaining = 0
+    m.chromeShown = false
+    m.restore = invalid
+    m.tasks = {}
+    m.window = invalid
+    m.target = invalid
+    m.resumeAt = invalid
+    m.pillRestore = invalid
+    m.menuOpen = false
+    m.heldId = ""
+    m.playingItem = ""
+    LyricsReset()
+    m.channel = invalid
+    m.channelJoined = false
+    m.channelPlaying = -1
+    m.channelWanted = "playing"
+    m.channelPolling = false
+    m.autoSkipped = {}
+    m.lastPosition = 0
+    m.audio = false
+    m.waited = 0
+    m.startSeconds = 0
+    m.postState = invalid
+end sub
+
+function PlayerOrigin() as string
+    return ViewerOrigin()
+end function
+
+' Ends what is playing (the viewer signed out or is switching server).
+sub stop()
+    if m.top.active then PlayerLeave()
+end sub
+
+' Watch Together: the follower keeps this player on the group's clock.
+sub groupDo(action as object)
+    if m.session = invalid or m.channel <> invalid then return
+    if action.kind = "play" then
+        m.video.control = "resume"
+    else if action.kind = "pause" then
+        m.video.control = "pause"
+    else if action.kind = "seek" and action.seconds <> invalid then
+        m.seekTo = action.seconds
+        m.video.seek = action.seconds
+        PlayerTimeline()
+    end if
+end sub
+
+sub onPlayerRoomChanged()
+    if m.top.active and m.top.expanded and not m.menuOpen and m.session <> invalid and m.phase <> "error" and m.phase <> "ended" then PlayerDraw()
+end sub
+
+' The room this player is following, when what plays is the group's title; else invalid.
+function PlayerRoom() as dynamic
+    together = m.global.together
+    if together = invalid or together.inRoom <> true or together.group = invalid then return invalid
+    if together.group.timeline.itemId = "" or together.group.timeline.itemId <> m.playingItem then return invalid
+    return together.group
+end function
+
+' GroupPill.tsx: who is here, and how each is doing.
+sub PlayerGroupList()
+    room = PlayerRoom()
+    if room = invalid then return
+    if m.menu = invalid then
+        m.menu = m.top.createChild("UiMenu")
+        m.menu.observeField("chosen", "onPlayerChoice")
+        m.menu.observeField("closed", "onPlayerMenuClosed")
+    end if
+    items = []
+    for each member in GroupJoined(room)
+        name = member.displayName
+        if member.id = room.viewerMemberId then name = T("web.together.you", { name: member.displayName })
+        items.push({ id: "member", label: name, detail: GroupPillRole(member), icon: "profile" })
+    end for
+    m.menu.title = room.name
+    m.menuOpen = true
+    m.heldId = "group"
+    m.menu.items = items
+    m.menu.callFunc("open")
+end sub
+
+' The player's own Play, Pause or seek while a group's title is on belongs to the group. True
+' when the group took it.
+function PlayerGroupTook(ask as object) as boolean
+    together = m.global.together
+    if together = invalid or together.inRoom <> true then return false
+    return together.callFunc("groupCommand", ask)
+end function
+
+' What is playing, for whoever must know it is really playing (the receiver).
+function nowPlaying() as object
+    out = { itemId: m.playingItem, playbackId: "", playing: false, buffering: false, ready: false, positionSeconds: 0 }
+    if not m.top.active then out.itemId = ""
+    if m.session <> invalid then
+        out.playbackId = m.session.id
+        out.positionSeconds = m.video.position
+        ' A seek that has not landed yet is where the player is going (the follower must not chase it).
+        if m.seekTo >= 0 then out.positionSeconds = m.seekTo
+        out.playing = m.phase = "playing" and m.video.position > 0
+        out.ready = m.phase = "playing" or m.phase = "paused"
+    end if
+    out.buffering = m.top.active and (m.phase = "starting" or m.phase = "loading")
+    return out
+end function
+
+' ---- Starting ----------------------------------------------------------------------------------
+
+' Plays a title, or a list from an entry: {itemId, startSeconds, entry, queue, index, container, shuffle}.
+sub play(request as object)
+    if m.session <> invalid then PlayerStopSession(false)
+    PlayerReset()
+    m.generation = m.generation + 1
+    m.request = request
+    m.channel = request.channel
+    if request.itemId <> invalid then m.playingItem = request.itemId
+    m.entry = request.entry
+    PlayerIdentity(request.entry)
+    m.top.active = true
+    m.phase = "starting"
+    scene = m.top.getScene()
+    m.restore = FocusedLeaf(scene)
+    PlayerExpand()
+    PlayerDraw()
+    list = request.queue <> invalid and request.queue.count() > 1
+    container = request.container <> invalid and QueueContainerKind(request.container.kind) <> ""
+    start = 0
+    if request.startSeconds <> invalid then start = request.startSeconds
+    m.startSeconds = start
+    if m.channel <> invalid then
+        ' A channel is tuned: one session for the channel (playback-v1/channel-control.ts).
+        m.startKey = NewRequestId()
+        PlayerStart({ channel: m.channel })
+        return
+    end if
+    if list or container then
+        ' A list is the server's queue: Play, Shuffle or play-from-here is one request.
+        PlayerSend("queue", { path: "/v1/queues", method: "POST", body: QueueCreateBody(request, start <= 0), headers: { "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerQueue")
+    else
+        m.startKey = NewRequestId()
+        PlayerStart({ itemId: request.itemId })
+    end if
+    PlayerSend("options", { path: "/v1/items/" + request.itemId.encodeUriComponent() + "/playback-options", reader: "playbackOptions" }, "onPlayerOptions")
+    ' Sent from another device, a title arrives as its id alone: the player reads what it is.
+    if request.entry = invalid then PlayerSend("entry", { path: "/v1/items/" + request.itemId.encodeUriComponent() + "/detail", reader: "itemEntry" }, "onPlayerEntry")
+    ' The viewer's skip amounts and what happens at an intro, a recap and the credits.
+    PlayerSend("preferences", { path: "/v1/preferences?deviceClass=television", reader: "preferences" }, "onPlayerPreferences")
+end sub
+
+sub onPlayerEntry(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.entry <> invalid then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then return
+    m.entry = result.value.entry
+    PlayerIdentity(m.entry)
+    PlayerDraw()
+end sub
+
+sub onPlayerPreferences(event as object)
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.prefs = result.value
+        if m.top.expanded then PlayerDraw()
+    end if
+end sub
+
+function PlayerSkipBack() as dynamic
+    return SkipSeconds(m.prefs, "back", Theme.apple.playerSkipBack)
+end function
+
+function PlayerSkipForward() as dynamic
+    return SkipSeconds(m.prefs, "forward", Theme.apple.playerSkipForward)
+end function
+
+sub PlayerSend(name as string, request as object, handler as string)
+    task = ApiStart(request, handler)
+    task.addFields({ generation: m.generation })
+    m.tasks[name] = task
+end sub
+
+sub PlayerIdentity(entry as dynamic)
+    identity = { title: "", subtitle: "", artUri: "" }
+    if entry <> invalid then
+        identity.title = entry.title
+        if entry.kind = "episode" then
+            ' An episode reads "Severance · S1 E2", with its own title under it.
+            show = ContinueTitle(entry)
+            code = TitleEpisodeCode(entry)
+            if show <> entry.title and show <> "" then
+                identity.title = FactsLine([show, code])
+                identity.subtitle = entry.title
+            else if code <> "" then
+                identity.subtitle = code
+            end if
+        else if entry.artist <> invalid and entry.artist.name <> invalid then
+            album = invalid
+            if entry.album <> invalid then album = entry.album.name
+            identity.subtitle = FactsLine([entry.artist.name, album])
+        else if IsString(entry.subtitle) then
+            identity.subtitle = entry.subtitle
+        end if
+        art = entry.posterUrl
+        if art = invalid then art = entry.backdropUrl
+        identity.artUri = MediaUrl(PlayerOrigin(), art)
+    end if
+    m.identity = identity
+end sub
+
+sub PlayerStart(target as object)
+    m.target = target
+    body = invalid
+    if target.channel <> invalid then
+        ' playback-v1/channel-control.ts `open`: the session comes first, its stream a moment later.
+        if m.session <> invalid then PlayerStopSession(true)
+        m.channelJoined = false
+        m.channelPlaying = -1
+        m.channelWanted = "playing"
+        PlayerSend("start", { path: "/v1/playback/sessions", method: "POST", body: ChannelSessionBody(target.channel), headers: { "Idempotency-Key": m.startKey }, reader: "channelSession" }, "onPlayerChannel")
+        return
+    end if
+    body = SessionStartBody(target, m.startSeconds, PlayerChoices())
+    PlayerSend("start", { path: "/v1/playback/sessions", method: "POST", body: body, headers: { "Idempotency-Key": m.startKey }, reader: "playbackSession" }, "onPlayerSession")
+end sub
+
+' ---- A tuned channel (playback-v1/channel-control.ts) ----------------------------------------------
+' The session is read every second: the stream's address arrives once the stream exists, the
+' first join is a go-live seek, and what is on changes with the clock.
+
+sub onPlayerChannel(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.channel = invalid then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        PlayerFail(result.error)
+        return
+    end if
+    PlayerChannelAccept(result.value.session)
+end sub
+
+sub PlayerChannelAccept(session as object)
+    if session.ended then
+        PlayerFail(ChannelEndFailure(session))
+        return
+    end if
+    first = m.session = invalid
+    m.session = session
+    m.failure = invalid
+    on = ChannelNowTitle(session)
+    if on <> m.identity.subtitle then
+        m.identity.subtitle = on
+        if m.top.expanded and not first then PlayerDraw()
+    end if
+    if first then
+        ' The lease is kept from the start, while the stream is still being prepared.
+        m.seq = 0
+        PlayerReportSoon()
+        m.channelPoll.control = "start"
+    end if
+    if not m.channelJoined then
+        if ChannelStreamReady(session) then
+            m.channelJoined = true
+            PlayerSend("channelJoin", { path: "/v1/playback/sessions/" + session.id, method: "PATCH", body: ChannelJoinBody(m.channelWanted, NewRequestId()), headers: { "If-Match": ChannelIfMatch(session) }, reader: "channelSession" }, "onPlayerChannel")
+        end if
+        return
+    end if
+    if ChannelStreamReady(session) and m.channelPlaying <> session.presentation.generation then
+        ' A stream to play (the first, or the one that replaced it).
+        m.channelPlaying = session.presentation.generation
+        content = CreateObject("roSGNode", "ContentNode")
+        content.url = PlaybackUrl(PlayerOrigin(), session.presentation.url)
+        content.streamFormat = "hls"
+        content.live = true
+        content.title = m.identity.title
+        m.video.globalCaptionMode = "Off"
+        m.video.content = content
+        m.audio = false
+        m.phase = "loading"
+        m.video.control = "play"
+        PlayerDraw()
+    end if
+end sub
+
+sub onPlayerChannelPoll()
+    if m.channel = invalid or m.session = invalid or m.channelPolling or m.phase = "error" then return
+    m.channelPolling = true
+    PlayerSend("channelPoll", { path: "/v1/playback/sessions/" + m.session.id, reader: "channelSession" }, "onPlayerChannelPolled")
+end sub
+
+sub onPlayerChannelPolled(event as object)
+    m.channelPolling = false
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.channel = invalid then return
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        PlayerChannelAccept(result.value.session)
+    else if not result.ok and ChannelPollIsFinal(result.status) then
+        ' The session is gone, or this viewer may no longer hold it; anything else is read again.
+        PlayerFail(result.error)
+    end if
+end sub
+
+function PlayerChoices() as object
+    choices = {}
+    choices.append(m.choices)
+    for each choice in QualityChoices()
+        if choice.id = m.quality and choice.id <> "original" then choices.quality = choice.request
+    end for
+    return choices
+end function
+
+sub onPlayerQueue(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        PlayerFail(result.error)
+        return
+    end if
+    m.queue = result.value.queue
+    m.window = result.value.window
+    m.top.hasQueue = true
+    if result.value.session <> invalid then
+        PlayerAdopt(result.value.session)
+    else if m.queue.current <> invalid then
+        ' A start position: the queue is made first, then its entry is started there.
+        m.startKey = NewRequestId()
+        PlayerStart({ queue: { queueId: m.queue.id, entryId: m.queue.current.entryId } })
+    else
+        PlayerFail(invalid)
+    end if
+end sub
+
+sub onPlayerSession(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    ' 202: the server is getting it ready; the same request is sent again after the wait it names.
+    if result.ok and SessionIsPreparing(result.status) then
+        m.waited = m.waited + result.value.waitMs
+        if m.waited > SessionPrepareLimitMs() then
+            PlayerFail(SessionPrepareTimeout())
+            return
+        end if
+        m.retry.duration = result.value.waitMs / 1000
+        m.retry.control = "start"
+        return
+    end if
+    if not result.ok or result.value.ok <> true then
+        PlayerFail(result.error)
+        return
+    end if
+    PlayerAdopt(result.value.session)
+end sub
+
+sub onPlayerRetryStart()
+    if m.phase = "starting" and m.target <> invalid then PlayerStart(m.target)
+end sub
+
+sub onPlayerOptions(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.options = result.value
+        PlayerDraw()
+    end if
+end sub
+
+' A session to play: the Video node is given what the server prepared.
+sub PlayerAdopt(session as object)
+    changed = m.playingItem <> "" and session.itemId <> invalid and session.itemId <> m.playingItem
+    m.session = session
+    m.seq = 0
+    m.failure = invalid
+    m.upNext = invalid
+    m.waited = 0
+    if session.itemId <> invalid then
+        if changed then
+            ' The queue moved to another title: its name and its own tracks and markers.
+            PlayerNowPlaying(session)
+            m.options = invalid
+            m.choices = {}
+            PlayerSend("options", { path: "/v1/items/" + session.itemId.encodeUriComponent() + "/playback-options", reader: "playbackOptions" }, "onPlayerOptions")
+        end if
+        m.playingItem = session.itemId
+    end if
+    presentation = session.presentation
+    content = CreateObject("roSGNode", "ContentNode")
+    content.url = PlaybackUrl(PlayerOrigin(), presentation.url)
+    content.streamFormat = StreamFormatFor(presentation)
+    content.title = m.identity.title
+    ' The URL carries its own grant: the session's bearer is never sent with it.
+    start = presentation.startPositionMs / 1000
+    if m.resumeAt <> invalid then
+        start = m.resumeAt
+        m.resumeAt = invalid
+    end if
+    if start > 0 then content.playStart = start
+    m.lastPosition = start
+    if m.channel <> invalid then
+        ' Live: there is nothing to resume or skip through.
+        m.target = { channel: m.channel }
+        content.live = true
+    else if session.queue <> invalid then
+        m.target = { queue: session.queue }
+    else if session.itemId <> invalid then
+        m.target = { itemId: session.itemId }
+    end if
+    tracks = []
+    for each subtitle in presentation.subtitles
+        tracks.push({ "TrackName": PlaybackUrl(PlayerOrigin(), subtitle.url), "Language": "eng", "Description": subtitle.trackId })
+    end for
+    if tracks.count() > 0 then
+        content.subtitleTracks = tracks
+        m.video.globalCaptionMode = "On"
+        m.video.subtitleTrack = tracks[0].TrackName
+    else
+        m.video.globalCaptionMode = "Off"
+    end if
+    m.video.content = content
+    m.audio = session.kind = "audio"
+    m.phase = "loading"
+    m.video.control = "play"
+    PlayerDraw()
+    PlayerReportSoon()
+    LyricsLoad()
+end sub
+
+' Whether what plays is a song: no ten-second skips, and lyrics.
+function PlayerIsSong() as boolean
+    entryKind = invalid
+    if m.entry <> invalid then entryKind = m.entry.kind
+    windowKind = invalid
+    found = QueueEntryFor(m.window, m.session)
+    if found <> invalid then windowKind = found.kind
+    return IsSongPlaying(entryKind, windowKind, m.audio = true)
+end function
+
+sub PlayerFail(failure as dynamic)
+    m.channelPoll.control = "stop"
+    m.failure = failure
+    if m.top.active and not m.top.expanded then
+        ' Behind a page there is no card to show it on: the page says why, and the pill goes.
+        Toast(PlayerFailureWords(), "warning")
+        PlayerLeave()
+        return
+    end if
+    m.phase = "error"
+    m.video.control = "stop"
+    PlayerExpand()
+    PlayerDraw()
+end sub
+
+' Where the title is: the Video node's position while it plays, kept for after it stops.
+function PlayerPosition() as dynamic
+    return m.lastPosition
+end function
+
+' ---- The Video node ----------------------------------------------------------------------------
+
+sub onPlayerVideoState()
+    state = m.video.state
+    if m.session = invalid then return
+    if state = "playing" then
+        m.phase = "playing"
+        PlayerTouch()
+    else if state = "paused" then
+        m.phase = "paused"
+        m.hide.control = "stop"
+        PlayerShowChrome(true)
+    else if state = "buffering" then
+        if m.phase <> "paused" then m.phase = "loading"
+    else if state = "finished" then
+        PlayerFinished()
+        return
+    else if state = "error" then
+        PlayerSendReport("error", { "code": "engine_error", "detail": m.video.errorMsg })
+        PlayerFail(invalid)
+        return
+    else
+        return
+    end if
+    PlayerDraw()
+    PlayerSendReport(PlayerReportState(), invalid)
+end sub
+
+function PlayerReportState() as string
+    ' A channel reports what the viewer wants of it, even while the stream is being prepared.
+    if m.channel <> invalid then return m.channelWanted
+    if m.phase = "playing" then return "playing"
+    if m.phase = "paused" then return "paused"
+    return "buffering"
+end function
+
+sub onPlayerPosition()
+    if m.session = invalid then return
+    if m.video.position > 0 then m.lastPosition = m.video.position
+    PlayerTimeline()
+    PlayerSkipPrompt()
+    LyricsFollow()
+end sub
+
+' ---- The timeline report (spec §6): progress, lease renewal and observation ---------------------
+
+sub PlayerReportSoon()
+    m.report.control = "stop"
+    m.report.duration = TimelineCadenceSeconds(PlayerReportState(), m.session.reportEveryMs)
+    m.report.control = "start"
+end sub
+
+sub onPlayerReport()
+    if m.session = invalid then return
+    PlayerSendReport(PlayerReportState(), invalid)
+end sub
+
+sub PlayerSendReport(state as string, failure as dynamic)
+    if m.session = invalid then return
+    m.seq = m.seq + 1
+    body = TimelineReport(m.seq, m.session.presentation.generation, state, PlayerPosition())
+    if failure <> invalid then body["error"] = failure
+    if m.skipped <> invalid then
+        body["skipped"] = m.skipped
+        m.skipped = invalid
+    end if
+    ApiStart({ path: "/v1/playback/sessions/" + m.session.id + "/timeline", method: "POST", body: body }, "onPlayerReported")
+    if state <> "ended" and state <> "error" then PlayerReportSoon()
+end sub
+
+sub onPlayerReported()
+end sub
+
+' DELETE the session with where it stopped (spec §5.8).
+sub PlayerStopSession(finished as boolean)
+    if m.session = invalid then return
+    m.report.control = "stop"
+    m.channelPoll.control = "stop"
+    body = invalid
+    ' A channel has no place to come back to: its session is simply ended.
+    if not finished and m.channel = invalid then body = { "positionMs": PlaybackMs(PlayerPosition()) }
+    ApiStart({ path: "/v1/playback/sessions/" + m.session.id, method: "DELETE", body: body }, "onPlayerReported")
+    m.session = invalid
+end sub
+
+' ---- Seeking, toggling, the queue ---------------------------------------------------------------
+
+sub toggle()
+    if m.session = invalid then return
+    if PlayerGroupTook({ kind: "toggle", playing: m.video.state = "playing" or m.video.state = "buffering" }) then return
+    if m.channel <> invalid then
+        ' A channel is paused and resumed on the server too: it keeps the viewer's place in the window.
+        wanted = "paused"
+        if m.channelWanted = "paused" then wanted = "playing"
+        m.channelWanted = wanted
+        PlayerSend("channelState", { path: "/v1/playback/sessions/" + m.session.id, method: "PATCH", body: ChannelStateBody(wanted), headers: { "If-Match": ChannelIfMatch(m.session) }, reader: "channelSession" }, "onPlayerChannel")
+        if wanted = "paused" then
+            m.video.control = "pause"
+        else
+            m.video.control = "resume"
+        end if
+        return
+    end if
+    if m.video.state = "playing" or m.video.state = "buffering" then
+        m.video.control = "pause"
+    else
+        m.video.control = "resume"
+    end if
+end sub
+
+sub PlayerSeekBy(seconds as dynamic)
+    if m.session = invalid or m.channel <> invalid or m.video.duration <= 0 then return
+    target = m.video.position + seconds
+    if m.seekTo >= 0 then target = m.seekTo + seconds
+    target = Clamp(target, 0, Max(0, m.video.duration - 1))
+    if PlayerGroupTook({ kind: "seek", seconds: target }) then return
+    m.seekTo = target
+    m.video.seek = target
+    PlayerTimeline()
+    PlayerTouch()
+end sub
+
+sub PlayerAdvance(reason as string)
+    if m.queue = invalid then return
+    m.counting = false
+    m.countdown.control = "stop"
+    ' The advance starts the next session and replaces this one (spec §8): it is told where it
+    ' stopped, and is not ended from here.
+    if m.session <> invalid and m.phase <> "ended" then PlayerSendReport("paused", invalid)
+    m.report.control = "stop"
+    m.session = invalid
+    m.video.control = "stop"
+    m.phase = "starting"
+    m.upNext = invalid
+    m.waited = 0
+    PlayerDraw()
+    PlayerSend("advance", { path: "/v1/queues/" + m.queue.id + ":advance", method: "POST", body: QueueAdvanceBody(reason), headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerAdvanced")
+end sub
+
+sub onPlayerAdvanced(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        PlayerFail(result.error)
+        return
+    end if
+    m.queue = result.value.queue
+    session = result.value.session
+    if session = invalid then
+        if m.queue.current = invalid then
+            ' The queue ended: there is nothing more to play.
+            PlayerLeave()
+            return
+        end if
+        ' The queue moved without starting its entry: the entry is started.
+        m.startKey = NewRequestId()
+        m.startSeconds = 0
+        PlayerStart({ queue: { queueId: m.queue.id, entryId: m.queue.current.entryId } })
+        return
+    end if
+    PlayerAdopt(session)
+end sub
+
+' What the queue moved to: the entry the page handed over when it is one of them, else the
+' queue's own entry (its title; the artwork of the album or show that is playing stays).
+sub PlayerNowPlaying(session as object)
+    found = PlayerRequestEntry(session.itemId)
+    if found <> invalid then
+        m.entry = found
+        PlayerIdentity(found)
+        return
+    end if
+    entry = QueueEntryFor(m.window, session)
+    if entry <> invalid and entry.title <> "" then
+        m.identity.title = entry.title
+        m.identity.subtitle = ""
+        if m.entry <> invalid then
+            if m.entry.artist <> invalid and m.entry.artist.name <> invalid then m.identity.subtitle = m.entry.artist.name
+            if m.entry.kind = "episode" then m.identity.subtitle = ContinueTitle(m.entry)
+        end if
+    else if m.queue <> invalid then
+        ' Outside the window the page was given: the entries around the one playing are read.
+        PlayerSend("window", { path: QueueWindowPath(m.queue.id, 1, 1), reader: "playbackWindow" }, "onPlayerWindow")
+    end if
+end sub
+
+sub onPlayerWindow(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or m.session = invalid then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then return
+    m.window = result.value.window
+    if QueueEntryFor(m.window, m.session) = invalid then return
+    PlayerNowPlaying(m.session)
+    PlayerDraw()
+end sub
+
+function PlayerRequestEntry(itemId as dynamic) as dynamic
+    if itemId = invalid or m.request = invalid or m.request.queue = invalid then return invalid
+    for each entry in m.request.queue
+        if entry.playback <> invalid and entry.playback.itemId = itemId then return entry
+    end for
+    return invalid
+end function
+
+function PlayerHasNext() as boolean
+    return m.queue <> invalid and m.queue.upcoming <> invalid and m.queue.upcoming.available
+end function
+
+function PlayerHasPrevious() as boolean
+    return m.queue <> invalid and m.queue.current <> invalid and m.queue.current.position > 0
+end function
+
+' "Play next" and "Add to queue" from a card's menu.
+sub enqueue(request as object)
+    if m.queue = invalid or request.entry = invalid or request.entry.playback = invalid then return
+    placement = "end"
+    if request.next = true then placement = "next"
+    body = { "placement": placement, "source": { "items": { "ids": [request.entry.playback.itemId] } } }
+    PlayerSend("enqueue", { path: "/v1/queues/" + m.queue.id + "/segments", method: "POST", body: body, headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerEnqueued")
+    m.tasks["enqueue"].addFields({ placedNext: placement = "next" })
+end sub
+
+sub onPlayerEnqueued(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        if task.generation = m.generation then m.queue = result.value.queue
+        words = T("entry.addedToQueue")
+        if task.placedNext then words = T("entry.playingNext")
+        Toast(words, "queue")
+    else
+        Toast(PresentError(result.error, "playlist", { operation: "action" }).body, "warning")
+    end if
+end sub
+
+' The title ended: the queue's next entry is offered (the server's post-play policy says whether
+' it counts down), else the player closes.
+sub PlayerFinished()
+    PlayerSendReport("ended", invalid)
+    if not PlayerHasNext() then
+        m.phase = "ended"
+        PlayerLeave()
+        return
+    end if
+    if m.audio then
+        PlayerAdvance("completion")
+        return
+    end if
+    m.phase = "ended"
+    m.upNext = PostPlayPlan(m.queue)
+    m.counting = m.upNext.autoplay
+    m.remaining = m.upNext.seconds
+    if m.counting then m.countdown.control = "start"
+    PlayerExpand()
+    PlayerDraw()
+end sub
+
+sub onPlayerCountdown()
+    if not m.counting then
+        m.countdown.control = "stop"
+        return
+    end if
+    m.remaining = m.remaining - 1
+    if m.remaining <= 0 then
+        PlayerAdvance("completion")
+        return
+    end if
+    if m.postState <> invalid then m.postState.message = T("player.post.playingIn", { seconds: m.remaining })
+end sub
+
+' ---- Leaving -----------------------------------------------------------------------------------
+
+sub PlayerExpand()
+    m.top.visible = true
+    m.top.expanded = true
+    m.pill.visible = false
+    m.pill.focusable = false
+    m.ground.visible = true
+    m.video.visible = true
+    m.chromeShown = false
+    PlayerShowChrome(true)
+end sub
+
+' Audio keeps playing behind the now-playing pill; the page under the player has focus again.
+sub PlayerCollapse()
+    m.top.expanded = false
+    m.hide.control = "stop"
+    m.chrome.visible = false
+    m.card.visible = false
+    m.audioArt.visible = false
+    m.lyricsGroup.visible = false
+    m.ground.visible = false
+    m.video.visible = false
+    PlayerPill()
+    PlayerGiveBack()
+end sub
+
+sub PlayerGiveBack()
+    restore = m.restore
+    m.restore = invalid
+    if restore <> invalid and restore.getParent() <> invalid then
+        restore.setFocus(true)
+    else
+        scene = m.top.getScene()
+        if scene <> invalid then scene.callFunc("restoreFocus")
+    end if
+    m.top.closed = m.top.closed + 1
+end sub
+
+' Stops what is playing and closes the player.
+sub PlayerLeave()
+    wasExpanded = m.top.expanded
+    onPill = m.pill.isInFocusChain()
+    PlayerStopSession(m.phase = "ended")
+    m.video.control = "stop"
+    if m.menu <> invalid and m.menuOpen then m.menu.callFunc("close")
+    m.menuOpen = false
+    m.hide.control = "stop"
+    m.lyricsTimer.control = "stop"
+    m.lyricsGroup.visible = false
+    m.countdown.control = "stop"
+    m.sleep.control = "stop"
+    m.report.control = "stop"
+    m.top.visible = false
+    m.top.active = false
+    m.top.hasQueue = false
+    m.top.expanded = false
+    m.pill.visible = false
+    m.pill.focusable = false
+    m.generation = m.generation + 1
+    m.phase = "idle"
+    m.sleepMinutes = 0
+    if wasExpanded or onPill then
+        if onPill then m.restore = m.pillRestore
+        PlayerGiveBack()
+    else
+        ' Behind a page nothing held focus here: the page keeps it, and reads again.
+        m.top.closed = m.top.closed + 1
+    end if
+end sub
+
+' ---- Drawing ------------------------------------------------------------------------------------
+
+sub PlayerDraw()
+    if not m.top.expanded then
+        if m.pill.visible then PlayerPill()
+        return
+    end if
+    ' While a menu is open the box that opened it is the one to come back to.
+    held = m.heldId
+    current = FocusCurrent(m.chrome)
+    if current <> invalid and current.hasField("playerId") then held = current.playerId
+    m.chrome.removeChildrenIndex(m.chrome.getChildCount(), 0)
+    m.card.removeChildrenIndex(m.card.getChildCount(), 0)
+    if m.skip <> invalid then m.top.removeChild(m.skip)
+    m.skip = invalid
+    m.postState = invalid
+    m.timeline = invalid
+    m.playButton = invalid
+    width = Theme.screen.width
+    height = Theme.screen.height
+    side = Theme.apple.playerSide
+    inset = Theme.apple.playerInset
+    audio = m.audio = true
+    m.audioArt.visible = audio and m.session <> invalid
+    lyricsRoom = invalid
+    if m.audioArt.visible then
+        ' Artwork fills the space between the top bar and the controls; with lyrics it is smaller
+        ' and they share that space.
+        fraction = Theme.apple.playerAudioArtFraction
+        if LyricsShown() then fraction = Theme.apple.playerLyricsArtFraction
+        size = Int(height * fraction)
+        m.audioArt.shape = "square"
+        m.audioArt.radius = Theme.metrics.radius.panel
+        m.audioArt.artWidth = size
+        m.audioArt.title = m.identity.title
+        m.audioArt.icon = "music"
+        m.audioArt.uri = m.identity.artUri
+        top = inset + Theme.apple.playerAudioTop
+        room = height - top - inset - Theme.apple.playerAudioBottom
+        if LyricsShown() then
+            Place(m.audioArt, (width - size) / 2, top)
+            lyricsRoom = { x: Theme.space.lg, y: top + size + Theme.space.lg, width: width - Theme.space.lg * 2, height: room - size - Theme.space.lg }
+        else
+            Place(m.audioArt, (width - size) / 2, top + Max(0, (room - size) / 2))
+        end if
+        m.ground.color = Theme.colors.ink
+    else
+        m.ground.color = Theme.colors.black
+    end if
+    if lyricsRoom <> invalid and m.phase <> "error" and not (m.phase = "ended" and m.upNext <> invalid) then
+        LyricsLayout(lyricsRoom.x, lyricsRoom.y, lyricsRoom.width, lyricsRoom.height)
+    else
+        m.lyricsGroup.visible = false
+    end if
+
+    if m.phase = "error" then
+        PlayerCard("warning", T("player.stoppedTitle"), PlayerFailureWords(), [{ id: "retry", label: T("action.tryAgain"), variant: "primary" }, { id: "close", label: T("action.close"), variant: "ghost" }])
+        m.chrome.visible = false
+        return
+    end if
+    if m.phase = "ended" and m.upNext <> invalid then
+        line = T("player.post.ready")
+        if m.upNext.passout = true then
+            line = T("player.post.pausedAfterEpisodes")
+        else if m.counting then
+            line = T("player.post.playingIn", { seconds: m.remaining })
+        end if
+        title = T("player.post.upNext")
+        buttons = [{ id: "advance", label: T("player.post.playNow"), variant: "primary", icon: "play" }]
+        if m.upNext.passout = true then
+            title = T("player.post.stillWatching")
+            buttons = [{ id: "advance", label: T("player.post.stillWatchingAction"), variant: "primary", icon: "play" }]
+        end if
+        if m.counting then buttons.push({ id: "cancel", label: T("player.post.cancel"), variant: "secondary" })
+        buttons.push({ id: "replay", label: T("player.post.replay"), variant: "ghost", icon: "refresh" })
+        buttons.push({ id: "close", label: T("player.post.close"), variant: "ghost" })
+        PlayerCard("", title, line, buttons)
+        m.chrome.visible = false
+        return
+    end if
+    m.card.visible = false
+    m.chrome.visible = true
+
+    ' The chrome's scrims and the title.
+    top = m.chrome.createChild("Poster")
+    top.uri = "pkg:/images/gradients/player-top.png"
+    top.width = width
+    top.height = Theme.apple.playerScrimTop
+    bottom = m.chrome.createChild("Poster")
+    bottom.uri = "pkg:/images/gradients/player-bottom.png"
+    bottom.width = width
+    bottom.height = Theme.apple.playerScrimBottom
+    Place(bottom, 0, height - Theme.apple.playerScrimBottom)
+    title = MakeText(m.chrome, "heading", "primary", m.identity.title)
+    title.maxWidth = width - side * 2
+    Place(title, side, inset)
+    if m.identity.subtitle <> "" then
+        subtitle = MakeText(m.chrome, "caption", "secondary", m.identity.subtitle)
+        subtitle.maxWidth = width - side * 2
+        Place(subtitle, side, inset + title.height)
+    end if
+    trailing = width - side
+    room = PlayerRoom()
+    if room <> invalid then
+        ' player/GroupPill.tsx: in a Watch Together room the top bar shows the group: whether
+        ' everyone is in step, or who is being waited for. Choosing it lists who is here.
+        said = GroupPillStatus(room)
+        pill = PlayerButton("group", "ghost", "people", said.label)
+        if said.tone <> "ok" then pill.variant = "outline"
+        pill.size = "sm"
+        trailing = trailing - pill.controlWidth
+        Place(pill, trailing, inset)
+        trailing = trailing - Theme.space.sm
+        title.maxWidth = trailing - side - Theme.space.lg
+    end if
+    if LyricsAllowed() then
+        ' VideoPlayer.tsx: the lyrics button in the top bar shows or hides them.
+        lyricsToggle = PlayerButton("lyrics", "ghost", "lyrics", "")
+        lyricsToggle.round = true
+        lyricsToggle.selected = m.lyricsOn
+        trailing = trailing - lyricsToggle.controlWidth
+        Place(lyricsToggle, trailing, inset)
+        title.maxWidth = trailing - side - Theme.space.lg
+    end if
+    if m.phase = "starting" or (m.phase = "loading" and m.video.position <= 0) then
+        state = m.chrome.createChild("UiStateView")
+        state.loading = true
+        state.title = T("player.gettingReady")
+        state.stateWidth = width
+        state.stateHeight = height
+    end if
+
+    ' Bottom up: the option boxes, the transport, the clocks, the timeline.
+    y = height - inset
+    boxes = PlayerBoxes()
+    if boxes.count() > 0 then
+        nodes = []
+        total = 0
+        rowHeight = 0
+        for each option in boxes
+            button = PlayerButton(option.id, "outline", option.icon, option.label)
+            button.size = "sm"
+            nodes.push(button)
+            total = total + button.controlWidth
+            rowHeight = button.controlHeight
+        end for
+        total = total + Theme.space.sm * (nodes.count() - 1)
+        y = y - rowHeight
+        x = (width - total) / 2
+        for each button in nodes
+            Place(button, x, y)
+            x = x + button.controlWidth + Theme.space.sm
+        end for
+        y = y - Theme.space.lg
+    end if
+    ' Songs and live channels have no ten-second skips.
+    music = m.channel <> invalid or PlayerIsSong()
+    transport = []
+    previous = PlayerTransport("previous", "previous", "control")
+    previous.disabled = not PlayerHasPrevious()
+    transport.push(previous)
+    if not music then
+        back = PlayerTransport("back", "back10", "control")
+        back.iconNumber = PlayerSkipBack()
+        transport.push(back)
+    end if
+    icon = "play"
+    if m.phase = "playing" or m.phase = "loading" then icon = "pause"
+    m.playButton = PlayerTransport("toggle", icon, "primary")
+    m.playButton.variant = "primary"
+    transport.push(m.playButton)
+    if not music then
+        forward = PlayerTransport("forward", "forward10", "control")
+        forward.iconNumber = PlayerSkipForward()
+        transport.push(forward)
+    end if
+    following = PlayerTransport("next", "next", "control")
+    following.disabled = not PlayerHasNext()
+    transport.push(following)
+    total = 0
+    rowHeight = 0
+    for each button in transport
+        total = total + button.controlWidth
+        if button.controlHeight > rowHeight then rowHeight = button.controlHeight
+    end for
+    total = total + Theme.space.lg * (transport.count() - 1)
+    y = y - rowHeight
+    x = (width - total) / 2
+    for each button in transport
+        Place(button, x, y + (rowHeight - button.controlHeight) / 2)
+        x = x + button.controlWidth + Theme.space.lg
+    end for
+    y = y - Theme.space.lg
+
+    ' The clocks under the track.
+    m.clockLeft = MakeText(m.chrome, "micro", "secondary")
+    m.clockRight = MakeText(m.chrome, "micro", "secondary")
+    m.clockRight.align = "right"
+    m.clockRight.maxWidth = Theme.apple.playerClockWidth
+    y = y - m.clockLeft.height
+    Place(m.clockLeft, side, y)
+    Place(m.clockRight, width - side - Theme.apple.playerClockWidth, y)
+    y = y - Theme.space.xs
+
+    ' The timeline: one focus stop; Left and Right seek while it holds focus.
+    target = Theme.apple.timelineTarget
+    y = y - target
+    m.timeline = m.chrome.createChild("UiFocusable")
+    m.timeline.addFields({ playerId: "timeline" })
+    m.timeline.ring = false
+    m.timeline.focusScale = 1
+    m.timeline.radius = Theme.metrics.radius.small
+    m.timeline.controlWidth = width - side * 2
+    m.timeline.controlHeight = target
+    m.timeline.observeField("isFocused", "onPlayerTimelineFocus")
+    Place(m.timeline, side, y)
+    trackHeight = Theme.apple.timelineTrack
+    m.trackWidth = width - side * 2
+    m.track = MakeShape(m.timeline, m.trackWidth, trackHeight, trackHeight / 2, ColorAlpha(Theme.colors.white, Theme.apple.timelineTrackAlpha))
+    Place(m.track, 0, (target - trackHeight) / 2)
+    m.fill = MakeShape(m.timeline, trackHeight, trackHeight, trackHeight / 2, Theme.colors.accent)
+    Place(m.fill, 0, (target - trackHeight) / 2)
+    knob = Theme.apple.timelineKnob
+    m.knob = MakeShape(m.timeline, knob, knob, knob / 2, Theme.colors.white)
+    m.knob.scaleRotateCenter = [knob / 2, knob / 2]
+    PlayerTimeline()
+
+    if m.chromeShown and not m.menuOpen then
+        for each child in m.chrome.getChildren(-1, 0)
+            if child.hasField("playerId") and child.playerId = held then FocusOn(child)
+        end for
+        if FocusCurrent(m.chrome) = invalid and not m.lyricsGroup.isInFocusChain() and m.playButton <> invalid then FocusOn(m.playButton)
+    else if not m.menuOpen then
+        m.top.setFocus(true)
+    end if
+    PlayerSkipPrompt()
+end sub
+
+function PlayerFailureWords() as string
+    failure = m.failure
+    if failure = invalid then return T("player.unplayableBody")
+    ' Words that are shown as they are (an owner's message when a channel was stopped).
+    if failure.said <> invalid and failure.said <> "" then return failure.said
+    return PresentError(failure, "playback").body
+end function
+
+function PlayerButton(id as string, variant as string, icon as string, label as string) as object
+    button = m.chrome.createChild("UiButton")
+    button.addFields({ playerId: id })
+    button.variant = variant
+    if icon <> "" then button.icon = icon
+    button.label = label
+    button.observeField("pressed", "onPlayerButton")
+    return button
+end function
+
+function PlayerTransport(id as string, icon as string, kind as string) as object
+    button = m.chrome.createChild("UiButton")
+    button.addFields({ playerId: id })
+    button.variant = "ghost"
+    button.transport = kind
+    button.icon = icon
+    button.observeField("pressed", "onPlayerButton")
+    return button
+end function
+
+' The option boxes for what is playing, each saying its current value.
+function PlayerBoxes() as object
+    boxes = []
+    if m.session = invalid or m.options = invalid then return boxes
+    if m.options.audio.count() > 0 then boxes.push({ id: "audio", icon: "audio", label: T("player.opt.audio") + " · " + PlayerChoiceLabel(m.options.audio, m.choices.audioId, m.options.preferredAudio, T("player.opt.defaultTrack")) })
+    if m.options.subtitles.count() > 0 then boxes.push({ id: "subtitles", icon: "subtitles", label: T("player.opt.subtitles") + " · " + PlayerChoiceLabel(m.options.subtitles, m.choices.subtitleId, m.options.preferredSubtitle, T("player.opt.off")) })
+    if not m.audio then
+        value = T("player.opt.automatic")
+        for each choice in QualityChoices(m.options.height)
+            if choice.id = m.quality and choice.height > 0 then value = T("quality.height", { height: choice.height })
+        end for
+        boxes.push({ id: "quality", icon: "quality", label: T("player.opt.quality") + " · " + value })
+    end if
+    sleeping = T("player.opt.off")
+    if m.sleepMinutes > 0 then sleeping = T("player.opt.minutes", { count: m.sleepMinutes })
+    boxes.push({ id: "sleep", icon: "sleep", label: T("player.opt.sleep") + " · " + sleeping })
+    return boxes
+end function
+
+function PlayerChoiceLabel(tracks as object, chosen as dynamic, preferred as string, none as string) as string
+    wanted = preferred
+    if chosen <> invalid then wanted = chosen
+    if wanted = "off" or wanted = "" then
+        if chosen = invalid and tracks.count() > 0 and none = T("player.opt.defaultTrack") then return tracks[0].label
+        return none
+    end if
+    for each track in tracks
+        if track.id = wanted then return track.label
+    end for
+    return none
+end function
+
+' A card over the picture (post-play, an error): a title, a line, and its actions.
+sub PlayerCard(icon as string, title as string, message as string, buttons as object)
+    if m.menu <> invalid and m.menuOpen then m.menu.callFunc("close")
+    m.menuOpen = false
+    m.card.visible = true
+    width = Theme.screen.width
+    height = Theme.screen.height
+    shade = MakeRect(m.card, width, height, ColorAlpha(Theme.colors.ink, Theme.spec.overlay.scrim.alpha))
+    state = m.card.createChild("UiStateView")
+    if icon <> "" then state.icon = icon
+    state.title = title
+    state.message = message
+    state.stateWidth = width
+    stateHeight = state.boundingRect().height
+    nodes = []
+    total = 0
+    rowHeight = 0
+    first = invalid
+    for each item in buttons
+        button = m.card.createChild("UiButton")
+        button.addFields({ playerId: item.id })
+        button.variant = item.variant
+        if item.icon <> invalid then button.icon = item.icon
+        button.label = item.label
+        button.observeField("pressed", "onPlayerButton")
+        nodes.push(button)
+        total = total + button.controlWidth
+        rowHeight = button.controlHeight
+        if first = invalid then first = button
+    end for
+    total = total + Theme.space.sm * (nodes.count() - 1)
+    top = (height - stateHeight - Theme.space.lg - rowHeight) / 2
+    Place(state, 0, top)
+    x = (width - total) / 2
+    for each button in nodes
+        Place(button, x, top + stateHeight + Theme.space.lg)
+        x = x + button.controlWidth + Theme.space.sm
+    end for
+    if first <> invalid then FocusOn(first)
+    ' The line that counts down is the state's message.
+    m.postState = state
+end sub
+
+sub PlayerTimeline()
+    if m.timeline = invalid or m.timeline.getParent() = invalid then return
+    duration = m.video.duration
+    position = m.video.position
+    if m.seekTo >= 0 then
+        ' A seek is shown where it is going until the picture arrives there.
+        if Abs(position - m.seekTo) < 2 then
+            m.seekTo = -1
+        else
+            position = m.seekTo
+        end if
+    end if
+    ratio = 0
+    if duration > 0 then ratio = Clamp(position / duration, 0, 1)
+    trackHeight = Theme.apple.timelineTrack
+    target = Theme.apple.timelineTarget
+    knob = Theme.apple.timelineKnob
+    fill = Max(trackHeight, m.trackWidth * ratio)
+    m.fill.width = fill
+    m.knob.visible = duration > 0
+    Place(m.knob, Max(0, m.trackWidth * ratio - knob / 2), (target - knob) / 2)
+    m.clockLeft.value = FormatClock(position)
+    if duration > 0 then
+        m.clockRight.value = "-" + FormatClock(Max(0, duration - position))
+    else
+        m.clockRight.value = "--:--"
+    end if
+end sub
+
+sub onPlayerTimelineFocus()
+    if m.knob = invalid then return
+    size = 1
+    if m.timeline.isFocused then size = Theme.apple.timelineKnobFocus
+    m.knob.scale = [size, size]
+end sub
+
+' "Skip intro", "Skip recap", "Skip credits": offered while the position is inside the marker.
+sub PlayerSkipPrompt()
+    if m.options = invalid or not m.top.expanded or m.phase = "ended" or m.phase = "error" or m.audio = true then return
+    marker = ActiveMarker(m.options.markers, m.video.position)
+    if marker <> invalid then
+        mode = MarkerSkipMode(m.prefs, marker.type)
+        if mode = "off" then
+            marker = invalid
+        else if mode = "auto" then
+            ' Skipped without asking, once: going back into it afterwards plays it.
+            if m.autoSkipped[marker.id] = invalid then
+                m.autoSkipped[marker.id] = true
+                m.skipped = { "markerId": marker.id, "mode": "auto", "positionMs": PlaybackMs(PlayerPosition()) }
+                m.video.seek = marker.endMs / 1000
+                PlayerSendReport(PlayerReportState(), invalid)
+            end if
+            marker = invalid
+        end if
+    end if
+    if marker = invalid then
+        if m.skip <> invalid then
+            had = m.skip.isInFocusChain()
+            m.top.removeChild(m.skip)
+            m.skip = invalid
+            if had and m.chromeShown and m.playButton <> invalid then
+                FocusOn(m.playButton)
+            else if had then
+                m.top.setFocus(true)
+            end if
+        end if
+        return
+    end if
+    if m.skip <> invalid and m.skip.markerId = marker.id then return
+    if m.skip <> invalid then m.top.removeChild(m.skip)
+    m.skip = m.top.createChild("UiButton")
+    m.skip.addFields({ playerId: "skip", markerId: marker.id, markerEnd: marker.endMs })
+    m.skip.variant = "secondary"
+    m.skip.icon = "forward"
+    m.skip.label = T("player.skip", { kind: marker.type })
+    m.skip.observeField("pressed", "onPlayerButton")
+    Place(m.skip, Theme.screen.width - Theme.apple.playerSide - m.skip.controlWidth, Theme.screen.height - Theme.apple.playerInset - Theme.apple.playerSkipPromptBottom - m.skip.controlHeight)
+    ' With the chrome hidden the prompt is the only control: it takes focus.
+    if not m.chromeShown and not m.menuOpen then FocusOn(m.skip)
+end sub
+
+' The television now-playing pill: top right, while audio continues behind the page.
+sub PlayerPill()
+    body = m.pillBody
+    body.removeChildrenIndex(body.getChildCount(), 0)
+    art = Theme.apple.pillArt
+    pad = Theme.space.xs
+    title = MakeText(body, "captionStrong", "primary", m.identity.title)
+    words = T("web.nowPlaying.state.playing")
+    if m.video.state = "paused" then words = T("web.nowPlaying.state.paused")
+    line = MakeText(body, "micro", "tertiary", FactsLine([words, m.identity.subtitle]))
+    room = Theme.apple.pillMaxWidth - pad - art - Theme.space.md - Theme.space.lg
+    if TextWidth(title) > room then title.maxWidth = room
+    if TextWidth(line) > room then line.maxWidth = room
+    copyWidth = Min(room, Max(TextWidth(title), TextWidth(line)))
+    width = pad + art + Theme.space.md + copyWidth + Theme.space.lg
+    height = art + pad * 2
+    color = ColorAlpha(Theme.colors.material, Theme.apple.pillAlpha)
+    if m.pill.isFocused then color = Theme.colors.raisedHigh
+    MakeShape(body, width, height, height / 2, color)
+    MakeRing(body, width, height, height / 2, 1, ColorAlpha(Theme.colors.lineStrong, Theme.apple.pillBorderAlpha))
+    picture = body.createChild("UiArtwork")
+    picture.shape = "square"
+    picture.radius = art / 2
+    picture.artWidth = art
+    picture.title = m.identity.title
+    picture.icon = "music"
+    picture.uri = m.identity.artUri
+    Place(picture, pad, pad)
+    body.removeChild(title)
+    body.removeChild(line)
+    body.appendChild(title)
+    body.appendChild(line)
+    textLeft = pad + art + Theme.space.md
+    Place(title, textLeft, (height - title.height - line.height) / 2)
+    Place(line, textLeft, (height - title.height - line.height) / 2 + title.height)
+    m.pill.radius = height / 2
+    m.pill.controlWidth = width
+    m.pill.controlHeight = height
+    m.pill.visible = true
+    m.pill.focusable = true
+    m.top.visible = true
+    Place(m.pill, Theme.screen.width - Theme.apple.pillRight - width, Theme.apple.pillTop)
+end sub
+
+sub onPlayerPillStyle()
+    if m.pill.visible then PlayerPill()
+end sub
+
+sub onPlayerPillPressed()
+    m.restore = m.pillRestore
+    PlayerExpand()
+    PlayerShowChrome(true)
+    PlayerDraw()
+end sub
+
+' The shell hands focus to the pill (Up from the top of a page).
+function focusPill() as boolean
+    if not m.pill.visible then return false
+    m.pillRestore = FocusedLeaf(m.top.getScene())
+    FocusOn(m.pill)
+    return true
+end function
+
+' ---- Chrome visibility ---------------------------------------------------------------------------
+
+sub PlayerShowChrome(shown as boolean)
+    if m.chromeShown = shown then return
+    m.chromeShown = shown
+    target = 0.0
+    if shown then target = 1.0
+    RunFloatAnimation(m.chromeMotion, m.chrome.opacity, target, Theme.motion.standard)
+    if not m.top.expanded or m.menuOpen or m.card.visible then return
+    if shown then
+        prompted = (m.skip <> invalid and m.skip.isInFocusChain()) or m.lyricsGroup.isInFocusChain()
+        if not prompted and FocusCurrent(m.chrome) = invalid and m.playButton <> invalid then FocusOn(m.playButton)
+    else if m.skip <> invalid then
+        FocusOn(m.skip)
+    else
+        ' Hidden controls hold no focus: the next key only brings the chrome back.
+        m.top.setFocus(true)
+    end if
+end sub
+
+' Any input brings the chrome back; while playing it hides again after a few seconds.
+sub PlayerTouch()
+    PlayerShowChrome(true)
+    m.hide.control = "stop"
+    if m.phase = "playing" then m.hide.control = "start"
+end sub
+
+sub onPlayerHide()
+    if m.phase <> "playing" or (m.menu <> invalid and m.menuOpen = true) then return
+    PlayerShowChrome(false)
+end sub
+
+' ---- Buttons and options ------------------------------------------------------------------------
+
+sub onPlayerButton(event as object)
+    button = event.getRoSGNode()
+    id = button.playerId
+    PlayerTouch()
+    if id = "toggle" then
+        toggle()
+    else if id = "back" then
+        PlayerSeekBy(-PlayerSkipBack())
+    else if id = "forward" then
+        PlayerSeekBy(PlayerSkipForward())
+    else if id = "next" then
+        PlayerAdvance("next")
+    else if id = "previous" then
+        PlayerAdvance("previous")
+    else if id = "skip" then
+        m.skipped = { "markerId": button.markerId, "mode": "manual", "positionMs": PlaybackMs(PlayerPosition()) }
+        m.video.seek = button.markerEnd / 1000
+        PlayerSendReport(PlayerReportState(), invalid)
+    else if id = "advance" then
+        PlayerAdvance("next")
+    else if id = "cancel" then
+        m.counting = false
+        m.countdown.control = "stop"
+        PlayerDraw()
+    else if id = "replay" then
+        m.counting = false
+        m.countdown.control = "stop"
+        m.startSeconds = 0
+        m.lastPosition = 0
+        m.waited = 0
+        m.startKey = NewRequestId()
+        m.phase = "starting"
+        PlayerStopSession(true)
+        PlayerDraw()
+        if m.target <> invalid then PlayerStart(m.target)
+    else if id = "retry" then
+        m.failure = invalid
+        m.phase = "starting"
+        m.startKey = NewRequestId()
+        m.startSeconds = PlayerPosition()
+        m.waited = 0
+        PlayerDraw()
+        if m.target <> invalid then
+            PlayerStart(m.target)
+        else if m.request <> invalid then
+            play(m.request)
+        end if
+    else if id = "group" then
+        PlayerGroupList()
+    else if id = "lyrics" then
+        m.lyricsOn = not m.lyricsOn
+        PlayerDraw()
+    else if id = "close" then
+        PlayerLeave()
+    else if id = "audio" or id = "subtitles" or id = "quality" or id = "sleep" then
+        PlayerOption(id)
+    end if
+end sub
+
+sub PlayerOption(id as string)
+    if m.menu = invalid then
+        m.menu = m.top.createChild("UiMenu")
+        m.menu.observeField("chosen", "onPlayerChoice")
+        m.menu.observeField("closed", "onPlayerMenuClosed")
+    end if
+    items = []
+    if id = "audio" then
+        m.menu.title = T("player.opt.audio")
+        current = m.options.preferredAudio
+        if m.choices.audioId <> invalid then current = m.choices.audioId
+        for index = 0 to m.options.audio.count() - 1
+            track = m.options.audio[index]
+            items.push({ id: "audio:" + track.id, label: track.label, selected: track.id = current or (current = "" and index = 0) })
+        end for
+    else if id = "subtitles" then
+        m.menu.title = T("player.opt.subtitles")
+        current = m.options.preferredSubtitle
+        if m.choices.subtitleId <> invalid then current = m.choices.subtitleId
+        items.push({ id: "subtitles:off", label: T("player.opt.off"), selected: current = "" or current = "off" })
+        for each track in m.options.subtitles
+            items.push({ id: "subtitles:" + track.id, label: track.label, selected: track.id = current })
+        end for
+    else if id = "quality" then
+        m.menu.title = T("player.opt.quality")
+        for each choice in QualityChoices(m.options.height)
+            label = T("player.opt.automatic")
+            detail = T("player.opt.automaticDirect")
+            if choice.height > 0 then
+                label = T("quality.height", { height: choice.height })
+                detail = T("player.opt.convertedTo", { height: choice.height })
+            end if
+            items.push({ id: "quality:" + choice.id, label: label, detail: detail, selected: choice.id = m.quality })
+        end for
+    else
+        m.menu.title = T("player.opt.sleepTimer")
+        items.push({ id: "sleep:0", label: T("player.opt.off"), selected: m.sleepMinutes = 0 })
+        for each minutes in PlayerSleepMinutes()
+            items.push({ id: "sleep:" + minutes.toStr(), label: T("player.opt.minutes", { count: minutes }), selected: m.sleepMinutes = minutes })
+        end for
+    end if
+    m.menuOpen = true
+    m.heldId = id
+    m.menu.items = items
+    m.menu.callFunc("open")
+end sub
+
+sub onPlayerMenuClosed()
+    m.menuOpen = false
+    ' The chrome may have been redrawn under the menu: the box that opened it takes focus again.
+    PlayerDraw()
+    m.heldId = ""
+    PlayerTouch()
+end sub
+
+sub onPlayerChoice()
+    m.menuOpen = false
+    chosen = m.menu.chosen
+    at = Instr(1, chosen, ":")
+    if at = 0 then return
+    kind = Left(chosen, at - 1)
+    value = Mid(chosen, at + 1)
+    if kind = "sleep" then
+        m.sleepMinutes = value.toInt()
+        m.sleep.control = "stop"
+        if m.sleepMinutes > 0 then
+            m.sleep.duration = SleepSeconds(m.sleepMinutes)
+            m.sleep.control = "start"
+        end if
+        PlayerDraw()
+        return
+    end if
+    change = invalid
+    if kind = "audio" then
+        m.choices.audioId = value
+        change = SessionChangeBody("audio", value)
+    else if kind = "subtitles" then
+        m.choices.subtitleId = value
+        change = SessionChangeBody("subtitles", value)
+    else if kind = "quality" then
+        m.quality = value
+        for each choice in QualityChoices()
+            if choice.id = value then change = SessionChangeBody("quality", choice.request)
+        end for
+    end if
+    if change = invalid or m.session = invalid then return
+    ' One change against the session's revision (spec §5.7): the server answers what plays now.
+    PlayerSend("change", { path: "/v1/playback/sessions/" + m.session.id, method: "PATCH", body: change, headers: { "If-Match": m.session.revision, "Content-Type": "application/merge-patch+json" }, reader: "playbackSession" }, "onPlayerChanged")
+    PlayerDraw()
+end sub
+
+sub onPlayerChanged(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        Toast(T("player.opt.audioChangeFailed"), "warning")
+        return
+    end if
+    session = result.value.session
+    before = m.session.presentation
+    if session.presentation.generation <> before.generation or session.presentation.url <> before.url then
+        ' The bytes changed: the new presentation takes over where the old one was.
+        m.resumeAt = PlayerPosition()
+        m.video.control = "stop"
+        PlayerAdopt(session)
+        return
+    end if
+    m.session = session
+    ' The same bytes: subtitles are switched on the Video node.
+    tracks = []
+    for each subtitle in session.presentation.subtitles
+        tracks.push(PlaybackUrl(PlayerOrigin(), subtitle.url))
+    end for
+    if m.choices.subtitleId = "off" or tracks.count() = 0 then
+        m.video.globalCaptionMode = "Off"
+    else
+        m.video.globalCaptionMode = "On"
+        m.video.subtitleTrack = tracks[0]
+    end if
+end sub
+
+' The sleep timer ran out: playback pauses where it is.
+sub onPlayerSleep()
+    m.sleepMinutes = 0
+    if m.session = invalid then return
+    m.video.control = "pause"
+    PlayerDraw()
+end sub
+
+' ---- Keys ---------------------------------------------------------------------------------------
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not m.top.active then return false
+    if not m.top.expanded then
+        ' The pill: Down and Back give focus back to the page.
+        if not m.pill.isInFocusChain() then return false
+        if not press then return true
+        if key = "down" or key = "back" or key = "left" then
+            restore = m.pillRestore
+            if restore <> invalid and restore.getParent() <> invalid then restore.setFocus(true)
+            return true
+        end if
+        if key = "play" then toggle()
+        return true
+    end if
+    if not press then return true
+    if key = "play" then
+        toggle()
+        PlayerTouch()
+        return true
+    end if
+    if key = "fastforward" then
+        PlayerSeekBy(PlayerSkipForward())
+        return true
+    end if
+    if key = "rewind" or key = "replay" then
+        PlayerSeekBy(-PlayerSkipBack())
+        return true
+    end if
+    if key = "back" then
+        if m.lyricsGroup.isInFocusChain() and m.chromeShown and m.playButton <> invalid then
+            ' Back from the lyrics returns to the controls.
+            FocusOn(m.playButton)
+        else if m.card.visible then
+            PlayerLeave()
+        else if m.chromeShown and m.phase = "playing" then
+            ' Back hides the chrome first.
+            m.hide.control = "stop"
+            PlayerShowChrome(false)
+        else if m.audio = true and m.session <> invalid then
+            PlayerCollapse()
+        else
+            PlayerLeave()
+        end if
+        return true
+    end if
+    wasHidden = not m.chromeShown
+    PlayerTouch()
+    direction = FocusDirection(key)
+    if direction = "" then return true
+    if m.card.visible then
+        FocusMove(m.card, direction)
+        return true
+    end if
+    ' The key that brought the chrome back only brings it back.
+    if wasHidden and m.skip = invalid then return true
+    if (direction = "up" or direction = "down") and LyricsMove(direction) then return true
+    if m.timeline <> invalid and m.timeline.isFocused and (direction = "left" or direction = "right") then
+        if direction = "left" then
+            PlayerSeekBy(-PlayerSkipBack())
+        else
+            PlayerSeekBy(PlayerSkipForward())
+        end if
+        return true
+    end if
+    FocusMove(m.top, direction)
+    return true
+end function

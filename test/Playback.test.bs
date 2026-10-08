@@ -1,0 +1,156 @@
+' core/Playback.bs and core/ClientProfile.bs against client-core (playback-v1/types.ts,
+' capability-profile.ts, quality.ts; client-profile.ts `rokuDeclaredProfile`), over the documents
+' the development server answered when this device's profile was published, a session started
+' and a queue made.
+
+sub Test_Playback_options()
+    fixture = TestFixture("golden/playback.json")
+    if fixture = invalid then return
+    AssertTrue(fixture.options.count() > 10, "there are playback options")
+    for each item in fixture.options
+        parsed = ParsePlaybackOptions(item.raw)
+        AssertEqual(parsed.ok, item.ok, "options " + item.name)
+        if parsed.ok and item.ok then
+            o = parsed.options
+            versions = []
+            for each v in o.versions
+                audio = []
+                for each a in v.audio
+                    audio.push({ id: a.id, codec: a.codec, channels: a.channels, language: a.language, title: a.title, atmos: a.atmos, isDefault: a.isDefault })
+                end for
+                subtitles = []
+                for each s in v.subtitles
+                    subtitles.push({ id: s.id, format: s.format, source: s.source, language: s.language, forced: s.forced, sdh: s.sdh, isDefault: s.isDefault })
+                end for
+                versions.push({ id: v.id, label: v.label, edition: v.edition, container: v.container, durationMs: v.durationMs, parts: v.parts, video: TestIds(v.video), audio: audio, subtitles: subtitles })
+            end for
+            AssertSame({ itemId: o.itemId, kind: o.kind, resume: o.resume, versions: versions, chapters: o.chapters, markers: o.markers, preferred: o.preferred, plan: o.plan }, item.value, "options " + item.name)
+        end if
+    end for
+end sub
+
+sub Test_Playback_sessions()
+    fixture = TestFixture("golden/playback.json")
+    if fixture = invalid then return
+    AssertTrue(fixture.sessions.count() > 10, "there are sessions")
+    for each item in fixture.sessions
+        parsed = ParsePlaybackSession(item.raw)
+        AssertEqual(parsed.ok, item.ok, "session " + item.name)
+        if parsed.ok and item.ok then
+            session = parsed.session
+            session.presentation.delete("container")
+            AssertSame(session, item.value, "session " + item.name)
+        end if
+    end for
+    for each item in fixture.queues
+        parsed = ParseQueueResult(item.raw)
+        AssertEqual(parsed.ok, item.ok, "queue " + item.name)
+        if parsed.ok and item.ok then
+            id = invalid
+            if parsed.session <> invalid then id = parsed.session.id
+            AssertSame({ queue: parsed.queue, window: parsed.window, session: id }, item.value, "queue " + item.name)
+        end if
+    end for
+end sub
+
+sub Test_Playback_requests()
+    AssertSame(SessionStartBody({ itemId: "i1" }, 0), { itemId: "i1", startFrom: "beginning", state: "playing", quality: { mode: "original" } }, "a title from its start")
+    AssertSame(SessionStartBody({ itemId: "i1" }, 1234.4, { audioId: "a2", subtitleId: "off" }), { itemId: "i1", startPositionMs: 1234400, state: "playing", quality: { mode: "original" }, audio: { trackId: "a2" }, subtitles: { trackId: invalid } }, "a resume with choices")
+    AssertSame(SessionStartBody({ queue: { queueId: "q", entryId: "e" } }, 5, { subtitleId: "s1", quality: { mode: "limit", maxHeight: 720 } }), { queue: { queueId: "q", entryId: "e" }, startPositionMs: 5000, state: "playing", quality: { mode: "limit", maxHeight: 720 }, subtitles: { trackId: "s1", delivery: "auto" } }, "a queue entry")
+    AssertSame(SessionChangeBody("audio", "a2"), { audio: { trackId: "a2" } }, "another audio track")
+    AssertSame(SessionChangeBody("subtitles", "off"), { subtitles: { trackId: invalid } }, "subtitles off")
+    AssertSame(TimelineReport(3, 2, "playing", 61.5), { seq: 3, generation: 2, state: "playing", positionMs: 61500, rate: 1 }, "a timeline report")
+    AssertEqual(TimelineCadenceSeconds("playing", 10000), 10, "ten seconds while playing")
+    AssertEqual(TimelineCadenceSeconds("paused", 10000), 30, "thirty while paused")
+    AssertEqual(TimelineCadenceSeconds("playing", invalid), 10, "the default cadence")
+    entries = [{ id: "e1", playback: { itemId: "i1" } }, { id: "e2" }, { id: "e3", playback: { itemId: "i3" } }]
+    AssertSame(QueueCreateBody({ container: { kind: "album", id: "al1" }, queue: entries }, true), { owner: "device", segments: [{ source: { container: { kind: "album", id: "al1" } }, anchor: { itemId: "i1" } }], startPlayback: { state: "playing" } }, "an album from the track pressed")
+    AssertSame(QueueCreateBody({ container: { kind: "album", id: "al1", shuffle: true }, queue: entries }, true), { owner: "device", segments: [{ source: { container: { kind: "album", id: "al1" } }, order: { mode: "shuffle" } }], startPlayback: { state: "playing" } }, "an album shuffled")
+    AssertSame(QueueCreateBody({ container: { kind: "disc", id: "al1:disc:2" }, queue: entries }, false), { owner: "device", segments: [{ source: { container: { kind: "disc", id: "al1:2" } }, anchor: { itemId: "i1" } }] }, "a disc by the protocol's id")
+    AssertSame(QueueCreateBody({ container: { kind: "category", id: "c1" }, queue: entries, shuffle: true }, true), { owner: "device", segments: [{ source: { items: { ids: ["i1", "i3"] } }, order: { mode: "shuffle" } }], startPlayback: { state: "playing" } }, "a list the protocol has no container for")
+    AssertSame(QueueAdvanceBody("next"), { reason: "next" }, "next")
+    AssertSame(QueueAdvanceBody("entry", "e5"), { reason: "entry", entryId: "e5" }, "a jump")
+    markers = [{ type: "intro", startMs: 30000, endMs: 90000 }, { type: "commercial", startMs: 100000, endMs: 130000 }, { type: "credits", startMs: 500000, endMs: 560000 }]
+    AssertEqual(ActiveMarker(markers, 10), invalid, "before the intro")
+    AssertEqual(ActiveMarker(markers, 45).type, "intro", "inside the intro")
+    AssertEqual(ActiveMarker(markers, 89.5), invalid, "the last second of a marker is not offered")
+    AssertEqual(ActiveMarker(markers, 110), invalid, "a commercial is not a skip prompt")
+    AssertEqual(ActiveMarker(markers, 510).type, "credits", "inside the credits")
+    AssertEqual(StreamFormatFor({ mode: "stream", url: "/v1/media/g/1/master.m3u8" }), "hls", "a prepared stream")
+    AssertEqual(StreamFormatFor({ mode: "direct", url: "/v1/media/g", container: "mkv" }), "mkv", "a Matroska file")
+    AssertEqual(StreamFormatFor({ mode: "direct", url: "/v1/media/g", container: "mp4" }), "mp4", "an MP4 file")
+    AssertEqual(StreamFormatFor({ mode: "direct", url: "/v1/media/g", container: "flac" }), "flac", "a FLAC file")
+    AssertEqual(PlaybackUrl("http://10.0.0.2:32500", "/v1/media/g"), "http://10.0.0.2:32500/v1/media/g", "a media URL on the server")
+end sub
+
+sub Test_Playback_profile()
+    fixture = TestFixture("golden/playback.json")
+    if fixture = invalid then return
+    for each item in fixture.profiles
+        AssertSame(RokuClientProfile(item.facts), item.profile, "the client profile of a " + item.facts.model)
+        AssertSame(RokuCapabilityProfile(item.facts), item.capability, "the device profile of a " + item.facts.model)
+    end for
+    ladder = PlaybackQualityLadder()
+    AssertSame(ladder, fixture.ladder, "the quality ladder")
+    choices = QualityChoices(1080)
+    AssertEqual(choices[0].id, "original", "Original comes first")
+    AssertEqual(choices[1].height, 1080, "then the source's own height")
+    AssertEqual(choices.count(), 5, "and the rungs under it")
+    AssertSame(choices[2].request, { mode: "limit", maxHeight: 720, maxVideoBitrateKbps: 4000 }, "a ceiling's request")
+    wide = RokuClientProfile({ model: "4850X", osVersion: "14.0", uhd: true, av1: true, dolbyVision: true, hdr10: true, hlg: true, surround: true })
+    codecs = []
+    for each codec in wide.video
+        codecs.push(codec.codec)
+    end for
+    AssertSame(codecs, ["h264", "hevc", "vp9", "av1"], "a device that decodes AV1 says so")
+    AssertSame(wide.display.dynamicRanges, ["sdr", "hdr10", "hlg", "dolby_vision"], "and what its display shows")
+    AssertEqual(wide.audioOutput.maxChannels, 8, "and that its sink is not stereo")
+    if fixture.receipt <> invalid then
+        receipt = ParseProfileReceipt(fixture.receipt)
+        AssertEqual(receipt.family, "roku", "the server took the profile as a Roku's")
+        AssertTrue(receipt.published, "and published it")
+    end if
+    AssertEqual(ParseProfileReceipt({ revision: 3 }), invalid, "a receipt without a revision")
+end sub
+
+sub Test_Playback_preparing()
+    AssertTrue(SessionIsPreparing(202), "a 202 is a title being prepared")
+    AssertTrue(not SessionIsPreparing(201), "a 201 is a session")
+    AssertTrue(not SessionIsPreparing(invalid), "no status is not a wait")
+    AssertEqual(SessionPrepareWaitMs({ retryAfterMs: 1500 }), 1500, "the wait the server names")
+    AssertEqual(SessionPrepareWaitMs({ retryAfterMs: 5 }), 250, "never under a quarter of a second")
+    AssertEqual(SessionPrepareWaitMs({ retryAfterMs: 60000 }), 10000, "never over ten seconds")
+    AssertEqual(SessionPrepareWaitMs({ retryAfterMs: "soon" }), 1000, "one second when it names none")
+    AssertEqual(SessionPrepareWaitMs(invalid), 1000, "one second without a body")
+    AssertSame(PlayerSleepMinutes(), [15, 30, 45, 60], "the sleep timer's choices")
+end sub
+
+sub Test_Playback_window()
+    AssertEqual(QueueWindowPath("q 1", 1, 1), "/v1/queues/q%201/window?around=current&before=1&after=1", "the entries around the one playing")
+    AssertEqual(QueueWindowPath("q1", 500, 50), "/v1/queues/q1/window?around=current&before=200&after=0", "never more than two hundred")
+    AssertEqual(QueueWindowPath("q1", -4, 250), "/v1/queues/q1/window?around=current&before=0&after=200", "and never a negative reach")
+    page = ParseQueueWindow({ items: [{ entryId: "e1", position: 0, itemId: "i1", kind: "track", title: "One" }, { entryId: "e2", position: 1, itemId: "i2", kind: "track", title: "Two" }] })
+    AssertTrue(page.ok, "a window of entries")
+    AssertEqual(page.window.count(), 2, "every entry is kept")
+    AssertEqual(QueueEntryFor(page.window, { queue: { queueId: "q1", entryId: "e2" } }).title, "Two", "the entry the session plays")
+    AssertEqual(QueueEntryFor(page.window, { queue: { queueId: "q1", entryId: "e9" } }), invalid, "an entry outside the window")
+    AssertEqual(QueueEntryFor(page.window, {}), invalid, "a session outside a queue")
+    AssertTrue(not ParseQueueWindow({ items: [{ entryId: "e1", itemId: 4 }] }).ok, "one bad entry rejects the window")
+    AssertTrue(not ParseQueueWindow({ entries: [] }).ok, "a page without items")
+    plan = PostPlayPlan({ postPlay: { autoplay: true, countdownSeconds: 10, passoutCheckDue: false } })
+    AssertSame(plan, { autoplay: true, seconds: 10, passout: false }, "the next title counts down")
+    AssertSame(PostPlayPlan({ postPlay: { autoplay: true, countdownSeconds: 10, passoutCheckDue: true } }), { autoplay: false, seconds: 10, passout: true }, "the viewer is asked first")
+    AssertSame(PostPlayPlan({ postPlay: { autoplay: true, countdownSeconds: 0, passoutCheckDue: false } }), { autoplay: false, seconds: 0, passout: false }, "a countdown of nothing starts nothing")
+    AssertSame(PostPlayPlan({}), { autoplay: false, seconds: 0, passout: false }, "without a policy nothing starts by itself")
+    AssertEqual(SleepSeconds(45), 2700, "a sleep timer in seconds")
+    AssertEqual(TransportClassFor("WiFiConnection"), "wifi", "a Roku on Wi-Fi says so")
+    AssertEqual(TransportClassFor("WiredConnection"), "ethernet", "a wired Roku says so")
+    AssertEqual(TransportClassFor(""), "", "a Roku that is not connected says nothing")
+    AssertEqual(TransportClassFor(invalid), "", "nor does one that cannot tell")
+    AssertTrue(IsSongPlaying("song", invalid, true), "a song is a song")
+    AssertTrue(IsSongPlaying("album", "track", true), "an album's track is a song")
+    AssertTrue(not IsSongPlaying("book", "audiobook", true), "a book's file is not")
+    AssertTrue(IsSongPlaying("playlist", invalid, true), "a playlist playing as audio is songs")
+    AssertTrue(not IsSongPlaying("movie", invalid, false), "a movie is not")
+    AssertEqual(SessionPrepareTimeout().code, "preparation_timeout", "a title that never became ready")
+end sub

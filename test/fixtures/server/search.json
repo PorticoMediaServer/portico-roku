@@ -1,0 +1,303 @@
+{
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "",
+  "libraryKind": "mixed",
+  "view": "search",
+  "entityId": "",
+  "viewerFence": "311a937957d33a6c97f5d2e554afe0923b9bc271036df1da0723fc31842faaed"
+ },
+ "revision": {
+  "catalog": 50170,
+  "viewer": 1525
+ },
+ "heading": {
+  "key": "search.title",
+  "fallback": "Search"
+ },
+ "query": {
+  "q": "Interstellar",
+  "sort": "relevance",
+  "direction": "desc",
+  "group": "",
+  "groups": [
+   "movies",
+   "shows",
+   "episodes",
+   "artists",
+   "albums",
+   "songs",
+   "books",
+   "people",
+   "live-tv"
+  ],
+  "libraryIds": [
+   "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+   "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec"
+  ],
+  "limit": 40,
+  "searchMode": "token_prefix",
+  "recorded": false
+ },
+ "groups": [
+  {
+   "id": "movies",
+   "title": "Movies",
+   "entityKind": "movie",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+     "id": "YEa_W0N2olpVOk2F8yR1mA",
+     "kind": "movie",
+     "title": "Interstellar",
+     "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2014,
+     "addedAt": "2026-10-02T04:02:29.777Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+     },
+     "playback": {
+      "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+     "id": "5z16dE7IyIlNQHZH3YWJJQ",
+     "kind": "movie",
+     "title": "Interstellar",
+     "posterUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+     "available": true,
+     "duration": 240.023,
+     "year": 2014,
+     "addedAt": "2026-10-02T05:08:59.527Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "5z16dE7IyIlNQHZH3YWJJQ"
+     },
+     "playback": {
+      "itemId": "5z16dE7IyIlNQHZH3YWJJQ"
+     }
+    }
+   ],
+   "totalCount": 2,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "shows",
+   "title": "Shows",
+   "entityKind": "show",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "episodes",
+   "title": "Episodes",
+   "entityKind": "episode",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "artists",
+   "title": "Artists",
+   "entityKind": "artist",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "albums",
+   "title": "Albums",
+   "entityKind": "album",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "songs",
+   "title": "Songs",
+   "entityKind": "song",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "books",
+   "title": "Books",
+   "entityKind": "book",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "people",
+   "title": "People",
+   "entityKind": "person",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "live-tv",
+   "title": "Live TV",
+   "entityKind": "channel",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  }
+ ],
+ "capabilities": {
+  "groups": [
+   {
+    "id": "movies",
+    "title": "Movies",
+    "entityKind": "movie",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "shows",
+    "title": "Shows",
+    "entityKind": "show",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "episodes",
+    "title": "Episodes",
+    "entityKind": "episode",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "artists",
+    "title": "Artists",
+    "entityKind": "artist",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title"
+    ]
+   },
+   {
+    "id": "albums",
+    "title": "Albums",
+    "entityKind": "album",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "songs",
+    "title": "Songs",
+    "entityKind": "song",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "books",
+    "title": "Books",
+    "entityKind": "book",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "people",
+    "title": "People",
+    "entityKind": "person",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title"
+    ]
+   },
+   {
+    "id": "live-tv",
+    "title": "Live TV",
+    "entityKind": "channel",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title"
+    ]
+   }
+  ],
+  "sorts": [
+   "relevance",
+   "title",
+   "releaseYear",
+   "dateAdded"
+  ],
+  "directions": [
+   "asc",
+   "desc"
+  ],
+  "maxLimit": 40,
+  "groupBudgetMs": 600
+ }
+}

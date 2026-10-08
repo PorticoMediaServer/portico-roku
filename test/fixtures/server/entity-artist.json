@@ -1,0 +1,266 @@
+{
+ "entity": {
+  "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+  "id": "1S4cNAv-E-9hPui1IC7cQQ",
+  "kind": "artist",
+  "title": "Adele",
+  "addedAt": null,
+  "count": 4,
+  "genres": [
+   "Pop"
+  ]
+ },
+ "listening": {
+  "target": {
+   "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "kind": "artist",
+   "id": "1S4cNAv-E-9hPui1IC7cQQ"
+  },
+  "actions": [
+   "play",
+   "shuffle",
+   "mix",
+   "enqueue"
+  ],
+  "resumeUnavailable": false
+ },
+ "heading": {
+  "key": "entity.title",
+  "fallback": "Adele"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+  "libraryKind": "music",
+  "view": "artist",
+  "entityId": "1S4cNAv-E-9hPui1IC7cQQ",
+  "viewerFence": "19953f596b475a2b42d9c110e0b5c892beed9f42a0aa6a95987e3edd6411595b"
+ },
+ "revision": {
+  "catalog": 1012,
+  "viewer": 428
+ },
+ "navigation": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "view": "discover"
+  },
+  {
+   "id": "browse",
+   "labelKey": "library.music",
+   "view": "browse"
+  },
+  {
+   "id": "releases",
+   "labelKey": "library.releases",
+   "view": "releases"
+  },
+  {
+   "id": "songs",
+   "labelKey": "library.songs",
+   "view": "songs"
+  }
+ ],
+ "query": {
+  "sort": "title",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "title_prefix"
+ },
+ "sorts": [
+  {
+   "id": "title",
+   "labelKey": "sort.title",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  }
+ ],
+ "filters": [],
+ "sections": [
+  {
+   "id": "songs",
+   "type": "list",
+   "heading": {
+    "key": "section.songs",
+    "fallback": "Songs"
+   },
+   "entries": [
+    {
+     "watched": false,
+     "trackNumber": 4,
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "a5F_63HDmO44nnOBds4dvA",
+     "kind": "song",
+     "title": "Don't You Remember",
+     "subtitle": "Track 4 · Adele",
+     "posterUrl": "/v1/items/a5F_63HDmO44nnOBds4dvA/art/poster",
+     "available": true,
+     "duration": 60,
+     "album": {
+      "id": "BVeRENlvjqVaYfqxSR3FvQ",
+      "name": "21"
+     },
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:27.421Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "a5F_63HDmO44nnOBds4dvA"
+     },
+     "playback": {
+      "itemId": "a5F_63HDmO44nnOBds4dvA"
+     }
+    },
+    {
+     "watched": false,
+     "trackNumber": 1,
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+     "kind": "song",
+     "title": "Rolling in the Deep",
+     "subtitle": "Track 1 · Adele",
+     "posterUrl": "/v1/items/kTDlzyrNZ9dN_7TGsqdCvA/art/poster",
+     "available": true,
+     "duration": 60,
+     "album": {
+      "id": "BVeRENlvjqVaYfqxSR3FvQ",
+      "name": "21"
+     },
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:27.424Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+     },
+     "playback": {
+      "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+     },
+     "plays": 5
+    },
+    {
+     "watched": false,
+     "trackNumber": 2,
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "g1J6DuMOwlvzGcI8dtjQrQ",
+     "kind": "song",
+     "title": "Rumour Has It",
+     "subtitle": "Track 2 · Adele",
+     "posterUrl": "/v1/items/g1J6DuMOwlvzGcI8dtjQrQ/art/poster",
+     "available": true,
+     "duration": 60,
+     "album": {
+      "id": "BVeRENlvjqVaYfqxSR3FvQ",
+      "name": "21"
+     },
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:27.427Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "g1J6DuMOwlvzGcI8dtjQrQ"
+     },
+     "playback": {
+      "itemId": "g1J6DuMOwlvzGcI8dtjQrQ"
+     }
+    },
+    {
+     "watched": false,
+     "trackNumber": 3,
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "uUrxAytYUZ5ggKC7sJdBZQ",
+     "kind": "song",
+     "title": "Turning Tables",
+     "subtitle": "Track 3 · Adele",
+     "posterUrl": "/v1/items/uUrxAytYUZ5ggKC7sJdBZQ/art/poster",
+     "available": true,
+     "duration": 60,
+     "album": {
+      "id": "BVeRENlvjqVaYfqxSR3FvQ",
+      "name": "21"
+     },
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:27.416Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "uUrxAytYUZ5ggKC7sJdBZQ"
+     },
+     "playback": {
+      "itemId": "uUrxAytYUZ5ggKC7sJdBZQ"
+     }
+    }
+   ],
+   "totalCount": 4,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "popularTracks",
+   "type": "list",
+   "heading": {
+    "key": "section.popularTracks",
+    "fallback": "Your most played"
+   },
+   "entries": [
+    {
+     "watched": false,
+     "trackNumber": 1,
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+     "kind": "song",
+     "title": "Rolling in the Deep",
+     "subtitle": "Adele",
+     "posterUrl": "/v1/items/kTDlzyrNZ9dN_7TGsqdCvA/art/poster",
+     "available": true,
+     "duration": 60,
+     "album": {
+      "id": "BVeRENlvjqVaYfqxSR3FvQ",
+      "name": "21"
+     },
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:27.424Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+     },
+     "playback": {
+      "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+     },
+     "plays": 5
+    }
+   ],
+   "totalCount": 1,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "releases",
+   "type": "grid",
+   "heading": {
+    "key": "section.releases",
+    "fallback": "Releases & appearances"
+   },
+   "entries": [
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "kind": "album",
+     "title": "21",
+     "subtitle": "Adele · 2011",
+     "posterUrl": "/v1/items/uUrxAytYUZ5ggKC7sJdBZQ/art/poster",
+     "role": "album",
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "BVeRENlvjqVaYfqxSR3FvQ"
+     }
+    }
+   ],
+   "totalCount": 1,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

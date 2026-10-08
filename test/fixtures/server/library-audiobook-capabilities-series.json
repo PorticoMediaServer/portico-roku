@@ -1,0 +1,194 @@
+{
+ "library": {
+  "defaultView": "browse",
+  "id": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+  "name": "Audiobooks",
+  "kind": "audiobook",
+  "pinned": false
+ },
+ "pivots": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "entityKinds": [
+    "book"
+   ],
+   "defaultSort": [
+    {
+     "field": "title",
+     "direction": "asc"
+    }
+   ],
+   "supportedViews": [
+    "rail"
+   ],
+   "browsable": false
+  },
+  {
+   "id": "authors",
+   "labelKey": "library.authors",
+   "entityKinds": [
+    "author"
+   ],
+   "defaultSort": [
+    {
+     "field": "title",
+     "direction": "asc"
+    }
+   ],
+   "supportedViews": [
+    "grid",
+    "list"
+   ],
+   "browsable": true
+  },
+  {
+   "id": "books",
+   "labelKey": "library.books",
+   "entityKinds": [
+    "book"
+   ],
+   "defaultSort": [
+    {
+     "field": "title",
+     "direction": "asc"
+    }
+   ],
+   "supportedViews": [
+    "grid",
+    "list"
+   ],
+   "browsable": true
+  },
+  {
+   "id": "series",
+   "labelKey": "library.series",
+   "entityKinds": [
+    "book_series"
+   ],
+   "defaultSort": [
+    {
+     "field": "title",
+     "direction": "asc"
+    }
+   ],
+   "supportedViews": [
+    "grid"
+   ],
+   "browsable": false,
+   "aggregate": "series"
+  },
+  {
+   "id": "collections",
+   "labelKey": "library.collections",
+   "entityKinds": [
+    "collection"
+   ],
+   "defaultSort": [
+    {
+     "field": "title",
+     "direction": "asc"
+    }
+   ],
+   "supportedViews": [
+    "grid",
+    "list"
+   ],
+   "browsable": true
+  }
+ ],
+ "resolvedPivot": {
+  "id": "series",
+  "labelKey": "library.series",
+  "entityKinds": [
+   "book_series"
+  ],
+  "defaultSort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ],
+  "supportedViews": [
+   "grid"
+  ],
+  "browsable": false,
+  "aggregate": "series"
+ },
+ "fields": [],
+ "sorts": [],
+ "quickFilters": [
+  {
+   "id": "in-progress",
+   "labelKey": "filter.inProgress",
+   "query": {
+    "field": "playState",
+    "operator": "equals",
+    "value": "in-progress"
+   }
+  },
+  {
+   "id": "unwatched",
+   "labelKey": "filter.unwatched",
+   "query": {
+    "field": "playState",
+    "operator": "equals",
+    "value": "unplayed"
+   }
+  },
+  {
+   "id": "watched",
+   "labelKey": "filter.watched",
+   "query": {
+    "field": "playState",
+    "operator": "equals",
+    "value": "played"
+   }
+  },
+  {
+   "id": "favorites",
+   "labelKey": "filter.favorites",
+   "query": {
+    "field": "favorite",
+    "operator": "equals",
+    "value": true
+   }
+  },
+  {
+   "id": "watchlist",
+   "labelKey": "filter.watchlist",
+   "query": {
+    "field": "watchlisted",
+    "operator": "equals",
+    "value": true
+   }
+  },
+  {
+   "id": "available",
+   "labelKey": "filter.available",
+   "query": {
+    "field": "availability",
+    "operator": "equals",
+    "value": "available"
+   }
+  },
+  {
+   "id": "missing",
+   "labelKey": "filter.missing",
+   "query": {
+    "field": "availability",
+    "operator": "equals",
+    "value": "unavailable"
+   }
+  }
+ ],
+ "queryLimits": {
+  "maximumDepth": 5,
+  "maximumClauses": 40,
+  "maximumBytes": 65536,
+  "maximumSorts": 3,
+  "defaultLimit": 40,
+  "maximumLimit": 100,
+  "cursorTtlSeconds": 1800
+ }
+}

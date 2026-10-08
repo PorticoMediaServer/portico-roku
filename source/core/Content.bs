@@ -1,0 +1,48 @@
+' Requests a signed-in viewer makes, for Task threads: the saved session's bearer on the selected
+' server, renewed once when the server refuses it (packages/client-core/src/index.ts
+' `HttpLocalApi.exchange`, session-refresh.ts), and the small documents the shell reads
+' (the library list).
+import "pkg:/source/core/Session.bs"
+
+' The api for the selected server with the viewer's token, or invalid when there is no sign-in.
+function ViewerApi(ctx as object) as dynamic
+    record = SessionRecord(ctx)
+    if record = invalid then return invalid
+    api = SessionApi(ctx, record["logicalOrigin"], record["session"].accessToken)
+    api.ctx = ctx
+    api.renew = function(api as object, rejected as string) as dynamic
+        record = SessionRecord(api.ctx)
+        if record = invalid then return invalid
+        ' Another request may already have renewed it.
+        if record["session"].accessToken <> rejected then return record["session"].accessToken
+        renewed = SessionRenew(api.ctx, record, rejected)
+        if not renewed.ok then return invalid
+        return renewed.session.accessToken
+    end function
+    return api
+end function
+
+' One request as the viewer: {ok, status, data, headers} or {ok: false, status, error}.
+function ViewerRequest(ctx as object, path as string, method = "GET" as string, body = invalid as dynamic, extra = invalid as dynamic) as object
+    api = ViewerApi(ctx)
+    if api = invalid then return { ok: false, status: 401, error: { status: 401, code: "session_expired", message: "", retryable: false } }
+    return ApiRequest(api, path, method, body, extra)
+end function
+
+' packages/design/src/media-icons.ts `mediaFamilyIcon`: the icon of a library's family. Unknown
+' kinds are explicit (invalid): callers must not silently relabel them as movies.
+function MediaFamilyIcon(kind as dynamic) as dynamic
+    icons = { "movie": "film", "tv": "tv", "anime": "tv", "audiobook": "book", "music": "music" }
+    if Type(kind) <> "String" and Type(kind) <> "roString" then return invalid
+    return icons[kind]
+end function
+
+' GET /v1/libraries: the libraries this viewer may open, in the server's order: [{id, name, kind}].
+function ParseLibraries(data as dynamic) as object
+    out = []
+    if not IsObject(data) or not IsArray(FieldOf(data, "items")) then return out
+    for each item in FieldOf(data, "items")
+        if IsObject(item) and IsText(item.id, 256) and IsString(item.name) and IsString(item.kind) then out.push({ id: item.id, name: item.name, kind: item.kind })
+    end for
+    return out
+end function

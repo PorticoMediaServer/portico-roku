@@ -1,0 +1,61 @@
+' Timestamps. packages/client-core/src/local-session.ts `currentUTCTimestamp` and `utcOrderKey`,
+' and the arithmetic JavaScript's Date does for the TypeScript.
+
+' Seconds since the epoch for a strict UTC timestamp ("2026-10-03T12:00:00Z", with an optional
+' fraction and "Z" or "+00:00"), or invalid when it is not one or names a date that does not exist.
+function IsoToSeconds(value as dynamic) as dynamic
+    kind = Type(value)
+    if kind <> "String" and kind <> "roString" then return invalid
+    if m.timeIsoPattern = invalid then m.timeIsoPattern = CreateObject("roRegex", "^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(?:Z|\+00:00)$", "i")
+    parts = m.timeIsoPattern.match(value)
+    if parts.count() < 7 then return invalid
+    year = Val(parts[1], 10)
+    month = Val(parts[2], 10)
+    day = Val(parts[3], 10)
+    hour = Val(parts[4], 10)
+    minute = Val(parts[5], 10)
+    second = Val(parts[6], 10)
+    if month < 1 or month > 12 or day < 1 or hour > 23 or minute > 59 or second > 59 then return invalid
+    lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    limit = lengths[month - 1]
+    if month = 2 and (year mod 4 = 0 and (year mod 100 <> 0 or year mod 400 = 0)) then limit = 29
+    if day > limit then return invalid
+    ' Days from the civil date (the proleptic Gregorian calendar).
+    y = year
+    if month <= 2 then y = y - 1
+    era = y \ 400
+    if y < 0 then era = (y - 399) \ 400
+    yearOfEra = y - era * 400
+    shifted = month - 3
+    if month <= 2 then shifted = month + 9
+    dayOfYear = (153 * shifted + 2) \ 5 + day - 1
+    dayOfEra = yearOfEra * 365 + yearOfEra \ 4 - yearOfEra \ 100 + dayOfYear
+    days& = era * 146097 + dayOfEra - 719468
+    return days& * 86400 + hour * 3600 + minute * 60 + second
+end function
+
+' local-session.ts `utcOrderKey`: a key that orders timestamps as text, to nanoseconds.
+function UtcOrderKey(value as string) as string
+    text = UCase(value)
+    if Right(text, 1) = "Z" then
+        text = Left(text, Len(text) - 1)
+    else if Right(text, 6) = "+00:00" then
+        text = Left(text, Len(text) - 6)
+    end if
+    dot = Instr(1, text, ".")
+    whole = text
+    fraction = ""
+    if dot > 0 then
+        whole = Left(text, dot - 1)
+        fraction = Mid(text, dot + 1)
+    end if
+    while Len(fraction) < 9
+        fraction = fraction + "0"
+    end while
+    return whole + "." + fraction
+end function
+
+function NowSeconds() as longinteger
+    now& = CreateObject("roDateTime").asSeconds()
+    return now&
+end function

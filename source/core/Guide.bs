@@ -1,0 +1,317 @@
+' packages/client-core/src/channel-guide.ts (the guide a viewer may tune: Live TV sources and
+' Library Channels), apps/native/src/app/linear-availability.ts (whether the server has any) and
+' apps/native/src/screens/channels/format.ts (the guide's words). The server builds the guide;
+' the channel asks for one three-hour window, thirty channels at a time.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Time.bs"
+
+function GuideIso(seconds as dynamic) as string
+    date = CreateObject("roDateTime")
+    whole& = seconds
+    date.fromSeconds(whole&)
+    return Left(date.toISOString(), 19) + "Z"
+end function
+
+' `guideWindow`: the hour that is on now, and the three hours from it.
+function GuideWindow(clock as dynamic) as object
+    ' Whole-number arithmetic: a 32-bit float cannot hold today's seconds to the hour.
+    start& = clock
+    start& = (start& \ 3600) * 3600
+    return { start: GuideIso(start&), "end": GuideIso(start& + 3 * 3600) }
+end function
+
+' {kind, start, end, timezone, search, sourceId} for what is on now.
+function GuideRouteNow(kind as string, clock as dynamic) as object
+    window = GuideWindow(clock)
+    return { kind: kind, start: window.start, "end": window["end"], timezone: "UTC", search: "", sourceId: "" }
+end function
+
+' `path`: GET /v1/guide for a route, from a cursor.
+function GuidePath(route as object, cursor as string, limit = 30 as integer) as string
+    query = "kind=" + route.kind.encodeUriComponent() + "&start=" + route.start.encodeUriComponent() + "&end=" + route["end"].encodeUriComponent()
+    query = query + "&timezone=" + route.timezone.encodeUriComponent() + "&search=" + route.search.encodeUriComponent() + "&sourceId=" + route.sourceId.encodeUriComponent()
+    query = query + "&limit=" + limit.toStr() + "&cursor=" + cursor.encodeUriComponent()
+    if route.group <> invalid and route.group <> "" then query = query + "&group=" + route.group.encodeUriComponent()
+    return "/v1/guide?" + query
+end function
+
+' linear-availability.ts `probe`: true or false when the answer says, invalid when it does not.
+function GuideHasChannels(result as object) as dynamic
+    if not result.ok then
+        ' A server without the feature answers 404; anything else is "don't know yet".
+        if result.status <> invalid and result.status = 404 then return false
+        return invalid
+    end if
+    raw = result.value
+    if not IsObject(raw) then return invalid
+    guide = raw
+    if IsObject(raw.guide) then guide = raw.guide
+    if IsString(guide.state) and guide.state = "no-sources" then return false
+    sources = FieldOf(guide, "sources")
+    channels = guide.channels
+    return (IsArray(sources) and sources.count() > 0) or (IsArray(channels) and channels.count() > 0)
+end function
+
+' ChannelsScreen.tsx: what the source picker offers from a probe's sources: each live source by its
+' name. [{id, label, kind, sourceId}]; a source without a readable id or name is left out.
+function GuideSourceEntries(sources as dynamic) as object
+    out = []
+    if not IsArray(sources) then return out
+    for each source in sources
+        if IsObject(source) and IsGuideId(source.id) and IsGuideText(source.name, 120) then out.push({ id: "live:" + source.id, label: source.name, kind: "live-source", sourceId: source.id })
+    end for
+    return out
+end function
+
+function IsGuideText(value as dynamic, limit as integer) as boolean
+    if not IsString(value) or Len(value) > limit then return false
+    return not MatchesPattern(value, "[\x00-\x1f\x7f]")
+end function
+
+function IsGuideId(value as dynamic) as boolean
+    return IsGuideText(value, 256) and value <> ""
+end function
+
+' An instant as the guide writes it ("2026-10-03T08:00:00Z"): its seconds, or invalid.
+function GuideInstant(value as dynamic) as dynamic
+    if not IsString(value) or not MatchesPattern(value, "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$") then return invalid
+    seconds = IsoToSeconds(value)
+    if seconds = invalid then return invalid
+    if GuideIso(seconds) <> Left(value, 19) + "Z" then return invalid
+    return seconds
+end function
+
+function GuideReasons() as object
+    return ["", "delivery-unavailable", "recording-unavailable", "not-recordable", "source-disabled", "source-unavailable", "capacity-unavailable", "permission-denied", "no-schedule", "decoder_confinement_unavailable", "ffmpeg_not_configured", "decoder_dependencies_unavailable", "schedule_preparing", "delivery_unavailable", "ffprobe_not_configured", "channel_runtime_unavailable"]
+end function
+
+' One programme: {id, title, start, end (seconds), description, subtitle, episode, flags, year},
+' or invalid when its core fields are not readable. Its optional facts are dropped when malformed.
+function ParseGuideProgramme(raw as dynamic, channelId as string) as dynamic
+    if not IsObject(raw) or not IsGuideId(raw.id) or not IsString(raw.channelId) or raw.channelId <> channelId or not IsGuideText(raw.title, 512) then return invalid
+    start = GuideInstant(raw.start)
+    finish = GuideInstant(raw["end"])
+    if start = invalid or finish = invalid or finish <= start or not ArrayIncludes(["provider-id", "interval-only", "generated"], raw.lineage) then return invalid
+    description = ""
+    if raw.description <> invalid then
+        if not IsString(raw.description) or Len(raw.description) > 4096 then return invalid
+        description = raw.description
+    end if
+    for each key in ["seriesId", "episodeId"]
+        if raw[key] <> invalid and not IsGuideText(raw[key], 256) then return invalid
+    end for
+    if raw.newEvidence <> invalid and raw.newEvidence <> "" and not ArrayIncludes(["new", "repeat", "unknown"], raw.newEvidence) then return invalid
+    programme = { id: raw.id, channelId: channelId, title: raw.title, start: start, "end": finish, description: description }
+    if IsGuideText(raw.subtitle, 512) and raw.subtitle <> "" then programme.subtitle = raw.subtitle
+    if IsObject(raw.episode) then
+        episode = {}
+        if IsNatural(raw.episode.season) and raw.episode.season >= 1 and raw.episode.season <= 9999 then episode.season = raw.episode.season
+        if IsNatural(raw.episode.number) and raw.episode.number >= 1 and raw.episode.number <= 9999 then episode.number = raw.episode.number
+        if IsGuideText(raw.episode.display, 64) and raw.episode.display <> "" then episode.display = raw.episode.display
+        if episode.count() > 0 then programme.episode = episode
+    end if
+    if IsObject(raw.flags) then programme.flags = { live: IsBoolean(raw.flags.live) and raw.flags.live, premiere: IsBoolean(raw.flags.premiere) and raw.flags.premiere, new: IsBoolean(raw.flags["new"]) and raw.flags["new"], repeat: IsBoolean(raw.flags.repeat) and raw.flags.repeat }
+    if IsNatural(raw.year) and raw.year >= 1000 and raw.year <= 9999 then programme.year = raw.year
+    return programme
+end function
+
+' `parseChannelGuide`: {ok, state, sources: [{id, name, generation}], channels: [{id, sourceId,
+' provenance, name, number, group, generation, logoPath, tuneAvailable, tuneUnavailableReason,
+' favorite, hidden, programmes}], nextCursor}. One unreadable channel or programme rejects it.
+function ParseChannelGuide(raw as dynamic, serverId as string, route as object) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) or not IsString(raw.protocolVersion) or raw.protocolVersion <> "1.0" or not IsString(raw.serverId) or raw.serverId <> serverId or not IsObject(raw.guide) then return bad
+    g = raw.guide
+    if not ArrayIncludes(["ready", "no-sources", "no-channels", "no-guide-data", "filter-empty", "guide-stale", "continuation-required"], g.state) then return bad
+    if not IsGuideId(g.viewerFence) or not IsString(g.start) or g.start <> route.start or not IsString(g["end"]) or g["end"] <> route["end"] or not IsString(g.timezone) or g.timezone <> route.timezone then return bad
+    sourceList = FieldOf(g, "sources")
+    if GuideInstant(g.observedAt) = invalid or not IsGuideText(g.nextCursor, 2048) or not IsArray(g.channels) or g.channels.count() > 30 or not IsArray(sourceList) or sourceList.count() > 2000 then return bad
+    windowStart = GuideInstant(route.start)
+    windowEnd = GuideInstant(route["end"])
+    generations = {}
+    generations.setModeCaseSensitive()
+    sources = []
+    for each v in sourceList
+        if not IsObject(v) or not IsGuideId(v.id) or generations.doesExist(v.id) or not IsGuideText(v.name, 120) or not IsGuideId(v.generation) or GuideInstant(v.publishedAt) = invalid then return bad
+        if not IsString(v.provenance) or v.provenance <> route.kind or not IsGuideText(v.refreshState, 64) or not IsString(v.availableStart) or not IsString(v.availableEnd) then return bad
+        if not (v.availableStart = "" and v.availableEnd = "") then
+            from = GuideInstant(v.availableStart)
+            till = GuideInstant(v.availableEnd)
+            if from = invalid or till = invalid or till <= from then return bad
+        end if
+        generations[v.id] = v.generation
+        sources.push({ id: v.id, name: v.name, generation: v.generation })
+    end for
+    seen = {}
+    seen.setModeCaseSensitive()
+    programmeIds = {}
+    programmeIds.setModeCaseSensitive()
+    total = 0
+    channels = []
+    for each v in g.channels
+        if not IsObject(v) or not IsGuideId(v.id) or seen.doesExist(v.id) or not IsGuideId(v.sourceId) or not generations.doesExist(v.sourceId) or not IsString(v.provenance) or v.provenance <> route.kind then return bad
+        if not IsGuideText(v.name, 256) or not IsGuideText(v.number, 32) or not IsGuideText(v.group, 120) or not IsGuideId(v.generation) or not IsBoolean(v.tuneAvailable) or not IsBoolean(v.recordAvailable) then return bad
+        if not IsString(v.tuneUnavailableReason) or not ArrayIncludes(GuideReasons(), v.tuneUnavailableReason) or not IsString(v.recordUnavailableReason) or not ArrayIncludes(GuideReasons(), v.recordUnavailableReason) then return bad
+        if not IsBoolean(v.favorite) or not IsBoolean(v.hidden) or not IsNatural(v.preferenceRevision) or not IsArray(v.programmes) or v.programmes.count() > 10000 then return bad
+        if v.tuneAvailable <> (v.tuneUnavailableReason = "") or v.recordAvailable <> (v.recordUnavailableReason = "") or (route.kind = "library-channel" and v.recordAvailable) then return bad
+        logoPath = ""
+        if v.logoPath <> invalid then
+            if not IsString(v.logoPath) or (v.logoPath <> "" and not MatchesPattern(v.logoPath, "^/v1/items/[A-Za-z0-9_-]{1,128}/art/poster$")) then return bad
+            logoPath = v.logoPath
+        end if
+        if generations[v.sourceId] <> v.generation then return bad
+        seen[v.id] = true
+        previousEnd = 0
+        programmes = []
+        for each item in v.programmes
+            programme = ParseGuideProgramme(item, v.id)
+            if programme = invalid or programmeIds.doesExist(programme.id) or programme.start < previousEnd or programme["end"] <= windowStart or programme.start >= windowEnd then return bad
+            total = total + 1
+            if total > 10000 then return bad
+            previousEnd = programme["end"]
+            programmeIds[programme.id] = true
+            programmes.push(programme)
+        end for
+        channels.push({ id: v.id, sourceId: v.sourceId, provenance: v.provenance, name: v.name, number: v.number, group: v.group, generation: v.generation, logoPath: logoPath, tuneAvailable: v.tuneAvailable, tuneUnavailableReason: v.tuneUnavailableReason, favorite: v.favorite, hidden: v.hidden, programmes: programmes })
+    end for
+    return { ok: true, state: g.state, sources: sources, channels: channels, nextCursor: g.nextCursor }
+end function
+
+' What a channel shows at a moment: {current, upcoming} (either may be invalid).
+function ChannelNow(channel as object, clock as dynamic) as object
+    out = { current: invalid, upcoming: invalid }
+    for each programme in channel.programmes
+        if programme.start <= clock and programme["end"] > clock then
+            out.current = programme
+        else if programme.start > clock and out.upcoming = invalid then
+            out.upcoming = programme
+        end if
+    end for
+    return out
+end function
+
+' format.ts: "8:00 PM – 9:00 PM".
+function GuideRange(programme as object) as string
+    return T("guide.range", { start: FormatTime(programme.start), "end": FormatTime(programme["end"]) })
+end function
+
+' format.ts `timeLeft`: "22 min left", or "2h 7m left" past an hour.
+function GuideTimeLeft(seconds as dynamic) as string
+    minutes = Int(seconds / 60 + 0.5)
+    if minutes < 1 then minutes = 1
+    if seconds < 3600 then return T("guide.minutesLeft", { count: minutes })
+    return T("guide.timeLeft", { time: FormatDuration(minutes * 60) })
+end function
+
+' One channel's row: {title, subtitle, meta, progress}. Without a programme it says so.
+function ChannelRow(channel as object, clock as dynamic) as object
+    on = ChannelNow(channel, clock)
+    row = { title: channel.name, subtitle: T("guide.noInformation"), meta: channel.number, progress: 0 }
+    if on.current <> invalid then
+        row.subtitle = on.current.title + " · " + GuideTimeLeft(on.current["end"] - clock)
+        elapsed = (clock - on.current.start) * 1.0
+        row.progress = elapsed / (on.current["end"] - on.current.start)
+    end if
+    if on.upcoming <> invalid then
+        following = T("guide.next", { title: on.upcoming.title, time: FormatTime(on.upcoming.start) })
+        if on.current <> invalid then
+            row.subtitle = row.subtitle + " · " + following
+        else
+            row.subtitle = following
+        end if
+    end if
+    return row
+end function
+
+' playback-v1/channel-control.ts `v1ChannelId`, and the start: POST /v1/playback/sessions.
+function ChannelSessionBody(channel as object) as object
+    id = "library:" + channel.id
+    if channel.provenance = "live-source" then id = "live:" + channel.sourceId + ":" + channel.id
+    return { "channelId": id, "channelGeneration": channel.generation, "state": "playing" }
+end function
+
+' playback-v1/channel-control.ts `parseChannelSession`: a channel's session as the control reads it.
+' {ok, session: {id, revision, kind: "channel", state, reportEveryMs, ended, endReason, endMessage,
+' presentation: {generation, url, startPositionMs, subtitles, mode}, linear: {name, state,
+' errorCode, programme, upcoming}}}. The stream's address is empty until the stream exists.
+function ParseChannelSession(v as dynamic) as object
+    bad = { ok: false, code: "invalid_playback" }
+    if not IsObject(v) or not IsString(v.id) or v.id = "" or not IsString(v.revision) or not IsString(v.state) or not IsObject(v.presentation) then return bad
+    p = v.presentation
+    if not IsNumber(p.generation) or Int(p.generation) <> p.generation or not IsString(p.url) or Len(p.url) > 4096 then return bad
+    if p.url <> "" and Left(p.url, 4) <> "/v1/" and Left(p.url, 7) <> "http://" and Left(p.url, 8) <> "https://" then return bad
+    mode = "stream"
+    if IsString(p.mode) then mode = p.mode
+    session = { id: v.id, revision: v.revision, kind: "channel", state: v.state, reportEveryMs: 10000, ended: v.state = "ended", presentation: { generation: p.generation, url: p.url, startPositionMs: 0, subtitles: [], mode: mode } }
+    if IsObject(v.lease) and IsNumber(v.lease.reportEveryMs) and v.lease.reportEveryMs > 0 then session.reportEveryMs = v.lease.reportEveryMs
+    if IsObject(v["end"]) then
+        session.ended = true
+        if IsString(v["end"].reason) then session.endReason = v["end"].reason
+        if IsString(v["end"].message) and v["end"].message <> "" then session.endMessage = v["end"].message
+    end if
+    l = p.linear
+    if l <> invalid then
+        if not IsObject(l) or not IsString(l.name) or not IsString(l.state) then return bad
+        for each key in ["originMs", "windowStartMs", "windowEndMs", "liveEdgeMs"]
+            if not IsNumber(l[key]) then return bad
+        end for
+        linear = { name: l.name, state: l.state, errorCode: "" }
+        if IsString(l.errorCode) then linear.errorCode = l.errorCode
+        for each pair in [["programme", "programme"], ["next", "upcoming"]]
+            ' `next` is also the name of something every object can do: the field is asked for by name.
+            raw = FieldOf(l, pair[0])
+            if raw <> invalid then
+                if not IsObject(raw) or not IsString(raw.id) or not IsString(raw.title) or not IsNumber(raw.startMs) or not IsNumber(raw.endMs) then return bad
+                linear[pair[1]] = { id: raw.id, title: raw.title, startMs: raw.startMs, endMs: raw.endMs }
+            end if
+        end for
+        session.linear = linear
+    end if
+    return { ok: true, session: session }
+end function
+
+' `accept`: the stream exists and can be joined.
+function ChannelStreamReady(session as object) as boolean
+    return session.presentation.url <> "" and session.presentation.generation > 0
+end function
+
+' The first join is a go-live seek the server resolves to a position in the window.
+function ChannelJoinBody(wanted as string, seekId as string) as object
+    return { "state": wanted, "seek": { "id": seekId, "positionMs": 0, "live": true } }
+end function
+
+function ChannelStateBody(wanted as string) as object
+    return { "state": wanted }
+end function
+
+' The revision a channel change is made against, as the control sends it.
+function ChannelIfMatch(session as object) as string
+    return Chr(34) + session.revision + Chr(34)
+end function
+
+' Why a channel stopped, as a failure the player can say: the end the server gave, else a code.
+function ChannelEndFailure(session as object) as object
+    code = "session_ended"
+    if session.endReason <> invalid and session.endReason = "feature_restricted" then code = "feature_restricted"
+    failure = { code: code, status: 0 }
+    ' `said`: the words to show as they are (the owner's own message, or the catalogue's for a
+    ' profile without Live TV).
+    if session.endReason <> invalid and session.endReason = "terminated" and session.endMessage <> invalid then failure.said = session.endMessage
+    if code = "feature_restricted" then failure.said = T("live.offForProfile")
+    return failure
+end function
+
+' What is on, for the player's second line: the programme's title, else nothing.
+function ChannelNowTitle(session as object) as string
+    if session.linear = invalid or session.linear.programme = invalid then return ""
+    return session.linear.programme.title
+end function
+
+' `terminal`: a read of the session that says it is gone or no longer this viewer's.
+function ChannelPollIsFinal(status as dynamic) as boolean
+    if status = invalid then return false
+    return status = 401 or status = 403 or status = 404 or status = 410
+end function

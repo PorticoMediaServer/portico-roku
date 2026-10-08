@@ -1,0 +1,475 @@
+' apps/native/src/app/together.tsx `TogetherProvider` and packages/client-core/src/group-session.ts
+' (`GroupSessionService`, `GroupFollower`). The server owns the group's clock; this device plays
+' its own copy and follows it. While in a room, the player's Play, Pause and seeking become the
+' group's for anyone allowed to control it.
+'
+' Difference from the Apple TV app: the room is read again every second (core/Together.bs
+' `GroupTimings`) in place of the event stream, which a Roku cannot hold open.
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Together.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    timings = GroupTimings()
+    m.read = m.top.createChild("Timer")
+    m.read.duration = timings.readMs / 1000
+    m.read.repeat = true
+    m.read.observeField("fire", "onTogetherRead")
+    m.beat = m.top.createChild("Timer")
+    m.beat.duration = timings.beatMs / 1000
+    m.beat.repeat = true
+    m.beat.observeField("fire", "onTogetherBeat")
+    m.follow = m.top.createChild("Timer")
+    m.follow.duration = timings.followMs / 1000
+    m.follow.repeat = true
+    m.follow.observeField("fire", "onTogetherFollow")
+    m.tasks = {}
+    m.clock = invalid
+    m.roomId = ""
+    m.generation = 0
+    m.reading = false
+    m.queueRevision = ""
+    m.memory = { loadedFor: "", correctingUntil: 0 }
+    m.lastReadiness = ""
+    m.lastReportMs = 0
+    m.pending = invalid
+    m.top.directory = []
+end sub
+
+' This device's clock, in milliseconds.
+function TogetherNowMs() as double
+    now = CreateObject("roDateTime")
+    ms# = now.asSeconds()
+    ms# = ms# * 1000 + now.getMilliseconds()
+    return ms#
+end function
+
+function serverNowMs() as double
+    offset = 0
+    if m.clock <> invalid then offset = m.clock.offsetMs
+    return TogetherNowMs() + offset
+end function
+
+sub TogetherChanged()
+    m.top.inRoom = m.top.phase = "live"
+    m.top.changed = m.top.changed + 1
+end sub
+
+function TogetherSend(name as string, request as object, handler as string) as object
+    task = ApiStart(request, handler)
+    task.addFields({ generation: m.generation, sentMs: TogetherNowMs(), asked: name })
+    m.tasks[name] = task
+    return task
+end function
+
+' What a failure says: a known code names the problem, else the shared words, else this action's own.
+function TogetherWords(failure as dynamic, fallback as string) as string
+    if failure = invalid then return T(fallback)
+    if failure.code = "revision_conflict" then return T("together.error.changed")
+    words = PresentErrorFacts(failure, "together", { operation: "action" })
+    if words.category = "unknown" then return T(fallback)
+    return PresentError(failure, "together", { operation: "action" }).body
+end function
+
+' ---- The viewer's groups, and entering one ---------------------------------------------------------
+
+sub refreshDirectory()
+    if m.top.directoryPhase = "idle" then m.top.directoryPhase = "loading"
+    TogetherSend("directory", { path: "/v1/groups", reader: "groupList" }, "onTogetherDirectory")
+end sub
+
+sub onTogetherDirectory(event as object)
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.top.directory = result.value.groups
+        m.top.directoryPhase = "ready"
+        m.top.directoryError = ""
+    else
+        ' A failed refresh keeps the list it had.
+        if m.top.directory.count() = 0 then m.top.directoryPhase = "error"
+        if not result.ok and GroupsUnavailable(result.status) then
+            m.top.directoryError = T("together.error.unavailable")
+        else
+            m.top.directoryError = TogetherWords(result.error, "together.error.load")
+        end if
+    end if
+    TogetherChanged()
+end sub
+
+' {name, displayName, hostAuthority}
+sub create(input as object)
+    TogetherEnter({ path: "/v1/groups", method: "POST", body: GroupCreateBody(input.name, input.displayName, input.hostAuthority), reader: "groupSnapshot" }, "together.error.create")
+end sub
+
+' {code, displayName}
+sub join(input as object)
+    TogetherEnter({ path: "/v1/groups/join", method: "POST", body: GroupJoinBody(input.code, input.displayName), reader: "groupSnapshot" }, "together.error.join")
+end sub
+
+' Re-enters a group this viewer already belongs to.
+sub openGroup(groupId as string)
+    if m.roomId = groupId and m.top.phase = "live" then return
+    TogetherEnter({ path: GroupPath(groupId), reader: "groupSnapshot" }, "together.error.open")
+end sub
+
+sub TogetherEnter(request as object, fallback as string)
+    TogetherClose("joining")
+    m.top.busy = true
+    m.top.error = ""
+    m.enterFallback = fallback
+    TogetherSend("enter", request, "onTogetherEntered")
+    TogetherChanged()
+end sub
+
+sub onTogetherEntered(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    m.top.busy = false
+    if not result.ok or result.value.ok <> true then
+        m.top.phase = "idle"
+        m.top.error = TogetherWords(result.error, m.enterFallback)
+        TogetherChanged()
+        return
+    end if
+    m.roomId = result.value.group.id
+    m.memory = { loadedFor: "", correctingUntil: 0 }
+    m.lastReadiness = ""
+    m.lastReportMs = 0
+    m.top.phase = "live"
+    TogetherAdopt(result.value, task.sentMs)
+    if m.top.phase = "live" then
+        m.read.control = "start"
+        m.beat.control = "start"
+        m.follow.control = "start"
+    end if
+end sub
+
+' `adopt`: the room as it is now, and one sample of the group's clock.
+sub TogetherAdopt(snapshot as object, sentMs as dynamic)
+    received = TogetherNowMs()
+    m.clock = GroupClockSample(m.clock, IsoToMilliseconds(snapshot.serverTime), sentMs, received)
+    group = snapshot.group
+    ended = group.state = "ended" or group.state = "failed"
+    before = FormatJson(m.top.group)
+    m.top.group = group
+    if group.queue <> invalid then
+        m.top.queue = group.queue
+        m.queueRevision = group.queue.revision
+    else if group.queueRevision <> m.queueRevision and not ended then
+        TogetherReadQueue()
+    end if
+    if ended then
+        TogetherStop()
+        m.top.phase = "ended"
+        TogetherChanged()
+    else if FormatJson(group) <> before then
+        TogetherChanged()
+    end if
+end sub
+
+sub TogetherStop()
+    m.read.control = "stop"
+    m.beat.control = "stop"
+    m.follow.control = "stop"
+    m.generation = m.generation + 1
+    m.reading = false
+end sub
+
+sub TogetherClose(phase as string)
+    TogetherStop()
+    m.roomId = ""
+    m.queueRevision = ""
+    m.top.phase = phase
+    if phase <> "ended" then
+        m.top.group = invalid
+        m.top.queue = invalid
+        m.top.invite = invalid
+    end if
+    m.top.refused = invalid
+end sub
+
+' ---- Keeping the room current ---------------------------------------------------------------------
+
+sub onTogetherRead()
+    if m.roomId = "" or m.reading then return
+    m.reading = true
+    TogetherSend("read", { path: GroupPath(m.roomId), reader: "groupSnapshot" }, "onTogetherSnapshot")
+end sub
+
+' A host's heartbeat also binds the group to the device it comes from.
+sub onTogetherBeat()
+    if m.roomId = "" then return
+    TogetherSend("beat", { path: GroupPath(m.roomId, "/heartbeat"), method: "POST", reader: "groupSnapshot" }, "onTogetherSnapshot")
+end sub
+
+sub onTogetherSnapshot(event as object)
+    task = event.getRoSGNode()
+    if task.asked = "read" then m.reading = false
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        TogetherAdopt(result.value, task.sentMs)
+    else if task.asked = "read" and GroupReadOutcome(result) = "gone" then
+        ' This viewer is no longer in the group (removed, or it ended while away).
+        TogetherStop()
+        m.top.phase = "ended"
+        TogetherChanged()
+    end if
+end sub
+
+sub TogetherReadQueue()
+    if m.roomId = "" then return
+    TogetherSend("queue", { path: GroupPath(m.roomId, "/queue"), reader: "groupQueue" }, "onTogetherQueue")
+end sub
+
+sub onTogetherQueue(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.top.queue = result.value.queue
+        m.queueRevision = result.value.queue.revision
+        TogetherChanged()
+    end if
+    ' `watch`: a title just queued is put in front of the group.
+    if m.pending <> invalid and m.pending.kind = "watch" then
+        wanted = m.pending.itemId
+        m.pending = invalid
+        queue = m.top.queue
+        if queue <> invalid then
+            chosen = ""
+            for each entry in queue.entries
+                if entry.itemId = wanted then chosen = entry.entryId
+            end for
+            if chosen <> "" then transport({ command: "load", input: { entryId: chosen } })
+        end if
+    end if
+end sub
+
+' ---- Commands --------------------------------------------------------------------------------------
+
+' {command, input}: Play, Pause, Seek, Load… for the group, fenced on the revision last seen.
+sub transport(ask as object)
+    group = m.top.group
+    if group = invalid or m.roomId = "" then return
+    m.top.busy = true
+    m.top.error = ""
+    m.top.refused = invalid
+    m.lastTransport = ask
+    TogetherSend("transport", { path: GroupPath(group.id, "/transport"), method: "POST", body: GroupTransportBody(group, NewRequestId(), ask.command, ask.input), reader: "groupReceipt" }, "onTogetherTransport")
+    TogetherChanged()
+end sub
+
+sub onTogetherTransport(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    m.top.busy = false
+    if result.ok and result.value.ok = true then
+        group = m.top.group
+        if group <> invalid then
+            group.timeline = result.value.timeline
+            group.revision = result.value.revision
+            m.top.group = group
+        end if
+    else
+        ask = m.lastTransport
+        code = ""
+        if result.error <> invalid and result.error.code <> invalid then code = result.error.code
+        if code = "media_no_longer_accessible" and not (ask.input <> invalid and ask.input.allowUnavailable = true) then
+            ' Somebody in the group cannot see the title: only the host may go ahead without them.
+            m.top.error = T("together.error.memberCantSee")
+            m.top.refused = ask
+        else
+            m.top.error = TogetherWords(result.error, "together.error.notReached")
+        end if
+    end if
+    onTogetherRead()
+    TogetherChanged()
+end sub
+
+sub TogetherAct(name as string, request as object, fallback as string)
+    m.top.busy = true
+    m.top.error = ""
+    m.actFallback = fallback
+    TogetherSend(name, request, "onTogetherActed")
+    TogetherChanged()
+end sub
+
+sub onTogetherActed(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    result = event.getData()
+    m.top.busy = false
+    if not result.ok then
+        m.top.error = TogetherWords(result.error, m.actFallback)
+        if m.pending <> invalid then m.pending = invalid
+    else if task.asked = "invite" then
+        invite = ParseGroupInvite(result.value)
+        if invite.ok then
+            m.top.invite = invite
+        else
+            m.top.error = T("together.error.invite")
+        end if
+    else if task.asked = "host" then
+        snapshot = ParseGroupSnapshot(result.value)
+        if snapshot.ok then TogetherAdopt(snapshot, task.sentMs)
+    end if
+    if task.asked = "queueChange" then TogetherReadQueue()
+    onTogetherRead()
+    TogetherChanged()
+end sub
+
+sub TogetherQueueChange(change as object, fallback as string)
+    group = m.top.group
+    if group = invalid then return
+    revision = group.queueRevision
+    if m.top.queue <> invalid then revision = m.top.queue.revision
+    TogetherAct("queueChange", { path: GroupPath(group.id, "/queue"), method: "POST", body: GroupQueueBody(revision, NewRequestId(), change) }, fallback)
+end sub
+
+sub queueAdd(itemId as string)
+    TogetherQueueChange({ "operation": "append", "itemIds": [itemId] }, "together.error.queueAdd")
+end sub
+
+sub queueRemove(entryId as string)
+    TogetherQueueChange({ "operation": "remove", "entryId": entryId }, "together.error.queueRemove")
+end sub
+
+' Puts a title in front of the group: queued, then selected. Selecting never starts it; the group
+' prepares, and whoever may control presses Play once people are ready.
+sub watch(itemId as string)
+    if m.top.group = invalid then return
+    m.pending = { kind: "watch", itemId: itemId }
+    queueAdd(itemId)
+end sub
+
+sub makeInvite()
+    group = m.top.group
+    if group = invalid then return
+    TogetherAct("invite", { path: GroupPath(group.id, "/invites"), method: "POST", body: GroupInviteBody() }, "together.error.invite")
+end sub
+
+' Hands the host role to another member, or (while the host is away) claims it for this one.
+sub makeHost(memberId as string)
+    group = m.top.group
+    if group = invalid then return
+    TogetherAct("host", { path: GroupPath(group.id, "/host-transfer"), method: "POST", body: GroupHostBody(group, memberId) }, "together.error.host")
+end sub
+
+sub leaveGroup()
+    if m.roomId = "" then return
+    id = m.roomId
+    TogetherClose("left")
+    ' The server ends a silent membership on its own if this is lost.
+    m.tasks["leave"] = ApiStart({ path: GroupPath(id, "/leave"), method: "POST" }, "onTogetherLeft")
+    TogetherChanged()
+end sub
+
+sub onTogetherLeft()
+    refreshDirectory()
+end sub
+
+sub endGroup()
+    group = m.top.group
+    if group = invalid then return
+    m.top.busy = true
+    TogetherSend("end", { path: GroupPath(group.id, "/end"), method: "POST", body: GroupEndBody(group) }, "onTogetherEnded")
+end sub
+
+sub onTogetherEnded(event as object)
+    result = event.getData()
+    m.top.busy = false
+    if result.ok then
+        TogetherStop()
+        m.top.phase = "ended"
+        refreshDirectory()
+    else
+        m.top.error = TogetherWords(result.error, "together.error.end")
+    end if
+    TogetherChanged()
+end sub
+
+' Forgets an ended or left room so the lobby shows again.
+sub dismiss()
+    TogetherClose("idle")
+    m.top.error = ""
+    TogetherChanged()
+end sub
+
+' Signing out or switching server: the room is left behind without a word to it.
+sub shutdown()
+    TogetherClose("idle")
+    m.top.directory = []
+    m.top.directoryPhase = "idle"
+    m.top.error = ""
+    m.clock = invalid
+    TogetherChanged()
+end sub
+
+' ---- The player ------------------------------------------------------------------------------------
+
+' The player's own Play, Pause or seek while the group's title is on: {kind: "toggle", playing} or
+' {kind: "seek", seconds}. True when the group took it (so the player does nothing itself).
+function groupCommand(ask as object) as boolean
+    group = m.top.group
+    if group = invalid or m.top.phase <> "live" then return false
+    scene = m.top.getScene()
+    if scene = invalid then return false
+    local = scene.callFunc("playerState")
+    if group.timeline.itemId = "" or group.timeline.itemId <> local.itemId then return false
+    if not group.permissions.canControl then
+        if ask.kind = "seek" then
+            Toast(T("apple.together.hostMoves"), "info")
+        else
+            Toast(T("apple.together.hostPlays"), "info")
+        end if
+        return true
+    end if
+    if ask.kind = "seek" then
+        transport({ command: "seek", input: { positionUs: MicrosecondsText(ask.seconds) } })
+    else if ask.playing = true then
+        transport({ command: "pause" })
+    else
+        transport({ command: "play" })
+    end if
+    return true
+end function
+
+' The viewer closed the player and wants it back: the follower loads the group's title again.
+sub rejoin()
+    m.memory = { loadedFor: "", correctingUntil: 0 }
+    onTogetherFollow()
+end sub
+
+' `GroupFollower.tick`: once a second, and the player is asked only for what the step calls for.
+sub onTogetherFollow()
+    group = m.top.group
+    scene = m.top.getScene()
+    if group = invalid or scene = invalid or m.top.phase <> "live" then return
+    local = scene.callFunc("playerState")
+    now = TogetherNowMs()
+    result = GroupFollowStep(group, true, local, m.memory, now, serverNowMs())
+    m.memory = result.memory
+    for each action in result.actions
+        if action.kind = "load" then
+            ' The group only supplies an id; the title and artwork come from this viewer's library.
+            scene.callFunc("play", { itemId: action.itemId, startSeconds: action.seconds, entry: invalid })
+        else
+            ' Straight to the player: through its own controls, a correction would go back out as a command.
+            scene.callFunc("playerGroup", action)
+        end if
+    end for
+    if GroupShouldReport(result.readiness, m.lastReadiness, now - m.lastReportMs) then
+        m.lastReadiness = result.readiness
+        m.lastReportMs = now
+        ' Evidence for the group, never a command. Failures are silent.
+        m.tasks["readiness"] = ApiStart({ path: GroupPath(group.id, "/readiness"), method: "POST", body: GroupReadinessBody(result.readiness, local.positionSeconds) }, "onTogetherReported")
+    end if
+end sub
+
+sub onTogetherReported()
+end sub

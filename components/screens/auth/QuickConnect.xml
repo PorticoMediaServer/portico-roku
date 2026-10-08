@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/QuickConnect.tsx: sign a television in to a server without typing a password. -->
+<component name="ScreenQuickConnect" extends="Group">
+    <interface>
+        <field id="passwordPressed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

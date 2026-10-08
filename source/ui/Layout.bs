@@ -1,0 +1,76 @@
+' Flex layout, as far as the Apple screens use it: a column or a row of nodes with a gap,
+' aligned on the cross axis. SceneGraph positions nodes by translation, so a screen measures its
+' nodes and stacks them. A node's size is the size its component reports (controlWidth and
+' controlHeight for a Focusable, fieldHeight for a Field, and so on), else its bounding box.
+
+function MeasureNode(node as object) as object
+    width = 0
+    height = 0
+    for each pair in [["controlWidth", "controlHeight"], ["fieldWidth", "fieldHeight"], ["noticeWidth", "noticeHeight"], ["groupWidth", "groupHeight"], ["rowWidth", "rowHeight"], ["switchWidth", "switchHeight"], ["badgeWidth", "badgeHeight"], ["tabsWidth", "tabsHeight"], ["boxWidth", "boxHeight"], ["stateWidth", "stateHeight"]]
+        if node.hasField(pair[0]) and node.hasField(pair[1]) and node[pair[1]] > 0 then
+            width = node[pair[0]]
+            height = node[pair[1]]
+            exit for
+        end if
+    end for
+    if height <= 0 then
+        rect = node.boundingRect()
+        width = rect.width
+        height = rect.height
+        if node.hasField("height") and node.subtype() = "UiText" and node.height > 0 then height = node.height
+    end if
+    if width <= 0 then width = node.boundingRect().width
+    return { width: width, height: height }
+end function
+
+' Stacks `nodes` downwards from `top` inside a column `width` wide. `align` is "start", "center"
+' or "end". Invisible nodes take no space. Returns the y after the last node (without a trailing gap).
+function StackColumn(nodes as object, top as dynamic, gap as dynamic, width as dynamic, align = "start" as string, left = 0 as dynamic) as float
+    y = top
+    first = true
+    for each node in nodes
+        if node <> invalid and node.visible then
+            size = MeasureNode(node)
+            if not first then y = y + gap
+            x = left
+            if align = "center" then x = left + (width - size.width) / 2
+            if align = "end" then x = left + width - size.width
+            node.translation = [x, y]
+            y = y + size.height
+            first = false
+        end if
+    end for
+    return y
+end function
+
+' Lays `nodes` out left to right, centred as a group in `width`, each centred on the row's height.
+' Returns the row's height.
+function StackRow(nodes as object, top as dynamic, gap as dynamic, width as dynamic, left = 0 as dynamic, align = "center" as string) as float
+    total = 0
+    tallest = 0
+    sizes = []
+    count = 0
+    for each node in nodes
+        if node <> invalid and node.visible then
+            size = MeasureNode(node)
+            sizes.push(size)
+            total = total + size.width
+            if size.height > tallest then tallest = size.height
+            count = count + 1
+        else
+            sizes.push(invalid)
+        end if
+    end for
+    if count > 1 then total = total + gap * (count - 1)
+    x = left
+    if align = "center" then x = left + (width - total) / 2
+    if align = "end" then x = left + width - total
+    for index = 0 to nodes.count() - 1
+        size = sizes[index]
+        if size <> invalid then
+            nodes[index].translation = [x, top + (tallest - size.height) / 2]
+            x = x + size.width + gap
+        end if
+    end for
+    return tallest
+end function

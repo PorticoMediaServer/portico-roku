@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Feedback.tsx `StateView`: the centred empty, error or loading state. -->
+<component name="UiStateView" extends="Group">
+    <interface>
+        <field id="icon" type="string" value="info" onChange="onStateLayout" />
+        <field id="title" type="string" value="" onChange="onStateLayout" />
+        <field id="message" type="string" value="" onChange="onStateLayout" />
+        <field id="action" type="string" value="" onChange="onStateLayout" />
+        <field id="secondaryAction" type="string" value="" onChange="onStateLayout" />
+        <field id="loading" type="boolean" value="false" onChange="onStateLayout" />
+        <!-- The box the state is centred in. -->
+        <field id="stateWidth" type="float" value="0" onChange="onStateLayout" />
+        <field id="stateHeight" type="float" value="0" onChange="onStateLayout" />
+        <field id="actionPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="secondaryPressed" type="boolean" value="false" alwaysNotify="true" />
+    </interface>
+</component>

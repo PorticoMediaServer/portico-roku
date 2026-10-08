@@ -1,0 +1,140 @@
+' packages/client-core/src/index.ts `HttpLocalApi.request` and its error envelope, and
+' src/installation.ts: one request to the selected server (or the account service), with the
+' bearer, the delivery headers, the installation claim on the paths that issue credentials, and
+' the server's error read into {status, code, message, retryable, retryAfterSeconds}.
+'
+' An api is {baseUrl, token, send, installation, deviceClass, renew}. `send` is the transport
+' (HttpSend on a device, a table of answers in tests). `renew`, when set, is asked once for a
+' fresh token when the server answers 401 (the server did not act on the request, so sending it
+' again is safe for any method).
+import "pkg:/source/core/Http.bs"
+import "pkg:/source/core/Validate.bs"
+
+function ApiNew(baseUrl as string, token = "" as string) as object
+    return { baseUrl: baseUrl, token: token, send: HttpSend, installation: invalid, deviceClass: "television", renew: invalid, renewContext: invalid }
+end function
+
+' installation.ts `issuesCredentials`: the claim travels only with these paths.
+function IssuesCredentials(path as string, method as string) as boolean
+    if UCase(method) <> "POST" then return false
+    return MatchesPattern(path, "^/v1/(?:direct/|auth/|dev/e2e/sign-in(?:\?|$)|quick-connect(?:/|\?|$)|device-authorizations(?:/|\?|$)|sessions(?:\?|$)|setup(?:\?|$)|access/invitations/accept(?:\?|$)|hosted/(?:attach|profiles/offline-select)(?:\?|$))")
+end function
+
+' Sign-in and refresh never renew or retry themselves.
+function ProvesIdentity(path as string, method as string) as boolean
+    return IssuesCredentials(path, method)
+end function
+
+' installation.ts `clean`: header values must be printable ASCII, so names are folded.
+function HeaderText(value as string, limit as integer) as string
+    out = ""
+    for index = 1 to Len(value)
+        c = Mid(value, index, 1)
+        code = Asc(c)
+        if code = 8216 or code = 8217 then c = "'"
+        if code = 8220 or code = 8221 then c = Chr(34)
+        code = Asc(c)
+        if code >= 32 and code <= 126 then out = out + c
+    end for
+    out = CreateObject("roRegex", "\s+", "").replaceAll(out, " ").trim()
+    return Left(out, limit)
+end function
+
+function InstallationHeaders(installation as dynamic) as object
+    headers = {}
+    if installation = invalid then return headers
+    headers["X-Portico-Installation-Id"] = installation.installationId
+    name = HeaderText(installation.name, 120)
+    if name <> "" then headers["X-Portico-Device-Name"] = name
+    if installation.platform <> "" then headers["X-Portico-Device-Platform"] = HeaderText(installation.platform, 64)
+    if installation.app <> "" then headers["X-Portico-App"] = HeaderText(installation.app, 64)
+    if installation.appVersion <> "" then headers["X-Portico-App-Version"] = HeaderText(installation.appVersion, 64)
+    ' delivery.ts `transportClassHeader`: what this device is connected over. The server decides
+    ' what that means next to the address it sees; a declaration can only narrow the lane.
+    if installation.transport <> invalid and installation.transport <> "" then headers["X-Portico-Transport-Class"] = installation.transport
+    return headers
+end function
+
+' A Roku's connection (roDeviceInfo.GetConnectionType) as a transport class, or "" when it says none.
+function TransportClassFor(connection as dynamic) as string
+    if Type(connection) <> "String" and Type(connection) <> "roString" then return ""
+    if connection = "WiFiConnection" then return "wifi"
+    if connection = "WiredConnection" then return "ethernet"
+    return ""
+end function
+
+' index.ts `transportJSON`: Go's canonical JSON escaping, for endpoints that verify signed claims.
+function TransportJson(value as dynamic) as string
+    text = FormatJson(value)
+    text = text.replace("<", "<")
+    text = text.replace(">", ">")
+    text = text.replace("&", "&")
+    return text
+end function
+
+' index.ts `retryAfterSecondsFrom`: a number of seconds (an HTTP date is not used by Portico's servers).
+function RetryAfterSeconds(value as dynamic) as dynamic
+    if not IsString(value) then return invalid
+    trimmed = value.trim()
+    if not MatchesPattern(trimmed, "^\d+$") then return invalid
+    seconds = Val(trimmed, 10)
+    if seconds > 0 then return seconds
+    return invalid
+end function
+
+function ApiTransport(api as object, path as string, method as string, body as dynamic, token as string, extra as dynamic) as object
+    headers = { "Accept": "application/json" }
+    if body <> invalid then headers["Content-Type"] = "application/json"
+    if token <> "" then headers["Authorization"] = "Bearer " + token
+    if api.deviceClass <> invalid and api.deviceClass <> "" then headers["X-Portico-Device-Class"] = api.deviceClass
+    if IssuesCredentials(path, method) then headers.append(InstallationHeaders(api.installation))
+    if extra <> invalid then
+        for each name in extra.keys()
+            if LCase(name) <> "authorization" then headers[name] = extra[name]
+        end for
+    end if
+    request = { method: method, url: api.baseUrl + path, headers: headers, body: invalid }
+    if body <> invalid then request.body = TransportJson(body)
+    if api.timeoutMs <> invalid then request.timeoutMs = api.timeoutMs
+    return api.send(request)
+end function
+
+' Returns {ok: true, status, data, headers} or {ok: false, status, error: {status, code, message,
+' retryable, retryAfterSeconds}, data}. A response with no body gives data = invalid.
+function ApiRequest(api as object, path as string, method = "GET" as string, body = invalid as dynamic, extra = invalid as dynamic) as object
+    if Left(path, 4) <> "/v1/" then return { ok: false, status: 0, error: { status: 0, code: "invalid_path", message: "API path must remain on the selected server.", retryable: false } }
+    token = api.token
+    response = ApiTransport(api, path, method, body, token, extra)
+    if response.status = 401 and api.renew <> invalid and token <> "" and not ProvesIdentity(path, method) then
+        renewed = api.renew(api, token)
+        if renewed <> invalid and renewed <> "" and renewed <> token then
+            api.token = renewed
+            response = ApiTransport(api, path, method, body, renewed, extra)
+        end if
+    end if
+    data = invalid
+    if response.body <> invalid and response.body <> "" then data = ParseJson(response.body)
+    if response.status >= 200 and response.status < 300 then return { ok: true, status: response.status, data: data, headers: response.headers }
+    if response.status = 0 then
+        ' No response: the codes the presentation layer knows a dropped connection and a timeout by.
+        code = "network"
+        if response.failure = "timeout" then code = "timeout"
+        return { ok: false, status: 0, error: { status: 0, code: code, message: response.failure, retryable: true } }
+    end if
+    code = "request_failed"
+    message = "Request failed (" + response.status.toStr() + ")."
+    retryable = response.status >= 500
+    if IsObject(data) then
+        if IsObject(data.error) then
+            if IsString(data.error.code) then code = data.error.code
+            if IsString(data.error.message) then message = data.error.message
+            if IsBoolean(data.error.retryable) then retryable = data.error.retryable
+        else if IsString(data.code) then
+            code = data.code
+        end if
+    end if
+    failure = { status: response.status, code: code, message: message, retryable: retryable }
+    retryAfter = RetryAfterSeconds(response.headers["retry-after"])
+    if retryAfter <> invalid then failure.retryAfterSeconds = retryAfter
+    return { ok: false, status: response.status, error: failure, data: data, headers: response.headers }
+end function

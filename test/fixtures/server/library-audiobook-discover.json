@@ -1,0 +1,329 @@
+{
+ "heading": {
+  "key": "library.discover",
+  "fallback": "Audiobooks"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+  "libraryKind": "audiobook",
+  "view": "discover",
+  "entityId": "",
+  "viewerFence": "19953f596b475a2b42d9c110e0b5c892beed9f42a0aa6a95987e3edd6411595b"
+ },
+ "revision": {
+  "catalog": 233,
+  "viewer": 99
+ },
+ "navigation": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "view": "discover"
+  },
+  {
+   "id": "browse",
+   "labelKey": "library.books",
+   "view": "browse"
+  },
+  {
+   "id": "authors",
+   "labelKey": "library.authors",
+   "view": "authors"
+  },
+  {
+   "id": "series",
+   "labelKey": "library.series",
+   "view": "series"
+  }
+ ],
+ "query": {
+  "sort": "server",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [],
+ "filters": [],
+ "sections": [
+  {
+   "id": "continue_listening",
+   "type": "rail",
+   "heading": {
+    "key": "section.continue_listening",
+    "fallback": "Continue Listening"
+   },
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "vFbrAmJZ2VjaW84Pr-pD-g",
+     "kind": "audiobook_file",
+     "title": "Dune",
+     "subtitle": "Dune",
+     "posterUrl": "/v1/metadata/item/vFbrAmJZ2VjaW84Pr-pD-g/art/poster?v=d1462ee4047d4298fdaf537092f14374e43540878fcd6c4619d46bf877be40da&w=400",
+     "available": true,
+     "duration": 60,
+     "author": "Frank Herbert",
+     "progressSeconds": 23.371,
+     "addedAt": "2026-10-02T04:03:45.651Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "vFbrAmJZ2VjaW84Pr-pD-g"
+     },
+     "playback": {
+      "itemId": "vFbrAmJZ2VjaW84Pr-pD-g"
+     }
+    },
+    {
+     "watched": false,
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "ZIkvSkDnm3_E7v36kfhPAg",
+     "kind": "audiobook_file",
+     "title": "The Martian (Unabridged)",
+     "subtitle": "The Martian (Unabridged)",
+     "posterUrl": "/v1/metadata/item/ZIkvSkDnm3_E7v36kfhPAg/art/poster?v=0a25b523fe6e047a7087482892a493540a55cdbd231fc9e31dee49bba7d29f5a&w=400",
+     "available": true,
+     "duration": 60,
+     "author": "Andy Weir",
+     "progressSeconds": 17.428,
+     "addedAt": "2026-10-02T04:03:58.616Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ZIkvSkDnm3_E7v36kfhPAg"
+     },
+     "playback": {
+      "itemId": "ZIkvSkDnm3_E7v36kfhPAg"
+     }
+    }
+   ],
+   "totalCount": 2,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "recommended",
+   "type": "rail",
+   "heading": {
+    "key": "section.recommended",
+    "fallback": "Recommended for you"
+   },
+   "entries": [
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "wJAApdwCfiIVguAy0Cx0SA",
+     "kind": "book",
+     "title": "Project Hail Mary (Unabridged)",
+     "posterUrl": "/v1/metadata/book/wJAApdwCfiIVguAy0Cx0SA/art/cover?v=c5c182b1caa4998543279e03e59197d6c44d1f7eb388a4169b4885cc114bb438&w=400",
+     "available": true,
+     "author": "Andy Weir",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "wJAApdwCfiIVguAy0Cx0SA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "cyBJij0xgREMl-Z166Tn4w",
+     "kind": "book",
+     "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)",
+     "posterUrl": "/v1/metadata/book/cyBJij0xgREMl-Z166Tn4w/art/cover?v=23ac486f73a00f322e37fe745f1425d9e0475fd3a1150a8d0267f415abb9ecce&w=400",
+     "available": true,
+     "author": "James Clear",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "cyBJij0xgREMl-Z166Tn4w"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "5iHcx__iQyl1r3Lzsbq_zA",
+     "kind": "book",
+     "title": "The Hunger Games: Special Edition",
+     "posterUrl": "/v1/metadata/book/5iHcx__iQyl1r3Lzsbq_zA/art/cover?v=6b263c355eac0edce49f56ae8c45ef0bc52079082f52043cb1be8e93ccf41650&w=400",
+     "available": true,
+     "author": "Suzanne Collins",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "5iHcx__iQyl1r3Lzsbq_zA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "7W7luGM1f9sx_9BkM9HthQ",
+     "kind": "book",
+     "title": "Harry Potter and the Philosopher's Stone",
+     "posterUrl": "/v1/metadata/book/7W7luGM1f9sx_9BkM9HthQ/art/cover?v=f0e7ff6a6b2980a5cbeec1b7a2171fcacf93ba73ae080262446470501acb3283&w=400",
+     "available": true,
+     "author": "J.K. Rowling",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "7W7luGM1f9sx_9BkM9HthQ"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "uEE9Fwf2JKsbGZmBEEd2oQ",
+     "kind": "book",
+     "title": "Pride and Prejudice",
+     "posterUrl": "/v1/metadata/book/uEE9Fwf2JKsbGZmBEEd2oQ/art/cover?v=fdd9c7fc7752fed36901d263cc23d2050f0f5af2bed1845e3fcb2555f55b8f46&w=400",
+     "available": true,
+     "author": "Jane Austen",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "uEE9Fwf2JKsbGZmBEEd2oQ"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "kdKDTU83KKaUtgy4eC141Q",
+     "kind": "book",
+     "title": "The Hobbit",
+     "posterUrl": "/v1/metadata/book/kdKDTU83KKaUtgy4eC141Q/art/cover?v=bfbe0597cbf9eafd8358fc3041a50c0191c2d71e4459d5bead1fbdd8a3a6f1be&w=400",
+     "available": true,
+     "author": "J. R. R. Tolkien",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "kdKDTU83KKaUtgy4eC141Q"
+     }
+    }
+   ],
+   "totalCount": 6,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "recently_added",
+   "type": "rail",
+   "heading": {
+    "key": "section.recently_added",
+    "fallback": "Recently added"
+   },
+   "entries": [
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "uV42wmxpy5OPt48zRrpp1w",
+     "kind": "book",
+     "title": "The Martian (Unabridged)",
+     "posterUrl": "/v1/metadata/book/uV42wmxpy5OPt48zRrpp1w/art/cover?v=0a25b523fe6e047a7087482892a493540a55cdbd231fc9e31dee49bba7d29f5a&w=400",
+     "available": true,
+     "author": "Andy Weir",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "uV42wmxpy5OPt48zRrpp1w"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "5iHcx__iQyl1r3Lzsbq_zA",
+     "kind": "book",
+     "title": "The Hunger Games: Special Edition",
+     "posterUrl": "/v1/metadata/book/5iHcx__iQyl1r3Lzsbq_zA/art/cover?v=6b263c355eac0edce49f56ae8c45ef0bc52079082f52043cb1be8e93ccf41650&w=400",
+     "available": true,
+     "author": "Suzanne Collins",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "5iHcx__iQyl1r3Lzsbq_zA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "kdKDTU83KKaUtgy4eC141Q",
+     "kind": "book",
+     "title": "The Hobbit",
+     "posterUrl": "/v1/metadata/book/kdKDTU83KKaUtgy4eC141Q/art/cover?v=bfbe0597cbf9eafd8358fc3041a50c0191c2d71e4459d5bead1fbdd8a3a6f1be&w=400",
+     "available": true,
+     "author": "J. R. R. Tolkien",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "kdKDTU83KKaUtgy4eC141Q"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "wJAApdwCfiIVguAy0Cx0SA",
+     "kind": "book",
+     "title": "Project Hail Mary (Unabridged)",
+     "posterUrl": "/v1/metadata/book/wJAApdwCfiIVguAy0Cx0SA/art/cover?v=c5c182b1caa4998543279e03e59197d6c44d1f7eb388a4169b4885cc114bb438&w=400",
+     "available": true,
+     "author": "Andy Weir",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "wJAApdwCfiIVguAy0Cx0SA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "uEE9Fwf2JKsbGZmBEEd2oQ",
+     "kind": "book",
+     "title": "Pride and Prejudice",
+     "posterUrl": "/v1/metadata/book/uEE9Fwf2JKsbGZmBEEd2oQ/art/cover?v=fdd9c7fc7752fed36901d263cc23d2050f0f5af2bed1845e3fcb2555f55b8f46&w=400",
+     "available": true,
+     "author": "Jane Austen",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "uEE9Fwf2JKsbGZmBEEd2oQ"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "7W7luGM1f9sx_9BkM9HthQ",
+     "kind": "book",
+     "title": "Harry Potter and the Philosopher's Stone",
+     "posterUrl": "/v1/metadata/book/7W7luGM1f9sx_9BkM9HthQ/art/cover?v=f0e7ff6a6b2980a5cbeec1b7a2171fcacf93ba73ae080262446470501acb3283&w=400",
+     "available": true,
+     "author": "J.K. Rowling",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "7W7luGM1f9sx_9BkM9HthQ"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "09ngZNPqo44iYSxkRmBJrg",
+     "kind": "book",
+     "title": "Dune",
+     "posterUrl": "/v1/metadata/book/09ngZNPqo44iYSxkRmBJrg/art/cover?v=d1462ee4047d4298fdaf537092f14374e43540878fcd6c4619d46bf877be40da&w=400",
+     "available": true,
+     "author": "Frank Herbert",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "09ngZNPqo44iYSxkRmBJrg"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "cyBJij0xgREMl-Z166Tn4w",
+     "kind": "book",
+     "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)",
+     "posterUrl": "/v1/metadata/book/cyBJij0xgREMl-Z166Tn4w/art/cover?v=23ac486f73a00f322e37fe745f1425d9e0475fd3a1150a8d0267f415abb9ecce&w=400",
+     "available": true,
+     "author": "James Clear",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "cyBJij0xgREMl-Z166Tn4w"
+     }
+    }
+   ],
+   "totalCount": 8,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

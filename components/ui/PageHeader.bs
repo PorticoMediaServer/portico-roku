@@ -1,0 +1,40 @@
+' apps/native/src/ui/Page.tsx `PageHeader`: page gutters at the sides, Theme.space.lg above and
+' Theme.space.md below; the eyebrow in the label role, the title in the title role, the subtitle
+' in the secondary caption. On television there is no on-screen Back: the remote's Back is
+' authoritative (APL-SET-04).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.eyebrowNode = MakeText(m.top, "label", "tertiary")
+    m.titleNode = MakeText(m.top, "title")
+    m.subtitleNode = MakeText(m.top, "caption", "secondary")
+end sub
+
+sub onHeaderLayout()
+    width = m.top.headerWidth
+    if width <= 0 then width = Theme.screen.width - Theme.metrics.railWidth
+    page = Theme.space.page
+    y = Theme.space.lg
+    m.eyebrowNode.visible = m.top.eyebrow <> ""
+    if m.top.eyebrow <> "" then
+        m.eyebrowNode.maxWidth = width - page * 2
+        m.eyebrowNode.value = m.top.eyebrow
+        Place(m.eyebrowNode, page, y)
+        y = y + m.eyebrowNode.height
+    end if
+    m.titleNode.maxWidth = width - page * 2
+    m.titleNode.value = m.top.title
+    Place(m.titleNode, page, y)
+    y = y + m.titleNode.height
+    m.subtitleNode.visible = m.top.subtitle <> ""
+    if m.top.subtitle <> "" then
+        m.subtitleNode.maxWidth = width - page * 2
+        m.subtitleNode.value = m.top.subtitle
+        Place(m.subtitleNode, page, y)
+        y = y + m.subtitleNode.height
+    end if
+    m.top.headerHeight = y + Theme.space.md
+end sub

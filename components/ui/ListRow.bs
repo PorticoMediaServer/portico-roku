@@ -1,0 +1,258 @@
+' apps/native/src/ui/ListRow.tsx (componentSpec.row, television column), with ToggleRow. Leading:
+' an ordinal, an icon in its leadBox, a custom avatar, or artwork with its progress line. Then the
+' title (body strong; two lines unless it is a media row) with a subtitle and an optional
+' description, the meta text, the watched glyph, a switch or check, and the accessory glyph.
+' Focus is a raised plate at the control radius, scaled by componentSpec.focus.scale.row; selected
+' is an accent tint.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.plate = m.top.createChild("Poster")
+    m.ordinalNode = MakeText(m.top, "captionStrong", "secondary")
+    m.iconNode = m.top.createChild("Poster")
+    m.avatar = invalid
+    m.art = invalid
+    m.titleNode = MakeText(m.top, Theme.spec.row.title)
+    m.subtitleNode = MakeText(m.top, Theme.spec.row.subtitle.role, "tertiary")
+    m.descriptionNode = MakeText(m.top, "caption", "secondary")
+    m.metaNode = MakeText(m.top, "caption", "tertiary")
+    m.watchedNode = m.top.createChild("Poster")
+    m.checkNode = m.top.createChild("Poster")
+    m.switchNode = invalid
+    m.glyphNode = m.top.createChild("Poster")
+    m.top.focusScale = Theme.spec.focus.scale.row
+    m.top.observeField("isFocused", "onRowStyle")
+    m.top.observeField("isPressed", "onRowStyle")
+    m.rowSize = invalid
+end sub
+
+sub onRowLayout()
+    width = m.top.rowWidth
+    if width <= 0 then return
+    padX = Theme.spec.row.paddingX
+    padY = Theme.spec.row.paddingY
+    gap = Theme.spec.row.leadingGap
+    leadBox = Theme.spec.row.leadingBox
+    media = m.top.artUri <> "" or m.top.ordinal <> "" or m.top.media
+    toggling = m.top.toggle <> "" and m.top.locked = ""
+    interactive = m.top.interactive or toggling
+    m.top.focusable = interactive or m.top.readable
+    destructive = m.top.tone = "destructive"
+
+    ' Leading elements, left to right.
+    x = padX
+    leading = false
+    m.ordinalNode.visible = m.top.ordinal <> ""
+    if m.top.ordinal <> "" then
+        ordinalWidth = leadBox + Theme.apple.rowOrdinalExtra
+        m.ordinalNode.maxWidth = ordinalWidth
+        m.ordinalNode.align = "center"
+        m.ordinalNode.tone = RowPick(m.top.watched, "tertiary", "secondary")
+        m.ordinalNode.value = m.top.ordinal
+        m.ordinalX = x
+        x = x + ordinalWidth + gap
+        leading = true
+    end if
+    showAvatar = m.top.avatarName <> "" and m.top.icon = ""
+    if showAvatar then
+        if m.avatar = invalid then m.avatar = m.top.createChild("UiAvatar")
+        m.avatar.name = m.top.avatarName
+        m.avatar.art = m.top.avatarArt
+        m.avatar.size = Theme.targets.tenFoot
+        m.avatarX = x
+        x = x + Theme.targets.tenFoot + gap
+        leading = true
+    end if
+    if m.avatar <> invalid then m.avatar.visible = showAvatar
+    m.iconNode.visible = m.top.icon <> ""
+    if m.top.icon <> "" then
+        m.iconX = x + (leadBox - Theme.spec.row.leadingIcon) / 2
+        x = x + leadBox + gap
+        leading = true
+    end if
+    showArt = m.top.artUri <> "" or m.top.media
+    thumbHeight = 0
+    if showArt then
+        shape = m.top.shape
+        thumbWidth = Theme.spec.row.artwork.poster
+        if shape = "landscape" then thumbWidth = Theme.spec.row.artwork.landscape
+        if shape = "square" then thumbWidth = Theme.spec.row.artwork.square
+        if m.art = invalid then m.art = m.top.createChild("UiArtwork")
+        m.art.shape = shape
+        m.art.artWidth = thumbWidth
+        m.art.title = m.top.title
+        m.art.uri = m.top.artUri
+        m.art.progress = m.top.progress
+        thumbHeight = Int(thumbWidth / ArtworkRatio(shape) + 0.5)
+        m.artX = x
+        x = x + thumbWidth + gap
+        leading = true
+    end if
+    if m.art <> invalid then m.art.visible = showArt
+    m.top.hasLeading = leading
+
+    ' Trailing elements, right to left.
+    right = width - padX
+    glyph = m.top.trailingIcon
+    glyphSize = Theme.spec.row.trailing.navigation.size
+    if m.top.accessory = "navigation" then glyph = "forward"
+    if m.top.accessory = "value" then glyph = "chevronUpDown"
+    if m.top.accessory = "menu" then
+        glyph = "more"
+        glyphSize = Theme.spec.row.trailing.menu.size
+    end if
+    if m.top.locked <> "" then glyph = ""
+    m.glyphNode.visible = glyph <> ""
+    if glyph <> "" then
+        right = right - glyphSize
+        m.glyph = { name: glyph, size: glyphSize, x: right }
+        right = right - gap
+    end if
+    m.checkNode.visible = m.top.checked or m.top.locked <> ""
+    if m.checkNode.visible then
+        size = Theme.metrics.icon
+        if m.top.locked <> "" then size = Theme.metrics.iconSmall
+        right = right - size
+        m.check = { size: size, x: right }
+        right = right - gap
+    end if
+    if toggling then
+        if m.switchNode = invalid then m.switchNode = m.top.createChild("UiSwitch")
+        m.switchNode.value = m.top.toggle = "on"
+        m.switchNode.disabled = m.top.disabled
+        right = right - m.switchNode.switchWidth
+        m.switchX = right
+        right = right - gap
+    end if
+    if m.switchNode <> invalid then m.switchNode.visible = toggling
+    m.watchedNode.visible = m.top.watched
+    if m.top.watched then
+        right = right - Theme.metrics.iconSmall
+        m.watchedX = right
+        right = right - gap
+    end if
+    meta = m.top.meta
+    if m.top.locked <> "" then meta = m.top.locked
+    m.metaNode.visible = meta <> ""
+    metaWidth = 0
+    if meta <> "" then
+        m.metaNode.tone = RowPick(m.top.accessory = "value", "secondary", "tertiary")
+        m.metaNode.maxWidth = 0
+        m.metaNode.width = 0
+        m.metaNode.value = meta
+        metaWidth = TextWidth(m.metaNode)
+        limit = width * Theme.apple.rowMetaMaxFraction
+        if metaWidth > limit then
+            metaWidth = limit
+            m.metaNode.maxWidth = limit
+        end if
+        right = right - metaWidth
+        m.metaX = right
+        right = right - gap
+    end if
+
+    ' The text column takes what is left.
+    copyWidth = right - x
+    titleLines = Theme.apple.rowTitleLines
+    if media then titleLines = 1
+    m.titleNode.lines = titleLines
+    m.titleNode.maxWidth = copyWidth
+    m.titleNode.value = m.top.title
+    copyHeight = TextHeight(m.titleNode)
+    m.subtitleNode.visible = m.top.subtitle <> ""
+    if m.top.subtitle <> "" then
+        lines = m.top.subtitleLines
+        if lines <= 0 then
+            lines = Theme.spec.row.subtitle.lines.settings
+            if media then lines = Theme.spec.row.subtitle.lines.media
+        end if
+        m.subtitleNode.lines = lines
+        m.subtitleNode.maxWidth = copyWidth
+        m.subtitleNode.value = m.top.subtitle
+        copyHeight = copyHeight + TextHeight(m.subtitleNode)
+    end if
+    m.descriptionNode.visible = m.top.description <> ""
+    if m.top.description <> "" then
+        m.descriptionNode.lines = 2
+        m.descriptionNode.maxWidth = copyWidth
+        m.descriptionNode.value = m.top.description
+        copyHeight = copyHeight + Theme.apple.rowDescriptionGap + TextHeight(m.descriptionNode)
+    end if
+
+    minHeight = Theme.spec.row.minHeight.single
+    if m.top.subtitle <> "" or m.top.description <> "" then minHeight = Theme.spec.row.minHeight.withSubtitle
+    if media then minHeight = Theme.spec.row.minHeight.media
+    height = Max(minHeight, Max(copyHeight, thumbHeight) + padY * 2)
+    m.rowSize = { width: width, height: height }
+    m.top.radius = Theme.metrics.radius.control
+    m.top.controlWidth = width
+    m.top.controlHeight = height
+    m.top.rowHeight = height
+
+    ' Everything is centred on the row's height.
+    if m.top.ordinal <> "" then Place(m.ordinalNode, m.ordinalX, (height - m.ordinalNode.height) / 2)
+    if showAvatar then Place(m.avatar, m.avatarX, (height - Theme.targets.tenFoot) / 2)
+    if m.top.icon <> "" then Place(m.iconNode, m.iconX, (height - Theme.spec.row.leadingIcon) / 2)
+    if showArt then Place(m.art, m.artX, (height - thumbHeight) / 2)
+    y = (height - copyHeight) / 2
+    Place(m.titleNode, x, y)
+    y = y + TextHeight(m.titleNode)
+    if m.top.subtitle <> "" then
+        Place(m.subtitleNode, x, y)
+        y = y + TextHeight(m.subtitleNode)
+    end if
+    if m.top.description <> "" then Place(m.descriptionNode, x, y + Theme.apple.rowDescriptionGap)
+    if meta <> "" then Place(m.metaNode, m.metaX, (height - m.metaNode.height) / 2)
+    if m.top.watched then Place(m.watchedNode, m.watchedX, (height - Theme.metrics.iconSmall) / 2)
+    if toggling then Place(m.switchNode, m.switchX, (height - m.switchNode.switchHeight) / 2)
+    if m.checkNode.visible then Place(m.checkNode, m.check.x, (height - m.check.size) / 2)
+    if glyph <> "" then Place(m.glyphNode, m.glyph.x, (height - m.glyph.size) / 2)
+    onRowStyle()
+end sub
+
+function RowPick(condition as boolean, yes as string, no as string) as string
+    if condition then return yes
+    return no
+end function
+
+sub onRowStyle()
+    if m.rowSize = invalid then return
+    active = m.top.isFocused or m.top.isPressed
+    size = m.rowSize
+    m.plate.visible = m.top.selected or active
+    if m.top.selected then
+        StyleShape(m.plate, size.width, size.height, Theme.metrics.radius.control, ColorAlpha(Theme.colors.accent, Theme.spec.row.selected.backgroundAlpha))
+    else if active then
+        StyleShape(m.plate, size.width, size.height, Theme.metrics.radius.control, Theme.colors.raisedHigh)
+    end if
+    tone = "primary"
+    if m.top.tone = "destructive" then
+        tone = "danger"
+    else if m.top.tone = "action" then
+        tone = "accent"
+    else if m.top.watched then
+        tone = "secondary"
+    end if
+    m.titleNode.tone = tone
+    if m.top.icon <> "" then
+        color = Theme.colors.textSecondary
+        if m.top.tone = "destructive" then
+            color = Theme.colors.danger
+        else if m.top.selected then
+            color = Theme.colors.accent
+        end if
+        StyleIcon(m.iconNode, m.top.icon, Theme.spec.row.leadingIcon, color)
+    end if
+    if m.top.watched then StyleIcon(m.watchedNode, "watched", Theme.metrics.iconSmall, Theme.colors.textTertiary)
+    if m.checkNode.visible then
+        if m.top.locked <> "" then
+            StyleIcon(m.checkNode, "lock", m.check.size, Theme.colors.textTertiary)
+        else
+            StyleIcon(m.checkNode, "check", m.check.size, Theme.colors.accent)
+        end if
+    end if
+    if m.glyphNode.visible then StyleIcon(m.glyphNode, m.glyph.name, m.glyph.size, Theme.colors.textTertiary)
+end sub

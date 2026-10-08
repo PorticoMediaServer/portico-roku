@@ -1,0 +1,78 @@
+' The small checks every bounded parser uses (the `object`, `text`, `natural` and `exact` helpers
+' at the top of client-core's parsers). A server answer is validated before it is used.
+
+function IsString(value as dynamic) as boolean
+    kind = Type(value)
+    return kind = "String" or kind = "roString"
+end function
+
+function IsObject(value as dynamic) as boolean
+    return Type(value) = "roAssociativeArray"
+end function
+
+function IsArray(value as dynamic) as boolean
+    return Type(value) = "roArray"
+end function
+
+function IsBoolean(value as dynamic) as boolean
+    kind = Type(value)
+    return kind = "Boolean" or kind = "roBoolean"
+end function
+
+' A non-empty string of at most `limit` characters with no control characters.
+function IsText(value as dynamic, limit as integer) as boolean
+    if not IsString(value) then return false
+    count = Len(value)
+    if count = 0 or count > limit then return false
+    if m.validateControl = invalid then m.validateControl = CreateObject("roRegex", "[\x00-\x1f\x7f]", "")
+    return not m.validateControl.isMatch(value)
+end function
+
+' A whole number ≥ 0 that JavaScript would call a safe integer.
+function IsNatural(value as dynamic) as boolean
+    kind = Type(value)
+    if kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "LongInteger" or kind = "roLongInteger" then return value >= 0
+    if kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" then return value >= 0 and value <= 9007199254740991# and value = Fix(value)
+    return false
+end function
+
+function IsRevision(value as dynamic) as boolean
+    return IsNatural(value) and value > 0
+end function
+
+' Exactly these keys and no others.
+function HasExactKeys(value as object, keys as object) as boolean
+    if value.count() <> keys.count() then return false
+    for each key in keys
+        if not value.doesExist(key) then return false
+    end for
+    return true
+end function
+
+function MatchesPattern(value as dynamic, pattern as string) as boolean
+    if not IsString(value) then return false
+    if m.validatePatterns = invalid then
+        m.validatePatterns = {}
+        m.validatePatterns.setModeCaseSensitive()
+    end if
+    regex = m.validatePatterns[pattern]
+    if regex = invalid then
+        regex = CreateObject("roRegex", pattern, "")
+        m.validatePatterns[pattern] = regex
+    end if
+    return regex.isMatch(value)
+end function
+
+function ArrayIncludes(list as object, value as dynamic) as boolean
+    for each item in list
+        if Type(item) = Type(value) and item = value then return true
+    end for
+    return false
+end function
+
+' A field whose name is also a method of every associative array ("count", "items", "keys"): read
+' only when the key is really there, so a missing field is invalid and never the method.
+function FieldOf(value as object, name as string) as dynamic
+    if not value.doesExist(name) then return invalid
+    return value[name]
+end function

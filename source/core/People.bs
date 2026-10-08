@@ -1,0 +1,64 @@
+' packages/client-core/src/people.ts: a person's page. The server owns the identity, which
+' credits belong to it, their order and their paging; this only refuses an answer that is not
+' what was asked for.
+import "pkg:/source/core/Detail.bs"
+
+' Credits per page of a person's filmography (screens/Person.tsx `CREDIT_PAGE`).
+function PersonCreditPage() as integer
+    return 40
+end function
+
+' GET /v1/people/{id}?role=…&limit=…&cursor=…
+function PersonPath(personId as string, role = "all" as string, cursor = "" as string) as string
+    query = ["limit=" + PersonCreditPage().toStr(), "role=" + role]
+    if cursor <> "" then query.push("cursor=" + cursor.encodeUriComponent())
+    return "/v1/people/" + personId.encodeUriComponent() + "?" + query.join("&")
+end function
+
+function IsPersonLine(value as dynamic, limit = 512 as integer) as boolean
+    return IsContentString(value, limit)
+end function
+
+' people.ts `parsePersonPage`: {ok, page: {person, credits: [{media, role, character,
+' department, creditKind}], total, nextCursor, viewerFence, revision}}.
+function ParsePersonPage(raw as dynamic, serverId as string, request as object) as object
+    bad = { ok: false, code: "invalid_person" }
+    if not IsObject(raw) or not IsString(raw.serverId) or raw.serverId <> serverId or not IsContentId(raw.viewerFence) or not IsObject(raw.revision) or not IsObject(raw.pageInfo) then return bad
+    if not IsNatural(raw.revision.catalog) or not IsNatural(raw.revision.viewer) then return bad
+    v = raw.person
+    if not IsObject(v) or not IsContentId(v.id) or not IsPersonLine(v.name, 1024) or v.name = "" or not IsPersonLine(v.sortName, 1024) or not IsString(v.biography) or Len(v.biography) > 20000 or not IsSynopsisText(v.biography) or not IsPersonLine(v.birthDate, 64) or not IsPersonLine(v.deathDate, 64) or not IsPersonLine(v.portraitUrl, 4096) or not IsNatural(v.revision) then return bad
+    if v.id <> request.personId then return bad
+    if not IsArray(v.knownFor) or v.knownFor.count() > 8 then return bad
+    knownFor = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each item in v.knownFor
+        entry = ParseContentEntry(item)
+        if entry = invalid or seen.doesExist(entry.id) then return bad
+        seen[entry.id] = true
+        knownFor.push(entry)
+    end for
+    if not IsArray(v.roles) or v.roles.count() > 16 then return bad
+    for each role in v.roles
+        if not IsPersonLine(role, 256) or role = "" then return bad
+    end for
+    if not IsObject(v.providerIds) or v.providerIds.count() > 16 then return bad
+    for each key in v.providerIds
+        if not IsContentId(key) or not IsContentId(v.providerIds[key]) then return bad
+    end for
+    person = { id: v.id, name: v.name, biography: v.biography, birthDate: v.birthDate, deathDate: v.deathDate, portraitUrl: v.portraitUrl, roles: v.roles, knownFor: knownFor }
+    if not IsArray(raw.credits) or raw.credits.count() > request.limit then return bad
+    credits = []
+    for each c in raw.credits
+        if not IsObject(c) or not IsPersonLine(c.role, 512) or not IsPersonLine(c.character, 512) or not IsPersonLine(c.department, 256) or not IsString(c.creditKind) or (c.creditKind <> "cast" and c.creditKind <> "crew") then return bad
+        ' The server classifies the credit; it must agree with its own role filter.
+        if (request.role = "cast" and c.creditKind <> "cast") or (request.role = "crew" and c.creditKind <> "crew") then return bad
+        media = ParseContentEntry(c.media)
+        if media = invalid then return bad
+        credits.push({ media: media, role: c.role, character: c.character, department: c.department, creditKind: c.creditKind })
+    end for
+    info = raw.pageInfo
+    if not IsNatural(info.total) or not IsPersonLine(info.nextCursor, 4096) or info.total < credits.count() then return bad
+    if info.nextCursor <> "" and credits.count() < request.limit then return bad
+    return { ok: true, page: { person: person, credits: credits, total: info.total, nextCursor: info.nextCursor, viewerFence: raw.viewerFence, revision: { catalog: raw.revision.catalog, viewer: raw.revision.viewer } } }
+end function

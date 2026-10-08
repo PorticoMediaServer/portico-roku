@@ -1,0 +1,83 @@
+' Bytes and their encodings: packages/client-core/src/route-identity.ts `routeBase64` and
+' `routeBytes` (base64url without padding, strictly canonical), hex, and UTF-8.
+
+function BytesFromText(text as string) as object
+    bytes = CreateObject("roByteArray")
+    bytes.fromAsciiString(text)
+    return bytes
+end function
+
+function BytesToText(bytes as object) as string
+    return bytes.toAsciiString()
+end function
+
+function BytesFromHex(hex as string) as object
+    bytes = CreateObject("roByteArray")
+    bytes.fromHexString(hex)
+    return bytes
+end function
+
+function BytesToHex(bytes as object) as string
+    return LCase(bytes.toHexString())
+end function
+
+' route-identity.ts `routeBase64`: base64url, no padding.
+function Base64UrlEncode(bytes as object) as string
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+    out = ""
+    buffer = 0
+    bits = 0
+    for each value in bytes
+        buffer = ((buffer and 255) << 8) or value
+        bits = bits + 8
+        while bits >= 6
+            bits = bits - 6
+            out = out + Mid(alphabet, ((buffer >> bits) and 63) + 1, 1)
+        end while
+    end for
+    if bits > 0 then out = out + Mid(alphabet, ((buffer << (6 - bits)) and 63) + 1, 1)
+    return out
+end function
+
+' route-identity.ts `routeBytes`: the bytes of a canonical base64url string, or invalid. `length`
+' (when given) is the exact byte count required.
+function Base64UrlDecode(text as dynamic, length = -1 as integer) as dynamic
+    kind = Type(text)
+    if kind <> "String" and kind <> "roString" then return invalid
+    count = Len(text)
+    if count = 0 or count mod 4 = 1 then return invalid
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+    out = CreateObject("roByteArray")
+    buffer = 0
+    bits = 0
+    for index = 1 to count
+        position = Instr(1, alphabet, Mid(text, index, 1))
+        if position = 0 then return invalid
+        buffer = ((buffer and 255) << 6) or (position - 1)
+        bits = bits + 6
+        if bits >= 8 then
+            bits = bits - 8
+            out.push((buffer >> bits) and 255)
+        end if
+    end for
+    if length >= 0 and out.count() <> length then return invalid
+    ' Canonical only: the text must be exactly what these bytes encode to.
+    if Base64UrlEncode(out) <> text then return invalid
+    return out
+end function
+
+function BytesEqual(a as object, b as object) as boolean
+    if a = invalid or b = invalid or a.count() <> b.count() then return false
+    for index = 0 to a.count() - 1
+        if a[index] <> b[index] then return false
+    end for
+    return true
+end function
+
+function BytesConcat(parts as object) as object
+    out = CreateObject("roByteArray")
+    for each part in parts
+        out.append(part)
+    end for
+    return out
+end function

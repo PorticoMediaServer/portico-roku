@@ -1,0 +1,238 @@
+' packages/i18n/src/index.ts `createI18n`: dates, times, durations, counters, relative times,
+' sizes and lists, as the Apple app formats them. Words come from the catalogue by id; number and
+' date forms follow the device's region (US English forms for the United States and Canada's
+' month-first dates; day-first for the other English regions).
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Time.bs"
+
+' {locale: "en-US" | "en-CA" | "en-GB", hour12, utc}. Times are always in the device's own zone;
+' `utc` is for the off-device tests. The profile's language and hour cycle (Messages.bs
+' `RegionChoice`) come first, then the device's.
+function FormatRegion() as object
+    globals = GetGlobalAA()
+    choice = RegionChoice()
+    ' Tests set `formatRegion` themselves (no `formatRegionFor`): it is kept as they set it.
+    if globals.formatRegion <> invalid and (globals.formatRegionFor = invalid or globals.formatRegionFor = choice) then return globals.formatRegion
+    locale = ""
+    clock = ""
+    info = CreateObject("roDeviceInfo")
+    if info <> invalid then
+        locale = info.getCurrentLocale()
+        clock = info.getClockFormat()
+    end if
+    region = RegionFor(choice, locale, clock)
+    globals.formatRegion = region
+    globals.formatRegionFor = choice
+    return region
+end function
+
+' The region a choice ("locale|hourCycle", parts may be empty) gives on a device whose own locale
+' is `deviceLocale` ("en_GB") and whose clock is `deviceClock` ("12h" or "24h").
+function RegionFor(choice as string, deviceLocale as string, deviceClock as string) as object
+    region = { locale: "en-US", hour12: deviceClock <> "24h", utc: false }
+    if deviceLocale = "en_GB" or deviceLocale = "en_AU" then region.locale = "en-GB"
+    if deviceLocale = "en_CA" then region.locale = "en-CA"
+    parts = choice.split("|")
+    if parts.count() > 0 and (parts[0] = "en-US" or parts[0] = "en-CA" or parts[0] = "en-GB") then region.locale = parts[0]
+    if parts.count() > 1 then
+        if parts[1] = "h12" then region.hour12 = true
+        if parts[1] = "h23" then region.hour12 = false
+    end if
+    return region
+end function
+
+function FormatDateParts(value as dynamic) as dynamic
+    seconds = value
+    if Type(value) = "String" or Type(value) = "roString" then
+        ' A calendar date (an air date, a birthday) is a day, not an instant: no time zone moves it.
+        day = CreateObject("roRegex", "^(\d{4})-(\d{2})-(\d{2})$", "").match(value)
+        if day.count() = 4 then
+            noon = CreateObject("roDateTime")
+            noon.fromISO8601String(value + "T12:00:00Z")
+            month = Val(day[2], 10)
+            if month < 1 or month > 12 then return invalid
+            return { year: Val(day[1], 10), month: month, day: Val(day[3], 10), hour: 0, minute: 0, weekday: noon.getDayOfWeek() }
+        end if
+        seconds = IsoToSeconds(value)
+    end if
+    if seconds = invalid then return invalid
+    date = CreateObject("roDateTime")
+    whole& = seconds
+    date.fromSeconds(whole&)
+    if not FormatRegion().utc then date.toLocalTime()
+    return { year: date.getYear(), month: date.getMonth(), day: date.getDayOfMonth(), hour: date.getHours(), minute: date.getMinutes(), weekday: date.getDayOfWeek() }
+end function
+
+function FormatMonthName(month as integer, short as boolean) as string
+    names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    name = names[month - 1]
+    if not short then return name
+    ' Intl's short month: three letters; British English keeps "Sept".
+    if FormatRegion().locale = "en-GB" and month = 9 then return "Sept"
+    return Left(name, 3)
+end function
+
+' i18n `date`: medium ("Oct 3, 2026" / "3 Oct 2026"), dayMonth ("Oct 3" / "3 Oct"),
+' monthYear ("October 2026"), year ("2026"), weekday ("Saturday, Oct 3" / "Saturday 3 Oct").
+' `value` is seconds since the epoch or a UTC timestamp. Empty for a date that cannot be read.
+function FormatDate(value as dynamic, style = "medium" as string) as string
+    parts = FormatDateParts(value)
+    if parts = invalid then return ""
+    locale = FormatRegion().locale
+    dayFirst = locale = "en-GB"
+    day = parts.day.toStr()
+    year = parts.year.toStr()
+    month = FormatMonthName(parts.month, true)
+    if style = "year" then return year
+    if style = "monthYear" then return FormatMonthName(parts.month, false) + " " + year
+    if style = "dayMonth" then
+        if dayFirst then return day + " " + month
+        return month + " " + day
+    end if
+    if style = "weekday" then
+        days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        if dayFirst then return days[parts.weekday] + " " + day + " " + month
+        return days[parts.weekday] + ", " + month + " " + day
+    end if
+    if style = "long" then
+        ' "September 15, 2021" / "15 September 2021".
+        if dayFirst then return day + " " + FormatMonthName(parts.month, false) + " " + year
+        return FormatMonthName(parts.month, false) + " " + day + ", " + year
+    end if
+    if dayFirst then return day + " " + month + " " + year
+    return month + " " + day + ", " + year
+end function
+
+' i18n `time`: "9:41 PM" or "21:41" by the device's clock setting.
+function FormatTime(value as dynamic) as string
+    parts = FormatDateParts(value)
+    if parts = invalid then return ""
+    minute = parts.minute.toStr()
+    if Len(minute) < 2 then minute = "0" + minute
+    if not FormatRegion().hour12 then
+        hour = parts.hour.toStr()
+        ' US English pads the hour of a 24-hour clock; British English does not.
+        if Len(hour) < 2 and FormatRegion().locale <> "en-GB" then hour = "0" + hour
+        return hour + ":" + minute
+    end if
+    suffix = "AM"
+    if parts.hour >= 12 then suffix = "PM"
+    if FormatRegion().locale = "en-GB" then suffix = LCase(suffix)
+    if FormatRegion().locale = "en-CA" then
+        suffix = "a.m."
+        if parts.hour >= 12 then suffix = "p.m."
+    end if
+    hour = parts.hour mod 12
+    if hour = 0 then hour = 12
+    return hour.toStr() + ":" + minute + " " + suffix
+end function
+
+' i18n `duration`: "1h 42m" (short) or "1 hour 42 minutes" (long). Empty for nothing.
+function FormatDuration(seconds as dynamic, style = "short" as string) as string
+    if seconds = invalid or seconds <= 0 then return ""
+    total = Int(seconds + 0.5)
+    hours = total \ 3600
+    minutes = Int((total mod 3600) / 60.0 + 0.5)
+    ids = { hoursMinutes: "duration.hoursMinutes", hours: "duration.hours", minutes: "duration.minutes", seconds: "duration.seconds" }
+    if style = "long" then ids = { hoursMinutes: "duration.long.hoursMinutes", hours: "duration.long.hours", minutes: "duration.long.minutes", seconds: "duration.long.seconds" }
+    if hours > 0 then
+        if minutes > 0 then return T(ids.hoursMinutes, { hours: hours, minutes: minutes })
+        return T(ids.hours, { hours: hours })
+    end if
+    if minutes > 0 then return T(ids.minutes, { minutes: minutes })
+    return T(ids.seconds, { seconds: total })
+end function
+
+' i18n `clock`: the media counter, "1:02:03" or "4:05".
+function FormatClock(seconds as dynamic) as string
+    total = 0
+    if seconds <> invalid and seconds > 0 then total = Int(seconds)
+    h = total \ 3600
+    minute = (total mod 3600) \ 60
+    s = total mod 60
+    two = function(n as integer) as string
+        if n < 10 then return "0" + n.toStr()
+        return n.toStr()
+    end function
+    if h > 0 then return h.toStr() + ":" + two(minute) + ":" + two(s)
+    return minute.toStr() + ":" + two(s)
+end function
+
+' i18n `relativeTime`: "Just now", "5 minutes ago", "3 hours ago", "Yesterday", "4 days ago", then a date.
+function FormatRelativeTime(value as dynamic, atSeconds as dynamic) as string
+    stamp = value
+    if Type(value) = "String" or Type(value) = "roString" then stamp = IsoToSeconds(value)
+    if stamp = invalid then return ""
+    seconds = atSeconds - stamp
+    if seconds < 0 then seconds = 0
+    if seconds < 45 then return T("relative.justNow")
+    minutes = Int(seconds / 60.0 + 0.5)
+    if minutes < 60 then return T("relative.minutesAgo", { count: minutes })
+    hours = Int(minutes / 60.0 + 0.5)
+    if hours < 24 then return T("relative.hoursAgo", { count: hours })
+    days = Int(hours / 24.0 + 0.5)
+    if days = 1 then return T("relative.yesterday")
+    if days < 7 then return T("relative.daysAgo", { count: days })
+    style = "medium"
+    if FormatDateParts(atSeconds).year = FormatDateParts(stamp).year then style = "dayMonth"
+    return FormatDate(stamp, style)
+end function
+
+' i18n `bytes`: binary units, "1.4 GB".
+function FormatBytes(value as dynamic) as string
+    if value = invalid or value < 0 then return "—"
+    units = ["B", "KB", "MB", "GB", "TB"]
+    v = value * 1#
+    index = 0
+    while v >= 1024 and index < units.count() - 1
+        v = v / 1024
+        index = index + 1
+    end while
+    if v < 10 and index > 0 then
+        tenths = Int(v * 10 + 0.5)
+        text = (tenths \ 10).toStr()
+        if tenths mod 10 <> 0 then text = text + "." + (tenths mod 10).toStr()
+        return text + " " + units[index]
+    end if
+    return MessageNumber(v, "integer") + " " + units[index]
+end function
+
+' i18n `list`: "A, B and C".
+function FormatList(items as object) as string
+    count = items.count()
+    if count = 0 then return ""
+    if count = 1 then return items[0]
+    if count = 2 then return items[0] + " and " + items[1]
+    out = ""
+    for index = 0 to count - 2
+        if index > 0 then out = out + ", "
+        out = out + items[index]
+    end for
+    ' Only US English writes the comma before "and".
+    comma = ""
+    if FormatRegion().locale = "en-US" then comma = ","
+    return out + comma + " and " + items[count - 1]
+end function
+
+' packages/client-core/src/password-strength.ts: the only rule is the server's, at least 8
+' characters and at most 72 bytes.
+function PasswordAcceptable(password as string) as boolean
+    bytes = CreateObject("roByteArray")
+    bytes.fromAsciiString(password)
+    count = 0
+    for each value in bytes
+        ' Count code points: every byte that is not a UTF-8 continuation byte starts one.
+        if (value and 192) <> 128 then count = count + 1
+    end for
+    return count >= 8 and bytes.count() <= 72
+end function
+
+' The host a person knows a server by: its address without the scheme.
+function FriendlyHost(origin as dynamic) as string
+    if Type(origin) <> "String" and Type(origin) <> "roString" then return ""
+    host = CreateObject("roRegex", "^https?://", "i").replace(origin, "")
+    while Right(host, 1) = "/"
+        host = Left(host, Len(host) - 1)
+    end while
+    return host
+end function

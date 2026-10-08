@@ -1,0 +1,46 @@
+' The Portico Account's notices against the real TypeScript (scripts/golden.mjs `account-notices`):
+' account-notifications.ts parsers, and what AccountFeed.tsx says for each kind.
+import "pkg:/source/core/AccountNotices.bs"
+
+sub Test_AccountNotices_parse()
+    fixture = TestFixture("golden/account-notices.json")
+    if fixture = invalid then return
+    for each item in fixture.cases
+        parsed = ParseAccountNotices(item.document)
+        AssertEqual(parsed.ok, item.ok, "the account's notices, " + item.name)
+        if parsed.ok and item.ok then
+            copy = {}
+            copy.append(parsed)
+            copy.delete("ok")
+            AssertSame(copy, item.expected, "what the notices hold, " + item.name)
+        end if
+    end for
+    for each item in fixture.preferences
+        AssertSame(ParseAccountNoticePreferences(item.document), item.expected, "the account's choices about its notices")
+    end for
+    AssertSame(AccountNoticeKinds(), fixture.kinds, "the kinds this build knows")
+    AssertSame(AccountSecurityEvents(), fixture.events, "the security events this build names")
+    AssertTrue(not ParseAccountNotices(invalid).ok, "no document")
+end sub
+
+sub Test_AccountNotices_words()
+    GetGlobalAA().messageCatalogue = { "web.account.notif.serverOffline": "{server} is offline", "web.account.notif.serverOfflineBody": "It stopped answering.", "web.account.notif.newDevice": "New sign-in on {name}", "web.account.notif.newDeviceBody": "Review your devices.", "web.account.notif.security": "A security change", "web.account.notif.securityBody": "If this wasn’t you, change your password.", "web.account.notif.event.two_step_enabled": "Two-step verification was turned on", "web.account.notif.other": "A notice from your account", "web.account.notif.exportReady": "Your export is ready", "web.account.notif.keyExpiring": "A signing key expires soon", "web.account.notif.keyExpiringBody": "{key} expires {date}." }
+    AssertEqual(AccountNoticeWords({ kind: "server_offline", server: { name: "Home" }, detail: {} }).title, "Home is offline", "a server that went quiet")
+    words = AccountNoticeWords({ kind: "new_device", detail: { app: "Portico", platform: "ios" } })
+    AssertEqual(words.title, "New sign-in on Portico", "a new sign-in is named by what it says of itself, name first")
+    AssertEqual(words.icon, "phone", "and has a phone's glyph")
+    AssertEqual(AccountNoticeWords({ kind: "security_event", detail: { event: "two_step_enabled" } }).title, "Two-step verification was turned on", "a security event this build names")
+    AssertEqual(AccountNoticeWords({ kind: "security_event", detail: { event: "made_up" } }).title, "A security change", "one it does not is said generally")
+    AssertEqual(AccountNoticeWords({ kind: "other", detail: {} }).title, "A notice from your account", "a kind from a newer account service")
+    AssertEqual(AccountNoticeWords({ kind: "account_export_ready", detail: {} }).body, "", "an export has no second line")
+    marked = AccountNoticesMarked([{ id: "a", read: false }, { id: "b", read: false }, { id: "c", read: true }], 2, "a")
+    AssertEqual(marked.unread, 1, "one read leaves one unread")
+    AssertTrue(marked.items[0].read and not marked.items[1].read, "only the one named is read")
+    AssertEqual(AccountNoticesMarked([{ id: "a", read: false }, { id: "b", read: false }], 2, "").unread, 0, "Mark all read")
+    AssertEqual(AccountNoticesMarked([{ id: "c", read: true }], 0, "c").unread, 0, "reading what was read changes nothing")
+    AssertSame(AccountNoticesReadBody(["a"]), { ids: ["a"] }, "marking one")
+    AssertSame(AccountNoticesReadBody(invalid), { all: true }, "marking all")
+    AssertEqual(AccountNoticesPath("c 2"), "/v1/account/notifications?cursor=c%202", "the page after a cursor")
+    AssertSame(AccountNoticePreferencesBody({ serverOffline: true, storageNearlyFull: false, invitationAccepted: true }), { serverOffline: true, storageNearlyFull: false, invitationAccepted: true }, "the three choices")
+    GetGlobalAA().messageCatalogue = invalid
+end sub

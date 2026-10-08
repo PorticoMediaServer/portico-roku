@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Artwork.tsx: an image with a designed placeholder, never a blank box. -->
+<component name="UiArtwork" extends="Group">
+    <interface>
+        <field id="uri" type="string" value="" onChange="onArtworkSource" />
+        <!-- poster | landscape | square | circle -->
+        <field id="shape" type="string" value="poster" onChange="onArtworkLayout" />
+        <field id="artWidth" type="float" value="0" onChange="onArtworkLayout" />
+        <field id="artHeight" type="float" value="0" onChange="onArtworkLayout" />
+        <field id="radius" type="float" value="-1" onChange="onArtworkLayout" />
+        <field id="title" type="string" value="" onChange="onArtworkPlaceholder" />
+        <!-- Placeholder icon when no artwork exists (a library family). -->
+        <field id="icon" type="string" value="" onChange="onArtworkPlaceholder" />
+        <!-- Drawn in place of the title or icon until the image is on screen (a person's initials). -->
+        <field id="initials" type="string" value="" onChange="onArtworkPlaceholder" />
+        <!-- 0–1 resume progress drawn along the bottom edge (ui/Artwork.tsx ProgressLine). -->
+        <field id="progress" type="float" value="0" onChange="onArtworkProgress" />
+        <field id="priority" type="boolean" value="false" />
+    </interface>
+</component>

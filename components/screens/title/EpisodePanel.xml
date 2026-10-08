@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/title/EpisodePanel.tsx: the episode view, a panel over the show page. -->
+<component name="EpisodePanel" extends="Group">
+    <interface>
+        <field id="libraryId" type="string" value="" />
+        <field id="showId" type="string" value="" />
+        <field id="showTitle" type="string" value="" />
+        <!-- {kind: "play", entry, index, startSeconds} | {kind: "more", entry} | {kind: "navigate", index}
+             | {kind: "person", personId, name} | {kind: "changed"} | {kind: "closed"} -->
+        <field id="action" type="assocarray" alwaysNotify="true" />
+        <field id="isOpen" type="boolean" value="false" />
+        <!-- {entry, index, hasPrevious, hasNext} -->
+        <function name="open" />
+        <function name="close" />
+    </interface>
+</component>

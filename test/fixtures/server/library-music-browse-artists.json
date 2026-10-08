@@ -1,0 +1,169 @@
+{
+ "pivot": "artists",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ]
+ },
+ "entries": [
+  {
+   "id": "1S4cNAv-E-9hPui1IC7cQQ",
+   "kind": "artist",
+   "title": "Adele",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "1S4cNAv-E-9hPui1IC7cQQ"
+   }
+  },
+  {
+   "id": "XhjscUfNvNI_-fidvhPD6A",
+   "kind": "artist",
+   "title": "The Beatles",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "XhjscUfNvNI_-fidvhPD6A"
+   }
+  },
+  {
+   "id": "iorf1Np2jhpgR377E1JGUw",
+   "kind": "artist",
+   "title": "Billie Eilish",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "iorf1Np2jhpgR377E1JGUw"
+   }
+  },
+  {
+   "id": "86Yl5Ua0uozHuTUVcBYXpQ",
+   "kind": "artist",
+   "title": "Daft Punk",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "86Yl5Ua0uozHuTUVcBYXpQ"
+   }
+  },
+  {
+   "id": "Zb3d25E_l5C6gdnksHHR9A",
+   "kind": "artist",
+   "title": "Fleetwood Mac",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "Zb3d25E_l5C6gdnksHHR9A"
+   }
+  },
+  {
+   "id": "hAiPVg8tIVvP1DCQEUA1nw",
+   "kind": "artist",
+   "title": "Kendrick Lamar",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "hAiPVg8tIVvP1DCQEUA1nw"
+   }
+  },
+  {
+   "id": "Uy8CdavNyWuJu_BAwmCYsA",
+   "kind": "artist",
+   "title": "Michael Jackson",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "Uy8CdavNyWuJu_BAwmCYsA"
+   }
+  },
+  {
+   "id": "ibXC64pLFjIJL32VoTz9eQ",
+   "kind": "artist",
+   "title": "Pink Floyd",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "ibXC64pLFjIJL32VoTz9eQ"
+   }
+  },
+  {
+   "id": "ZzQOnHfT3TXIQYtDgi8ymg",
+   "kind": "artist",
+   "title": "Taylor Swift",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "ZzQOnHfT3TXIQYtDgi8ymg"
+   }
+  },
+  {
+   "id": "JFgGylZOT9OyvbVUG66TQQ",
+   "kind": "artist",
+   "title": "The Weeknd",
+   "addedAt": null,
+   "count": 8,
+   "navigation": {
+    "view": "artist",
+    "entityId": "JFgGylZOT9OyvbVUG66TQQ"
+   }
+  }
+ ],
+ "pageInfo": {
+  "start": 0,
+  "total": 10,
+  "revision": "browse_c1191576c2e7ab3010508e9bba59a595a9b17fefe05b3723a64c21580a5a0723",
+  "hasMore": false,
+  "nextCursor": ""
+ },
+ "positionIndex": [
+  {
+   "key": "A",
+   "index": 0
+  },
+  {
+   "key": "B",
+   "index": 1
+  },
+  {
+   "key": "D",
+   "index": 3
+  },
+  {
+   "key": "F",
+   "index": 4
+  },
+  {
+   "key": "K",
+   "index": 5
+  },
+  {
+   "key": "M",
+   "index": 6
+  },
+  {
+   "key": "P",
+   "index": 7
+  },
+  {
+   "key": "T",
+   "index": 8
+  },
+  {
+   "key": "W",
+   "index": 9
+  }
+ ]
+}

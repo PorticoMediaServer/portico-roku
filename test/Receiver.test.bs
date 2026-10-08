@@ -1,0 +1,79 @@
+' The receiver against the real TypeScript (scripts/golden.mjs `receiver`): social-playback.ts
+' (receiver, grant, handoff) and remote-playback.ts.
+import "pkg:/source/core/Receiver.bs"
+
+sub Test_Receiver_documents()
+    fixture = TestFixture("golden/receiver.json")
+    if fixture = invalid then return
+    AssertEqual(SocialProtocol(), fixture.protocol, "the protocol this television speaks")
+    for each item in fixture.receivers
+        parsed = ParseReceiver(item.document)
+        AssertEqual(parsed <> invalid, item.ok, "the receiver, " + item.name)
+        if parsed <> invalid and item.ok then AssertSame(parsed, item.expected, "what the receiver holds, " + item.name)
+    end for
+    for each item in fixture.grants
+        parsed = ParseReceiverGrant(item.document)
+        AssertEqual(parsed <> invalid, item.ok, "the grant, " + item.name)
+        if parsed <> invalid and item.ok then AssertSame(parsed, item.expected, "what the grant holds, " + item.name)
+    end for
+    for each item in fixture.handoffs
+        parsed = ParseHandoff(item.document)
+        AssertEqual(parsed <> invalid, item.ok, "the handoff, " + item.name)
+        if parsed <> invalid and item.ok then AssertSame(parsed, item.expected, "what the handoff holds, " + item.name)
+    end for
+    AssertEqual(ParseReceiver({ receiver: fixture.receiver }).id, "rcv_1", "a receiver as registration answers it")
+    for each item in fixture.delays
+        AssertEqual(ReceiverPollDelayMs(item.base, item.roll), item.delay, "the idle wait for a roll of " + Str(item.roll).trim())
+    end for
+    for each item in fixture.starts
+        AssertEqual(HandoffStartSeconds(item.us), item.seconds, "where " + item.us + " microseconds starts")
+    end for
+    for each item in fixture.micros
+        AssertEqual(MicrosecondsText(item.seconds), item.us, Str(item.seconds).trim() + " seconds in microseconds")
+    end for
+end sub
+
+sub Test_Receiver_inbox()
+    fixture = TestFixture("golden/receiver.json")
+    if fixture = invalid then return
+    inbox = ParseReceiverInbox({ grants: [fixture.grant], handoffs: [fixture.handoff] })
+    AssertTrue(inbox.ok, "an inbox with a phone asking and something sent")
+    AssertEqual(inbox.asking.controllerDisplayName, fixture.grant.controllerDisplayName, "who is asking")
+    AssertEqual(inbox.handoffs.count(), 1, "what is waiting to be played")
+    empty = ParseReceiverInbox({})
+    AssertTrue(empty.ok and empty.asking = invalid and empty.handoffs.count() = 0, "an empty inbox")
+    settled = {}
+    settled.append(fixture.handoff)
+    settled.state = "expired"
+    settled.outcome = "rejected"
+    AssertEqual(ParseReceiverInbox({ handoffs: [settled] }).handoffs.count(), 0, "a handoff that is over is not taken")
+    AssertTrue(not ParseReceiverInbox({ grants: [{ id: "g" }] }).ok, "one unreadable grant rejects the inbox")
+    AssertTrue(not ParseReceiverInbox({ handoffs: "none" }).ok, "handoffs that are not a list")
+    AssertTrue(not ParseReceiverInbox(invalid).ok, "no document")
+    handoff = ParseHandoff(fixture.handoff)
+    body = HandoffReadinessBody(handoff, "ps_tv", 754.25)
+    AssertSame(body, { protocolVersion: "1.0", readiness: "playing", receiverPlaybackId: "ps_tv", positionUs: "754250000", expectedRevision: "1" }, "the television says it is playing")
+    AssertEqual(HandoffDeadline(handoff, 5), IsoToSeconds("2026-10-05T10:02:10Z"), "a handoff is waited for until it expires")
+    AssertEqual(HandoffDeadline({ expiresAt: "soon" }, 5), 125, "or for two minutes when it does not say")
+    AssertSame(ReceiverDecisionBody(true), { protocolVersion: "1.0", decision: "accept" }, "allowing a phone")
+    AssertSame(ReceiverDecisionBody(false), { protocolVersion: "1.0", decision: "decline" }, "not allowing it")
+    AssertEqual(ReceiverDecisionPath("rcv 1", "gr/1"), "/v1/receivers/rcv%201/grants/gr%2F1/decision", "where a decision goes")
+    AssertEqual(HandoffReadinessPath("ho_1"), "/v1/handoffs/ho_1/readiness", "where readiness goes")
+    AssertEqual(ReceiverBackoffMs(1), 60000, "after a failure the wait doubles, to a minute at most")
+    AssertEqual(ReceiverInboxWaitPath("rcv 1", 25), "/v1/receivers/rcv%201/inbox/wait?waitSeconds=25", "the held read of the inbox")
+    AssertTrue(ReceiverWaitUnsupported(404) and ReceiverWaitUnsupported(405) and not ReceiverWaitUnsupported(503) and not ReceiverWaitUnsupported(invalid), "a server without the held read")
+    AssertTrue(ReceiverTimings().waitTimeoutMs > ReceiverTimings().waitSeconds * 1000, "the request outlasts the wait it asks for")
+    AssertTrue(ReceiverForgotten(404) and not ReceiverForgotten(503), "a receiver the server forgot registers again")
+    register = ReceiverRegisterBody({ deviceId: "dev-1", displayName: "Living Room", platform: "roku", keyFingerprint: "abc" })
+    AssertEqual(register["grantPolicy"], "per-device", "a phone is asked about once")
+    AssertEqual(register["supportedCommands"].count(), 5, "what this television can be told")
+    ' The digest is the device's own; the off-device run knows the ones registered for it.
+    globals = GetGlobalAA()
+    globals.cryptoDigests = {}
+    AssertEqual(ReceiverDevice("abc", "TV"), invalid, "no digest, no receiver")
+    globals.cryptoDigests["sha256:" + BytesToHex(BytesFromText("portico-receiver:in st/all"))] = "00ff"
+    device = ReceiverDevice("in st/all", "Living Room")
+    AssertEqual(device.deviceId, "install", "the device id keeps what an id may hold")
+    AssertEqual(device.keyFingerprint, Base64UrlEncode(BytesFromHex("00ff")), "the fingerprint is the digest")
+    globals.cryptoDigests = invalid
+end sub

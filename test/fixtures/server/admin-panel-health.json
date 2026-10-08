@@ -1,0 +1,31 @@
+{
+ "data": {
+  "name": "health",
+  "observedAt": 1791230792994,
+  "freshUntil": 1791230822994,
+  "facts": {
+   "database": {
+    "state": "available",
+    "value": "readable"
+   },
+   "openAlerts": {
+    "state": "available",
+    "value": 0,
+    "unit": "alerts"
+   },
+   "readiness": {
+    "state": "available",
+    "value": "HTTP request served"
+   },
+   "uptime": {
+    "state": "available",
+    "value": 3784,
+    "unit": "seconds"
+   }
+  }
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+ }
+}

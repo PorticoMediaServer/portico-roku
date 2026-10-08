@@ -1,0 +1,170 @@
+' The windowed collection behind a library grid (packages/client-core/src/collections
+' `createWindowedCollection`, as apps/native/src/app/browse.ts uses it on television: pages of 60,
+' at most five resident). A library can hold millions of titles; the channel holds a bounded
+' window of them whatever the total, and its cost follows what is on screen, never the library.
+'
+' The grid's list is cut into chunks of whole rows (at most 60 entries). At most `maxChunks`
+' neighbouring chunks are resident: their slots exist in the grid's content, as a card once the
+' chunk has arrived and as a placeholder until then. As focus reaches the first or last resident
+' chunk the window is moved to centre on it: chunks that fall outside are dropped, and the new
+' ones start as placeholders and are asked for nearest first. Each chunk is one request for a
+' range of the server's order, pinned to the first page's revision.
+'
+' A window is {columns, chunk, maxChunks, total, first, loaded, pending}: `total` is -1 until the
+' first page says how many there are; `first` is the first resident chunk.
+
+function BrowseWindowPageSize() as integer
+    return 60
+end function
+
+function BrowseWindowMaxPages() as integer
+    return 5
+end function
+
+function BrowseWindowNew(columns as integer, limit = 0 as integer) as object
+    size = BrowseWindowPageSize()
+    if limit > 0 and limit < size then size = limit
+    ' Whole rows, so moving the window never moves a card sideways; never more than a page, so
+    ' the first page (asked for before the columns are known) always covers the first chunk.
+    chunk = (size \ columns) * columns
+    if chunk < columns then chunk = columns
+    return { columns: columns, chunk: chunk, maxChunks: BrowseWindowMaxPages(), total: -1, first: 0, loaded: {}, pending: {} }
+end function
+
+function BrowseWindowChunks(window as object) as integer
+    if window.total <= 0 then return 0
+    return (window.total + window.chunk - 1) \ window.chunk
+end function
+
+function BrowseWindowBase(window as object) as integer
+    return window.first * window.chunk
+end function
+
+' How many slots are resident.
+function BrowseWindowLength(window as object) as integer
+    if window.total <= 0 then return 0
+    last = (window.first + window.maxChunks) * window.chunk
+    if last > window.total then last = window.total
+    return last - window.first * window.chunk
+end function
+
+' The first resident chunk that centres the window on the chunk holding `index`.
+function BrowseWindowFirstFor(window as object, index as integer) as integer
+    chunks = BrowseWindowChunks(window)
+    first = index \ window.chunk - window.maxChunks \ 2
+    if first > chunks - window.maxChunks then first = chunks - window.maxChunks
+    if first < 0 then first = 0
+    return first
+end function
+
+' Focus is on `index` (a position in the whole list). Returns how far the window moved, in chunks
+' (0 when it stays): the window moves only when focus is in its first or last chunk and there is
+' more beyond it. Chunks that left the window are forgotten.
+function BrowseWindowFocus(window as object, index as integer) as integer
+    chunks = BrowseWindowChunks(window)
+    if chunks = 0 then return 0
+    at = index \ window.chunk
+    last = window.first + window.maxChunks - 1
+    inside = at >= window.first and at <= last
+    nearStart = at <= window.first and window.first > 0
+    nearEnd = at >= last and last < chunks - 1
+    if inside and not nearStart and not nearEnd then return 0
+    first = BrowseWindowFirstFor(window, index)
+    moved = first - window.first
+    if moved = 0 then return 0
+    window.first = first
+    BrowseWindowForget(window)
+    return moved
+end function
+
+' Moves the window to hold `index` (Jump to): returns true when it had to move.
+function BrowseWindowJump(window as object, index as integer) as boolean
+    first = BrowseWindowFirstFor(window, index)
+    if first = window.first then return false
+    window.first = first
+    BrowseWindowForget(window)
+    return true
+end function
+
+sub BrowseWindowForget(window as object)
+    for each table in [window.loaded, window.pending]
+        for each key in table.keys()
+            at = key.toInt()
+            if at < window.first or at >= window.first + window.maxChunks then table.delete(key)
+        end for
+    end for
+end sub
+
+function BrowseWindowHolds(window as object, chunk as integer) as boolean
+    return chunk >= window.first and chunk < window.first + window.maxChunks and chunk < BrowseWindowChunks(window)
+end function
+
+' The chunks to ask for now, nearest to `index` first: resident, not arrived and not already asked
+' for, at most `room` of them.
+function BrowseWindowWanted(window as object, index as integer, room as integer) as object
+    out = []
+    chunks = BrowseWindowChunks(window)
+    at = index \ window.chunk
+    for distance = 0 to window.maxChunks
+        for each candidate in [at + distance, at - distance]
+            if out.count() < room and candidate >= 0 and candidate < chunks and BrowseWindowHolds(window, candidate) then
+                key = candidate.toStr()
+                if not window.loaded.doesExist(key) and not window.pending.doesExist(key) then
+                    already = false
+                    for each chosen in out
+                        if chosen = candidate then already = true
+                    end for
+                    if not already then out.push(candidate)
+                end if
+            end if
+        end for
+    end for
+    return out
+end function
+
+sub BrowseWindowAsked(window as object, chunk as integer)
+    window.pending[chunk.toStr()] = true
+end sub
+
+' A chunk arrived. Returns the slot (within the resident window) where its first entry goes, or
+' -1 when the window has moved on and the answer is not wanted.
+function BrowseWindowArrived(window as object, chunk as integer) as integer
+    key = chunk.toStr()
+    window.pending.delete(key)
+    if not BrowseWindowHolds(window, chunk) then return -1
+    window.loaded[key] = true
+    return (chunk - window.first) * window.chunk
+end function
+
+sub BrowseWindowFailed(window as object, chunk as integer)
+    window.pending.delete(chunk.toStr())
+end sub
+
+' The range a chunk asks the server for: {start, limit}.
+function BrowseWindowRange(window as object, chunk as integer) as object
+    return { start: chunk * window.chunk, limit: window.chunk }
+end function
+
+' The first page said how many entries there are. A total that changed (a new revision) keeps the
+' window where it was when it still fits and forgets what was loaded.
+sub BrowseWindowTotal(window as object, total as integer)
+    window.total = total
+    chunks = BrowseWindowChunks(window)
+    if window.first > chunks - window.maxChunks then window.first = chunks - window.maxChunks
+    if window.first < 0 then window.first = 0
+end sub
+
+' Everything is read again (a refresh, a new revision): the window stays where it is.
+sub BrowseWindowReset(window as object)
+    window.loaded = {}
+    window.pending = {}
+end sub
+
+' browse-page-source.ts: the letter (or year, month…) anchors as the Jump to control lists them,
+' in the server's order. At least four are needed for the control to be offered.
+function BrowseAnchorIndex(anchors as object, key as string) as integer
+    for each anchor in anchors
+        if anchor.key = key then return anchor.index
+    end for
+    return -1
+end function

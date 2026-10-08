@@ -1,0 +1,87 @@
+' packages/client-core/src/local-session.ts `parseLocalSession`: the one session envelope a server
+' issues. Current format only: no missing-family format, no synthesis, no migration. A fresh
+' answer must be exact; a record this device saved earlier is read back with unknown fields set
+' aside, and may have expired (a reason to sign in again, never a reason it cannot be read).
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Validate.bs"
+
+' Returns {ok: true, session} or {ok: false, code, message}. `expected` holds viewer fields the
+' session must carry (authority, accountId, serverId, profileId).
+function ParseLocalSession(raw as dynamic, expected = invalid as dynamic, stored = false as boolean, atSeconds = invalid as dynamic) as object
+    unreadable = { ok: false, code: "invalid_current_session", message: "The server sent an answer Portico couldn't read." }
+    if not IsObject(raw) then return unreadable
+    if atSeconds = invalid then atSeconds = NowSeconds()
+    required = ["accessToken", "expiresAt", "viewer", "sessionFamilyId", "tokenGeneration", "authorizationHorizon"]
+    optional = ["serverIdentity", "deviceId", "installationId", "refreshToken"]
+    source = raw
+    if stored then
+        source = {}
+        source.setModeCaseSensitive()
+        for each key in required
+            if raw.doesExist(key) then source[key] = raw[key]
+        end for
+        for each key in optional
+            if raw.doesExist(key) then source[key] = raw[key]
+        end for
+    end if
+    keys = []
+    keys.append(required)
+    for each key in optional
+        if source.doesExist(key) then keys.push(key)
+    end for
+    if not HasExactKeys(source, keys) then return unreadable
+    if not IsText(source["accessToken"], 16384) then return unreadable
+    expires = IsoToSeconds(source["expiresAt"])
+    if expires = invalid then return unreadable
+    if not stored and expires <= atSeconds then return unreadable
+    viewer = source["viewer"]
+    if not IsObject(viewer) then return unreadable
+    viewerKeys = ["accountId", "profileId", "serverId", "authority", "role"]
+    if stored then
+        kept = {}
+        kept.setModeCaseSensitive()
+        for each key in viewerKeys
+            if viewer.doesExist(key) then kept[key] = viewer[key]
+        end for
+        viewer = kept
+    end if
+    if not HasExactKeys(viewer, viewerKeys) then return unreadable
+    if not IsText(viewer["accountId"], 256) or not IsText(viewer["profileId"], 256) or not IsText(viewer["serverId"], 256) or not IsText(viewer["role"], 256) then return unreadable
+    if not IsString(viewer["authority"]) or (viewer["authority"] <> "local" and viewer["authority"] <> "hosted") then return unreadable
+    if expected <> invalid then
+        for each key in expected.keys()
+            wanted = expected[key]
+            for each name in viewerKeys
+                if LCase(name) = LCase(key) and viewer[name] <> wanted then return { ok: false, code: "session_mismatch", message: "The returned session does not match the selected account, profile and server." }
+            end for
+        end for
+    end if
+    if not MatchesPattern(source["sessionFamilyId"], "^[A-Za-z0-9_-]{1,128}$") then return unreadable
+    generation = source["tokenGeneration"]
+    if not MatchesPattern(generation, "^[1-9][0-9]{0,18}$") or (Len(generation) = 19 and generation > "9223372036854775807") then return unreadable
+    if IsoToSeconds(source["authorizationHorizon"]) = invalid then return unreadable
+    if UtcOrderKey(source["expiresAt"]) > UtcOrderKey(source["authorizationHorizon"]) then return unreadable
+    if source.doesExist("deviceId") and not IsText(source["deviceId"], 256) then return unreadable
+    if source.doesExist("installationId") and not IsText(source["installationId"], 256) then return unreadable
+    if source.doesExist("refreshToken") and not MatchesPattern(source["refreshToken"], "^[-_A-Za-z0-9]{16,512}$") then return unreadable
+    identity = invalid
+    if source.doesExist("serverIdentity") then
+        given = source["serverIdentity"]
+        if not IsObject(given) or not HasExactKeys(given, ["publicKey", "fingerprint"]) then return unreadable
+        if not MatchesPattern(given["publicKey"], "^[-_A-Za-z0-9]{43}$") or not MatchesPattern(given["fingerprint"], "^[-_A-Za-z0-9]{43}$") then return unreadable
+        identity = { "publicKey": given["publicKey"], "fingerprint": given["fingerprint"] }
+    end if
+    session = {
+        "accessToken": source["accessToken"]
+        "expiresAt": source["expiresAt"]
+        "sessionFamilyId": source["sessionFamilyId"]
+        "tokenGeneration": generation
+        "authorizationHorizon": source["authorizationHorizon"]
+        "viewer": { "accountId": viewer["accountId"], "profileId": viewer["profileId"], "serverId": viewer["serverId"], "authority": viewer["authority"], "role": viewer["role"] }
+    }
+    if source.doesExist("deviceId") then session["deviceId"] = source["deviceId"]
+    if source.doesExist("installationId") then session["installationId"] = source["installationId"]
+    if source.doesExist("refreshToken") then session["refreshToken"] = source["refreshToken"]
+    if identity <> invalid then session["serverIdentity"] = identity
+    return { ok: true, session: session }
+end function

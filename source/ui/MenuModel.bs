@@ -1,0 +1,36 @@
+' apps/native/src/ui/Sheet.tsx `orderMenuItems` (componentSpec.menu): destructive items go last, in
+' a group of their own, whatever order the caller gave. An item is {id, label, icon, detail,
+' destructive, selected, disabled, section}; `section` set (even to "") starts a group.
+function OrderMenuItems(items as object) as object
+    safe = []
+    risky = []
+    for each item in items
+        if item.destructive = true then
+            risky.push(item)
+        else
+            safe.push(item)
+        end if
+    end for
+    if risky.count() = 0 or safe.count() = 0 then return items
+    first = {}
+    first.append(risky[0])
+    if first.section = invalid then first.section = ""
+    out = []
+    out.append(safe)
+    out.push(first)
+    for index = 1 to risky.count() - 1
+        out.push(risky[index])
+    end for
+    return out
+end function
+
+' The row a menu opens on: the current choice, else the first row that can be used.
+function MenuEntryIndex(items as object) as integer
+    for index = 0 to items.count() - 1
+        if items[index].selected = true and items[index].disabled <> true then return index
+    end for
+    for index = 0 to items.count() - 1
+        if items[index].disabled <> true then return index
+    end for
+    return -1
+end function

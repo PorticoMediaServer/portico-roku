@@ -1,0 +1,50 @@
+' The HTTP transport: one synchronous request, for Task threads. Returns
+' {status, headers (lower-case names), body, failure}; status 0 means no response arrived
+' (offline, refused, timed out, cancelled), and `failure` says why.
+'
+' Tests replace this with a table of answers (the `send` member of an api; see core/Api.bs).
+
+function HttpSend(request as object) as object
+    transfer = CreateObject("roUrlTransfer")
+    port = CreateObject("roMessagePort")
+    transfer.setMessagePort(port)
+    transfer.setUrl(request.url)
+    transfer.setRequest(request.method)
+    transfer.retainBodyOnError(true)
+    transfer.enableEncodings(true)
+    if LCase(Left(request.url, 6)) = "https:" then
+        transfer.setCertificatesFile("common:/certs/ca-bundle.crt")
+        transfer.initClientCertificates()
+    end if
+    if request.headers <> invalid then
+        for each name in request.headers.keys()
+            transfer.addHeader(name, request.headers[name])
+        end for
+    end if
+    started = false
+    if request.body <> invalid then
+        started = transfer.asyncPostFromString(request.body)
+    else if request.method = "GET" then
+        started = transfer.asyncGetToString()
+    else
+        started = transfer.asyncPostFromString("")
+    end if
+    if not started then return { status: 0, headers: {}, body: "", failure: "The request could not be started." }
+    timeout = 15000
+    if request.timeoutMs <> invalid then timeout = request.timeoutMs
+    event = wait(timeout, port)
+    if Type(event) <> "roUrlEvent" then
+        transfer.asyncCancel()
+        return { status: 0, headers: {}, body: "", failure: "timeout" }
+    end if
+    status = event.getResponseCode()
+    if status < 0 then return { status: 0, headers: {}, body: "", failure: event.getFailureReason() }
+    headers = {}
+    given = event.getResponseHeaders()
+    if given <> invalid then
+        for each name in given.keys()
+            headers[LCase(name)] = given[name]
+        end for
+    end if
+    return { status: status, headers: headers, body: event.getString(), failure: "" }
+end function

@@ -1,0 +1,282 @@
+' packages/client-core/src/browse.ts: the browse engine's contract. The server owns the
+' vocabulary, the query grammar and every count; this only parses what it publishes. No
+' client-side filtering, sorting or facet inference lives here.
+import "pkg:/source/core/ContentEntry.bs"
+
+function BrowseOperators() as object
+    return ["equals", "not-equals", "contains", "starts-with", "in", "not-in", "less-than", "at-most", "greater-than", "at-least", "between", "is-present", "is-missing", "contains-any", "contains-all"]
+end function
+
+function BrowseListOperators() as object
+    return ["in", "not-in", "between", "contains-any", "contains-all"]
+end function
+
+' browse.ts `str`: a string of at most `limit` characters; tabs and line breaks are allowed.
+function IsBrowseString(value as dynamic, limit = 4096 as integer) as boolean
+    if not IsString(value) or Len(value) > limit then return false
+    if m.browseControl = invalid then m.browseControl = CreateObject("roRegex", "[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "")
+    return not m.browseControl.isMatch(value)
+end function
+
+' browse.ts `id`: a non-empty single-line string of at most 256 characters.
+function IsBrowseId(value as dynamic) as boolean
+    if not IsBrowseString(value, 256) or Len(value) = 0 then return false
+    return Instr(1, value, Chr(10)) = 0 and Instr(1, value, Chr(13)) = 0
+end function
+
+function IsBrowseScalar(value as dynamic) as boolean
+    return IsBrowseString(value, 500) or IsNumber(value) or IsBoolean(value)
+end function
+
+function ParseBrowseSort(value as dynamic) as dynamic
+    if not IsObject(value) or not IsBrowseId(value.field) or not IsString(value.direction) or (value.direction <> "asc" and value.direction <> "desc") then return invalid
+    return { "field": value.field, "direction": value.direction }
+end function
+
+function ParseBrowseStrings(value as dynamic, limit as integer, allowed = invalid as dynamic) as dynamic
+    if not IsArray(value) or value.count() > limit then return invalid
+    for each entry in value
+        if not IsBrowseId(entry) then return invalid
+        if allowed <> invalid and not ArrayIncludes(allowed, entry) then return invalid
+    end for
+    return value
+end function
+
+' browse.ts `parseBrowseNode`: an expression is validated again on the way in, so a malformed tree
+' is never handed on as if the server had blessed it. Returns the node, or invalid.
+function ParseBrowseNode(v as dynamic, depth = 0 as integer) as dynamic
+    if not IsObject(v) or depth > 16 then return invalid
+    if v.doesExist("field") then
+        if v.count() <> 3 or not IsBrowseId(v.field) or not IsBrowseString(v.operator, 64) or not ArrayIncludes(BrowseOperators(), v.operator) then return invalid
+        operator = v.operator
+        value = v.value
+        if operator = "is-present" or operator = "is-missing" then
+            if value <> invalid then return invalid
+            return { "field": v.field, "operator": operator, "value": invalid }
+        end if
+        list = ArrayIncludes(BrowseListOperators(), operator)
+        if IsArray(value) then
+            if not list or value.count() < 1 or value.count() > 100 or (operator = "between" and value.count() <> 2) then return invalid
+            for each entry in value
+                if not IsBrowseScalar(entry) then return invalid
+            end for
+            return { "field": v.field, "operator": operator, "value": value }
+        end if
+        if list or not IsBrowseScalar(value) then return invalid
+        return { "field": v.field, "operator": operator, "value": value }
+    end if
+    if v.count() <> 1 then return invalid
+    if v.doesExist("not") then
+        inner = ParseBrowseNode(v["not"], depth + 1)
+        if inner = invalid then return invalid
+        return { "not": inner }
+    end if
+    group = ""
+    if v.doesExist("all") then group = "all"
+    if v.doesExist("any") then group = "any"
+    if group = "" then return invalid
+    raw = v[group]
+    if not IsArray(raw) or raw.count() > 100 or raw.count() = 0 then return invalid
+    children = []
+    for each child in raw
+        parsed = ParseBrowseNode(child, depth + 1)
+        if parsed = invalid then return invalid
+        children.push(parsed)
+    end for
+    out = {}
+    out[group] = children
+    return out
+end function
+
+function ParseBrowsePivot(v as dynamic) as dynamic
+    if not IsObject(v) or not IsBrowseId(v.id) or not IsBrowseId(v.labelKey) or not IsBoolean(v.browsable) then return invalid
+    if ParseBrowseStrings(v.entityKinds, 32) = invalid or ParseBrowseStrings(v.supportedViews, 8) = invalid then return invalid
+    if not IsArray(v.defaultSort) or v.defaultSort.count() > 3 then return invalid
+    if v.doesExist("aggregate") and not IsBrowseId(v.aggregate) then return invalid
+    sorts = []
+    for each sort in v.defaultSort
+        parsed = ParseBrowseSort(sort)
+        if parsed = invalid then return invalid
+        sorts.push(parsed)
+    end for
+    return { id: v.id, labelKey: v.labelKey, defaultSort: sorts, browsable: v.browsable }
+end function
+
+' browse.ts `parseBrowseCapabilities`: {ok, capabilities: {library, pivots, resolvedPivot, fields,
+' sorts, quickFilters, queryLimits}}.
+function ParseBrowseCapabilities(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_browse" }
+    if not IsObject(raw) or not IsObject(raw.library) or not IsObject(raw.queryLimits) then return bad
+    library = raw.library
+    if not IsBrowseId(library.id) or not IsBrowseString(library.name, 512) or not IsBrowseId(library.kind) or not IsBrowseString(library.defaultView, 64) then return bad
+    limits = raw.queryLimits
+    for each key in ["maximumDepth", "maximumClauses", "maximumBytes", "maximumSorts", "defaultLimit", "maximumLimit", "cursorTtlSeconds"]
+        if not IsNatural(limits[key]) then return bad
+    end for
+    if limits.defaultLimit < 1 or limits.maximumLimit < limits.defaultLimit then return bad
+    if not IsArray(raw.pivots) or raw.pivots.count() > 32 or not IsArray(raw.fields) or raw.fields.count() > 128 or not IsArray(raw.sorts) or raw.sorts.count() > 64 or not IsArray(raw.quickFilters) or raw.quickFilters.count() > 32 then return bad
+    pivots = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each v in raw.pivots
+        pivot = ParseBrowsePivot(v)
+        if pivot = invalid or seen.doesExist(pivot.id) then return bad
+        seen[pivot.id] = true
+        pivots.push(pivot)
+    end for
+    fields = []
+    known = {}
+    known.setModeCaseSensitive()
+    for each v in raw.fields
+        if not IsObject(v) or not IsBrowseId(v.id) or not IsBrowseId(v.labelKey) or not IsBrowseString(v.type, 32) or not IsBrowseString(v.controlHint, 32) then return bad
+        if not ArrayIncludes(["string", "enum", "number", "date", "boolean", "identity-set"], v.type) or not ArrayIncludes(["toggle", "select", "number-range", "date-range", "facet-multi-select", "text"], v.controlHint) then return bad
+        if not IsString(v.complexity) or not ArrayIncludes(["quick", "standard", "advanced"], v.complexity) or not IsString(v.cost) or not ArrayIncludes(["indexed", "indexed-join"], v.cost) then return bad
+        operators = ParseBrowseStrings(v.operators, 32, BrowseOperators())
+        if operators = invalid or ParseBrowseStrings(v.applicableKinds, 64) = invalid or known.doesExist(v.id) then return bad
+        known[v.id] = true
+        field = { id: v.id, labelKey: v.labelKey, type: v.type, controlHint: v.controlHint, operators: operators }
+        if v.doesExist("allowedValues") then
+            allowed = ParseBrowseStrings(v.allowedValues, 256)
+            if allowed = invalid then return bad
+            field.allowedValues = allowed
+        end if
+        if v.doesExist("facetSource") then
+            if not IsObject(v.facetSource) or not IsBrowseString(v.facetSource.endpoint, 256) or not IsBrowseId(v.facetSource.field) then return bad
+            field.facetSource = { endpoint: v.facetSource.endpoint, field: v.facetSource.field }
+        end if
+        fields.push(field)
+    end for
+    sorts = []
+    for each v in raw.sorts
+        if not IsObject(v) or not IsBrowseId(v.id) or not IsBrowseId(v.labelKey) or not IsBoolean(v.expensive) or not IsString(v.defaultDirection) or (v.defaultDirection <> "asc" and v.defaultDirection <> "desc") then return bad
+        directions = ParseBrowseStrings(v.directions, 2, ["asc", "desc"])
+        if directions = invalid or not ArrayIncludes(directions, v.defaultDirection) or ParseBrowseStrings(v.applicableKinds, 64) = invalid then return bad
+        sorts.push({ id: v.id, labelKey: v.labelKey, directions: directions, defaultDirection: v.defaultDirection })
+    end for
+    quick = []
+    for each v in raw.quickFilters
+        if not IsObject(v) or not IsBrowseId(v.id) or not IsBrowseId(v.labelKey) then return bad
+        query = ParseBrowseNode(v.query)
+        if query = invalid then return bad
+        quick.push({ id: v.id, labelKey: v.labelKey, query: query })
+    end for
+    resolved = invalid
+    if raw.resolvedPivot <> invalid then
+        resolved = ParseBrowsePivot(raw.resolvedPivot)
+        if resolved = invalid or not seen.doesExist(resolved.id) then return bad
+    end if
+    return { ok: true, capabilities: { library: { id: library.id, name: library.name, kind: library.kind }, pivots: pivots, resolvedPivot: resolved, fields: fields, sorts: sorts, quickFilters: quick, maximumLimit: limits.maximumLimit } }
+end function
+
+' browse.ts `parseBrowseResult`: {ok, result: {pivot, entries, start, total, revision, hasMore,
+' positionIndex: [{key, index}]}}.
+function ParseBrowseResult(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_browse" }
+    if not IsObject(raw) or not IsBrowseId(raw.pivot) or not IsObject(raw.applied) or not IsObject(raw.pageInfo) then return bad
+    info = raw.pageInfo
+    if not IsNatural(info.start) or not IsNatural(info.total) or not IsBrowseId(info.revision) or not IsBoolean(info.hasMore) or not IsBrowseString(info.nextCursor, 4096) then return bad
+    if info.start > info.total then return bad
+    if not IsArray(raw.entries) or raw.entries.count() > 200 then return bad
+    entries = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each v in raw.entries
+        entry = ParseContentEntry(v)
+        if entry = invalid or seen.doesExist(entry.id) then return bad
+        seen[entry.id] = true
+        entries.push(entry)
+    end for
+    if info.hasMore <> (info.start + entries.count() < info.total) then return bad
+    ' The position index is best-effort: an entry of unknown shape is dropped; well-shaped but
+    ' incoherent anchors (out of order, past the total) refuse the page.
+    anchors = []
+    if IsArray(raw.positionIndex) then
+        previous = -1
+        limit = info.total
+        if limit < 1 then limit = 1
+        taken = 0
+        for each anchor in raw.positionIndex
+            if taken < 256 and IsObject(anchor) and IsBrowseString(anchor.key, 8) and IsNatural(anchor.index) then
+                if anchor.index <= previous or anchor.index >= limit then return bad
+                previous = anchor.index
+                anchors.push({ key: anchor.key, index: anchor.index })
+            end if
+            taken = taken + 1
+        end for
+    end if
+    applied = raw.applied
+    if applied.query <> invalid and ParseBrowseNode(applied.query) = invalid then return bad
+    if not IsArray(applied.sort) or applied.sort.count() > 3 then return bad
+    for each sort in applied.sort
+        if ParseBrowseSort(sort) = invalid then return bad
+    end for
+    if applied.seek <> invalid then
+        if not IsObject(applied.seek) or not IsBrowseString(applied.seek.prefix, 8) or applied.seek.prefix = "" then return bad
+    end if
+    return { ok: true, result: { pivot: raw.pivot, entries: entries, start: info.start, total: info.total, revision: info.revision, hasMore: info.hasMore, positionIndex: anchors } }
+end function
+
+' browse.ts `parseBrowseFacets`: the values a field takes in this library, with their counts.
+' {ok, values: [{value, label, total}]}.
+function ParseBrowseFacets(raw as dynamic, expected = "" as string) as object
+    bad = { ok: false, code: "invalid_browse" }
+    if not IsObject(raw) or not IsBrowseId(raw.field) or (expected <> "" and raw.field <> expected) then return bad
+    if not IsArray(raw.values) or raw.values.count() > 200 then return bad
+    out = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each v in raw.values
+        if not IsObject(v) or not IsBrowseId(v.value) or not IsBrowseString(v.label, 512) or v.label = "" then return bad
+        total = FieldOf(v, "count")
+        if not IsNatural(total) or total < 1 or seen.doesExist(v.value) then return bad
+        seen[v.value] = true
+        out.push({ value: v.value, label: v.label, total: total })
+    end for
+    return { ok: true, field: raw.field, values: out }
+end function
+
+' POST /v1/libraries/{id}/browse (apps/native/src/app/browse-page-source.ts): one range of a
+' pivot, by offset pinned to the first page's revision.
+function BrowseRequestBody(pivot as string, predicates as object, sort as dynamic, start as integer, limit as integer, revision = "" as string, published = invalid as dynamic) as object
+    body = { "pivot": pivot, "limit": limit }
+    range = { "start": start }
+    if revision <> "" then range["revision"] = revision
+    body["range"] = range
+    if published <> invalid then
+        ' A published See all keeps the complete expression and its own sort.
+        if published.query <> invalid then body["query"] = published.query
+        body["sort"] = published.sort
+    else
+        if predicates.count() > 0 then body["query"] = { "all": predicates }
+        if sort <> invalid then body["sort"] = [{ "field": sort.field, "direction": sort.direction }]
+    end if
+    return body
+end function
+
+' browse.ts `formatBrowseAnchor`: the label of a position anchor under a sort. Keys are server
+' buckets: letters and years show as they are, months ("2026-09") read "Sep 2026", whole points
+' read "8★", half hours in minutes read "1h 30m", and an empty key reads `noValue`.
+function FormatBrowseAnchor(key as string, sortField as string, noValue = "" as string) as string
+    if key = "" then return noValue
+    if sortField = "communityRating" or sortField = "personalRating" then return key + "★"
+    if sortField = "duration" then
+        if not MatchesPattern(key, "^\d+(\.\d+)?$") then return key
+        minutes = Val(key)
+        h = Int(minutes / 60)
+        minute = Int(minutes - h * 60)
+        if h > 0 then
+            if minute > 0 then return h.toStr() + "h " + minute.toStr() + "m"
+            return h.toStr() + "h"
+        end if
+        return minute.toStr() + "m"
+    end if
+    if sortField = "added" or sortField = "lastPlayed" then
+        parts = CreateObject("roRegex", "^(\d{4})-(\d{2})$", "").match(key)
+        if parts.count() = 3 then
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            month = Val(parts[2], 10)
+            if month >= 1 and month <= 12 then return months[month - 1] + " " + parts[1]
+        end if
+    end if
+    return key
+end function

@@ -1,0 +1,584 @@
+' apps/native/src/screens/Saved.tsx. Saved: My List, Favorites, Playlists, Collections, Saved
+' views and History for the signed-in profile. The server authors each list; the screen only
+' picks the tab, a sort where one is offered, and pages.
+'
+' My List and Favorites are a grid that grows as focus nears its end (cards exist only for the
+' rows on screen). Playlists, Collections and Saved views are lists of names. History is grouped
+' by day, each card saying when; a finished title is badged.
+'
+' Differences from the Apple TV app: a day of History is a row of cards rather than a grid (one
+' scrolling grid per page on this platform); more History is asked for with "Show more".
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Saved.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.header = body.createChild("UiPageHeader")
+    m.header.headerWidth = m.width
+    m.header.title = T("saved.title")
+    m.tabs = body.createChild("UiTabs")
+    m.tabs.tabsWidth = m.width
+    items = []
+    for each pair in [["watchlist", "saved.tab.watchlist"], ["favorites", "saved.tab.favorites"], ["playlists", "saved.tab.playlists"], ["collections", "saved.tab.collections"], ["views", "saved.tab.savedViews"], ["history", "saved.tab.history"]]
+        items.push({ id: pair[0], label: T(pair[1]) })
+    end for
+    m.tabs.items = items
+    m.tabs.observeField("chosen", "onSavedTab")
+    m.sortRow = body.createChild("Group")
+    m.area = body.createChild("Group")
+    m.tab = "watchlist"
+    m.sorts = {}
+    m.value = invalid
+    m.task = invalid
+    m.pageTask = invalid
+    m.grid = invalid
+    m.cursor = ""
+    m.shelves = []
+    m.historyRevision = 0
+    m.generation = 0
+    m.changes = 0
+    m.claimed = false
+    m.confirm = invalid
+end sub
+
+sub enter()
+    route = m.top.route
+    if route <> invalid and route.view <> invalid then m.tab = route.view
+    m.tabs.selected = m.tab
+    SavedLoad()
+end sub
+
+' Returning to Saved: what was added or finished elsewhere is here.
+sub resume()
+    if m.task = invalid then SavedLoad()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.pageTask = invalid
+end sub
+
+sub focusEntry()
+    if m.grid <> invalid then
+        m.grid.callFunc("focusGrid")
+        m.page.callFunc("follow")
+    else if not FocusFirst(m.tabs) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function SavedServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+sub onSavedTab()
+    id = m.tabs.chosen
+    if id = "" or id = m.tab then return
+    m.tab = id
+    m.tabs.selected = id
+    m.value = invalid
+    SavedLoad()
+end sub
+
+function SavedMediaTab() as boolean
+    return m.tab = "watchlist" or m.tab = "favorites"
+end function
+
+sub SavedLoad()
+    m.generation = m.generation + 1
+    m.pageTask = invalid
+    request = SavedRequest("")
+    m.task = ApiStart(request, "onSavedLoaded")
+    m.task.addFields({ generation: m.generation, tab: m.tab })
+    if m.value = invalid then SavedLayout(invalid)
+end sub
+
+function SavedRequest(cursor as string) as object
+    origin = ViewerOrigin()
+    serverId = SavedServerId()
+    if m.tab = "history" then return { path: HistoryPath(cursor), reader: "history", context: { origin: origin, serverId: serverId } }
+    if m.tab = "collections" or m.tab = "views" then
+        kind = "collection"
+        if m.tab = "views" then kind = "view"
+        return { path: SavedResourcesPath(kind, cursor), reader: "savedResources", context: { serverId: serverId, kind: kind } }
+    end if
+    selected = { view: m.tab }
+    sort = ""
+    direction = ""
+    chosen = m.sorts[m.tab]
+    if chosen <> invalid then
+        sort = chosen.sort
+        direction = chosen.direction
+        selected.sort = sort
+        selected.direction = direction
+    end if
+    return { path: SavedListPath(m.tab, sort, direction, cursor), reader: "saved", context: { origin: origin, serverId: serverId, selected: selected } }
+end function
+
+sub onSavedLoaded(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        if m.value <> invalid then return
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        m.value = { failed: true, message: PresentError(failure, "saved").body }
+        SavedLayout(invalid)
+        SavedClaim()
+        return
+    end if
+    m.value = result.value
+    SavedLayout(task.content)
+    SavedClaim()
+end sub
+
+sub SavedClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onSavedRetry()
+    m.value = invalid
+    SavedLoad()
+    FocusFirst(m.tabs)
+end sub
+
+sub SavedLayout(content as dynamic)
+    page = Theme.space.page
+    y = Theme.apple.pageTopInset - Theme.space.lg
+    Place(m.header, 0, y)
+    y = y + m.header.headerHeight
+    Place(m.tabs, 0, y)
+    y = y + m.tabs.tabsHeight
+    held = m.grid <> invalid and m.grid.hasGridFocus
+    inArea = FocusCurrent(m.area) <> invalid or held
+    y = y + SavedSortRow(y)
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.grid = invalid
+    m.shelves = []
+    Place(m.area, 0, y)
+    height = 0
+    value = m.value
+    if value = invalid then
+        height = SavedSkeleton()
+    else if value.failed = true then
+        state = m.area.createChild("UiStateView")
+        state.icon = "warning"
+        state.title = T("saved.loadFailed")
+        state.message = value.message
+        state.action = T("action.tryAgain")
+        state.stateWidth = m.width
+        state.observeField("actionPressed", "onSavedRetry")
+        height = state.boundingRect().height
+    else if SavedMediaTab() then
+        height = SavedGrid(content)
+    else if m.tab = "playlists" then
+        height = SavedPlaylists()
+    else if m.tab = "history" then
+        height = SavedHistory(content)
+    else
+        height = SavedResources()
+    end if
+    m.page.contentHeight = y + height + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    if inArea then
+        if m.grid <> invalid then
+            m.grid.callFunc("focusGrid")
+        else if not FocusFirst(m.area) then
+            FocusFirst(m.tabs)
+        end if
+    end if
+end sub
+
+' APL-SAVED-01: sort chips where the list offers them, and never over an empty list.
+function SavedSortRow(top as dynamic) as float
+    held = ""
+    current = FocusCurrent(m.sortRow)
+    if current <> invalid then held = current.sortId
+    m.sortRow.removeChildrenIndex(m.sortRow.getChildCount(), 0)
+    value = m.value
+    if value = invalid or value.failed = true or not SavedMediaTab() or value.shown = 0 or value.sorts.count() = 0 then return Theme.space.xl
+    page = Theme.space.page
+    label = MakeText(m.sortRow, "label", "tertiary", T("saved.sort"))
+    x = page
+    buttons = []
+    height = label.height
+    for each sort in value.sorts
+        button = m.sortRow.createChild("UiButton")
+        button.addFields({ sortId: sort.id })
+        button.size = "sm"
+        button.variant = "secondary"
+        button.label = sort.label
+        active = value.sort = sort.id
+        button.selected = active
+        if active then
+            button.trailingIcon = "chevronUp"
+            if value.direction = "desc" then button.trailingIcon = "chevronDown"
+        end if
+        button.observeField("pressed", "onSavedSort")
+        buttons.push(button)
+        if button.controlHeight > height then height = button.controlHeight
+    end for
+    Place(label, x, Theme.space.md + (height - label.height) / 2)
+    x = x + TextWidth(label) + Theme.space.xs + Theme.space.sm
+    for each button in buttons
+        Place(button, x, Theme.space.md + (height - button.controlHeight) / 2)
+        x = x + button.controlWidth + Theme.space.sm
+        if button.sortId = held then FocusOn(button)
+    end for
+    Place(m.sortRow, 0, top)
+    return height + Theme.space.md * 2
+end function
+
+sub onSavedSort(event as object)
+    button = event.getRoSGNode()
+    value = m.value
+    direction = "asc"
+    if value.sort = button.sortId and value.direction = "asc" then direction = "desc"
+    m.sorts[m.tab] = { sort: button.sortId, direction: direction }
+    SavedLoad()
+end sub
+
+function SavedSkeleton() as float
+    page = Theme.space.page
+    width = Theme.metrics.posterWidth
+    height = Int(width / ArtworkRatio("poster") + 0.5)
+    columns = Max(2, Int((m.width - page * 2 + Theme.space.gutter) / (width + Theme.space.gutter)))
+    for index = 0 to columns * Theme.apple.librarySkeletonRows - 1
+        block = m.area.createChild("UiSkeleton")
+        block.blockHeight = height
+        block.blockWidth = width
+        Place(block, page + (index mod columns) * (width + Theme.space.gutter), (index \ columns) * (height + Theme.space.gutter))
+    end for
+    return (height + Theme.space.gutter) * Theme.apple.librarySkeletonRows
+end function
+
+function SavedEmpty(icon as string, title as string, message as string) as float
+    state = m.area.createChild("UiStateView")
+    state.icon = icon
+    state.title = title
+    state.message = message
+    state.stateWidth = m.width
+    return state.boundingRect().height
+end function
+
+function SavedGrid(content as dynamic) as float
+    value = m.value
+    if value.shown = 0 or content = invalid then
+        title = value.emptyTitle
+        if m.tab = "watchlist" then
+            if title = "" then title = T("web.saved.empty.watchlist")
+            return SavedEmpty("bookmark", title, T("web.saved.empty.watchlistBody"))
+        end if
+        if title = "" then title = T("web.saved.empty.favorites")
+        return SavedEmpty("heart", title, T("web.saved.empty.favoritesBody"))
+    end if
+    m.cursor = value.nextCursor
+    m.grid = m.area.createChild("UiGrid")
+    m.grid.shape = value.shape
+    m.grid.gridWidth = m.width
+    m.grid.gridHeight = Theme.screen.height
+    m.grid.items = content.getChild(0)
+    m.grid.observeField("itemSelected", "onSavedSelected")
+    m.grid.observeField("itemMenu", "onSavedMenu")
+    m.grid.observeField("visibleRange", "onSavedRange")
+    rows = (value.shown + m.grid.columns - 1) \ m.grid.columns
+    return Max(Theme.screen.height, rows * m.grid.rowStride)
+end function
+
+function SavedEntry(index as integer) as dynamic
+    if m.grid = invalid or index < 0 or index >= m.grid.items.getChildCount() then return invalid
+    return m.grid.items.getChild(index).entry
+end function
+
+sub onSavedSelected()
+    entry = SavedEntry(m.grid.itemSelected)
+    if entry <> invalid then OpenEntry(entry)
+end sub
+
+sub onSavedMenu()
+    entry = SavedEntry(m.grid.itemMenu)
+    if entry <> invalid then OpenEntry(entry, "more")
+end sub
+
+' The next page as the grid nears its end; earlier pages stay.
+sub onSavedRange()
+    if m.grid = invalid or m.cursor = "" or m.pageTask <> invalid then return
+    range = m.grid.visibleRange
+    if range = invalid or range.count() < 2 or range[1] < m.grid.items.getChildCount() - 1 then return
+    m.pageTask = ApiStart(SavedRequest(m.cursor), "onSavedPage")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub onSavedPage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.pageTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.cursor = ""
+        return
+    end if
+    value = result.value
+    if m.tab = "history" then
+        SavedHistoryAppend(value, task.content)
+        return
+    end if
+    if m.grid = invalid then return
+    ' The list changed under the viewer: it is read again from its start.
+    if value.viewerFence <> m.value.viewerFence or value.revision.viewer <> m.value.revision.viewer then
+        m.value = invalid
+        SavedLoad()
+        return
+    end if
+    items = m.grid.items
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each card in items.getChildren(-1, 0)
+        seen[card.entryId] = true
+    end for
+    fresh = []
+    for each card in task.content.getChild(0).getChildren(-1, 0)
+        if not seen.doesExist(card.entryId) then fresh.push(card)
+    end for
+    items.appendChildren(fresh)
+    m.cursor = value.nextCursor
+end sub
+
+function SavedPlaylists() as float
+    cards = m.value.cards
+    if cards = invalid or cards.count() = 0 then return SavedEmpty("queue", T("web.saved.empty.playlists"), T("web.saved.empty.playlistsBody"))
+    inset = Theme.space.page - Theme.space.sm
+    y = 0
+    first = true
+    for each card in cards
+        if not first then
+            line = MakeRect(m.area, m.width - inset * 2 - Theme.space.sm * 2, 1, Theme.colors.line)
+            Place(line, inset + Theme.space.sm, y)
+            y = y + 1
+        end if
+        row = m.area.createChild("UiListRow")
+        row.addFields({ playlistId: card.id })
+        row.title = card.title
+        row.subtitle = card.subtitle
+        if card.total >= 0 then row.meta = T("count.items", { count: card.total })
+        row.icon = "queue"
+        row.trailingIcon = "forward"
+        row.rowWidth = m.width - inset * 2
+        row.observeField("pressed", "onSavedPlaylist")
+        Place(row, inset, y)
+        y = y + row.rowHeight
+        first = false
+    end for
+    return y
+end function
+
+sub onSavedPlaylist(event as object)
+    row = event.getRoSGNode()
+    NavPush("ScreenPlaylist", { playlistId: row.playlistId, title: row.title })
+end sub
+
+' The viewer's collections or saved views, as a list: each is a name, not a poster.
+function SavedResources() as float
+    resources = m.value.resources
+    if resources.count() = 0 then
+        if m.tab = "views" then return SavedEmpty("filter", T("web.saved.empty.views"), T("web.saved.empty.viewsBody"))
+        return SavedEmpty("collection", T("web.saved.empty.collections"), T("web.saved.empty.collectionsBody"))
+    end if
+    group = m.area.createChild("UiRowGroup")
+    rows = []
+    for each resource in resources
+        row = CreateObject("roSGNode", "UiListRow")
+        row.addFields({ resourceId: resource.id })
+        row.icon = "collection"
+        if resource.kind = "view" then row.icon = "filter"
+        row.title = resource.name
+        if resource.summary <> "" then
+            row.subtitle = resource.summary
+        else if resource.visibility = "server" then
+            row.subtitle = T("saved.sharedWithEveryone")
+        end if
+        if resource.kind <> "view" then row.meta = T("count.items", { count: resource.entryCount })
+        row.trailingIcon = "forward"
+        row.observeField("pressed", "onSavedResource")
+        rows.push(row)
+    end for
+    group.groupWidth = m.width - Theme.space.page * 2
+    group.callFunc("setRows", rows)
+    Place(group, Theme.space.page, 0)
+    return group.groupHeight
+end function
+
+sub onSavedResource(event as object)
+    row = event.getRoSGNode()
+    NavPush("ScreenSavedResource", { resourceId: row.resourceId, title: row.title })
+end sub
+
+' ---- History, by day ---------------------------------------------------------------------------
+
+function SavedHistory(content as dynamic) as float
+    value = m.value
+    m.historyRevision = value.revision
+    m.cursor = value.nextCursor
+    if value.shown = 0 or content = invalid then return SavedEmpty("clock", T("web.saved.empty.history"), T("web.saved.empty.historyBody"))
+    page = Theme.space.page
+    clear = m.area.createChild("UiButton")
+    clear.variant = "ghost"
+    clear.size = "sm"
+    clear.icon = "trash"
+    clear.label = T("web.saved.clearHistory")
+    clear.observeField("pressed", "onSavedClearAsk")
+    Place(clear, m.width - page - clear.controlWidth, 0)
+    m.historyDays = []
+    m.historyY = clear.controlHeight
+    for index = 0 to value.days.count() - 1
+        SavedHistoryDay(value.days[index], content.getChild(index))
+    end for
+    return SavedHistoryFooter()
+end function
+
+sub SavedHistoryDay(day as object, cards as object)
+    shelf = m.area.createChild("UiShelf")
+    shelf.shelfWidth = m.width
+    shelf.shape = day.shape
+    shelf.title = day.label
+    shelf.active = false
+    shelf.items = cards
+    shelf.observeField("itemSelected", "onSavedShelfSelected")
+    shelf.observeField("itemMenu", "onSavedShelfMenu")
+    Place(shelf, 0, m.historyY)
+    m.historyY = m.historyY + shelf.shelfHeight
+    m.historyDays.push({ label: day.label, shelf: shelf })
+    m.shelves.push(shelf)
+end sub
+
+' More of the history is one press away; earlier pages stay.
+function SavedHistoryFooter() as float
+    if m.moreButton <> invalid and m.moreButton.getParent() <> invalid then m.area.removeChild(m.moreButton)
+    m.moreButton = invalid
+    if m.cursor = "" then return m.historyY
+    m.moreButton = m.area.createChild("UiButton")
+    m.moreButton.variant = "secondary"
+    m.moreButton.label = T("action.showMore")
+    m.moreButton.observeField("pressed", "onSavedMore")
+    Place(m.moreButton, (m.width - m.moreButton.controlWidth) / 2, m.historyY + Theme.space.md)
+    return m.historyY + Theme.space.md + m.moreButton.controlHeight
+end function
+
+sub onSavedMore()
+    if m.pageTask <> invalid or m.cursor = "" then return
+    m.moreButton.loading = true
+    m.pageTask = ApiStart(SavedRequest(m.cursor), "onSavedPage")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub SavedHistoryAppend(value as object, content as object)
+    held = m.moreButton <> invalid and m.moreButton.isInFocusChain()
+    m.cursor = value.nextCursor
+    firstNew = invalid
+    for index = 0 to value.days.count() - 1
+        day = value.days[index]
+        cards = content.getChild(index)
+        last = invalid
+        if m.historyDays.count() > 0 then last = m.historyDays[m.historyDays.count() - 1]
+        if last <> invalid and last.label = day.label then
+            ' The page continues the last day on screen.
+            last.shelf.items.appendChildren(cards.getChildren(-1, 0))
+            if firstNew = invalid then firstNew = last.shelf
+        else
+            SavedHistoryDay(day, cards)
+            if firstNew = invalid then firstNew = m.historyDays[m.historyDays.count() - 1].shelf
+        end if
+    end for
+    height = SavedHistoryFooter()
+    m.page.contentHeight = OffsetY(m.area) + height + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    if held then
+        if firstNew <> invalid then
+            firstNew.active = true
+            firstNew.callFunc("focusList")
+        else
+            FocusFirst(m.tabs)
+        end if
+        m.page.callFunc("follow")
+    end if
+end sub
+
+function OffsetY(node as object) as float
+    return node.translation[1]
+end function
+
+sub onSavedShelfSelected(event as object)
+    shelf = event.getRoSGNode()
+    index = event.getData()
+    if shelf.items = invalid or index < 0 or index >= shelf.items.getChildCount() then return
+    OpenEntry(shelf.items.getChild(index).entry)
+end sub
+
+sub onSavedShelfMenu(event as object)
+    shelf = event.getRoSGNode()
+    index = event.getData()
+    if shelf.items = invalid or index < 0 or index >= shelf.items.getChildCount() then return
+    OpenEntry(shelf.items.getChild(index).entry, "more")
+end sub
+
+' Clearing history asks first, and says what it does.
+sub onSavedClearAsk()
+    if m.confirm = invalid then
+        m.confirm = m.top.createChild("UiSheet")
+        m.confirm.kind = "form"
+        m.confirm.primaryTone = "destructive"
+        m.confirm.observeField("primaryPressed", "onSavedClear")
+    end if
+    m.confirm.title = T("web.saved.clearHistoryTitle")
+    m.confirm.primaryLabel = T("web.saved.clearHistoryAction")
+    width = m.confirm.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    text = MakeText(body, "body", "secondary")
+    text.lines = 0
+    text.maxWidth = width - Theme.space.md * 2
+    text.value = T("web.saved.clearHistoryBody")
+    Place(text, Theme.space.md, 0)
+    m.confirm.callFunc("setBody", body, TextHeight(text))
+    m.confirm.callFunc("open")
+end sub
+
+sub onSavedClear()
+    m.confirm.primaryLoading = true
+    body = HistoryClearBody(m.historyRevision)
+    body["operationId"] = NewRequestId()
+    task = ApiStart({ path: "/v1/personal-history/actions", method: "POST", body: body }, "onSavedCleared")
+    m.clearTask = task
+end sub
+
+sub onSavedCleared(event as object)
+    result = event.getData()
+    m.confirm.primaryLoading = false
+    m.confirm.callFunc("close")
+    if not result.ok then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        Toast(PresentError(failure, "saved", { operation: "save" }).body, "warning")
+        return
+    end if
+    m.value = invalid
+    SavedLoad()
+    FocusFirst(m.tabs)
+end sub

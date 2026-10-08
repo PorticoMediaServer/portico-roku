@@ -1,0 +1,24 @@
+' ui/Scroll.bs: where a page comes to rest when focus moves.
+
+sub Test_Scroll_firstScreenNeverScrolls()
+    AssertEqual(ScrollTarget(0, 1080, 4000, 100, 300), 0)
+    AssertEqual(ScrollTarget(0, 1080, 900, 100, 300), 0)
+end sub
+
+sub Test_Scroll_bringsAControlIntoView()
+    ' Below the viewport: scroll until its bottom (plus the margin) shows.
+    AssertEqual(ScrollTarget(0, 1080, 4000, 1200, 64, invalid, 0, 40), 224)
+    ' Above the viewport: scroll back until its top (less the margin) shows.
+    AssertEqual(ScrollTarget(900, 1080, 4000, 500, 64, invalid, 0, 40), 460)
+    ' Already in view: stay.
+    AssertEqual(ScrollTarget(300, 1080, 4000, 600, 64, invalid, 0, 40), 300)
+end sub
+
+sub Test_Scroll_shelfComesToRestOnItsLine()
+    ' ui/Shelf.tsx: scrollSnapOffset = round(window.height × 0.28) = 302.
+    AssertEqual(ScrollTarget(0, 1080, 6000, 1400, 453, 1400, 302), 1098)
+    ' A shelf near the top cannot scroll above the start.
+    AssertEqual(ScrollTarget(500, 1080, 6000, 120, 453, 120, 302), 0)
+    ' Nor past the end.
+    AssertEqual(ScrollTarget(0, 1080, 2000, 1700, 453, 1700, 302), 920)
+end sub

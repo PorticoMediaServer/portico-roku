@@ -1,0 +1,47 @@
+' Where a page comes to rest when focus moves. tvOS scrolls a page so the focused control is in
+' view; the Apple TV app adds one rule (ui/Shelf.tsx `scrollSnapOffset`): a shelf comes to rest
+' Theme.apple.shelfSnapFraction of the screen's height from the top.
+
+' The scroll offset for a control at `top`..`top + height` inside content `contentHeight` tall,
+' seen through a viewport `viewport` tall that is now scrolled to `current`. With `snapTop` (a
+' shelf's top) the shelf is brought to its resting line; otherwise the control is only brought
+' fully into view, with `margin` to spare. The first screenful never scrolls.
+function ScrollTarget(current as dynamic, viewport as dynamic, contentHeight as dynamic, top as dynamic, height as dynamic, snapTop = invalid as dynamic, snapLine = 0 as dynamic, margin = 0 as dynamic) as integer
+    limit = contentHeight - viewport
+    if limit < 0 then limit = 0
+    target = current
+    if snapTop <> invalid then
+        target = snapTop - snapLine
+    else
+        if top - margin < target then target = top - margin
+        if top + height + margin > target + viewport then target = top + height + margin - viewport
+    end if
+    if target < 0 then target = 0
+    if target > limit then target = limit
+    return Int(target)
+end function
+
+' The position of `node` inside `ancestor`: the sum of the translations between them.
+function OffsetWithin(node as object, ancestor as object) as object
+    x = 0
+    y = 0
+    current = node
+    while current <> invalid and not current.isSameNode(ancestor)
+        translation = current.translation
+        x = x + translation[0]
+        y = y + translation[1]
+        current = current.getParent()
+    end while
+    return { x: x, y: y }
+end function
+
+' The deepest node that holds focus under `root` (to give focus back when an overlay closes).
+function FocusedLeaf(root as object) as dynamic
+    node = root
+    while node <> invalid
+        child = node.focusedChild
+        if child = invalid or child.isSameNode(node) then exit while
+        node = child
+    end while
+    return node
+end function

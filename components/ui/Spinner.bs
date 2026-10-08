@@ -1,0 +1,59 @@
+' apps/native/src/ui/Feedback.tsx `Ring`: a track in the tertiary text colour at
+' componentSpec.feedback.spinner.trackAlpha, one accent arc, a steady turn of
+' Theme.apple.spinnerTurnMs. Reduce Motion holds the arc still.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.track = m.top.createChild("Poster")
+    m.arc = m.top.createChild("Poster")
+    m.arc.id = "spinnerArc"
+    m.turn = m.top.createChild("Animation")
+    m.turn.repeat = true
+    m.turn.easeFunction = "linear"
+    m.turn.duration = Theme.apple.spinnerTurnMs / 1000
+    interpolator = m.turn.createChild("FloatFieldInterpolator")
+    interpolator.key = [0, 1]
+    ' A Poster turns clockwise for a negative rotation: one full turn.
+    interpolator.keyValue = [0, -Theme.math.fullTurn]
+    interpolator.fieldToInterp = "spinnerArc.rotation"
+    onSpinnerLayout()
+    onSpinnerRun()
+end sub
+
+sub onSpinnerLayout()
+    size = m.top.size
+    if size <= 0 then
+        sizes = ThemeSpecTable().feedback.spinner.size
+        size = sizes[m.top.kind]
+        if size = invalid then size = sizes.screen
+    end if
+    stroke = Theme.spec.feedback.spinner.stroke
+    track = ThemeColor(Theme.spec.feedback.spinner.track, Theme.spec.feedback.spinner.trackAlpha)
+    arc = ThemeColor(Theme.spec.feedback.spinner.arc)
+    if m.top.tint <> "" then
+        track = ColorAlpha(m.top.tint, Theme.spec.feedback.spinner.trackAlpha)
+        arc = m.top.tint
+    end if
+    StyleRing(m.track, size, size, size / 2, stroke, track)
+    arcSize = 0
+    for each candidate in ThemeArcSizes()
+        arcSize = candidate
+        if candidate >= size then exit for
+    end for
+    m.arc.uri = "pkg:/images/shapes/arc-" + arcSize.toStr() + ".png"
+    m.arc.width = size
+    m.arc.height = size
+    m.arc.blendColor = arc
+    m.arc.scaleRotateCenter = [size / 2, size / 2]
+end sub
+
+sub onSpinnerRun()
+    if m.top.spinning and m.top.visible and not ReduceMotion() then
+        m.turn.control = "start"
+    else
+        m.turn.control = "stop"
+    end if
+end sub

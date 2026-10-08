@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Avatar.tsx: the picture, or the initial on the profile's art colour. -->
+<component name="UiAvatar" extends="Group">
+    <interface>
+        <field id="name" type="string" value="" onChange="onAvatarLayout" />
+        <!-- A profile art colour name (packages/design profileArtColors). -->
+        <field id="art" type="string" value="" onChange="onAvatarLayout" />
+        <field id="uri" type="string" value="" onChange="onAvatarLayout" />
+        <field id="size" type="float" value="0" onChange="onAvatarLayout" />
+    </interface>
+</component>

@@ -1,0 +1,260 @@
+' apps/native/src/player/EntryMenu.tsx with client-core's `entryActions`: one menu for every card
+' (the remote's * key). Its personal actions come from the title's own detail (an item) or its
+' container state (a show, season, album, book or artist), read when the menu is asked for:
+' Play/Resume and Play from beginning; My List, Favorite, Watched; Remove from Continue Watching
+' (a Continue Watching card); Not interested (a recommendation); Rate…; Add to playlist…; Details.
+' On the title's own page the action row already has My List, Favorite and Watched, so the menu
+' holds the rest. Television has no downloads, Watch Together or metadata editing.
+'
+' Difference from the Apple TV app: the notices after Remove from Continue Watching and Not
+' interested have no Undo (a toast here cannot take focus).
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Title.bs"
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/components/screens/title/Container.bs"
+
+sub init()
+    m.menu = m.top.createChild("UiMenu")
+    m.menu.observeField("chosen", "onEntryChosen")
+    m.request = invalid
+    m.detail = invalid
+    m.task = invalid
+    m.commandTask = invalid
+    m.generation = 0
+end sub
+
+function EntryServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+sub open(request as object)
+    m.generation = m.generation + 1
+    m.request = request
+    m.detail = invalid
+    m.containerState = invalid
+    m.containerKind = ""
+    entry = request.entry
+    kind = ""
+    if entry.navigation <> invalid and IsString(entry.navigation.entityId) and entry.navigation.entityId <> "" then kind = ContainerKindFor(entry.kind)
+    if kind <> "" then
+        ' A show, season, album, book or artist: its own state, then the menu.
+        m.containerKind = kind
+        m.containerId = entry.navigation.entityId
+        m.task = ApiStart({ path: ContainerStatePath(kind, m.containerId), reader: "container", context: { counts: true } }, "onEntryState")
+        m.task.addFields({ generation: m.generation })
+        return
+    end if
+    library = entry.libraryId
+    if library = invalid or library = "" then library = request.libraryId
+    if library = invalid or library = "" then
+        EntryShow()
+        return
+    end if
+    m.task = ApiStart({ path: "/v1/items/" + entry.id.encodeUriComponent() + "/detail?related=all", reader: "detail", context: { origin: ViewerOrigin(), serverId: EntryServerId(), target: { libraryId: library, itemId: entry.id } } }, "onEntryDetail")
+    m.task.addFields({ generation: m.generation })
+end sub
+
+sub onEntryDetail(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    if result.ok and result.value.ok = true then m.detail = result.value.detail
+    EntryShow()
+end sub
+
+' The container's state arrived (or could not be read): the menu opens either way.
+sub onEntryState(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    if result.ok and result.value.ok = true then m.containerState = result.value.state
+    EntryShow()
+end sub
+
+sub onContainerChanged()
+end sub
+
+sub onContainerSaved(watched as boolean)
+    EntryChanged()
+end sub
+
+function EntryHas(action as string) as boolean
+    if m.detail = invalid then return false
+    for each candidate in m.detail.actions
+        if candidate.id = action and candidate.enabled then return true
+    end for
+    return false
+end function
+
+sub EntryShow()
+    request = m.request
+    entry = request.entry
+    origin = ""
+    if request.origin <> invalid then origin = request.origin
+    caps = { kind: entry.kind, playable: entry.playback <> invalid, progressSeconds: entry.progressSeconds, continueWatching: origin = "continue_watching", notInterested: origin = "recommendation", addToPlaylist: entry.playback <> invalid, details: entry.navigation <> invalid and origin <> "page" }
+    scene = m.top.getScene()
+    if scene <> invalid and scene.hasField("queueActive") and scene.queueActive = true then caps.queue = true
+    ' In a Watch Together room that lets this viewer add to its queue.
+    together = m.global.together
+    if together <> invalid and together.inRoom = true and together.group <> invalid and together.group.permissions.canManageQueue then caps.group = true
+    ' On the title's own page these three are the action row; the menu holds the rest.
+    if origin <> "page" then
+        if m.containerKind <> "" then
+            state = m.containerState
+            if state <> invalid then
+                if ContainerCarries(m.containerKind, "watchlisted") then caps.watchlisted = state.watchlisted
+                if ContainerCarries(m.containerKind, "favorite") then caps.favorite = state.favorite
+                if ContainerCarries(m.containerKind, "watched") then caps.watched = state.watched
+            end if
+        else if m.detail <> invalid then
+            personal = m.detail.personal
+            if EntryHas("watchlist") then caps.watchlisted = personal.watchlisted
+            if EntryHas("favorite") then caps.favorite = personal.favorite
+            if EntryHas("watched") then caps.watched = personal.watched
+        end if
+    end if
+    items = []
+    for each group in EntryActions(caps)
+        first = true
+        for each action in group.actions
+            item = { id: action.id, label: T(action.label), icon: action.icon }
+            if first and group.id <> "play" then item.section = ""
+            items.push(item)
+            first = false
+        end for
+    end for
+    if items.count() = 0 then return
+    m.menu.title = entry.title
+    m.menu.items = items
+    m.menu.callFunc("open")
+end sub
+
+sub onEntryChosen()
+    id = m.menu.chosen
+    request = m.request
+    entry = request.entry
+    if id = "play" or id = "resume" then
+        start = 0
+        if entry.playback.startSeconds <> invalid then
+            start = entry.playback.startSeconds
+        else if entry.progressSeconds <> invalid then
+            start = entry.progressSeconds
+        end if
+        PlayItem(entry.playback.itemId, start, entry)
+    else if id = "playFromStart" then
+        PlayItem(entry.playback.itemId, 0, entry)
+    else if id = "watchWithGroup" then
+        ' Queued, then put in front of the group; the room is where it is started from.
+        m.global.together.callFunc("watch", entry.playback.itemId)
+        NavPush("ScreenTogether", {})
+    else if id = "addToGroupQueue" then
+        m.global.together.callFunc("queueAdd", entry.playback.itemId)
+        Toast(T("entry.addedToGroupQueue"), "check")
+    else if id = "playNext" or id = "addToQueue" then
+        scene = m.top.getScene()
+        if scene <> invalid then scene.callFunc("enqueue", { entry: entry, next: id = "playNext" })
+    else if id = "watchlist" or id = "favorite" or id = "watched" then
+        EntryPersonal(id)
+    else if id = "removeFromContinueWatching" then
+        EntryContinueRemove()
+    else if id = "notInterested" then
+        EntryNotInterested()
+    else if id = "addToPlaylist" then
+        scene = m.top.getScene()
+        if scene <> invalid then scene.callFunc("organize", { kind: "playlist", entry: entry })
+    else if id = "details" then
+        OpenEntry(entry, "open", request.libraryId)
+    end if
+end sub
+
+sub EntryPersonal(id as string)
+    if m.containerKind <> "" then
+        state = m.containerState
+        if state = invalid then return
+        if id = "watchlist" then
+            ContainerSetFlag("watchlisted", not state.watchlisted)
+            EntryChanged()
+        else if id = "favorite" then
+            ContainerSetFlag("favorite", not state.favorite)
+            EntryChanged()
+        else
+            ContainerSetWatched(not state.watched)
+        end if
+        return
+    end if
+    if m.detail = invalid then return
+    personal = m.detail.personal
+    value = false
+    if id = "watchlist" then value = not personal.watchlisted
+    if id = "favorite" then value = not personal.favorite
+    if id = "watched" then value = not personal.watched
+    operationId = NewRequestId()
+    body = PersonalStateBody(operationId, personal.revision, id, value)
+    m.commandTask = ApiStart({ path: "/v1/items/" + m.detail.item.id.encodeUriComponent() + "/personal-state", method: "PUT", body: body, reader: "receipt", context: { operationId: operationId, scope: m.detail.scope } }, "onEntrySaved")
+end sub
+
+sub onEntrySaved(event as object)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        ContainerFailed(result.error)
+        return
+    end if
+    EntryChanged()
+end sub
+
+' The page under the menu reads again what the change moved.
+sub EntryChanged()
+    NotePersonalChange()
+end sub
+
+' X-12: a Continue Watching card leaves the row; its resume point stays.
+sub EntryContinueRemove()
+    entry = m.request.entry
+    revision = invalid
+    if m.detail <> invalid then revision = m.detail.personal.revision
+    if revision = invalid then
+        Toast(T("entry.continueRemoveFailed", { title: entry.title }), "warning")
+        return
+    end if
+    operationId = NewRequestId()
+    task = ApiStart({ path: "/v1/items/" + entry.id.encodeUriComponent() + "/personal-state", method: "PUT", body: ContinueDismissBody(operationId, revision) }, "onEntryContinueRemoved")
+    task.addFields({ title: entry.title })
+    m.commandTask = task
+end sub
+
+sub onEntryContinueRemoved(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if not result.ok then
+        Toast(T("entry.continueRemoveFailed", { title: task.title }), "warning")
+        return
+    end if
+    Toast(T("entry.continueRemoved", { title: task.title }), "check")
+    EntryChanged()
+end sub
+
+' P5: a recommendation can be turned down; the title leaves every recommendation row.
+sub EntryNotInterested()
+    entry = m.request.entry
+    target = NotInterestedTarget(entry)
+    task = ApiStart({ path: "/v1/items/personal-state:batch", method: "PUT", body: NotInterestedBody(NewRequestId(), target) }, "onEntryNotInterested")
+    task.addFields({ title: entry.title, target: target })
+    m.commandTask = task
+end sub
+
+sub onEntryNotInterested(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if not result.ok or not NotInterestedAccepted(result.value, EntryServerId(), task.target) then
+        Toast(T("entry.notInterestedFailed", { title: task.title }), "warning")
+        return
+    end if
+    Toast(T("entry.notInterestedDone", { title: task.title }), "check")
+    EntryChanged()
+end sub

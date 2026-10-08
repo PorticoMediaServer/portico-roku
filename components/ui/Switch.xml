@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Switch.tsx `SwitchVisual`: the drawn switch. Never focused on its own: its row is. -->
+<component name="UiSwitch" extends="Group">
+    <interface>
+        <field id="value" type="boolean" value="false" onChange="onSwitchValue" />
+        <field id="disabled" type="boolean" value="false" onChange="onSwitchValue" />
+        <field id="switchWidth" type="float" value="0" />
+        <field id="switchHeight" type="float" value="0" />
+    </interface>
+</component>

@@ -1,0 +1,6384 @@
+{
+ "cases": [
+  {
+   "name": "as served, notifications-inbox-all.json",
+   "document": {
+    "data": {
+     "revision": 13,
+     "audience": "profile",
+     "audiences": [
+      "profile"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 12,
+      "read": 0,
+      "archived": 0,
+      "total": 12
+     },
+     "items": [
+      {
+       "id": "18dff5de360d7e162606fb3e43015615",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ"
+         }
+        }
+       ],
+       "dedupeKey": "device:Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ",
+       "revision": 13,
+       "createdAt": 1791022422326,
+       "updatedAt": 1791022422326,
+       "expiresAt": 1806574422326,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "d8cd15cd56ec4281a5240053fdd9c499",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "sdk_google_atv64_arm64 (androidtv)",
+        "deviceId": "bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ"
+         }
+        }
+       ],
+       "dedupeKey": "device:bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ",
+       "revision": 12,
+       "createdAt": 1791020491872,
+       "updatedAt": 1791020491872,
+       "expiresAt": 1806572491872,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "26cd877c94c078e5a0482cfa3c79f23c",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "sdk_google_atv64_arm64 (androidtv)",
+        "deviceId": "B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo"
+         }
+        }
+       ],
+       "dedupeKey": "device:B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo",
+       "revision": 11,
+       "createdAt": 1791019607589,
+       "updatedAt": 1791019607589,
+       "expiresAt": 1806571607589,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "fb2c001ec4f792e6aac685389d4516ce",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk"
+         }
+        }
+       ],
+       "dedupeKey": "device:ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk",
+       "revision": 10,
+       "createdAt": 1791016114613,
+       "updatedAt": 1791016114613,
+       "expiresAt": 1806568114613,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "fb2b49e1868c762f2591091d48787c0b",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs"
+         }
+        }
+       ],
+       "dedupeKey": "device:462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs",
+       "revision": 9,
+       "createdAt": 1791013548629,
+       "updatedAt": 1791013548629,
+       "expiresAt": 1806565548629,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "e94ed0246473f7a14e009d1745ce1fec",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4"
+         }
+        }
+       ],
+       "dedupeKey": "device:24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4",
+       "revision": 8,
+       "createdAt": 1791012648852,
+       "updatedAt": 1791012648852,
+       "expiresAt": 1806564648852,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "5f5d1a1209ec09a43c9a0822c4334180",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ"
+         }
+        }
+       ],
+       "dedupeKey": "device:5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ",
+       "revision": 7,
+       "createdAt": 1791012111058,
+       "updatedAt": 1791012111058,
+       "expiresAt": 1806564111058,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "f9aed34aa09ddf5dd1c785ab202df71e",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI"
+         }
+        }
+       ],
+       "dedupeKey": "device:MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI",
+       "revision": 6,
+       "createdAt": 1791011580567,
+       "updatedAt": 1791011580567,
+       "expiresAt": 1806563580567,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "5dcda003206f360abb2b065777a2c5cb",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "sdk_google_atv64_arm64 (androidtv)",
+        "deviceId": "LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4"
+         }
+        }
+       ],
+       "dedupeKey": "device:LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4",
+       "revision": 5,
+       "createdAt": 1791007799656,
+       "updatedAt": 1791007799656,
+       "expiresAt": 1806559799656,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "bcecc07e976ccd4a8ad56021e14fda3e",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Portico TV (tvos)",
+        "deviceId": "rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA"
+         }
+        }
+       ],
+       "dedupeKey": "device:rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA",
+       "revision": 4,
+       "createdAt": 1790945803738,
+       "updatedAt": 1790945803738,
+       "expiresAt": 1806497803738,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "ddcf83b2b6720c24814cf76394d3cc85",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Portico TV (tvos)",
+        "deviceId": "Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M"
+         }
+        }
+       ],
+       "dedupeKey": "device:Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M",
+       "revision": 3,
+       "createdAt": 1790930309701,
+       "updatedAt": 1790930309701,
+       "expiresAt": 1806482309701,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "79dab82470fd8f9d58e402f6cd3715fe",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Portico TV (tvos)",
+        "deviceId": "fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0"
+         }
+        }
+       ],
+       "dedupeKey": "device:fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0",
+       "revision": 2,
+       "createdAt": 1790922063987,
+       "updatedAt": 1790922063987,
+       "expiresAt": 1806474063987,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      }
+     ],
+     "nextCursor": "",
+     "observedAt": 1791230793003,
+     "retentionDays": 180
+    },
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "counts": {
+     "unread": 12,
+     "read": 0,
+     "archived": 0,
+     "total": 12
+    },
+    "nextCursor": "",
+    "audiences": [
+     "profile"
+    ],
+    "items": [
+     {
+      "id": "18dff5de360d7e162606fb3e43015615",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791022422326,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "d8cd15cd56ec4281a5240053fdd9c499",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791020491872,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "26cd877c94c078e5a0482cfa3c79f23c",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791019607589,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "fb2c001ec4f792e6aac685389d4516ce",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791016114613,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "fb2b49e1868c762f2591091d48787c0b",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791013548629,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "e94ed0246473f7a14e009d1745ce1fec",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791012648852,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "5f5d1a1209ec09a43c9a0822c4334180",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791012111058,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "f9aed34aa09ddf5dd1c785ab202df71e",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791011580567,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "5dcda003206f360abb2b065777a2c5cb",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791007799656,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "bcecc07e976ccd4a8ad56021e14fda3e",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1790945803738,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "ddcf83b2b6720c24814cf76394d3cc85",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1790930309701,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "79dab82470fd8f9d58e402f6cd3715fe",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1790922063987,
+      "read": false,
+      "archived": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "as served, notifications-inbox-unread.json",
+   "document": {
+    "data": {
+     "revision": 13,
+     "audience": "profile",
+     "audiences": [
+      "profile"
+     ],
+     "state": "unread",
+     "counts": {
+      "unread": 12,
+      "read": 0,
+      "archived": 0,
+      "total": 12
+     },
+     "items": [
+      {
+       "id": "18dff5de360d7e162606fb3e43015615",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ"
+         }
+        }
+       ],
+       "dedupeKey": "device:Rn3NMhpW4uEItRMhtj5flp0KTRRH6vQo7qqBG1E9PoQ",
+       "revision": 13,
+       "createdAt": 1791022422326,
+       "updatedAt": 1791022422326,
+       "expiresAt": 1806574422326,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "d8cd15cd56ec4281a5240053fdd9c499",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "sdk_google_atv64_arm64 (androidtv)",
+        "deviceId": "bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ"
+         }
+        }
+       ],
+       "dedupeKey": "device:bG3to27a8rRbnhrNmrtys17kLN2oAyCh8j0QiLhkkoQ",
+       "revision": 12,
+       "createdAt": 1791020491872,
+       "updatedAt": 1791020491872,
+       "expiresAt": 1806572491872,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "26cd877c94c078e5a0482cfa3c79f23c",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "sdk_google_atv64_arm64 (androidtv)",
+        "deviceId": "B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo"
+         }
+        }
+       ],
+       "dedupeKey": "device:B5oU7HHvKEvqL_C6O0f7eu9E5Uk-qJTTvDePyU5CUdo",
+       "revision": 11,
+       "createdAt": 1791019607589,
+       "updatedAt": 1791019607589,
+       "expiresAt": 1806571607589,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "fb2c001ec4f792e6aac685389d4516ce",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk"
+         }
+        }
+       ],
+       "dedupeKey": "device:ydmtuf3IDHA5MMl0H3cbr7Stui2o-VMUyCjMrfC4HZk",
+       "revision": 10,
+       "createdAt": 1791016114613,
+       "updatedAt": 1791016114613,
+       "expiresAt": 1806568114613,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "fb2b49e1868c762f2591091d48787c0b",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs"
+         }
+        }
+       ],
+       "dedupeKey": "device:462J3itE7PYGqxSFR6gmC3RM1qnOhOl8x6TByzenRCs",
+       "revision": 9,
+       "createdAt": 1791013548629,
+       "updatedAt": 1791013548629,
+       "expiresAt": 1806565548629,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "e94ed0246473f7a14e009d1745ce1fec",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4"
+         }
+        }
+       ],
+       "dedupeKey": "device:24BsEhatIYqryWO5vOG_Zptp2PPuZHZhRJQhQ3VpJn4",
+       "revision": 8,
+       "createdAt": 1791012648852,
+       "updatedAt": 1791012648852,
+       "expiresAt": 1806564648852,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "5f5d1a1209ec09a43c9a0822c4334180",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ"
+         }
+        }
+       ],
+       "dedupeKey": "device:5MOx4QcPPdW86Zz6b-aR3uszZWFEthtehPpkH_pgoBQ",
+       "revision": 7,
+       "createdAt": 1791012111058,
+       "updatedAt": 1791012111058,
+       "expiresAt": 1806564111058,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "f9aed34aa09ddf5dd1c785ab202df71e",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Fire TV (vega)",
+        "deviceId": "MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI"
+         }
+        }
+       ],
+       "dedupeKey": "device:MFxzJyMaHwJXvvUUSTgKMAhPuXFn6-jUA375GBGQ6XI",
+       "revision": 6,
+       "createdAt": 1791011580567,
+       "updatedAt": 1791011580567,
+       "expiresAt": 1806563580567,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "5dcda003206f360abb2b065777a2c5cb",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "sdk_google_atv64_arm64 (androidtv)",
+        "deviceId": "LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4"
+         }
+        }
+       ],
+       "dedupeKey": "device:LeKQ8LfYh6gPPjErO6n_J2ukkneBLgvhw9hBiG7S6S4",
+       "revision": 5,
+       "createdAt": 1791007799656,
+       "updatedAt": 1791007799656,
+       "expiresAt": 1806559799656,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "bcecc07e976ccd4a8ad56021e14fda3e",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Portico TV (tvos)",
+        "deviceId": "rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA"
+         }
+        }
+       ],
+       "dedupeKey": "device:rZSCmPrUStSE2tqpOEGv4RwOD9Xa9na0WAKhXLSxAIA",
+       "revision": 4,
+       "createdAt": 1790945803738,
+       "updatedAt": 1790945803738,
+       "expiresAt": 1806497803738,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "ddcf83b2b6720c24814cf76394d3cc85",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Portico TV (tvos)",
+        "deviceId": "Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M"
+         }
+        }
+       ],
+       "dedupeKey": "device:Ie78y46MB9vJEZGAbuatEOqb5hnlR6iNZrhy4lSrS-M",
+       "revision": 3,
+       "createdAt": 1790930309701,
+       "updatedAt": 1790930309701,
+       "expiresAt": 1806482309701,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      },
+      {
+       "id": "79dab82470fd8f9d58e402f6cd3715fe",
+       "audience": "profile",
+       "severity": "warning",
+       "source": "security",
+       "category": "security.new-device",
+       "title": "New device signed in",
+       "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+       "arguments": {
+        "device": "Portico TV (tvos)",
+        "deviceId": "fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Review security",
+         "target": {
+          "view": "settings-security"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Review device",
+         "command": "review-device",
+         "arguments": {
+          "deviceId": "fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0"
+         }
+        }
+       ],
+       "dedupeKey": "device:fdxMWy6tgJMr8L3-aZOTo2hKguhDMSx4BRO-zGASSl0",
+       "revision": 2,
+       "createdAt": 1790922063987,
+       "updatedAt": 1790922063987,
+       "expiresAt": 1806474063987,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "stripped-cursor"
+      }
+     ],
+     "nextCursor": "",
+     "observedAt": 1791230793004,
+     "retentionDays": 180
+    },
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "counts": {
+     "unread": 12,
+     "read": 0,
+     "archived": 0,
+     "total": 12
+    },
+    "nextCursor": "",
+    "audiences": [
+     "profile"
+    ],
+    "items": [
+     {
+      "id": "18dff5de360d7e162606fb3e43015615",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791022422326,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "d8cd15cd56ec4281a5240053fdd9c499",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791020491872,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "26cd877c94c078e5a0482cfa3c79f23c",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791019607589,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "fb2c001ec4f792e6aac685389d4516ce",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791016114613,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "fb2b49e1868c762f2591091d48787c0b",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791013548629,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "e94ed0246473f7a14e009d1745ce1fec",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791012648852,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "5f5d1a1209ec09a43c9a0822c4334180",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791012111058,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "f9aed34aa09ddf5dd1c785ab202df71e",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Fire TV (vega) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791011580567,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "5dcda003206f360abb2b065777a2c5cb",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "sdk_google_atv64_arm64 (androidtv) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1791007799656,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "bcecc07e976ccd4a8ad56021e14fda3e",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1790945803738,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "ddcf83b2b6720c24814cf76394d3cc85",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1790930309701,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "79dab82470fd8f9d58e402f6cd3715fe",
+      "audience": "profile",
+      "severity": "warning",
+      "title": "New device signed in",
+      "body": "Portico TV (tvos) was approved for this account. If this was not you, remove it and change your password.",
+      "createdAt": 1790922063987,
+      "read": false,
+      "archived": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "as served, notifications-inbox-admin.json",
+   "document": {
+    "data": {
+     "revision": 0,
+     "audience": "account-admin",
+     "audiences": [
+      "profile",
+      "account-admin"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 0,
+      "read": 0,
+      "archived": 0,
+      "total": 0
+     },
+     "items": [],
+     "nextCursor": "",
+     "observedAt": 1791230793006,
+     "retentionDays": 180
+    },
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "counts": {
+     "unread": 0,
+     "read": 0,
+     "archived": 0,
+     "total": 0
+    },
+    "nextCursor": "",
+    "audiences": [
+     "profile",
+     "account-admin"
+    ],
+    "items": []
+   }
+  },
+  {
+   "name": "two messages",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": true,
+   "expected": {
+    "counts": {
+     "unread": 1,
+     "read": 1,
+     "archived": 0,
+     "total": 2
+    },
+    "nextCursor": "next",
+    "audiences": [
+     "profile",
+     "account-admin"
+    ],
+    "items": [
+     {
+      "id": "n1",
+      "audience": "profile",
+      "severity": "info",
+      "title": "A reply to your report",
+      "body": "Thanks, it is fixed.",
+      "createdAt": 1791012951517,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "n2",
+      "audience": "profile",
+      "severity": "critical",
+      "title": "Storage is running low",
+      "body": "",
+      "createdAt": 1791012951517,
+      "read": true,
+      "archived": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "no audiences this build knows",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": true,
+   "expected": {
+    "counts": {
+     "unread": 1,
+     "read": 1,
+     "archived": 0,
+     "total": 2
+    },
+    "nextCursor": "next",
+    "audiences": [
+     "profile"
+    ],
+    "items": [
+     {
+      "id": "n1",
+      "audience": "profile",
+      "severity": "info",
+      "title": "A reply to your report",
+      "body": "Thanks, it is fixed.",
+      "createdAt": 1791012951517,
+      "read": false,
+      "archived": false
+     },
+     {
+      "id": "n2",
+      "audience": "profile",
+      "severity": "critical",
+      "title": "Storage is running low",
+      "body": "",
+      "createdAt": 1791012951517,
+      "read": true,
+      "archived": false
+     }
+    ]
+   }
+  },
+  {
+   "name": "an audience that is not one",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "everyone",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a severity that is not one",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "loud",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "no title",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "four actions",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "command",
+         "label": "x",
+         "command": "y"
+        },
+        {
+         "kind": "command",
+         "label": "x",
+         "command": "y"
+        },
+        {
+         "kind": "command",
+         "label": "x",
+         "command": "y"
+        },
+        {
+         "kind": "command",
+         "label": "x",
+         "command": "y"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an action that navigates and commands",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         },
+         "command": "both"
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an action of an unknown kind",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "dance",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a time that is negative",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": -1,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "read that is not yes or no",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": "yes",
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "counts without a total",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a hundred and one messages",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n0",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n3",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n4",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n5",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n6",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n7",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n8",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n9",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n10",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n11",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n12",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n13",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n14",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n15",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n16",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n17",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n18",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n19",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n20",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n21",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n22",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n23",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n24",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n25",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n26",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n27",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n28",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n29",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n30",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n31",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n32",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n33",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n34",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n35",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n36",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n37",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n38",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n39",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n40",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n41",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n42",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n43",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n44",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n45",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n46",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n47",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n48",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n49",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n50",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n51",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n52",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n53",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n54",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n55",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n56",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n57",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n58",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n59",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n60",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n61",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n62",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n63",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n64",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n65",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n66",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n67",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n68",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n69",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n70",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n71",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n72",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n73",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n74",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n75",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n76",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n77",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n78",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n79",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n80",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n81",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n82",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n83",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n84",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n85",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n86",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n87",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n88",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n89",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n90",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n91",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n92",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n93",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n94",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n95",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n96",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n97",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n98",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n99",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n100",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an argument that is not text",
+   "document": {
+    "scope": {
+     "serverId": "srv",
+     "viewerFence": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "data": {
+     "revision": 7,
+     "audience": "profile",
+     "audiences": [
+      "profile",
+      "account-admin",
+      "household"
+     ],
+     "state": "all",
+     "counts": {
+      "unread": 1,
+      "read": 1,
+      "archived": 0,
+      "total": 2
+     },
+     "items": [
+      {
+       "id": "n1",
+       "audience": "profile",
+       "severity": "info",
+       "source": "feedback",
+       "category": "reply",
+       "title": "A reply to your report",
+       "body": "Thanks, it is fixed.",
+       "arguments": {
+        "report": 5
+       },
+       "actions": [
+        {
+         "kind": "navigate",
+         "label": "Open",
+         "target": {
+          "view": "item",
+          "entityId": "i1"
+         }
+        },
+        {
+         "kind": "command",
+         "label": "Retry",
+         "command": "retry-download"
+        }
+       ],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": null,
+       "archivedAt": null,
+       "read": false,
+       "archived": false,
+       "cursor": "c1"
+      },
+      {
+       "id": "n2",
+       "audience": "profile",
+       "severity": "critical",
+       "source": "feedback",
+       "category": "reply",
+       "title": "Storage is running low",
+       "body": "",
+       "arguments": {
+        "report": "r1"
+       },
+       "actions": [],
+       "dedupeKey": "reply:r1",
+       "revision": 2,
+       "createdAt": 1791012951517,
+       "updatedAt": 1791012951517,
+       "expiresAt": 1793604951517,
+       "readAt": 1791012999999,
+       "archivedAt": null,
+       "read": true,
+       "archived": false,
+       "cursor": "c2"
+      }
+     ],
+     "nextCursor": "next",
+     "observedAt": 1791013000000,
+     "retentionDays": 90
+    }
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "summaries": [
+  {
+   "document": {
+    "data": {
+     "revision": 13,
+     "audience": "profile",
+     "counts": {
+      "unread": 12,
+      "read": 0,
+      "archived": 0,
+      "total": 12
+     },
+     "observedAt": 1791230793007
+    },
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+    }
+   },
+   "unread": 12
+  },
+  {
+   "document": {
+    "scope": {},
+    "data": {
+     "revision": 3,
+     "observedAt": 5,
+     "audience": "profile",
+     "counts": {
+      "unread": 4,
+      "read": 0,
+      "archived": 0,
+      "total": 4
+     }
+    }
+   },
+   "unread": 4
+  },
+  {
+   "document": {
+    "data": {
+     "revision": 3,
+     "observedAt": 5,
+     "audience": "profile",
+     "counts": {
+      "unread": "many"
+     }
+    }
+   },
+   "unread": null
+  }
+ ],
+ "batches": [
+  {
+   "document": {
+    "data": {
+     "revision": 8,
+     "audience": "profile",
+     "applied": 1,
+     "receipts": [
+      {
+       "action": "read",
+       "id": "n1",
+       "outcome": "applied"
+      }
+     ],
+     "counts": {
+      "unread": 0,
+      "read": 2,
+      "archived": 0,
+      "total": 2
+     }
+    }
+   },
+   "ok": true,
+   "counts": {
+    "unread": 0,
+    "read": 2,
+    "archived": 0,
+    "total": 2
+   }
+  },
+  {
+   "document": {
+    "data": {
+     "revision": 8,
+     "audience": "profile",
+     "applied": 1,
+     "receipts": [
+      {
+       "action": "read",
+       "outcome": "maybe"
+      }
+     ],
+     "counts": {
+      "unread": 0,
+      "read": 2,
+      "archived": 0,
+      "total": 2
+     }
+    }
+   },
+   "ok": false,
+   "counts": null
+  }
+ ]
+}

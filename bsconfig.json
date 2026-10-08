@@ -1,0 +1,17 @@
+{
+  "rootDir": ".",
+  "files": [
+    "manifest",
+    "source/**/*",
+    "components/**/*",
+    "images/**/*",
+    "fonts/**/*",
+    "locale/**/*"
+  ],
+  "stagingDir": "build/staging",
+  "retainStagingDir": true,
+  "createPackage": false,
+  "autoImportComponentScript": true,
+  "sourceMap": false,
+  "emitDefinitions": false
+}

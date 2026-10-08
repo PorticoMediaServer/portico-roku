@@ -1,0 +1,267 @@
+' core/Detail.bs, core/ShowWorkspace.bs, core/People.bs, core/Title.bs and core/TitleFiles.bs
+' against client-core (detail.ts, show-workspace.ts, people.ts, recommendations.ts,
+' container-state.ts, presentation/title-page.ts, detail-actions.ts, entry-actions.ts,
+' title-files.ts, language.ts) and apps/native/src/screens/title/facts.ts, over the development
+' server's own documents and variants with one thing wrong.
+
+function TitleFixture() as dynamic
+    globals = GetGlobalAA()
+    if globals.titleFixture = invalid then globals.titleFixture = TestFixture("golden/title.json")
+    fixture = globals.titleFixture
+    if fixture = invalid then return invalid
+    globals.messageCatalogue = fixture.catalogue
+    globals.formatRegion = { locale: "en-US", hour12: true, utc: true }
+    return fixture
+end function
+
+sub TitleFixtureDone()
+    globals = GetGlobalAA()
+    globals.messageCatalogue = invalid
+    globals.formatRegion = invalid
+end sub
+
+function TestIds(items as object) as object
+    ids = []
+    for each item in items
+        ids.push(item.id)
+    end for
+    return ids
+end function
+
+sub Test_Title_details()
+    fixture = TitleFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.details.count() > 40, "there are title documents")
+    for each item in fixture.details
+        parsed = ParseDetailProjection(item.raw, item.serverId, item.target)
+        AssertEqual(parsed.ok, item.ok, "detail " + item.name)
+        if parsed.ok and item.ok then
+            detail = parsed.detail
+            shown = { scope: detail.scope, revision: detail.revision, item: detail.item, personal: detail.personal, actions: detail.actions, metadata: detail.metadata, facts: detail.facts, files: detail.files }
+            if detail.related <> invalid then
+                shown.related = []
+                for each row in detail.related
+                    shown.related.push({ id: row.id, relation: row.relation, heading: row.heading, ids: TestIds(row.entries) })
+                end for
+            end if
+            if detail.extras <> invalid then
+                shown.extras = []
+                for each group in detail.extras
+                    shown.extras.push({ type: group.type, label: group.label, ids: TestIds(group.entries) })
+                end for
+            end if
+            AssertSame(shown, item.value, "detail " + item.name)
+
+            actions = DetailActions(detail)
+            AssertSame(actions, item.page.actions, "actions of " + item.name)
+            credits = detail.metadata.credits
+            cast = []
+            crew = []
+            for each credit in credits
+                if IsActing(credit.department) then
+                    cast.push(credit)
+                else
+                    crew.push(credit)
+                end if
+            end for
+            AssertSame(TestIds(cast), item.page.cast, "cast of " + item.name)
+            AssertSame(TestIds(KeyCrew(crew)), item.page.keyCrew, "key crew of " + item.name)
+            AssertSame(DedupeNames(NamesIn(crew, ["directing"]), 3), item.page.directors, "directors of " + item.name)
+            AssertSame(DedupeNames(NamesIn(crew, ["writing"]), 3), item.page.writers, "writers of " + item.name)
+            genres = []
+            for each genre in detail.metadata.genres
+                genres.push(genre.name)
+            end for
+            AssertSame(DedupeNames(genres), item.page.genres, "genres of " + item.name)
+            related = []
+            if detail.related <> invalid then related = detail.related
+            AssertSame(TestIds(RelatedRowsForPage(related)), item.page.related, "related rows of " + item.name)
+            lines = []
+            if detail.files <> invalid then
+                for each file in detail.files
+                    lines.push(TitleFileLines(file))
+                end for
+            end if
+            AssertSame(lines, item.page.files, "file lines of " + item.name)
+        end if
+    end for
+    for each item in fixture.creditPages
+        parsed = ParseCreditPage(item.raw, item.itemId, item.group)
+        AssertEqual(parsed.ok, item.ok, "credits page " + item.name)
+        if parsed.ok and item.ok then AssertSame({ credits: parsed.credits, total: parsed.total, nextCursor: parsed.nextCursor }, item.value, "credits page " + item.name)
+    end for
+    TitleFixtureDone()
+end sub
+
+sub Test_Title_menus()
+    fixture = TitleFixture()
+    if fixture = invalid then return
+    for each item in fixture.menus
+        AssertSame(EntryActions(item.caps), item.groups, "menu for " + FormatJson(item.caps))
+    end for
+    for each item in fixture.carries
+        AssertEqual(ContainerCarries(item.kind, item.flag), item.carries, item.kind + " carries " + item.flag)
+    end for
+    AssertSame(PersonalStateBody("op-1", 7, "watchlist", true), { operationId: "op-1", expectedRevision: 7, watchlisted: true }, "a My List command")
+    AssertSame(PersonalStateBody("op-1", 7, "rating", 3.5), { operationId: "op-1", expectedRevision: 7, rating: 3.5 }, "a rating command")
+    scope = { serverId: "s", libraryId: "l", itemId: "i", viewerFence: "f" }
+    personal = { watchlisted: true, favorite: false, rating: invalid, revision: 8 }
+    receipt = { operationId: "op-1", serverId: "s", libraryId: "l", itemId: "i", viewerFence: "f", current: personal }
+    AssertTrue(ParsePersonalReceipt(receipt, "op-1", scope).ok, "a receipt for this page")
+    AssertEqual(ParsePersonalReceipt(receipt, "op-1", scope).personal.revision, 8, "the receipt's state")
+    AssertTrue(not ParsePersonalReceipt(receipt, "op-2", scope).ok, "a receipt for another command")
+    receipt.viewerFence = "g"
+    AssertTrue(not ParsePersonalReceipt(receipt, "op-1", scope).ok, "a receipt for another viewer fence")
+    TitleFixtureDone()
+end sub
+
+sub Test_Title_shows()
+    fixture = TitleFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.shows.count() > 20, "there are show workspaces")
+    for each item in fixture.shows
+        parsed = ParseShowWorkspace(item.raw, item.route, item.serverId)
+        AssertEqual(parsed.ok, item.ok, "show " + item.name)
+        if parsed.ok and item.ok then
+            w = parsed.workspace
+            entries = []
+            if w.episodes.sections.count() > 0 then entries = w.episodes.sections[0].entries
+            shown = { scope: w.scope, revision: w.revision, show: w.show, seasons: w.seasons, seasonTotalCount: w.seasonTotalCount, groups: w.groups, selected: w.selected, settings: w.settings, episodes: TestIds(entries) }
+            if w.nextUp <> invalid then shown.nextUp = w.nextUp.id
+            ' The page prints the show's facts; the provider's match status is not shown.
+            expected = item.value
+            expected.show.delete("providerMatchStatus")
+            expected.show.delete("providerSourceUrl")
+            expected.show.delete("providerObservedAt")
+            AssertSame(shown, expected, "show " + item.name)
+
+            people = ShowPeople(w.show.credits)
+            names = { cast: [], crew: [] }
+            for each credit in people.cast
+                names.cast.push(credit.name)
+            end for
+            for each credit in people.crew
+                names.crew.push(credit.name)
+            end for
+            AssertSame(names.cast, item.page.cast, "cast of " + item.name)
+            AssertSame(names.crew, item.page.crew, "crew of " + item.name)
+            AssertSame(ShowCreditLines(people.crew), item.page.creditLines, "credit lines of " + item.name)
+            seasons = []
+            for each season in OrderSeasons(w.seasons)
+                seasons.push({ id: season.id, label: SeasonLabel(season) })
+            end for
+            AssertSame(seasons, item.page.seasons, "seasons of " + item.name)
+            nextUp = NextUpIn(entries)
+            id = invalid
+            if nextUp <> invalid then id = nextUp.id
+            AssertEqual(id, item.page.nextUp, "next up within " + item.name)
+            for index = 0 to entries.count() - 1
+                expectedEpisode = item.page.episodes[index]
+                AssertEqual(TitleEpisodeCode(entries[index]), expectedEpisode.code, "code of episode " + index.toStr() + " in " + item.name)
+                fraction = ResumeFraction(entries[index])
+                AssertEqual(fraction <> invalid, expectedEpisode.fraction <> invalid, "resume fraction of episode " + index.toStr() + " in " + item.name)
+            end for
+            AssertEqual(NetworkName(w.show.network), item.page.network, "network of " + item.name)
+            AssertEqual(OriginalTitleLine(w.show.title, w.show.originalTitle), item.page.original, "original title of " + item.name)
+        end if
+    end for
+    route = { libraryId: "lib 1", showId: "s/1", selectedSeasonId: "se1" }
+    AssertEqual(ShowWorkspacePath(route), "/v1/libraries/lib%201/show-workspace?showId=s%2F1&selectedSeasonId=se1&limit=40&seasonLimit=128", "a show's path")
+    AssertEqual(ShowWorkspacePath({ libraryId: "l", showId: "s", group: "range:100" }, "c=1"), "/v1/libraries/l/show-workspace?showId=s&group=range%3A100&limit=40&seasonLimit=128&cursor=c%3D1", "a continuation's path")
+    TitleFixtureDone()
+end sub
+
+sub Test_Title_people()
+    fixture = TitleFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.persons.count() > 8, "there are person pages")
+    for each item in fixture.persons
+        parsed = ParsePersonPage(item.raw, item.serverId, item.request)
+        AssertEqual(parsed.ok, item.ok, "person " + item.name)
+        if parsed.ok and item.ok then
+            page = parsed.page
+            person = page.person
+            person.knownFor = TestIds(person.knownFor)
+            credits = []
+            for each credit in page.credits
+                credits.push({ id: credit.media.id, role: credit.role, character: credit.character, department: credit.department, creditKind: credit.creditKind })
+            end for
+            AssertSame({ person: person, credits: credits, total: page.total, nextCursor: page.nextCursor }, item.value, "person " + item.name)
+        end if
+    end for
+    for each item in fixture.personPaths
+        AssertEqual(PersonPath(item.id, item.role, item.cursor), item.path, "path of person " + item.id)
+    end for
+    for each item in fixture.rows
+        parsed = ParseTitleRecommendations(item.raw, item.field, item.id)
+        AssertEqual(parsed.ok, item.ok, "recommendations " + item.name)
+        if parsed.ok and item.ok then
+            rows = []
+            for each row in parsed.rows
+                rows.push({ id: row.id, ids: TestIds(row.entries) })
+            end for
+            AssertSame(rows, item.value, "recommendations " + item.name)
+            AssertSame(TestIds(RelatedRowsForPage(parsed.rows)), item.shown, "rows shown of " + item.name)
+        end if
+    end for
+    for each item in fixture.states
+        parsed = ParseContainerState(item.raw, item.counts)
+        AssertEqual(parsed.ok, item.ok, "container state " + item.name)
+        if parsed.ok and item.ok then
+            state = parsed.state
+            if not item.counts then
+                state.delete("watchedCount")
+                state.delete("unwatchedCount")
+            end if
+            AssertSame(state, item.value, "container state " + item.name)
+        end if
+    end for
+    AssertEqual(ContainerStatePath("show", "a/b"), "/v1/containers/show/a%2Fb/personal-state", "a container's path")
+    TitleFixtureDone()
+end sub
+
+sub Test_Title_rules()
+    fixture = TitleFixture()
+    if fixture = invalid then return
+    for each item in fixture.names
+        AssertSame(DedupeNames(item.list), item.three, "names once each")
+        AssertSame(DedupeNames(item.list, 20), item.twenty, "names once each, up to twenty")
+    end for
+    for each item in fixture.ranks
+        AssertEqual(CrewRank(item.department, item.role), item.rank, "rank of " + item.department + " / " + item.role)
+    end for
+    for each item in fixture.progress
+        AssertSame(SeasonProgress(item.watched, item.unwatched), item.progress, "season progress")
+    end for
+    for each item in fixture.pins
+        pin = NextUpPin(item.nextUp, item.first, item.season)
+        id = invalid
+        if pin <> invalid then id = pin.id
+        AssertEqual(id, item.pin, "next-up pin for " + FormatJson(item.nextUp))
+    end for
+    for each item in fixture.years
+        AssertEqual(ActiveYearsLabel(item.begin, item.end), item.label, "active years")
+    end for
+    for each item in fixture.factLines
+        AssertEqual(FactsLine(item.parts), item.line, "facts line of " + FormatJson(item.parts))
+    end for
+    for each item in fixture.tracks
+        AssertEqual(LanguageKey(item.track.language), item.key, "language key of " + FormatJson(item.track))
+        AssertEqual(TrackName(item.track), item.name, "name of track " + FormatJson(item.track))
+    end for
+    AssertEqual(RatingLabel(7.84, 10), "7.8/10", "a rating out of ten")
+    AssertEqual(RatingLabel(8, 10), "8.0/10", "a whole rating out of ten")
+    AssertEqual(RatingLabel(91.4, 100), "91%", "a rating out of a hundred")
+    AssertEqual(RatingProviderLabel("tmdb"), "TMDB", "a provider's name")
+    AssertEqual(RatingProviderLabel("letterboxd"), "Letterboxd", "an unknown provider")
+    AssertEqual(FormatDay("2021-09-15"), "September 15, 2021", "a calendar date")
+    AssertEqual(EpisodeTitle({ title: "Pilot", seasonNumber: 1, episodeNumber: 1 }), "S1 E1 · Pilot", "an episode's title")
+    AssertEqual(EpisodeMeta({ airDate: "2008-01-20", duration: 2820 }), "Aired Jan 20, 2008 · 47m", "an episode's line")
+    AssertEqual(SongArtist({ subtitle: "Disc 1 · Track 3 · Adele" }), "Adele", "a song's artist")
+    AssertEqual(SongArtist({ subtitle: "Track 3" }), "", "a song with no artist in its subtitle")
+    chapters = [{ id: "c1", playback: { itemId: "f1", startSeconds: 0 } }, { id: "c2", playback: { itemId: "f1", startSeconds: 600 } }, { id: "c3", playback: { itemId: "f2", startSeconds: 0 } }]
+    AssertEqual(ChapterAt(chapters, "f1", 700).id, "c2", "the chapter a resume point falls in")
+    AssertEqual(ChapterAt(chapters, "f1", 599.5).id, "c2", "within a second of the next chapter")
+    AssertEqual(ChapterAt(chapters, "f3", 0), invalid, "a part with no chapters")
+    TitleFixtureDone()
+end sub

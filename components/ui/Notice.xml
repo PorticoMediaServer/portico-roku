@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Feedback.tsx `Notice`: the inline notice for errors, warnings and confirmations. -->
+<component name="UiNotice" extends="Group">
+    <interface>
+        <!-- info | success | warning | error -->
+        <field id="tone" type="string" value="info" onChange="onNoticeLayout" />
+        <field id="title" type="string" value="" onChange="onNoticeLayout" />
+        <field id="message" type="string" value="" onChange="onNoticeLayout" />
+        <field id="action" type="string" value="" onChange="onNoticeLayout" />
+        <field id="noticeWidth" type="float" value="0" onChange="onNoticeLayout" />
+        <field id="noticeHeight" type="float" value="0" />
+        <field id="actionPressed" type="boolean" value="false" alwaysNotify="true" />
+    </interface>
+</component>

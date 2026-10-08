@@ -1,0 +1,119 @@
+' packages/client-core/src/setup-code.ts (and device-authorization.ts): the code a television
+' shows for a phone or computer to approve. Used twice: the Portico Account activation code
+' (POST /v1/device-authorizations on the account service) and a server's Quick Connect code
+' (POST /v1/quick-connect on the server). The decisions are here; the Task that asks and waits is
+' components/tasks/SetupCodeTask.
+'
+' What is not carried over: the durable journal that resumes a code after the app is killed. A
+' Roku channel that exits abandons its code (it is cancelled on the way out, and expires on its own).
+import "pkg:/source/core/RouteIdentity.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Validate.bs"
+
+function SetupCodeAlphabet() as string
+    return "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+end function
+
+' setup-code.ts `normalizeSetupCode`: eight characters of the alphabet as "XXXX-XXXX", or invalid.
+function NormalizeSetupCode(value as string) as dynamic
+    raw = CreateObject("roRegex", "[\s-]", "").replaceAll(UCase(value), "")
+    if not MatchesPattern(raw, "^[" + SetupCodeAlphabet() + "]{8}$") then return invalid
+    return Left(raw, 4) + "-" + Mid(raw, 5)
+end function
+
+' setup-code.ts `validAuthorization`: the code is well formed, the secret is the right length, the
+' interval is 5–300 seconds, it expires within about ten minutes, and the page to visit is a plain
+' "/device" on a valid origin with the code in its fragment.
+function SetupCodeValid(authorization as dynamic, atSeconds as dynamic) as boolean
+    if not IsObject(authorization) or not IsString(authorization.userCode) or not IsString(authorization.deviceCode) then return false
+    if NormalizeSetupCode(authorization.userCode) <> authorization.userCode then return false
+    if Len(authorization.deviceCode) < 43 or Len(authorization.deviceCode) > 128 then return false
+    interval = authorization.interval
+    if not IsNatural(interval) or interval < 5 or interval > 300 then return false
+    expires = IsoToSeconds(authorization.expiresAt)
+    if expires = invalid or expires > atSeconds + 605 then return false
+    uri = authorization.verificationUri
+    if not IsString(uri) or Right(uri, 7) <> "/device" then return false
+    origin = RouteOrigin(Left(uri, Len(uri) - 7))
+    if not origin.ok then return false
+    if uri <> origin.origin + "/device" then return false
+    return authorization.verificationUriComplete = uri + "#code=" + authorization.userCode
+end function
+
+' What to do after a poll that was not approved. `failure` is the API error. Returns {next,
+' interval, waitSeconds}: "pending" (keep waiting, at `interval`), "denied" (stop; a new code is
+' the person's choice), "replace" (this code is spent: get another now), "retry" (offline or
+' unknown: ask again after `waitSeconds`).
+function SetupCodeAfterPoll(interval as integer, failure as object) as object
+    code = ""
+    if IsString(failure.code) then code = failure.code
+    retryAfter = 0
+    if failure.retryAfterSeconds <> invalid then retryAfter = failure.retryAfterSeconds
+    if code = "access_denied" then return { next: "denied", interval: interval, waitSeconds: 0 }
+    if code = "expired_token" or code = "invalid_grant" then return { next: "replace", interval: interval, waitSeconds: 0 }
+    if code = "authorization_pending" or code = "slow_down" then
+        wanted = 5
+        if code = "slow_down" then wanted = interval + 5
+        if interval > wanted then wanted = interval
+        if retryAfter > wanted then wanted = retryAfter
+        if wanted > 300 then wanted = 300
+        return { next: "pending", interval: wanted, waitSeconds: wanted }
+    end if
+    delay = 5
+    if retryAfter > delay then delay = retryAfter
+    return { next: "retry", interval: interval, waitSeconds: delay }
+end function
+
+' How long to wait before asking for a code again after `failures` failed attempts:
+' min(30, 5 × 2^min(3, failures − 1)) seconds.
+function SetupCodeBackoffSeconds(failures as integer) as integer
+    if failures < 1 then return 0
+    power = failures - 1
+    if power > 3 then power = 3
+    delay = 5
+    for index = 1 to power
+        delay = delay * 2
+    end for
+    if delay > 30 then delay = 30
+    return delay
+end function
+
+' A code is replaced once less than a minute of it remains (setup-code.ts `replaceBeforeMs`).
+function SetupCodeNeedsReplacing(authorization as dynamic, atSeconds as dynamic) as boolean
+    if authorization = invalid then return true
+    expires = IsoToSeconds(authorization.expiresAt)
+    return expires = invalid or expires - atSeconds <= 60
+end function
+
+function SetupCodeExpired(authorization as dynamic, atSeconds as dynamic) as boolean
+    if authorization = invalid then return true
+    expires = IsoToSeconds(authorization.expiresAt)
+    return expires = invalid or expires <= atSeconds
+end function
+
+' apps/native/src/app/approval-link.ts: the link the TV's QR code opens: the server's own
+' "/device" page with the code in the fragment. The server's answer is used when it is on this server.
+function ApprovalLink(serverOrigin as string, given as dynamic, code as string) as string
+    base = serverOrigin
+    while Right(base, 1) = "/"
+        base = Left(base, Len(base) - 1)
+    end while
+    if IsString(given) and given <> "" then
+        mine = RouteOrigin(base)
+        match = CreateObject("roRegex", "^(https?://[^/?#]+)", "i").match(given)
+        if mine.ok and match.count() > 1 then
+            theirs = RouteOrigin(match[1])
+            if theirs.ok and theirs.origin = mine.origin then return given
+        end if
+    end if
+    if code = "" then return base + "/device"
+    return base + "/device#code=" + code.encodeUriComponent()
+end function
+
+' The account service's grant (apps/native/src/bridge/setup-codes.ts `hostedGrant`).
+function HostedGrantValid(grant as dynamic) as boolean
+    if not IsObject(grant) or not IsString(grant.accessToken) or grant.accessToken = "" then return false
+    if not IsString(grant.refreshToken) or grant.refreshToken = "" or not IsString(grant.familyId) or grant.familyId = "" then return false
+    if not IsObject(grant.account) or not IsString(grant.account.id) or grant.account.id = "" or not IsArray(grant.profiles) then return false
+    return IsoToSeconds(grant.expiresAt) <> invalid and IsoToSeconds(grant.refreshExpiresAt) <> invalid
+end function

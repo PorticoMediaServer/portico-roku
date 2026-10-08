@@ -1,0 +1,81 @@
+' apps/native/src/ui/Canvas.tsx `Backdrop`. The artwork crossfades when the source changes
+' (Theme.motion.slow) and fades to the atmosphere when cleared; over it, the hero scrims of
+' componentSpec.hero.scrim in the canvas colour: a left gradient, then a bottom one (generated as
+' images/gradients/hero-left.png and hero-bottom.png). A backdrop that failed is asked for again
+' after Theme.apple.backdropRetryMs.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Artwork.bs"
+
+sub init()
+    m.back = m.top.createChild("Poster")
+    m.back.id = "backdropBack"
+    m.front = m.top.createChild("Poster")
+    m.front.id = "backdropFront"
+    m.back.loadDisplayMode = "scaleToZoom"
+    m.front.loadDisplayMode = "scaleToZoom"
+    m.back.opacity = 0
+    m.front.opacity = 0
+    m.side = m.top.createChild("Poster")
+    m.side.uri = "pkg:/images/gradients/hero-left.png"
+    m.bottom = m.top.createChild("Poster")
+    m.bottom.uri = "pkg:/images/gradients/hero-bottom.png"
+    m.fadeIn = MakeFloatAnimation(m.top, "backdropFront.opacity", Theme.motion.slow)
+    m.fadeOut = MakeFloatAnimation(m.top, "backdropBack.opacity", Theme.motion.slow)
+    m.front.observeField("loadStatus", "onBackdropLoad")
+    m.retry = m.top.createChild("Timer")
+    m.retry.duration = Theme.apple.backdropRetryMs / 1000
+    m.retry.observeField("fire", "onBackdropRetry")
+    m.attempt = 0
+end sub
+
+sub onBackdropLayout()
+    width = m.top.backdropWidth
+    height = m.top.backdropHeight
+    if width <= 0 or height <= 0 then return
+    for each layer in [m.back, m.front, m.side, m.bottom]
+        layer.width = width
+        layer.height = height
+    end for
+    m.back.loadWidth = width
+    m.back.loadHeight = height
+    m.front.loadWidth = width
+    m.front.loadHeight = height
+end sub
+
+sub onBackdropSource()
+    m.attempt = 0
+    m.retry.control = "stop"
+    BackdropShow(m.top.uri)
+end sub
+
+sub BackdropShow(uri as string)
+    ' The image on show moves to the back layer and fades out while the new one fades in.
+    m.back.uri = m.front.uri
+    m.back.opacity = m.front.opacity
+    m.front.opacity = 0
+    if m.back.opacity > 0 then RunFloatAnimation(m.fadeOut, m.back.opacity, 0, Theme.motion.slow)
+    if uri = "" then
+        m.front.uri = ""
+        return
+    end if
+    m.front.uri = SizedArtworkUri(uri, Theme.spec.hero.backdropWidth)
+end sub
+
+sub onBackdropLoad()
+    status = m.front.loadStatus
+    if status = "ready" then
+        RunFloatAnimation(m.fadeIn, 0, m.top.imageOpacity, Theme.motion.slow)
+    else if status = "failed" and m.top.uri <> "" and m.attempt < 2 then
+        m.attempt = m.attempt + 1
+        m.retry.control = "start"
+    end if
+end sub
+
+sub onBackdropRetry()
+    uri = m.top.uri
+    if uri = "" then return
+    m.front.uri = SizedArtworkUri(uri, Theme.spec.hero.backdropWidth) + "&r=" + m.attempt.toStr()
+end sub

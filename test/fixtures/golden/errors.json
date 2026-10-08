@@ -1,0 +1,4936 @@
+[
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "home",
+  "options": {},
+  "category": "unreachable",
+  "messageId": "error.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Portico can’t reach your server right now. Check that it’s on and connected, then try again."
+ },
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unreachable",
+  "messageId": "error.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Portico can’t reach your server right now. Check that it’s on and connected, then try again."
+ },
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unreachable",
+  "messageId": "error.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico can’t reach your server right now. Check that it’s on and connected, then try again."
+ },
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unreachable",
+  "messageId": "error.account.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico can’t reach your Portico Account right now. Check your internet connection, then try again."
+ },
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unreachable",
+  "messageId": "error.account.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Portico can’t reach your Portico Account right now. Check your internet connection, then try again."
+ },
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unreachable",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "network"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unreachable",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "home",
+  "options": {},
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "timeout",
+  "messageId": "error.account.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your Portico Account took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "timeout",
+  "messageId": "error.account.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your Portico Account took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "timeout",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "timeout"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "timeout",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "home",
+  "options": {},
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Home couldn’t load",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "The library couldn’t be changed",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Sign-in didn’t finish",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Sign-in didn’t finish",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Your Portico Account couldn’t load",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "This couldn’t load",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "cancelled"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "This link couldn’t open",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "home",
+  "options": {},
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Home couldn’t load",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "The library couldn’t be changed",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Sign-in didn’t finish",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Sign-in didn’t finish",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "Your Portico Account couldn’t load",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "This couldn’t load",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "abort"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "cancelled",
+  "messageId": "error.cancelled",
+  "action": "none",
+  "silent": true,
+  "title": "This link couldn’t open",
+  "body": ""
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "home",
+  "options": {},
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "unauthorized",
+   "status": 401
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "home",
+  "options": {},
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "forbidden",
+   "status": 403
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "home",
+  "options": {},
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "not_found",
+   "status": 404
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "home",
+  "options": {},
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429,
+   "retryAfterSeconds": 12
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimitedSeconds",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Too many attempts. Try again in 12 seconds."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "home",
+  "options": {},
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "rate_limited",
+   "status": 429
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "home",
+  "options": {},
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "unsupported_version",
+   "status": 426
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "home",
+  "options": {},
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "storage_full",
+   "status": 507
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_request",
+   "status": 400
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-response",
+  "messageId": "error.unconfirmedChange",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server didn’t confirm the change. Refresh to check whether it was saved."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-response",
+  "messageId": "error.unconfirmedChange",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server didn’t confirm the change. Refresh to check whether it was saved."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-response",
+  "messageId": "error.unconfirmedChange",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server didn’t confirm the change. Refresh to check whether it was saved."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "invalid_response"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "home",
+  "options": {},
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "library_not_found",
+   "status": 404
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "home",
+  "options": {},
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "busy",
+  "messageId": "error.account.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico Accounts are busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "busy",
+  "messageId": "error.account.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Portico Accounts are busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "busy",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "server_busy",
+   "status": 503
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "busy",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "home",
+  "options": {},
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "busy",
+  "messageId": "error.account.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico Accounts are busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "busy",
+  "messageId": "error.account.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Portico Accounts are busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "busy",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "transcode_capacity_reached"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "busy",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "stale_continuation",
+   "status": 409
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "revision_conflict",
+   "status": 409
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "identity_mismatch"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "route_stale"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_address"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-response",
+  "messageId": "error.unconfirmedChange",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server didn’t confirm the change. Refresh to check whether it was saved."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-response",
+  "messageId": "error.unconfirmedChange",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server didn’t confirm the change. Refresh to check whether it was saved."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-response",
+  "messageId": "error.unconfirmedChange",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server didn’t confirm the change. Refresh to check whether it was saved."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "invalid_current_session"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-response",
+  "messageId": "error.invalidResponse",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Your server sent something Portico couldn’t read. Check that your server is up to date."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "home",
+  "options": {},
+  "category": "unavailable",
+  "messageId": "error.metadataUnavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Metadata is temporarily unavailable. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unavailable",
+  "messageId": "error.metadataUnavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Metadata is temporarily unavailable. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unavailable",
+  "messageId": "error.metadataUnavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Metadata is temporarily unavailable. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unavailable",
+  "messageId": "error.account.unavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available from your Portico Account right now."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unavailable",
+  "messageId": "error.account.unavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This isn’t available from your Portico Account right now."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unavailable",
+  "messageId": "error.metadataUnavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Metadata is temporarily unavailable. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "metadata_unavailable",
+   "status": 503
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unavailable",
+  "messageId": "error.account.unavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This isn’t available from your Portico Account right now."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "queue_too_large",
+   "status": 422
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.queueTooLarge",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This queue is too long. Remove some of it or start a new one."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "local_metadata_only",
+   "status": 409
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.localMetadataOnly",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This library uses local metadata only. Change its metadata source to look things up online."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "method_not_allowed",
+   "status": 405
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.methodNotAllowed",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This action isn’t supported here."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "home",
+  "options": {},
+  "category": "unavailable",
+  "messageId": "error.artworkPending",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This artwork isn’t ready yet. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unavailable",
+  "messageId": "error.artworkPending",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This artwork isn’t ready yet. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unavailable",
+  "messageId": "error.artworkPending",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This artwork isn’t ready yet. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unavailable",
+  "messageId": "error.account.unavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available from your Portico Account right now."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unavailable",
+  "messageId": "error.account.unavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This isn’t available from your Portico Account right now."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unavailable",
+  "messageId": "error.artworkPending",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This artwork isn’t ready yet. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "artwork_pending",
+   "status": 404
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unavailable",
+  "messageId": "error.account.unavailable",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This isn’t available from your Portico Account right now."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "home",
+  "options": {},
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "timeout",
+  "messageId": "error.account.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your Portico Account took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "timeout",
+  "messageId": "error.account.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your Portico Account took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "timeout",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "upstream_timeout",
+   "status": 504
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "timeout",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "home",
+  "options": {},
+  "category": "unreachable",
+  "messageId": "error.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Portico can’t reach your server right now. Check that it’s on and connected, then try again."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unreachable",
+  "messageId": "error.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Portico can’t reach your server right now. Check that it’s on and connected, then try again."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unreachable",
+  "messageId": "error.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico can’t reach your server right now. Check that it’s on and connected, then try again."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unreachable",
+  "messageId": "error.account.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico can’t reach your Portico Account right now. Check your internet connection, then try again."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unreachable",
+  "messageId": "error.account.unreachable",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Portico can’t reach your Portico Account right now. Check your internet connection, then try again."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unreachable",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "request_failed",
+   "status": 500
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unreachable",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "home",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "internal_error",
+   "status": 500
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "home",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new",
+   "status": 418
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "home",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "code": "something_new"
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "home",
+  "options": {},
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 401
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "authentication",
+  "messageId": "error.authentication",
+  "action": "sign-in",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Sign in again to continue."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "home",
+  "options": {},
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 403
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "permission",
+  "messageId": "error.permission",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Your profile doesn’t have access to this. Ask the server’s owner if you think it should."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "home",
+  "options": {},
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 404
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "not-found",
+  "messageId": "error.notFound",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This isn’t available anymore. It may have been removed, or your access may have changed."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 409
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 412
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "home",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 428
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "changed",
+  "messageId": "error.changed",
+  "action": "refresh",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This changed while you were looking at it. Refresh to see the latest."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "home",
+  "options": {},
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 426
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unsupported-version",
+  "messageId": "error.unsupportedVersion",
+  "action": "update",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "This server needs a newer version of Portico. Update the app to continue."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "home",
+  "options": {},
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 429
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "rate-limited",
+  "messageId": "error.rateLimited",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Too many attempts. Wait a moment, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "home",
+  "options": {},
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 507
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "storage-full",
+  "messageId": "error.storageFull",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Your server is out of storage space. Free some space, then try again."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "home",
+  "options": {},
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "timeout",
+  "messageId": "error.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "timeout",
+  "messageId": "error.account.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your Portico Account took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "timeout",
+  "messageId": "error.account.timeout",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Your Portico Account took too long to answer. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "timeout",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "status": 408
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "timeout",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "home",
+  "options": {},
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "busy",
+  "messageId": "error.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Your server is busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "busy",
+  "messageId": "error.account.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Portico Accounts are busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "busy",
+  "messageId": "error.account.busy",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Portico Accounts are busy right now. Try again in a moment."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "busy",
+  "messageId": "error.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Portico can’t reach your server right now. It will keep trying."
+ },
+ {
+  "error": {
+   "status": 503
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "busy",
+  "messageId": "error.account.unreachableRetrying",
+  "action": "automatic",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Portico can’t reach your Portico Account right now. It will keep trying."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 400
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "home",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 422
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "invalid-input",
+  "messageId": "error.invalidInput",
+  "action": "none",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Some details weren’t accepted. Check them and try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "home",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "portico-account",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {
+   "status": 500
+  },
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "home",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Home couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "library",
+  "options": {
+   "operation": "save"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "The library couldn’t be changed",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "sign-in",
+  "options": {
+   "operation": "action"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "sign-in",
+  "options": {
+   "operation": "action",
+   "service": "portico-account"
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Sign-in didn’t finish",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "portico-account",
+  "options": {},
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "Your Portico Account couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "generic",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This couldn’t load",
+  "body": "Something went wrong. Try again."
+ },
+ {
+  "error": {},
+  "context": "link",
+  "options": {
+   "retrying": true
+  },
+  "category": "unknown",
+  "messageId": "error.unknown",
+  "action": "try-again",
+  "silent": false,
+  "title": "This link couldn’t open",
+  "body": "Something went wrong. Try again."
+ }
+]

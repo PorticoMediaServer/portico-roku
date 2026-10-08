@@ -1,0 +1,65 @@
+' apps/native/src/screens/title/TitleSheets.tsx `RateSheet`.
+import "pkg:/components/screens/title/Common.bs"
+
+' APL-DETAIL-01: "Rate…" asks for a value before anything is written: whole stars in one row,
+' the current one chosen, and "Clear rating" when there is one. Handler: onTitleRate (reads
+' m.rateValue: 1–5, or invalid to clear).
+sub TitleRateOpen(title as string, current as dynamic)
+    if m.rateSheet = invalid then m.rateSheet = m.top.createChild("UiSheet")
+    m.rateSheet.kind = "picker"
+    m.rateSheet.title = T("title.rate", { title: title })
+    width = m.rateSheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    stars = []
+    total = 0
+    value = 0
+    if current <> invalid then value = current
+    wanted = Int(value + 0.5)
+    if wanted < 1 then wanted = 1
+    entry = invalid
+    for index = 1 to Theme.apple.rateStars
+        star = body.createChild("UiButton")
+        star.addFields({ stars: index })
+        star.variant = "ghost"
+        star.round = true
+        star.size = "lg"
+        star.icon = "star"
+        if index <= value then star.icon = "starFilled"
+        star.selected = index = value
+        star.observeField("pressed", "onTitleRateStar")
+        stars.push(star)
+        total = total + star.controlWidth
+        if index = wanted then entry = star
+    end for
+    total = total + Theme.space.sm * (stars.count() - 1)
+    x = (width - total) / 2
+    y = Theme.space.md
+    height = 0
+    for each star in stars
+        Place(star, x, y)
+        x = x + star.controlWidth + Theme.space.sm
+        height = star.controlHeight
+    end for
+    y = y + height + Theme.space.md
+    if current <> invalid then
+        clear = body.createChild("UiButton")
+        clear.addFields({ stars: 0 })
+        clear.variant = "ghost"
+        clear.size = "sm"
+        clear.label = T("title.clearRating")
+        clear.observeField("pressed", "onTitleRateStar")
+        Place(clear, (width - clear.controlWidth) / 2, y)
+        y = y + clear.controlHeight + Theme.space.md
+    end if
+    m.rateSheet.callFunc("setBody", body, y)
+    m.rateSheet.callFunc("open")
+    if entry <> invalid then m.rateSheet.callFunc("focusBody", entry)
+end sub
+
+sub onTitleRateStar(event as object)
+    star = event.getRoSGNode()
+    m.rateValue = invalid
+    if star.stars > 0 then m.rateValue = star.stars
+    m.rateSheet.callFunc("close")
+    onTitleRate()
+end sub

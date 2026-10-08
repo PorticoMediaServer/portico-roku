@@ -1,0 +1,90 @@
+' apps/native/src/ui/Focusable.tsx. Owns focus, press and the shared scale and ring animation, so
+' every button, row, chip and tab feels the same. The ring is ui/Focusable.tsx `FocusRing`:
+' Theme.metrics.focusRing wide, Theme.apple.focusRingGap outside the control, in the focus colour,
+' its radius the control's plus the same inset. Focus eases over Theme.motion.quick (cubic out).
+'
+' A control that extends this sets controlWidth, controlHeight and radius, and observes isFocused
+' and isPressed to restyle itself. Cards inside a RowList or MarkupGrid are not Focusables: the list
+' holds focus and reports it to the card (ui/Card.bs).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.focusRingNode = m.top.createChild("Poster")
+    m.focusRingNode.opacity = 0
+    m.focusDriver = m.top.createChild("Group")
+    m.focusDriver.id = "focusDriver"
+    m.focusDriver.opacity = 0
+    m.focusAnimation = MakeFloatAnimation(m.top, "focusDriver.opacity", Theme.motion.quick)
+    m.focusDriver.observeField("opacity", "onFocusableProgress")
+    m.top.observeField("focusedChild", "onFocusableChain")
+end sub
+
+sub onFocusableSize()
+    width = m.top.controlWidth
+    height = m.top.controlHeight
+    if width <= 0 or height <= 0 then return
+    inset = Theme.metrics.ringInset
+    Place(m.focusRingNode, -inset, -inset)
+    StyleRing(m.focusRingNode, width + inset * 2, height + inset * 2, m.top.radius + inset, Theme.metrics.focusRing, Theme.colors.focus)
+    m.top.scaleRotateCenter = [width / 2, height / 2]
+    m.top.focusWidth = width
+    m.top.focusHeight = height
+end sub
+
+sub onFocusableState()
+    if m.top.disabled then
+        m.top.opacity = Theme.apple.disabledOpacity
+    else if m.top.busy then
+        m.top.opacity = Theme.apple.busyOpacity
+    else
+        m.top.opacity = 1
+    end if
+end sub
+
+sub onFocusableChain()
+    focused = m.top.isInFocusChain()
+    if focused = m.top.isFocused then return
+    m.top.isFocused = focused
+    if not focused then m.top.isPressed = false
+    target = 0.0
+    if focused then target = 1.0
+    RunFloatAnimation(m.focusAnimation, m.focusDriver.opacity, target, Theme.motion.quick)
+end sub
+
+sub onFocusableDriven()
+    progress = m.top.focusProgress
+    if progress < 0 then return
+    m.top.isFocused = progress > 0.5
+    m.focusDriver.opacity = progress
+end sub
+
+sub onFocusableProgress()
+    progress = m.focusDriver.opacity
+    lift = m.top.focusScale
+    if lift <= 0 then lift = Theme.metrics.focusScale
+    size = 1 + (lift - 1) * progress
+    m.top.scale = [size, size]
+    if m.top.ring then
+        m.focusRingNode.opacity = progress
+    else
+        m.focusRingNode.opacity = 0
+    end if
+end sub
+
+function FocusableKey(key as string, press as boolean) as boolean
+    if key = "OK" then
+        if m.top.disabled or m.top.busy then return true
+        m.top.isPressed = press
+        if press then m.top.pressed = true
+        return true
+    end if
+    if key = "options" and press and not m.top.disabled then m.top.menuRequested = true
+    return false
+end function
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    return FocusableKey(key, press)
+end function

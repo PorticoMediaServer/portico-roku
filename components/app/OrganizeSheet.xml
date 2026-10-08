@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/player/EntryMenu.tsx `PlaylistSheet` and `CollectionSheet`: "Add to playlist…" and "Add to collection…". -->
+<component name="OrganizeSheet" extends="Group">
+    <interface>
+        <!-- {kind: "playlist" | "collection", entry} -->
+        <function name="open" />
+    </interface>
+</component>

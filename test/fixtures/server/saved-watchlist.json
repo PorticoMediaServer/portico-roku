@@ -1,0 +1,145 @@
+{
+ "heading": {
+  "key": "saved.watchlist",
+  "fallback": "My List"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "",
+  "libraryKind": "mixed",
+  "view": "watchlist",
+  "entityId": "",
+  "viewerFence": "f42231f27ea4b0905f2e3d289209bf58995a0a92d18b4d08a83c10b98dca44df"
+ },
+ "revision": {
+  "catalog": 50170,
+  "viewer": 1525
+ },
+ "navigation": [
+  {
+   "id": "watchlist",
+   "labelKey": "saved.watchlist",
+   "view": "watchlist"
+  },
+  {
+   "id": "favorites",
+   "labelKey": "saved.favorites",
+   "view": "favorites"
+  },
+  {
+   "id": "playlists",
+   "labelKey": "saved.playlists",
+   "view": "playlists"
+  }
+ ],
+ "query": {
+  "sort": "title",
+  "direction": "asc",
+  "category": "all",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [
+  {
+   "id": "title",
+   "labelKey": "sort.title",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  },
+  {
+   "id": "added",
+   "labelKey": "sort.added",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  },
+  {
+   "id": "updated",
+   "labelKey": "sort.updated",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  },
+  {
+   "id": "year",
+   "labelKey": "sort.year",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  },
+  {
+   "id": "duration",
+   "labelKey": "sort.duration",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  },
+  {
+   "id": "progress",
+   "labelKey": "sort.progress",
+   "directions": [
+    "asc",
+    "desc"
+   ]
+  }
+ ],
+ "filters": [
+  {
+   "id": "filter",
+   "labelKey": "saved.filter",
+   "options": [
+    {
+     "id": "all",
+     "label": "All",
+     "count": 1
+    },
+    {
+     "id": "unwatched",
+     "label": "Unwatched",
+     "count": 1
+    },
+    {
+     "id": "inProgress",
+     "label": "In progress",
+     "count": 0
+    }
+   ]
+  }
+ ],
+ "sections": [
+  {
+   "id": "watchlist",
+   "type": "grid",
+   "heading": {
+    "key": "section.watchlist",
+    "fallback": "My List"
+   },
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "22ySzw_01oM0BPistFLM7g",
+     "kind": "show",
+     "title": "Breaking Bad",
+     "subtitle": "2008",
+     "posterUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/poster?v=940e1164c6ff6c32b1c6639659b90151176c0a0e08a0b5b4e9c0bed4c26c0251&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "22ySzw_01oM0BPistFLM7g"
+     }
+    }
+   ],
+   "totalCount": 1,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

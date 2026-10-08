@@ -1,0 +1,259 @@
+{
+ "listening": {
+  "target": {
+   "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "kind": "library",
+   "id": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18"
+  },
+  "actions": [
+   "play",
+   "shuffle",
+   "mix",
+   "enqueue"
+  ],
+  "resumeUnavailable": false
+ },
+ "heading": {
+  "key": "library.discover",
+  "fallback": "Music"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+  "libraryKind": "music",
+  "view": "discover",
+  "entityId": "",
+  "viewerFence": "19953f596b475a2b42d9c110e0b5c892beed9f42a0aa6a95987e3edd6411595b"
+ },
+ "revision": {
+  "catalog": 1012,
+  "viewer": 428
+ },
+ "navigation": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "view": "discover"
+  },
+  {
+   "id": "browse",
+   "labelKey": "library.music",
+   "view": "browse"
+  },
+  {
+   "id": "releases",
+   "labelKey": "library.releases",
+   "view": "releases"
+  },
+  {
+   "id": "songs",
+   "labelKey": "library.songs",
+   "view": "songs"
+  }
+ ],
+ "query": {
+  "sort": "server",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [],
+ "filters": [],
+ "sections": [
+  {
+   "id": "recently_added",
+   "type": "rail",
+   "heading": {
+    "key": "section.recently_added",
+    "fallback": "Recently added"
+   },
+   "entries": [
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "UuA5xYpovf4OW0F3oflCYA",
+     "kind": "album",
+     "title": "After Hours",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/album/UuA5xYpovf4OW0F3oflCYA/art/cover?v=5d0ec44e0eb0f3d3f0859ca921352c2290ee4e0ccab411dd94798fcffd763eef&w=400",
+     "available": true,
+     "artist": {
+      "id": "JFgGylZOT9OyvbVUG66TQQ",
+      "name": "The Weeknd"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "UuA5xYpovf4OW0F3oflCYA"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "LAsz4Phs_niSJDCE7EZFQw",
+     "kind": "album",
+     "title": "Abbey Road (2019 Mix)",
+     "subtitle": "1969",
+     "posterUrl": "/v1/metadata/album/LAsz4Phs_niSJDCE7EZFQw/art/cover?v=ed3a7dcc945176da386721298f5b765ad2d4359f1ec6a3224210adf1ed8c7b37&w=400",
+     "available": true,
+     "artist": {
+      "id": "XhjscUfNvNI_-fidvhPD6A",
+      "name": "The Beatles"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "LAsz4Phs_niSJDCE7EZFQw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "xgnrY1d3Ziiq5-11vjCV9w",
+     "kind": "album",
+     "title": "1989 (Taylor's Version) [Deluxe]",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/album/xgnrY1d3Ziiq5-11vjCV9w/art/cover?v=8075913e1b6b92d1de5ae21db46a0b4930866fa5794f9b358cd66c39cf55439a&w=400",
+     "available": true,
+     "artist": {
+      "id": "ZzQOnHfT3TXIQYtDgi8ymg",
+      "name": "Taylor Swift"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "xgnrY1d3Ziiq5-11vjCV9w"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "nmI8wllIvQQkhKIRHgNJqg",
+     "kind": "album",
+     "title": "The Wall",
+     "subtitle": "1979",
+     "posterUrl": "/v1/metadata/album/nmI8wllIvQQkhKIRHgNJqg/art/cover?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "available": true,
+     "artist": {
+      "id": "ibXC64pLFjIJL32VoTz9eQ",
+      "name": "Pink Floyd"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "nmI8wllIvQQkhKIRHgNJqg"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "-RB0-33YOSUSktb5OKnCAw",
+     "kind": "album",
+     "title": "Thriller",
+     "subtitle": "1982",
+     "posterUrl": "/v1/metadata/album/-RB0-33YOSUSktb5OKnCAw/art/cover?v=000e2ec1882ed28c178c368fe35a4d953ac1fba31ebad1b2979715608bc3c0e3&w=400",
+     "available": true,
+     "artist": {
+      "id": "Uy8CdavNyWuJu_BAwmCYsA",
+      "name": "Michael Jackson"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "-RB0-33YOSUSktb5OKnCAw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "DGNjv2cgdbiTk7uBRZawvQ",
+     "kind": "album",
+     "title": "DAMN.",
+     "subtitle": "2017",
+     "posterUrl": "/v1/metadata/album/DGNjv2cgdbiTk7uBRZawvQ/art/cover?v=f6122824d80df322c0dbe0dc14b1800943381f9a5f7e3278cf49b7c2274005f6&w=400",
+     "available": true,
+     "artist": {
+      "id": "hAiPVg8tIVvP1DCQEUA1nw",
+      "name": "Kendrick Lamar"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "DGNjv2cgdbiTk7uBRZawvQ"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "HkrzVCrxBUFUsxgiU7GgSw",
+     "kind": "album",
+     "title": "Rumours",
+     "subtitle": "1977",
+     "posterUrl": "/v1/metadata/album/HkrzVCrxBUFUsxgiU7GgSw/art/cover?v=a491ebaae8cb30e575c1eccc0debebfd3077853a6a0ecbd97edca97d38356444&w=400",
+     "available": true,
+     "artist": {
+      "id": "Zb3d25E_l5C6gdnksHHR9A",
+      "name": "Fleetwood Mac"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "HkrzVCrxBUFUsxgiU7GgSw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "pmdRQzqNlaS5BqlffxbmkA",
+     "kind": "album",
+     "title": "Random Access Memories",
+     "subtitle": "2013",
+     "posterUrl": "/v1/metadata/album/pmdRQzqNlaS5BqlffxbmkA/art/cover?v=5cec0c02f2ec12ce6ac92bbf68531a4882d028e572dc35ce1579c93cb084ee7e&w=400",
+     "available": true,
+     "artist": {
+      "id": "86Yl5Ua0uozHuTUVcBYXpQ",
+      "name": "Daft Punk"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "pmdRQzqNlaS5BqlffxbmkA"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "lxxA-WPQXbAX9eaf5fTG4Q",
+     "kind": "album",
+     "title": "HIT ME HARD AND SOFT",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/album/lxxA-WPQXbAX9eaf5fTG4Q/art/cover?v=07b2e16b2864f7e98d29b055c493a61d8636af43b59d57a697b7f7c7c91534af&w=400",
+     "available": true,
+     "artist": {
+      "id": "iorf1Np2jhpgR377E1JGUw",
+      "name": "Billie Eilish"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "lxxA-WPQXbAX9eaf5fTG4Q"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "BVeRENlvjqVaYfqxSR3FvQ",
+     "kind": "album",
+     "title": "21",
+     "subtitle": "2011",
+     "posterUrl": "/v1/metadata/album/BVeRENlvjqVaYfqxSR3FvQ/art/cover?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+     "available": true,
+     "artist": {
+      "id": "1S4cNAv-E-9hPui1IC7cQQ",
+      "name": "Adele"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "BVeRENlvjqVaYfqxSR3FvQ"
+     }
+    }
+   ],
+   "totalCount": 10,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

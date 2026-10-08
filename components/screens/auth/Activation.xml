@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/auth/Activation.tsx: the television's front door, a code and a QR link. -->
+<component name="ScreenActivation" extends="Group">
+    <interface>
+        <field id="directPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="savedServerPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="approved" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

@@ -1,0 +1,173 @@
+' packages/client-core/src/show-workspace.ts: one server-owned show page: the show, its seasons
+' (or, for a show its owner listed flat, its episode groups), the selected season's episodes as
+' one bounded page, the server's next-up episode and the show's settings. Checked against the
+' server, library and selection asked for.
+import "pkg:/source/core/ContentProjection.bs"
+
+function ShowEpisodePageSize() as integer
+    return 40
+end function
+
+function ShowSeasonPageSize() as integer
+    return 128
+end function
+
+function IsShowGroup(value as dynamic) as boolean
+    return MatchesPattern(value, "^(unassigned_absolute|all|specials|range:\d{1,7})$")
+end function
+
+' GET /v1/libraries/{id}/show-workspace. `route` is {libraryId, showId, seasonId, episodeId,
+' selectedSeasonId, group}; `cursor` continues the episodes.
+function ShowWorkspacePath(route as object, cursor = "" as string) as string
+    query = []
+    for each key in ["showId", "seasonId", "episodeId", "selectedSeasonId", "group"]
+        if route[key] <> invalid then query.push(key + "=" + route[key].encodeUriComponent())
+    end for
+    query.push("limit=" + ShowEpisodePageSize().toStr())
+    query.push("seasonLimit=" + ShowSeasonPageSize().toStr())
+    if cursor <> "" then query.push("cursor=" + cursor.encodeUriComponent())
+    return "/v1/libraries/" + route.libraryId.encodeUriComponent() + "/show-workspace?" + query.join("&")
+end function
+
+' show-workspace.ts `parse`: {ok, workspace: {scope, revision, show, seasons, seasonTotalCount,
+' groups, selected: {seasonId, group, episodeId}, episodes (a projection), nextUp, settings}}.
+' `paged` is true for a continuation (its first episode is not the one linked to).
+function ParseShowWorkspace(raw as dynamic, route as object, serverId as string, paged = false as boolean) as object
+    bad = { ok: false, code: "invalid_show_workspace" }
+    if not IsObject(raw) or not IsObject(raw.scope) or not IsObject(raw.revision) or not IsObject(raw.show) or not IsObject(raw.selected) then return bad
+    x = raw.scope
+    rev = raw.revision
+    show = raw.show
+    selected = raw.selected
+    if not IsString(x.serverId) or x.serverId <> serverId or not IsString(x.libraryId) or x.libraryId <> route.libraryId or not IsContentId(x.viewerFence) or not IsNatural(rev.catalog) or not IsNatural(rev.viewer) then return bad
+    if not IsContentId(show.id) or not IsString(show.libraryId) or show.libraryId <> route.libraryId or (route.showId <> invalid and show.id <> route.showId) or not IsContentString(show.title, 2048) or not IsString(show.libraryKind) or (show.libraryKind <> "tv" and show.libraryKind <> "anime") or not IsContentString(show.providerMatchStatus, 128) then return bad
+    parsed = { id: show.id, libraryId: route.libraryId, title: show.title, libraryKind: show.libraryKind }
+    artBase = "/v1/metadata/show/" + show.id.encodeUriComponent() + "/art/"
+    for each rule in [["posterUrl", "poster"], ["backdropUrl", "backdrop"]]
+        key = rule[0]
+        if show.doesExist(key) then
+            prefix = artBase + rule[1] + "?"
+            if not IsContentString(show[key], 4096) or Left(show[key], Len(prefix)) <> prefix then return bad
+            parsed[key] = show[key]
+        end if
+    end for
+    logoPrefix = artBase + "logo?"
+    if IsContentString(show.logoUrl, 4096) and Left(show.logoUrl, Len(logoPrefix)) = logoPrefix then parsed.logoUrl = show.logoUrl
+    for each key in ["network", "studio", "contentRating", "originalTitle", "country"]
+        if IsContentString(show[key], 256) and show[key] <> "" then parsed[key] = show[key]
+    end for
+    if IsArray(show.genres) then
+        genres = []
+        for each genre in show.genres
+            if IsContentString(genre, 128) and genre <> "" then genres.push(genre)
+        end for
+        if genres.count() > 0 then parsed.genres = genres
+    end if
+    if show.doesExist("year") then
+        if not IsNatural(show.year) then return bad
+        parsed.year = show.year
+    end if
+    ' Show credits are additive: a malformed row is dropped, never fatal.
+    if IsArray(raw.showCredits) then
+        credits = []
+        taken = 0
+        for each c in raw.showCredits
+            if taken < 500 and IsObject(c) and IsContentString(c.name, 512) and c.name <> "" then
+                credit = { name: c.name, ordinal: credits.count() }
+                if IsNatural(c.ordinal) then credit.ordinal = c.ordinal
+                if IsContentString(c.id, 256) and c.id <> "" then credit.id = c.id
+                if IsContentString(c.role, 512) and c.role <> "" then credit.role = c.role
+                if IsContentString(c.department, 128) and c.department <> "" then credit.department = c.department
+                if IsContentString(c.portraitUrl, 4096) and c.portraitUrl <> "" then credit.portraitUrl = c.portraitUrl
+                credits.push(credit)
+            end if
+            taken = taken + 1
+        end for
+        if credits.count() > 0 then parsed.credits = credits
+    end if
+    if show.doesExist("overview") then
+        if not IsString(show.overview) or Len(show.overview) > 65536 or not IsSynopsisText(show.overview) then return bad
+        parsed.overview = show.overview
+    end if
+    for each key in ["providerSourceUrl", "providerObservedAt"]
+        if show.doesExist(key) then
+            if not IsContentString(show[key], 4096) then return bad
+            if key = "providerSourceUrl" and show[key] <> "" then
+                if not IsPlainHttpsUrl(show[key]) or not MatchesPattern(show[key], "^https://(www\.themoviedb\.org|thetvdb\.com|anilist\.co)(:\d+)?([/?#]|$)") then return bad
+            end if
+        end if
+    end for
+    if selected.seasonId <> invalid and not IsContentId(selected.seasonId) then return bad
+    if selected.doesExist("group") and not IsShowGroup(selected.group) then return bad
+    if selected.seasonId <> invalid and selected.doesExist("group") then return bad
+    if selected.doesExist("episodeId") and not IsContentId(selected.episodeId) then return bad
+    st = {}
+    if IsObject(raw.settings) then st = raw.settings
+    settings = { hideSeasons: IsBoolean(st.hideSeasons) and st.hideSeasons, absoluteNumbering: IsBoolean(st.absoluteNumbering) and st.absoluteNumbering, ranges: IsBoolean(st.ranges) and st.ranges, newestFirst: IsBoolean(st.newestFirst) and st.newestFirst, revision: 0 }
+    if IsNatural(st.revision) then settings.revision = st.revision
+    flat = settings.hideSeasons or settings.ranges
+    ' A flat show answers a link to one of its seasons with its own list.
+    if not flat then
+        if route.seasonId <> invalid and (selected.seasonId = invalid or selected.seasonId <> route.seasonId) then return bad
+        if route.selectedSeasonId <> invalid and (selected.seasonId = invalid or selected.seasonId <> route.selectedSeasonId) then return bad
+    end if
+    if route.group <> invalid and (selected.group = invalid or selected.group <> route.group) then return bad
+    if route.episodeId <> invalid then
+        if selected.episodeId = invalid or selected.episodeId <> route.episodeId then return bad
+    else if selected.episodeId <> invalid then
+        return bad
+    end if
+    if not IsArray(raw.seasons) or raw.seasons.count() > ShowSeasonPageSize() then return bad
+    seasons = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each v in raw.seasons
+        if not IsObject(v) or not IsContentId(v.id) or not IsString(v.showId) or v.showId <> show.id or not IsNatural(v.number) or not IsContentString(v.title, 2048) or seen.doesExist(v.id) then return bad
+        seen[v.id] = true
+        seasons.push({ id: v.id, showId: show.id, number: v.number, title: v.title })
+    end for
+    if not IsNatural(raw.seasonTotalCount) or raw.seasonTotalCount < seasons.count() or not IsContentString(raw.nextSeasonCursor, 4096) or (raw.nextSeasonCursor <> "" and seasons.count() = 0) then return bad
+    if not IsArray(raw.groups) or raw.groups.count() > 20000 then return bad
+    groups = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each v in raw.groups
+        if not IsObject(v) or not IsShowGroup(v.id) or not IsContentString(v.title, 2048) or not IsNatural(FieldOf(v, "count")) or seen.doesExist(v.id) then return bad
+        seen[v.id] = true
+        groups.push({ id: v.id, title: v.title, total: FieldOf(v, "count") })
+    end for
+    if selected.group <> invalid and not seen.doesExist(selected.group) then return bad
+    expected = { libraryId: route.libraryId, view: "season", entityId: selected.seasonId, sort: "episode", direction: "asc", category: "", q: "" }
+    if selected.seasonId = invalid then
+        expected.view = "show"
+        expected.entityId = show.id
+    end if
+    episodes = ParseContentProjection(raw.episodes, expected, serverId, ShowEpisodePageSize())
+    if not episodes.ok then return bad
+    projection = episodes.projection
+    if projection.scope.viewerFence <> x.viewerFence or projection.scope.libraryKind <> show.libraryKind or projection.revision.catalog <> rev.catalog or projection.revision.viewer <> rev.viewer or projection.sections.count() > 1 or projection.query.searchMode <> "none" then return bad
+    section = invalid
+    if projection.sections.count() = 1 then section = projection.sections[0]
+    if section <> invalid then
+        sectionId = "episodes"
+        if selected.seasonId = invalid then sectionId = selected.group
+        if section.type <> "list" or sectionId = invalid or section.id <> sectionId or section.entries.count() > ShowEpisodePageSize() then return bad
+        for each e in section.entries
+            if e.kind <> "episode" or e.navigation = invalid or e.navigation.view <> "item" or e.navigation.entityId = invalid or e.navigation.entityId <> e.id then return bad
+            if e.playback <> invalid and (e.available <> true or e.playback.itemId <> e.id) then return bad
+        end for
+    end if
+    if route.episodeId <> invalid and not paged then
+        if section = invalid or section.entries.count() = 0 or section.entries[0].id <> route.episodeId then return bad
+    end if
+    if selected.seasonId = invalid and selected.group = invalid and (section <> invalid or raw.seasonTotalCount <> 0) then return bad
+    workspace = { scope: { serverId: serverId, libraryId: route.libraryId, viewerFence: x.viewerFence }, revision: { catalog: rev.catalog, viewer: rev.viewer }, show: parsed, seasons: seasons, seasonTotalCount: raw.seasonTotalCount, groups: groups, selected: { seasonId: selected.seasonId }, episodes: projection, settings: settings }
+    if selected.group <> invalid then workspace.selected.group = selected.group
+    if selected.episodeId <> invalid then workspace.selected.episodeId = selected.episodeId
+    ' The server's primary action. A malformed value is dropped, never fatal.
+    if raw.nextUp <> invalid then
+        entry = ParseContentEntry(raw.nextUp)
+        if entry <> invalid and entry.kind = "episode" then workspace.nextUp = entry
+    end if
+    return { ok: true, workspace: workspace }
+end function

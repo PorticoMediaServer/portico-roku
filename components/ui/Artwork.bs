@@ -1,0 +1,150 @@
+' apps/native/src/ui/Artwork.tsx. The placeholder is the title set in Manrope on a soft slate
+' surface (or a family icon; tiny thumbnails always take the icon), and it stays underneath until the
+' image has decoded; the image then fades in over Theme.apple.artworkFadeMs. Each card asks for the
+' one server variant that fits its size (core/Artwork.bs).
+'
+' Rounded corners: SceneGraph cannot clip to a radius, so the image and the progress line sit in a
+' MaskGroup with a generated mask for the card's size (images/masks). A size with no mask draws
+' square corners.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Artwork.bs"
+
+sub init()
+    m.base = m.top.createChild("Poster")
+    m.tintPlate = m.top.createChild("Poster")
+    m.placeholderIcon = m.top.createChild("Poster")
+    m.placeholderText = MakeText(m.top, "subheading", "secondary")
+    m.placeholderText.align = "center"
+    m.masked = m.top.createChild("MaskGroup")
+    m.image = m.masked.createChild("Poster")
+    m.image.id = "artworkImage"
+    m.image.loadDisplayMode = "scaleToZoom"
+    m.image.opacity = 0
+    m.image.observeField("loadStatus", "onArtworkLoad")
+    m.progressTrack = m.masked.createChild("Rectangle")
+    m.progressFill = m.masked.createChild("Rectangle")
+    m.progressTrack.visible = false
+    m.progressFill.visible = false
+    m.fade = invalid
+    m.size = invalid
+end sub
+
+sub onArtworkLayout()
+    shape = m.top.shape
+    width = m.top.artWidth
+    height = m.top.artHeight
+    if width <= 0 and height > 0 then width = height * ArtworkRatio(shape)
+    if width <= 0 then width = Theme.metrics.posterWidth
+    if height <= 0 then height = width / ArtworkRatio(shape)
+    width = Int(width + 0.5)
+    height = Int(height + 0.5)
+    radius = m.top.radius
+    if shape = "circle" then
+        radius = width / 2
+    else if radius < 0 then
+        radius = Theme.metrics.radius.card
+    end if
+    m.size = { width: width, height: height, radius: radius }
+    StyleShape(m.base, width, height, radius, Theme.colors.raised)
+    StyleShape(m.tintPlate, width, height, radius, ColorAlpha(Theme.colors.raisedHigh, Theme.apple.artworkPlaceholderAlpha))
+    m.image.width = width
+    m.image.height = height
+    m.image.loadWidth = width
+    m.image.loadHeight = height
+    m.masked.maskUri = MaskUri(width, height, radius)
+    m.masked.maskSize = [width, height]
+    onArtworkPlaceholder()
+    onArtworkProgress()
+    onArtworkSource()
+end sub
+
+sub onArtworkPlaceholder()
+    if m.size = invalid then return
+    width = m.size.width
+    height = m.size.height
+    shortest = Min(width, height)
+    ' Tiny thumbnails cannot hold a readable title; they show the family icon instead.
+    small = shortest < Theme.apple.artworkSmall
+    icon = m.top.icon
+    if icon = "" and small then icon = "film"
+    title = m.top.title
+    text = ""
+    role = "subheading"
+    if m.top.initials <> "" then
+        text = m.top.initials
+        role = "heading"
+        icon = ""
+    else if title <> "" and m.top.icon = "" and not small then
+        text = title
+        icon = ""
+    end if
+    m.placeholderIcon.visible = icon <> ""
+    if icon <> "" then
+        size = Int(shortest * Theme.apple.artworkIconFactor)
+        StyleIcon(m.placeholderIcon, icon, size, ColorAlpha(Theme.colors.textTertiary, Theme.apple.artworkIconAlpha))
+        Place(m.placeholderIcon, (width - size) / 2, (height - size) / 2)
+    end if
+    m.placeholderText.visible = text <> ""
+    if text <> "" then
+        lines = Theme.apple.artworkTitleLines
+        if m.top.shape = "landscape" then lines = Theme.apple.artworkTitleLinesLandscape
+        if m.top.initials <> "" then lines = 1
+        m.placeholderText.role = role
+        m.placeholderText.lines = lines
+        m.placeholderText.maxWidth = width - Theme.space.sm * 2
+        m.placeholderText.value = text
+        Place(m.placeholderText, Theme.space.sm, (height - TextHeight(m.placeholderText)) / 2)
+    end if
+end sub
+
+sub onArtworkProgress()
+    if m.size = invalid then return
+    value = Clamp(m.top.progress, 0, 1)
+    shown = value > 0
+    m.progressTrack.visible = shown
+    m.progressFill.visible = shown
+    if not shown then return
+    line = Theme.apple.progressLineHeight
+    Place(m.progressTrack, 0, m.size.height - line)
+    Place(m.progressFill, 0, m.size.height - line)
+    m.progressTrack.width = m.size.width
+    m.progressTrack.height = line
+    m.progressTrack.color = ColorAlpha(Theme.colors.black, Theme.apple.progressTrackAlpha)
+    m.progressFill.width = m.size.width * value
+    m.progressFill.height = line
+    m.progressFill.color = Theme.colors.accent
+end sub
+
+sub onArtworkSource()
+    if m.size = invalid then return
+    uri = m.top.uri
+    if uri = "" then
+        m.image.uri = ""
+        m.image.opacity = 0
+        return
+    end if
+    ratio = ArtworkRatio(m.top.shape)
+    uri = SizedArtworkUri(uri, m.size.width, ratio)
+    if uri = m.image.uri then return
+    m.image.opacity = 0
+    m.image.uri = uri
+end sub
+
+sub onArtworkLoad()
+    status = m.image.loadStatus
+    if status <> "ready" then
+        if status = "failed" then m.image.opacity = 0
+        return
+    end if
+    if ReduceMotion() then
+        m.image.opacity = 1
+        return
+    end if
+    duration = Theme.apple.artworkFadeMs
+    if m.top.priority then duration = Theme.apple.artworkFadePriorityMs
+    if m.fade = invalid then m.fade = MakeFloatAnimation(m.top, "artworkImage.opacity", duration)
+    RunFloatAnimation(m.fade, 0, 1, duration)
+end sub

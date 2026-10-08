@@ -1,0 +1,834 @@
+' The readers behind the title pages (core/Readers.bs dispatches to them): each parses one
+' document with its bounded parser and makes of it what the page draws (the hero's words, the
+' shelves' cards, the Details rows), in the Task thread.
+import "pkg:/source/core/Cards.bs"
+import "pkg:/source/core/Detail.bs"
+import "pkg:/source/core/ShowWorkspace.bs"
+import "pkg:/source/core/People.bs"
+import "pkg:/source/core/Title.bs"
+import "pkg:/source/core/TitleFiles.bs"
+import "pkg:/source/core/LibraryTabs.bs"
+import "pkg:/source/core/ContentProjection.bs"
+
+' A person card (ui/Card.tsx PersonCard): {person, title, caption, artUri, personId, name}.
+function PersonCardNode(name as string, caption as dynamic, portrait as dynamic, personId as dynamic, origin as string) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    fields = { person: true, title: name, caption: "", artUri: MediaUrl(origin, portrait), shape: "person", progress: 0, watched: false, icon: "", titleLines: 1, entryId: "", personId: "" }
+    if IsString(caption) then fields.caption = caption
+    if IsString(personId) then fields.personId = personId
+    node.addFields(fields)
+    return node
+end function
+
+function PeopleNode(credits as object, origin as string, roleOrDepartment as boolean) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each credit in credits
+        caption = credit.role
+        if roleOrDepartment and (caption = invalid or caption = "") then caption = credit.department
+        id = credit.personId
+        if id = invalid then id = credit.id
+        children.push(PersonCardNode(credit.name, caption, credit.portraitUrl, id, origin))
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' Recommendation rows as shelves: [{id, title, shape, titleLines, recommendation}] with a child
+' of cards for each.
+sub TitleRowsInto(rows as object, sections as object, children as object, origin as string, headings as boolean)
+    for each row in RelatedRowsForPage(rows)
+        shape = SectionShape(row.entries)
+        title = ""
+        if headings then
+            title = SectionTitle(HomeRowHeading(row))
+        else
+            title = row.heading
+        end if
+        lines = 1
+        for each entry in row.entries
+            if entry.kind = "book" then lines = 2
+        end for
+        sections.push({ kind: "related", id: row.id, title: title, shape: shape, titleLines: lines })
+        children.push(CardsNode(row.entries, { origin: origin, shape: shape }))
+    end for
+end sub
+
+' screens/title/TitleDetails.tsx: the Files rows, [{title, body}].
+function TitleFileRows(files as dynamic) as object
+    rows = []
+    if files = invalid then return rows
+    for index = 0 to files.count() - 1
+        lines = TitleFileLines(files[index])
+        body = []
+        if lines.facts.count() > 0 then body.push(lines.facts.join(" · "))
+        for at = 0 to lines.audio.count() - 1
+            if at = 0 then
+                body.push(T("mediaInfo.audio") + ": " + lines.audio[at])
+            else
+                body.push(lines.audio[at])
+            end if
+        end for
+        for at = 0 to lines.subtitles.count() - 1
+            if at = 0 then
+                body.push(T("mediaInfo.subtitles") + ": " + lines.subtitles[at])
+            else
+                body.push(lines.subtitles[at])
+            end if
+        end for
+        if lines.path <> invalid then body.push(T("mediaInfo.location") + ": " + lines.path)
+        if not lines.available then body.push(T("mediaInfo.unavailable"))
+        title = lines.summary
+        if files.count() > 1 then title = T("mediaInfo.version", { number: index + 1 }) + " · " + lines.summary
+        rows.push({ title: title, body: body.join(Chr(10)) })
+    end for
+    return rows
+end function
+
+' Cast on the page before See all (screens/Detail.tsx `CAST_ON_PAGE`).
+function DetailCastOnPage() as integer
+    return 12
+end function
+
+' The entry a title plays as (screens/Detail.tsx `entryOf`).
+function DetailEntry(item as object) as object
+    entry = { id: item.id, libraryId: item.libraryId, kind: item.kind, title: item.title, duration: item.duration, progressSeconds: item.progressSeconds, playback: { itemId: item.id, startSeconds: item.progressSeconds } }
+    if item.posterUrl <> invalid then entry.posterUrl = item.posterUrl
+    if item.backdropUrl <> invalid then entry.backdropUrl = item.backdropUrl
+    return entry
+end function
+
+' The hero's action row and its menu, from the page's current state (screens/Detail.tsx). Called
+' again after a personal-state change. {primary, actions, menu, playback, restart}.
+function DetailHeroActions(detail as object) as object
+    item = detail.item
+    model = DetailActions(detail)
+    out = { primary: invalid, actions: [], menu: [], playback: invalid, restart: false }
+    if model.primary <> invalid then
+        label = T("entry.play")
+        primary = { label: label, icon: "play" }
+        if model.primary.id = "resume" then
+            primary.label = T("entry.resume")
+            if model.primary.remaining <> "" then primary.label = T("title.resumeRemaining", { remaining: model.primary.remaining })
+            if item.duration > 0 then primary.progress = item.progressSeconds / item.duration
+        end if
+        out.primary = primary
+        out.playback = model.primary.playback
+    end if
+    ' The same row on every title: My List · Favorite · Watched · ⋯ (a song has none).
+    if item.song = invalid then
+        for each quick in model.quick
+            out.actions.push({ id: quick.id, icon: quick.icon, label: T(quick.label), selected: quick.selected })
+        end for
+    end if
+    for each group in model.more
+        first = true
+        for each action in group.actions
+            entry = invalid
+            if action.id = "rate" then
+                entry = { id: "rate", label: T("entry.rate"), icon: "star" }
+                if detail.personal.rating <> invalid then entry = { id: "rate", label: T("title.rated", { stars: T("title.stars", { count: detail.personal.rating }) }), icon: "starFilled" }
+            else if action.id = "playFromStart" then
+                entry = { id: "start_over", label: T("title.playFromStart"), icon: "restart" }
+                out.restart = true
+            else if action.id = "addToPlaylist" then
+                entry = { id: "playlist", label: T(action.label), icon: action.icon, section: "" }
+            else if action.id = "addToCollection" then
+                entry = { id: "collection", label: T(action.label), icon: action.icon }
+            else
+                entry = { id: action.id, label: T(action.label), icon: action.icon }
+            end if
+            out.menu.push(entry)
+            first = false
+        end for
+    end for
+    if out.menu.count() > 0 then out.actions.push({ id: "more", icon: "more", label: T("title.moreActions"), selected: false })
+    return out
+end function
+
+' GET /v1/items/{id}/detail?related=all. `context`: {origin, serverId, target}. The value is
+' {ok, detail, hero, sections, details, genres, files, episode}; the content has one child per
+' section (cast, crew, related rows, extras), in the page's order.
+function ReadDetail(data as dynamic, context as object) as object
+    parsed = ParseDetailProjection(data, context.serverId, context.target)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    detail = parsed.detail
+    item = detail.item
+    origin = context.origin
+    credits = detail.metadata.credits
+    cast = []
+    crew = []
+    for each credit in credits
+        if IsActing(credit.department) then
+            cast.push(credit)
+        else
+            crew.push(credit)
+        end if
+    end for
+    names = []
+    for each genre in detail.metadata.genres
+        names.push(genre.name)
+    end for
+    genres = DedupeNames(names)
+    plain = item.song = invalid and item.bookFile = invalid
+    duration = invalid
+    if item.duration > 0 then duration = FormatDuration(item.duration)
+    facts = [item.year, duration]
+    eyebrow = T("title.kind", { kind: item.kind })
+    if item.song <> invalid then
+        facts = [item.song.albumTitle, item.year, duration]
+        eyebrow = FactsLine([item.song.albumArtist])
+    else if item.bookFile <> invalid then
+        facts = [item.bookFile.bookTitle, duration]
+    end if
+    factLine = FactsLine(facts)
+    menuFacts = factLine
+    ' Genres close the facts line; on television they are links in Details.
+    if plain and genres.count() > 0 then
+        if factLine <> "" then factLine = factLine + " · "
+        factLine = factLine + genres.join(", ")
+    end if
+    hero = { loading: false, title: item.title, eyebrow: eyebrow, facts: factLine, backdropUri: MediaUrl(origin, item.backdropUrl) }
+    art = { uri: MediaUrl(origin, item.posterUrl), shape: "poster", icon: "" }
+    if item.song <> invalid then
+        art.shape = "square"
+        art.icon = "music"
+    else if item.bookFile <> invalid then
+        art.shape = "square"
+        art.icon = "book"
+    end if
+    hero.art = art
+    f = detail.facts
+    if f = invalid then f = {}
+    original = OriginalTitleLine(item.title, f.originalTitle)
+    if original <> "" then hero.originalTitle = original
+    if f.contentRating <> invalid then hero.rating = f.contentRating
+    if f.tagline <> invalid then hero.tagline = f.tagline
+    if item.overview <> invalid then hero.synopsis = item.overview
+    if plain then
+        scores = []
+        for each rating in detail.metadata.ratings
+            if scores.count() < 3 then scores.push({ provider: RatingProviderLabel(rating.provider), value: RatingLabel(rating.value, rating.max) })
+        end for
+        hero.scores = scores
+        lines = []
+        directors = DedupeNames(NamesIn(crew, ["directing"]), 3)
+        writers = DedupeNames(NamesIn(crew, ["writing"]), 3)
+        castNames = []
+        for each credit in cast
+            castNames.push(credit.name)
+        end for
+        starring = DedupeNames(castNames, 4)
+        if directors.count() > 0 then lines.push(T("title.directedBy", { names: FormatList(directors) }))
+        if writers.count() > 0 then lines.push(T("title.writtenBy", { names: FormatList(writers) }))
+        if starring.count() > 0 then lines.push(T("title.starring", { names: FormatList(starring) }))
+        hero.credits = lines
+    end if
+
+    sections = []
+    children = []
+    ' The first twelve of the cast; See all shows the rest.
+    if cast.count() > 0 then
+        first = []
+        for each credit in cast
+            if first.count() < DetailCastOnPage() then first.push(credit)
+        end for
+        sections.push({ kind: "cast", title: T("title.cast"), shape: "person", total: cast.count(), shown: first.count(), seeAllLabel: T("title.seeAll") })
+        children.push(PeopleNode(first, origin, false))
+        if cast.count() > first.count() then
+            sections.push({ kind: "allCast", title: T("title.cast"), shape: "person", total: cast.count() })
+            children.push(PeopleNode(cast, origin, false))
+        end if
+    end if
+    key = KeyCrew(crew)
+    if key.count() > 0 then
+        sections.push({ kind: "crew", title: T("title.crew"), shape: "person", total: crew.count(), shown: key.count(), seeAllLabel: T("title.allCrew") })
+        children.push(PeopleNode(key, origin, true))
+        if crew.count() > key.count() then
+            sections.push({ kind: "allCrew", title: T("title.crew"), shape: "person", total: crew.count() })
+            children.push(PeopleNode(crew, origin, true))
+        end if
+    end if
+    if detail.related <> invalid then TitleRowsInto(detail.related, sections, children, origin, false)
+    if detail.extras <> invalid then
+        for each extra in detail.extras
+            sections.push({ kind: "extra", id: extra.type, title: extra.label, shape: "landscape", titleLines: 1 })
+            node = CreateObject("roSGNode", "ContentNode")
+            cards = []
+            for each entry in extra.entries
+                card = CardFields(entry, { origin: origin, shape: "landscape" })
+                card.caption = ""
+                if entry.duration <> invalid and entry.duration > 0 then card.caption = FormatDuration(entry.duration)
+                child = CreateObject("roSGNode", "ContentNode")
+                child.addFields(card)
+                cards.push(child)
+            end for
+            node.appendChildren(cards)
+            children.push(node)
+        end for
+    end if
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(children)
+
+    rows = []
+    if f.releaseDate <> invalid then rows.push([T("title.releaseDate"), FormatDay(f.releaseDate)])
+    if f.studio <> invalid then rows.push([T("title.studio"), f.studio])
+    if NetworkName(f.network) <> "" then rows.push([T("title.network"), NetworkName(f.network)])
+    if f.country <> invalid then rows.push([T("title.country"), f.country])
+    if f.edition <> invalid then rows.push([T("title.edition"), f.edition])
+    if genres.count() > 0 and not plain then rows.push([T("title.genres"), genres.join(", ")])
+    if item.addedAt <> invalid and item.addedAt <> "" then rows.push([T("title.added"), FormatDay(item.addedAt)])
+    value = { ok: true, detail: { scope: detail.scope, item: item, personal: detail.personal, actions: detail.actions }, hero: hero, sections: sections, details: rows, genres: [], files: [], menuFacts: menuFacts, entry: DetailEntry(item) }
+    if plain then value.genres = genres
+    if item.song = invalid then value.files = TitleFileRows(detail.files)
+    ' The episode panel names the episode's own director and writers (screens/title/EpisodePanel.tsx).
+    value.panel = { directors: NamesIn(credits, ["directing", "director", "direction"]), writers: NamesIn(credits, ["writing", "writer", "writers"]) }
+    return { value: value, content: content }
+end function
+
+' GET /v1/items/{id}/recommendations or /v1/shows/{id}/recommendations. `context`: {origin, field, id}.
+function ReadTitleRows(data as dynamic, context as object) as object
+    parsed = ParseTitleRecommendations(data, context.field, context.id)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    sections = []
+    children = []
+    TitleRowsInto(parsed.rows, sections, children, context.origin, true)
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(children)
+    return { value: { ok: true, sections: sections }, content: content }
+end function
+
+' PUT /v1/items/{id}/personal-state. `context`: {operationId, scope}.
+function ReadReceipt(data as dynamic, context as object) as object
+    return { value: ParsePersonalReceipt(data, context.operationId, context.scope) }
+end function
+
+' GET or PUT /v1/containers/{kind}/{id}/personal-state. `context`: {counts}.
+function ReadContainer(data as dynamic, context as object) as object
+    return { value: ParseContainerState(data, context.counts = true) }
+end function
+
+' One episode as its row in the show page's list (screens/title/Episodes.tsx `TvEpisodeRow`).
+function EpisodeCellFields(entry as object) as object
+    number = ""
+    if entry.episodeNumber <> invalid then number = entry.episodeNumber.toStr()
+    progress = 0
+    if entry.watched <> true then progress = ProgressFor(entry)
+    return { title: entry.title, number: number, meta: EpisodeMeta(entry), progress: progress, watched: entry.watched = true, entryId: entry.id, entry: entry, placeholder: false, highlighted: false }
+end function
+
+function EpisodeCellsNode(entries as object) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each entry in entries
+        child = CreateObject("roSGNode", "ContentNode")
+        child.addFields(EpisodeCellFields(entry))
+        children.push(child)
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' GET /v1/libraries/{id}/show-workspace. `context`: {origin, serverId, route, paged}. A
+' continuation's value is {ok, revision, viewerFence, nextCursor, shown, total}; a first page's
+' is the whole page: {ok, scope, revision, show, selected, settings, flat, seasonTotalCount,
+' choices, settledId, total, nextCursor, shown, hero, sections, details, genres, nextUp}. The
+' content's first child holds the episodes' rows; a first page's next children the people.
+function ReadShow(data as dynamic, context as object) as object
+    parsed = ParseShowWorkspace(data, context.route, context.serverId, context.paged = true)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    w = parsed.workspace
+    origin = context.origin
+    entries = []
+    total = 0
+    cursor = ""
+    if w.episodes.sections.count() > 0 then
+        section = w.episodes.sections[0]
+        entries = section.entries
+        total = section.totalCount
+        cursor = section.nextCursor
+    end if
+    content = CreateObject("roSGNode", "ContentNode")
+    children = [EpisodeCellsNode(entries)]
+    if context.paged = true then
+        content.appendChildren(children)
+        return { value: { ok: true, revision: w.revision, viewerFence: w.scope.viewerFence, nextCursor: cursor, shown: entries.count(), total: total }, content: content }
+    end if
+    show = w.show
+    flat = w.settings.hideSeasons or w.settings.ranges
+    choices = []
+    groups = []
+    for each group in w.groups
+        groups.push({ id: "group:" + group.id, label: group.title })
+    end for
+    if flat then
+        choices = groups
+    else
+        specials = []
+        for each season in OrderSeasons(w.seasons)
+            choice = { id: season.id, label: SeasonLabel(season), number: season.number }
+            if season.number = 0 then
+                specials.push(choice)
+            else
+                choices.push(choice)
+            end if
+        end for
+        choices.append(groups)
+        choices.append(specials)
+    end if
+    settled = ""
+    if w.selected.group <> invalid then
+        settled = "group:" + w.selected.group
+    else if w.selected.seasonId <> invalid then
+        settled = w.selected.seasonId
+    end if
+    people = ShowPeople(show.credits)
+    lines = ShowCreditLines(people.crew)
+    castNames = []
+    for each credit in people.cast
+        castNames.push(credit.name)
+    end for
+    starring = DedupeNames(castNames, 4)
+    if starring.count() > 0 then lines.push(T("title.starring", { names: FormatList(starring) }))
+    count = invalid
+    if w.seasonTotalCount > 0 and not flat then
+        count = T("title.seasonCount", { count: w.seasonTotalCount })
+    else if total > 0 then
+        count = T("count.episodes", { count: total })
+    end if
+    network = NetworkName(show.network)
+    if network = "" then network = invalid
+    factLine = FactsLine([show.year, count, network])
+    genres = []
+    if show.genres <> invalid then genres = show.genres
+    short = DedupeNames(genres)
+    if short.count() > 0 then
+        if factLine <> "" then factLine = factLine + " · "
+        factLine = factLine + short.join(", ")
+    end if
+    kind = "show"
+    if show.libraryKind = "anime" then kind = "anime"
+    hero = { loading: false, title: show.title, eyebrow: T("title.kind", { kind: kind }), facts: factLine, backdropUri: MediaUrl(origin, show.backdropUrl), art: { uri: MediaUrl(origin, show.posterUrl), shape: "poster", icon: "tv" }, credits: lines }
+    original = OriginalTitleLine(show.title, show.originalTitle)
+    if original <> "" then hero.originalTitle = original
+    if show.contentRating <> invalid then hero.rating = show.contentRating
+    if show.overview <> invalid then hero.synopsis = show.overview
+    sections = []
+    if people.cast.count() > 0 then
+        first = []
+        for each credit in people.cast
+            if first.count() < DetailCastOnPage() then first.push(credit)
+        end for
+        sections.push({ kind: "cast", title: T("title.cast"), shape: "person" })
+        children.push(ShowPeopleNode(first, origin, false))
+    end if
+    if people.crew.count() > 0 then
+        sections.push({ kind: "crew", title: T("title.crew"), shape: "person" })
+        children.push(ShowPeopleNode(people.crew, origin, true))
+    end if
+    content.appendChildren(children)
+    rows = []
+    if network <> invalid then rows.push([T("title.network"), network])
+    if show.studio <> invalid then rows.push([T("title.studio"), show.studio])
+    if show.country <> invalid then rows.push([T("title.country"), show.country])
+    value = { ok: true, scope: w.scope, revision: w.revision, show: { id: show.id, libraryId: show.libraryId, title: show.title, libraryKind: show.libraryKind }, selected: w.selected, settings: w.settings, flat: flat, seasonTotalCount: w.seasonTotalCount, choices: choices, settledId: settled, total: total, nextCursor: cursor, shown: entries.count(), hero: hero, sections: sections, details: rows, genres: DedupeNames(genres, DetailGenresInDetails()) }
+    if show.posterUrl <> invalid then value.show.posterUrl = show.posterUrl
+    if show.backdropUrl <> invalid then value.show.backdropUrl = show.backdropUrl
+    if w.nextUp <> invalid and w.nextUp.playback <> invalid then value.nextUp = w.nextUp
+    return { value: value, content: content }
+end function
+
+' Genres in a show's Details (screens/Show.tsx: `dedupeNames(show.genres, 20)`).
+function DetailGenresInDetails() as integer
+    return 20
+end function
+
+function ShowPeopleNode(credits as object, origin as string, roleOrDepartment as boolean) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each credit in credits
+        caption = credit.role
+        if roleOrDepartment and (caption = invalid or caption = "") then caption = credit.department
+        children.push(PersonCardNode(credit.name, caption, credit.portraitUrl, credit.id, origin))
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' GET /v1/items/{id}/credits?group=cast: one page of an episode's cast. `context`: {origin, itemId}.
+function ReadCredits(data as dynamic, context as object) as object
+    parsed = ParseCreditPage(data, context.itemId, "cast")
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    return { value: { ok: true, total: parsed.total, nextCursor: parsed.nextCursor }, content: PeopleNode(parsed.credits, context.origin, false) }
+end function
+
+' app/content.ts `lengthFor`: a song's length as a clock, anything else as a duration.
+function LengthFor(entry as object) as string
+    if entry.duration = invalid or entry.duration = 0 then return ""
+    if entry.kind = "song" then return FormatClock(entry.duration)
+    return FormatDuration(entry.duration)
+end function
+
+' One row of a title page's list (screens/title/TrackList.tsx): {ordinal, title, caption, meta,
+' artUri, shape, icon, watched, disabled, entryId, entry}.
+function TrackRowNode(entry as object, options as object) as object
+    fields = { ordinal: "", title: entry.title, caption: "", meta: LengthFor(entry), artUri: "", shape: "poster", icon: "", watched: entry.watched = true and entry.kind <> "song", disabled: (entry.available = false or entry.playback = invalid) and entry.navigation = invalid, entryId: entry.id, entry: entry }
+    if entry.kind = "song" or entry.kind = "album" then fields.shape = "square"
+    if options.ordinal <> invalid then fields.ordinal = options.ordinal.toStr()
+    if options.caption <> invalid then fields.caption = options.caption
+    if options.art = true then
+        art = entry.posterUrl
+        if art = invalid then art = entry.backdropUrl
+        fields.artUri = MediaUrl(options.origin, art)
+        if art = invalid then fields.icon = IconFor(entry.kind)
+    end if
+    node = CreateObject("roSGNode", "ContentNode")
+    node.addFields(fields)
+    return node
+end function
+
+' screens/title/layout.ts `mosaicPaths`: a collection's hero mosaic: none when the entity has its
+' own art, else the first four posters or covers.
+function MosaicPaths(entity as object, entries as object) as object
+    out = []
+    if entity.posterUrl <> invalid or entity.backdropUrl <> invalid then return out
+    if entity.artworkPaths <> invalid then
+        for each path in entity.artworkPaths
+            if out.count() < 4 then out.push(path)
+        end for
+        if out.count() > 0 then return out
+    end if
+    for each entry in entries
+        art = entry.posterUrl
+        if art = invalid then art = entry.backdropUrl
+        if art <> invalid and out.count() < 4 then out.push(art)
+    end for
+    return out
+end function
+
+' The rows of one list section of an entity page. `mode`: "album" (numbered by track, a guest
+' artist as the second line), "artist" (art, no number), "chapters" or "files" (numbered by
+' position), "popular" (art).
+function EntityTrackRows(entries as object, mode as string, origin as string, entity as dynamic, start = 0 as integer) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for index = 0 to entries.count() - 1
+        entry = entries[index]
+        options = { origin: origin }
+        if mode = "album" then
+            options.ordinal = start + index + 1
+            if entry.trackNumber <> invalid then options.ordinal = entry.trackNumber
+            ' A guest artist on an album track is worth a line; the album artist and "Track 3" are not.
+            artist = SongArtist(entry)
+            if artist <> "" and (entity = invalid or entity.subtitle = invalid or artist <> entity.subtitle) then options.caption = artist
+        else if mode = "artist" or mode = "popular" then
+            options.art = true
+        else
+            options.ordinal = start + index + 1
+        end if
+        children.push(TrackRowNode(entry, options))
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' GET /v1/libraries/{id}/content?view=album|artist|book|…&entityId=…. `context`: {origin,
+' serverId, route, title, fence, sectionId, cursor, mode, start}. A continuation's value is {ok,
+' nextCursor, shown} with the section's rows (or cards) as the content's only child. A first
+' page's value is {ok, kind, entity, hero, blocks, details, plan, scope, revision, containerKind};
+' the content has one child per block.
+function ReadEntity(data as dynamic, context as object) as object
+    parsed = ParseContentProjection(data, context.route, context.serverId, ContentPageSize())
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    projection = parsed.projection
+    origin = context.origin
+    if context.fence <> invalid then
+        problem = ContentContinuationCheck(projection, context.fence, context.sectionId, context.cursor)
+        if problem <> "" then return { value: { ok: false, code: problem } }
+        section = projection.sections[0]
+        content = CreateObject("roSGNode", "ContentNode")
+        if context.mode <> invalid and context.mode <> "" then
+            content.appendChild(EntityTrackRows(section.entries, context.mode, origin, context.entity, context.start))
+        else
+            content.appendChild(CardsNode(section.entries, { origin: origin, shape: context.shape }))
+        end if
+        return { value: { ok: true, nextCursor: section.nextCursor, shown: section.entries.count() }, content: content }
+    end if
+    entity = projection.entity
+    music = projection.scope.libraryKind = "music"
+    family = ""
+    if music then family = "music"
+    kind = EntityViewKind(context.route.view)
+    if entity <> invalid then kind = entity.kind
+    sections = projection.sections
+    byId = {}
+    for each section in sections
+        byId[section.id] = section
+    end for
+    songs = byId["songs"]
+    chapters = byId["chapters"]
+    files = byId["files"]
+    discs = byId["discs"]
+    releases = byId["releases"]
+    popular = byId["popularTracks"]
+    bookContext = byId["context"]
+    isBook = kind = "book"
+    isArtist = kind = "artist"
+    isMusicList = kind = "album" or kind = "disc" or isArtist
+    handled = {}
+    if isBook then
+        handled = { "chapters": true, "files": true, "context": true }
+    else if isMusicList then
+        handled = { "songs": true, "discs": true }
+        if isArtist and popular <> invalid then handled["popularTracks"] = true
+    end if
+    rest = []
+    for each section in sections
+        if not handled.doesExist(section.id) then rest.push(section)
+    end for
+    trackSection = invalid
+    trackMode = ""
+    if isMusicList then
+        trackSection = songs
+        trackMode = "album"
+        if isArtist then trackMode = "artist"
+    else if isBook then
+        trackSection = files
+        trackMode = "files"
+        if chapters <> invalid and chapters.entries.count() > 0 then
+            trackSection = chapters
+            trackMode = "chapters"
+        end if
+    end if
+
+    ' What Play plays: the book's resume point or first chapter, else the page's queue.
+    everything = []
+    for each section in sections
+        for each entry in section.entries
+            if entry.playback <> invalid and entry.kind <> "chapter" then everything.push(entry)
+        end for
+    end for
+    queue = everything
+    if songs <> invalid then
+        queue = songs.entries
+    else if files <> invalid then
+        queue = files.entries
+    end if
+    playable = []
+    for each entry in queue
+        if entry.playback <> invalid then playable.push(entry)
+    end for
+    listening = projection.listening
+    plan = { mode: "", queue: playable, shuffle: not isBook and playable.count() > 1 }
+    resumeChapter = invalid
+    if isBook and listening <> invalid and listening.resume <> invalid and not listening.resumeUnavailable then
+        chapterList = []
+        if chapters <> invalid then chapterList = chapters.entries
+        resumeChapter = ChapterAt(chapterList, listening.resume.itemId, listening.resume.positionSeconds)
+        plan.mode = "resume"
+        plan.label = T("entry.resume")
+        if resumeChapter <> invalid then plan.label = T("title.resumeChapter", { chapter: resumeChapter.title })
+        plan.itemId = listening.resume.itemId
+        plan.startSeconds = listening.resume.positionSeconds
+        plan.entry = resumeChapter
+        if plan.entry = invalid then plan.entry = entity
+    else
+        firstChapter = invalid
+        if isBook and chapters <> invalid then
+            for each entry in chapters.entries
+                if firstChapter = invalid and entry.playback <> invalid then firstChapter = entry
+            end for
+        end if
+        if firstChapter <> invalid then
+            plan.mode = "chapter"
+            plan.label = T("entry.play")
+            plan.itemId = firstChapter.playback.itemId
+            plan.startSeconds = 0
+            if firstChapter.playback.startSeconds <> invalid then plan.startSeconds = firstChapter.playback.startSeconds
+            plan.entry = firstChapter
+        else if playable.count() > 0 then
+            plan.mode = "queue"
+            plan.label = T("entry.play")
+        end if
+    end if
+
+    ' The hero.
+    shape = ShapeFor(kind, "hero", family)
+    if shape = "landscape" then shape = "poster"
+    title = context.title
+    if projection.heading.fallback <> "" then title = projection.heading.fallback
+    hero = { loading: false, title: title }
+    art = { uri: "", shape: shape, icon: IconFor(kind) }
+    if shape = "circle" then art.icon = "person"
+    totals = { rest: invalid }
+    if songs <> invalid then totals.songs = songs.totalCount
+    if releases <> invalid then totals.releases = releases.totalCount
+    if chapters <> invalid then totals.chapters = chapters.totalCount
+    if rest.count() = 1 then totals.rest = rest[0].totalCount
+    if bookContext <> invalid then
+        for each entry in bookContext.entries
+            if entry.kind = "author" and totals.author = invalid then totals.author = entry.title
+            if entry.kind = "book_series" and totals.series = invalid then totals.series = entry.title
+        end for
+    end if
+    details = []
+    if entity <> invalid then
+        hero.title = entity.title
+        poster = entity.posterUrl
+        if poster = invalid then poster = entity.backdropUrl
+        art.uri = MediaUrl(origin, poster)
+        if poster <> invalid then art.icon = ""
+        if kind = "collection" or kind = "category" then
+            mosaic = []
+            for each path in MosaicPaths(entity, EntityEntries(sections))
+                mosaic.push(MediaUrl(origin, path))
+            end for
+            if mosaic.count() > 0 then art.mosaic = mosaic
+        end if
+        hero.backdropUri = MediaUrl(origin, entity.backdropUrl)
+        hero.eyebrow = T("title.kind", { kind: kind })
+        if (kind = "album" or kind = "disc") and entity.artist <> invalid then
+            hero.eyebrow = entity.artist.name
+            hero.eyebrowLink = true
+        end if
+        hero.factParts = EntityFacts(entity, totals)
+        if entity.overview <> invalid then hero.synopsis = entity.overview
+        if entity.albumType <> invalid then details.push([T("title.albumType"), entity.albumType])
+        if entity.label <> invalid then details.push([T("title.label"), entity.label])
+        if not isArtist and entity.year <> invalid then details.push([T("title.year"), entity.year.toStr()])
+        if entity.country <> invalid then details.push([T("title.country"), entity.country])
+        if isArtist then
+            years = ActiveYearsLabel(entity.activeBeginYear, entity.activeEndYear)
+            if years <> "" then details.push([T("title.activeYears"), years])
+        end if
+        if entity.overviewSource <> invalid then details.push([T("title.synopsis"), T("title.fromSource", { source: entity.overviewSource })])
+    else
+        hero.factParts = []
+        hero.eyebrow = T("title.kind", { kind: kind })
+    end if
+    hero.art = art
+
+    ' The blocks under the hero, in the page's order, each with a child of the content.
+    blocks = []
+    children = []
+    if discs <> invalid and discs.entries.count() > 1 then
+        blocks.push({ type: "chips", label: T("title.discs"), entries: discs.entries })
+        children.push(CreateObject("roSGNode", "ContentNode"))
+    end if
+    if isBook and bookContext <> invalid and bookContext.entries.count() > 0 then
+        blocks.push({ type: "chips", label: bookContext.heading.fallback, entries: bookContext.entries })
+        children.push(CreateObject("roSGNode", "ContentNode"))
+    end if
+    if isArtist and popular <> invalid and popular.entries.count() > 0 then
+        blocks.push({ type: "tracks", id: "popularTracks", mode: "popular", title: popular.heading.fallback, total: popular.entries.count(), nextCursor: "", shown: popular.entries.count() })
+        children.push(EntityTrackRows(popular.entries, "popular", origin, entity))
+    end if
+    if trackSection <> invalid and trackSection.entries.count() > 0 then
+        heading = ""
+        if trackSection.totalCount > 0 and (isArtist or isBook) then heading = trackSection.heading.fallback
+        block = { type: "tracks", id: trackSection.id, mode: trackMode, title: heading, total: trackSection.totalCount, nextCursor: trackSection.nextCursor, shown: trackSection.entries.count() }
+        if resumeChapter <> invalid then
+            block.highlightId = resumeChapter.id
+        else if trackMode = "files" and listening <> invalid and listening.resume <> invalid then
+            block.highlightId = listening.resume.itemId
+        end if
+        blocks.push(block)
+        children.push(EntityTrackRows(trackSection.entries, trackMode, origin, entity))
+    end if
+    for each section in rest
+        if section.entries.count() > 0 then
+            if section.id = "releases" and isArtist then
+                ' An artist's releases by type: Albums, Singles & EPs, Compilations, Appears on.
+                groups = ArtistReleaseGroups(section.entries)
+                for index = 0 to groups.count() - 1
+                    group = groups[index]
+                    cursor = ""
+                    if index = groups.count() - 1 then cursor = section.nextCursor
+                    blocks.push({ type: "shelf", id: section.id, title: T(group.label), shape: "square", titleLines: 1, nextCursor: cursor })
+                    children.push(CardsNode(group.entries, { origin: origin, shape: "square" }))
+                end for
+            else if section.type = "list" then
+                blocks.push({ type: "tracks", id: section.id, mode: "files", title: SectionTitle(section.heading), total: section.totalCount, nextCursor: section.nextCursor, shown: section.entries.count() })
+                children.push(EntityTrackRows(section.entries, "artist", origin, entity))
+            else
+                summary = SectionSummary(section, family)
+                blocks.push({ type: "shelf", id: section.id, title: summary.title, shape: summary.shape, titleLines: summary.titleLines, nextCursor: section.nextCursor })
+                children.push(CardsNode(section.entries, { origin: origin, shape: summary.shape }))
+            end if
+        end if
+    end for
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(children)
+    value = { ok: true, kind: kind, hero: hero, blocks: blocks, details: details, plan: plan, scope: projection.scope, revision: projection.revision, containerKind: "", isBook: isBook, hasResume: listening <> invalid and listening.resume <> invalid, sectionCount: sections.count() }
+    if entity <> invalid then
+        value.entity = entity
+        value.containerKind = ContainerKindFor(entity.kind)
+    end if
+    return { value: value, content: content }
+end function
+
+function EntityEntries(sections as object) as object
+    out = []
+    for each section in sections
+        out.append(section.entries)
+    end for
+    return out
+end function
+
+' GET /v1/people/{id}. `context`: {origin, serverId, request: {personId, role, limit}, paged}.
+' The value is {ok, person, hero, total, nextCursor, shown, shape, knownFor}; the content's first
+' child holds the credits' cards, its second "known for" (a first page only).
+function ReadPerson(data as dynamic, context as object) as object
+    parsed = ParsePersonPage(data, context.serverId, context.request)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    page = parsed.page
+    origin = context.origin
+    person = page.person
+    shape = context.shape
+    if shape = invalid or shape = "" then
+        shape = "poster"
+        if page.credits.count() > 0 then shape = ShapeFor(page.credits[0].media.kind)
+    end if
+    cards = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each credit in page.credits
+        fields = CardFields(credit.media, { origin: origin, shape: shape })
+        caption = credit.role
+        if credit.creditKind = "cast" then
+            if credit.character <> "" then caption = T("title.creditAs", { character: credit.character })
+        else if caption = "" then
+            caption = credit.department
+        end if
+        fields.caption = caption
+        child = CreateObject("roSGNode", "ContentNode")
+        child.addFields(fields)
+        children.push(child)
+    end for
+    cards.appendChildren(children)
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChild(cards)
+    value = { ok: true, total: page.total, nextCursor: page.nextCursor, shown: page.credits.count(), shape: shape }
+    if context.paged = true then return { value: value, content: content }
+    born = ""
+    died = ""
+    if person.birthDate <> "" then born = FormatDay(person.birthDate)
+    if person.deathDate <> "" then died = FormatDay(person.deathDate)
+    dates = ""
+    if born <> "" and died <> "" then
+        dates = T("title.lifespan", { born: born, died: died })
+    else if born <> "" then
+        dates = T("title.born", { date: born })
+    end if
+    hero = { loading: false, title: person.name, facts: dates, art: { uri: MediaUrl(origin, person.portraitUrl), shape: "circle", icon: "" } }
+    if person.roles.count() > 0 then hero.eyebrow = person.roles.join(" · ")
+    if person.biography <> "" then hero.synopsis = person.biography
+    value.hero = hero
+    value.person = { id: person.id, name: person.name }
+    ' APL-PERSON-01: "Known for" only when it adds something the credits below do not already show.
+    value.knownFor = false
+    if page.total > person.knownFor.count() and person.knownFor.count() > 0 then
+        value.knownFor = true
+        content.appendChild(CardsNode(person.knownFor, { origin: origin, shape: "poster" }))
+    end if
+    return { value: value, content: content }
+end function

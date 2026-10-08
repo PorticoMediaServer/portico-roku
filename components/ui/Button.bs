@@ -1,0 +1,171 @@
+' apps/native/src/ui/Button.tsx. Sizes, paddings, radius, icon sizes, label roles and the
+' rest / focus / pressed / selected fills all come from componentSpec.button (television column);
+' transport controls from componentSpec.transport. Focus scale is componentSpec.focus.scale.button.
+' Loading keeps the label and swaps the leading icon for a spinner.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.spec = ThemeSpecTable().button
+    m.transportSpec = ThemeSpecTable().transport
+    m.fill = m.top.createChild("Poster")
+    m.border = m.top.createChild("Poster")
+    m.iconNode = m.top.createChild("Poster")
+    m.numberNode = MakeText(m.top, "captionStrong")
+    m.spinner = m.top.createChild("UiSpinner")
+    m.spinner.visible = false
+    m.labelNode = MakeText(m.top, "bodyStrong")
+    m.trailingNode = m.top.createChild("Poster")
+    m.progressTrack = m.top.createChild("Rectangle")
+    m.progressFill = m.top.createChild("Rectangle")
+    m.top.focusScale = Theme.spec.focus.scale.button
+    m.top.observeField("isFocused", "onButtonStyle")
+    m.top.observeField("isPressed", "onButtonStyle")
+    onButtonLayout()
+end sub
+
+function ButtonVariant() as string
+    variant = m.top.variant
+    if variant = "outline" then return "secondary"
+    if variant = "danger" then return "destructive"
+    if m.spec.variants[variant] = invalid then return "secondary"
+    return variant
+end function
+
+sub onButtonLayout()
+    size = m.top.size
+    if m.spec.height[size] = invalid then size = "md"
+    transport = invalid
+    if m.top.transport <> "" then transport = m.transportSpec[m.top.transport]
+    height = m.spec.height[size]
+    iconSize = m.spec.icon[size]
+    if transport <> invalid then
+        height = transport.size
+        iconSize = transport.icon
+    end if
+    radius = m.spec.radius
+    if m.top.round or transport <> invalid then radius = height / 2
+    label = m.top.label
+    iconOnly = label = "" or transport <> invalid
+    padX = m.spec.paddingX[size]
+    if iconOnly then padX = 0
+    gap = m.spec.gap
+
+    hasIcon = m.top.icon <> "" or m.top.loading
+    m.labelNode.visible = not iconOnly
+    m.labelNode.role = m.spec.label[size]
+    m.labelNode.maxWidth = 0
+    m.labelNode.width = 0
+    m.labelNode.value = label
+    labelWidth = 0
+    if not iconOnly then labelWidth = TextWidth(m.labelNode)
+
+    content = 0
+    if hasIcon then content = content + iconSize
+    if not iconOnly then
+        if content > 0 then content = content + gap
+        content = content + labelWidth
+    end if
+    if m.top.trailingIcon <> "" then
+        if content > 0 then content = content + gap
+        content = content + iconSize
+    end if
+    width = content + padX * 2
+    if iconOnly and width < height then width = height
+    if m.top.fillWidth > 0 then
+        ' A filled width caps the label so it ends with an ellipsis instead of leaving the button.
+        if width > m.top.fillWidth and not iconOnly then
+            labelWidth = labelWidth - (width - m.top.fillWidth)
+            m.labelNode.maxWidth = labelWidth
+            content = content - (width - m.top.fillWidth)
+        end if
+        width = m.top.fillWidth
+    end if
+
+    m.layout = { width: width, height: height, radius: radius, iconSize: iconSize }
+    m.top.radius = radius
+    m.top.controlWidth = width
+    m.top.controlHeight = height
+
+    x = (width - content) / 2
+    m.iconNode.visible = m.top.icon <> "" and not m.top.loading
+    m.numberNode.visible = false
+    if hasIcon then
+        Place(m.iconNode, x, (height - iconSize) / 2)
+        m.spinner.size = iconSize
+        Place(m.spinner, x, (height - iconSize) / 2)
+        if m.top.iconNumber >= 0 and m.top.icon <> "" then
+            ' The seconds sit inside the arrow: Theme.apple.buttonNumberSize of the icon, set from its top.
+            m.numberNode.visible = not m.top.loading
+            m.numberNode.value = m.top.iconNumber.toStr()
+            m.numberNode.maxWidth = iconSize
+            m.numberNode.align = "center"
+            Place(m.numberNode, x, (height - iconSize) / 2 + iconSize * Theme.apple.buttonNumberTop)
+        end if
+        x = x + iconSize + gap
+    end if
+    if not iconOnly then
+        Place(m.labelNode, x, (height - m.labelNode.height) / 2)
+        x = x + labelWidth + gap
+    end if
+    m.trailingNode.visible = m.top.trailingIcon <> ""
+    if m.trailingNode.visible then Place(m.trailingNode, x, (height - iconSize) / 2)
+
+
+    showProgress = m.top.progress >= 0
+    m.progressTrack.visible = showProgress
+    m.progressFill.visible = showProgress
+    if showProgress then
+        inset = Theme.spec.hero.actions.progress.insetX
+        barHeight = Theme.spec.hero.actions.progress.height
+        barWidth = width - inset * 2
+        Place(m.progressTrack, inset, height - barHeight - Theme.space.xs)
+        Place(m.progressFill, inset, height - barHeight - Theme.space.xs)
+        m.progressTrack.width = barWidth
+        m.progressTrack.height = barHeight
+        m.progressFill.width = barWidth * Clamp(m.top.progress, 0, 1)
+        m.progressFill.height = barHeight
+    end if
+    onButtonStyle()
+end sub
+
+sub onButtonLoading()
+    m.spinner.visible = m.top.loading
+    m.spinner.spinning = m.top.loading
+    m.top.busy = m.top.loading
+    onButtonLayout()
+end sub
+
+sub onButtonStyle()
+    if m.layout = invalid then return
+    fills = m.spec.variants[ButtonVariant()]
+    state = "rest"
+    if m.top.selected then
+        state = "selected"
+    else if m.top.isPressed then
+        state = "pressed"
+    else if m.top.isFocused then
+        state = "hover"
+    end if
+    fill = fills[state]
+    foreground = ThemeColor(fill.foreground)
+    layout = m.layout
+    StyleShape(m.fill, layout.width, layout.height, layout.radius, ThemeColor(fill.background, fill.backgroundAlpha))
+    m.fill.visible = fill.background <> "transparent"
+    m.border.visible = fill.border <> invalid
+    if fill.border <> invalid then StyleRing(m.border, layout.width, layout.height, layout.radius, Theme.spec.overlay.border.width, ThemeColor(fill.border, fill.borderAlpha))
+    if m.top.icon <> "" then
+        m.iconNode.uri = IconUri(m.top.icon, layout.iconSize, m.top.iconNumber >= 0)
+        m.iconNode.width = layout.iconSize
+        m.iconNode.height = layout.iconSize
+        m.iconNode.blendColor = foreground
+    end if
+    if m.top.trailingIcon <> "" then StyleIcon(m.trailingNode, m.top.trailingIcon, layout.iconSize, foreground)
+    m.labelNode.tint = foreground
+    m.numberNode.tint = foreground
+    m.spinner.tint = foreground
+    m.progressTrack.color = ThemeColor(Theme.spec.hero.actions.progress.track, Theme.spec.hero.actions.progress.trackAlpha)
+    m.progressFill.color = ThemeColor(Theme.spec.hero.actions.progress.fill)
+end sub

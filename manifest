@@ -1,0 +1,13 @@
+title=Portico
+major_version=0
+minor_version=1
+build_version=00000
+mm_icon_focus_hd=pkg:/images/channel/icon-focus-hd.png
+mm_icon_focus_fhd=pkg:/images/channel/icon-focus-fhd.png
+splash_screen_hd=pkg:/images/channel/splash-hd.png
+splash_screen_fhd=pkg:/images/channel/splash-fhd.png
+splash_color=#071018
+splash_min_time=0
+ui_resolutions=fhd
+rsg_version=1.2
+supports_input_launch=1

@@ -1,0 +1,52 @@
+' apps/native/src/ui/Switch.tsx `SwitchVisual` (componentSpec.toggle, television column): the track,
+' accent when on and tertiary text at trackAlpha when off; a white thumb inset from the track,
+' moving over toggle.motionMs.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.track = m.top.createChild("Poster")
+    m.thumb = m.top.createChild("Poster")
+    m.thumb.id = "switchThumb"
+    m.slide = invalid
+    m.top.switchWidth = Theme.spec.toggle.track.width
+    m.top.switchHeight = Theme.spec.toggle.track.height
+    m.drawn = false
+    onSwitchValue()
+end sub
+
+sub onSwitchValue()
+    width = Theme.spec.toggle.track.width
+    height = Theme.spec.toggle.track.height
+    inset = Theme.spec.toggle.inset
+    thumb = height - inset * 2
+    color = ColorAlpha(Theme.colors.textTertiary, Theme.spec.toggle.off.trackAlpha)
+    if m.top.value then color = Theme.colors.accent
+    StyleShape(m.track, width, height, height / 2, color)
+    StyleShape(m.thumb, thumb, thumb, thumb / 2, Theme.colors.white)
+    target = inset
+    if m.top.value then target = width - inset - thumb
+    if m.drawn and not ReduceMotion() then
+        if m.slide = invalid then
+            m.slide = m.top.createChild("Animation")
+            m.slide.easeFunction = "outCubic"
+            interpolator = m.slide.createChild("Vector2DFieldInterpolator")
+            interpolator.key = [0, 1]
+            interpolator.fieldToInterp = "switchThumb.translation"
+        end if
+        m.slide.control = "stop"
+        m.slide.duration = MotionSeconds(Theme.spec.toggle.motionMs)
+        m.slide.getChild(0).keyValue = [m.thumb.translation, [target, inset]]
+        m.slide.control = "start"
+    else
+        Place(m.thumb, target, inset)
+    end if
+    m.drawn = true
+    if m.top.disabled then
+        m.top.opacity = Theme.spec.toggle.disabledOpacity
+    else
+        m.top.opacity = 1
+    end if
+end sub

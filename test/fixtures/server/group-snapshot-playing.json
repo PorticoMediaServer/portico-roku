@@ -1,0 +1,100 @@
+{
+ "protocolVersion": "1.0",
+ "serverTime": "2026-10-05T20:06:32.926Z",
+ "group": {
+  "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+  "name": "Fixtures",
+  "state": "playing",
+  "hostAuthority": "host-only",
+  "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+  "revision": "4",
+  "playbackRevision": "1",
+  "queueRevision": "2",
+  "reconnectGeneration": "1",
+  "lastCommand": "play",
+  "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+  "endedReason": "",
+  "eventOrdinal": "5",
+  "createdAt": "2026-10-05T20:06:32.896Z",
+  "updatedAt": "2026-10-05T20:06:32.924Z",
+  "permissions": {
+   "isHost": true,
+   "canControl": true,
+   "canManageQueue": true
+  },
+  "authority": {
+   "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+   "playbackId": null,
+   "state": "fresh"
+  },
+  "host": {
+   "presence": "connected",
+   "lastSeenAt": "2026-10-05T20:06:32.923Z",
+   "pauseAt": null,
+   "endAt": null
+  },
+  "timeline": {
+   "itemId": "FnVfQzincjaryvRl0TA1jw",
+   "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+   "state": "playing",
+   "anchorPositionUs": "0",
+   "anchorAt": "2026-10-05T20:06:32.923Z",
+   "rate": {
+    "numerator": "1",
+    "denominator": "1"
+   },
+   "queuePosition": 0
+  },
+  "settings": {
+   "shuffleEnabled": false,
+   "repeatMode": "none"
+  },
+  "sync": {
+   "noCorrectionUnderMs": 750,
+   "rateCorrectionMinimum": "0.90",
+   "rateCorrectionMaximum": "1.10",
+   "rateCorrectionMaxMs": 4000,
+   "seekAtOrOverMs": 3000
+  },
+  "readiness": {
+   "aggregate": "ready",
+   "ready": 1,
+   "buffering": 0,
+   "lagging": 0,
+   "stale": 0,
+   "memberCount": 1
+  },
+  "members": [
+   {
+    "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+    "displayName": "Roku",
+    "role": "host",
+    "state": "joined",
+    "readiness": "ready",
+    "positionUs": "0",
+    "reportedAt": "2026-10-05T20:06:32.896Z",
+    "presence": "connected",
+    "joinedAt": "2026-10-05T20:06:32.896Z"
+   }
+  ],
+  "queue": {
+   "revision": "2",
+   "position": 0,
+   "entries": [
+    {
+     "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "position": 0,
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "unavailable": false,
+     "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   ],
+   "eligibility": {
+    "blockedEntries": 0,
+    "currentEntryBlocked": false,
+    "members": []
+   }
+  },
+  "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+ }
+}

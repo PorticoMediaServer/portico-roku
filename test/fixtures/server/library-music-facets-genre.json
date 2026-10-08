@@ -1,0 +1,40 @@
+{
+ "field": "genre",
+ "values": [
+  {
+   "value": "Pop",
+   "label": "Pop",
+   "count": 16
+  },
+  {
+   "value": "Rock",
+   "label": "Rock",
+   "count": 12
+  },
+  {
+   "value": "Alternative",
+   "label": "Alternative",
+   "count": 4
+  },
+  {
+   "value": "Hip-Hop",
+   "label": "Hip-Hop",
+   "count": 4
+  },
+  {
+   "value": "R&B",
+   "label": "R&B",
+   "count": 4
+  },
+  {
+   "value": "Rap",
+   "label": "Rap",
+   "count": 4
+  },
+  {
+   "value": "Soul",
+   "label": "Soul",
+   "count": 4
+  }
+ ]
+}

@@ -1,0 +1,56 @@
+' core/Format.bs against packages/i18n `createI18n` (dates, times, durations, counters, relative
+' times, sizes, lists) for the regions the channel has, and the password rule against
+' client-core's. The expected text is JavaScript's Intl output (scripts/golden.mjs).
+
+sub Test_Format_golden()
+    fixture = TestFixture("golden/format.json")
+    if fixture = invalid then return
+    globals = GetGlobalAA()
+    for each region in fixture.regions
+        globals.formatRegion = { locale: region.locale, hour12: region.hour12, utc: true }
+        globals.messageCatalogue = region.catalogue
+        label = region.locale
+        if region.hour12 then
+            label = label + " 12h"
+        else
+            label = label + " 24h"
+        end if
+        for each item in region.dates
+            AssertEqual(FormatDate(item.value, item.style), item.text, label + " date " + item.style + " " + item.value)
+        end for
+        for each item in region.times
+            AssertEqual(FormatTime(item.value), item.text, label + " time " + item.value)
+        end for
+        for each item in region.durations
+            AssertEqual(FormatDuration(item.seconds, item.style), item.text, label + " duration " + item.style + " " + item.seconds.toStr())
+        end for
+        for each item in region.clocks
+            AssertEqual(FormatClock(item.seconds), item.text, label + " clock " + item.seconds.toStr())
+        end for
+        for each item in region.relative
+            AssertEqual(FormatRelativeTime(item.value, fixture.now), item.text, label + " relative " + item.value)
+        end for
+        for each item in region.bytes
+            AssertEqual(FormatBytes(item.value), item.text, label + " bytes " + item.value.toStr())
+        end for
+        for each item in region.lists
+            AssertEqual(FormatList(item.items), item.text, label + " list of " + item.items.count().toStr())
+        end for
+    end for
+    globals.formatRegion = invalid
+    globals.messageCatalogue = invalid
+end sub
+
+sub Test_Format_passwordRule()
+    fixture = TestFixture("golden/format.json")
+    if fixture = invalid then return
+    for each item in fixture.passwords
+        AssertEqual(PasswordAcceptable(item.password), item.acceptable, "password of " + Len(item.password).toStr() + " characters")
+    end for
+end sub
+
+sub Test_Format_friendlyHost()
+    AssertEqual(FriendlyHost("http://192.168.1.20:32500"), "192.168.1.20:32500")
+    AssertEqual(FriendlyHost("https://den.example.com/"), "den.example.com")
+    AssertEqual(FriendlyHost(invalid), "")
+end sub

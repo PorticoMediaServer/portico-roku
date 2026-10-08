@@ -1,0 +1,183 @@
+{
+ "pivot": "shows",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ]
+ },
+ "entries": [
+  {
+   "backdropUrl": "/v1/metadata/show/N3tK6PcOu3ZQBzDbG963tA/art/backdrop?v=2282f6f35e4c6fb7d641a433504deb722d03c94c30ab8afd78145b927a817102&w=1920",
+   "rating": 8.737,
+   "id": "N3tK6PcOu3ZQBzDbG963tA",
+   "kind": "show",
+   "title": "Attack on Titan",
+   "subtitle": "2013",
+   "posterUrl": "/v1/metadata/show/N3tK6PcOu3ZQBzDbG963tA/art/poster?v=59e1a9258664b67c4e8523e4f0a2662bc975bbfdcf447fd10c50004e41c0df3b&w=400",
+   "year": 2013,
+   "addedAt": "2026-10-02T04:03:21.008Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "N3tK6PcOu3ZQBzDbG963tA"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/ryMRhHgEuQClvTRkWKeHzg/art/backdrop?v=363bbefc906f4a00e44ce3d19c6aa0bcb88dde35849c1763d6c4d50eec641bc8&w=1920",
+   "rating": 8.1,
+   "id": "ryMRhHgEuQClvTRkWKeHzg",
+   "kind": "show",
+   "title": "Demon Slayer: Kimetsu no Yaiba",
+   "subtitle": "2019",
+   "posterUrl": "/v1/metadata/show/ryMRhHgEuQClvTRkWKeHzg/art/poster?v=5bb0d0f7a48592f2d8da1c108c78791efef52a07345ee3be498c1f034b5d18ce&w=400",
+   "year": 2019,
+   "addedAt": "2026-10-02T04:03:22.171Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "ryMRhHgEuQClvTRkWKeHzg"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/jD_LYSJVrrQCGVeqTV7g8A/art/backdrop?v=5bd0c6e5a75c5b588652c73e5602f7255aff97c9af7fd200ea755f9fd7bbfdea&w=1920",
+   "rating": 8.149,
+   "id": "jD_LYSJVrrQCGVeqTV7g8A",
+   "kind": "show",
+   "title": "Hunter x Hunter",
+   "subtitle": "2011",
+   "posterUrl": "/v1/metadata/show/jD_LYSJVrrQCGVeqTV7g8A/art/poster?v=da94e688a45fee94b458a6f9dd68386ae3389502c46a717870efb074da3e12e9&w=400",
+   "year": 2011,
+   "addedAt": "2026-10-02T04:03:23.350Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "jD_LYSJVrrQCGVeqTV7g8A"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/-fm_-ji3RR-5EckgBVnEtA/art/backdrop?v=9054aecab14b61bafe5a541fa4f60b9e9dc261bb4ce7120fcbf32bd36af9e894&w=1920",
+   "rating": 8.293,
+   "id": "-fm_-ji3RR-5EckgBVnEtA",
+   "kind": "show",
+   "title": "JUJUTSU KAISEN",
+   "subtitle": "2020",
+   "posterUrl": "/v1/metadata/show/-fm_-ji3RR-5EckgBVnEtA/art/poster?v=28eb7fa8a235be660f86bb73c0e660206e1f50406c01d1e6d433be5d5e708957&w=400",
+   "year": 2020,
+   "addedAt": "2026-10-02T04:03:24.631Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "-fm_-ji3RR-5EckgBVnEtA"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/m4_eXzXJpNEzgoNyiq6DVQ/art/backdrop?v=1b018eadccdb36757e797d5bf9aad0f24c66a2544009169bc8aa0680b3d9ea3e&w=1920",
+   "rating": 8.25,
+   "id": "m4_eXzXJpNEzgoNyiq6DVQ",
+   "kind": "show",
+   "title": "My Hero Academia",
+   "subtitle": "2016",
+   "posterUrl": "/v1/metadata/show/m4_eXzXJpNEzgoNyiq6DVQ/art/poster?v=688e218cd493f68f7f4691004c54a5b6f8ffb31bd0223fc1c83d0ca018169179&w=400",
+   "year": 2016,
+   "addedAt": "2026-10-02T04:03:25.788Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "m4_eXzXJpNEzgoNyiq6DVQ"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/backdrop?v=99b1071296d5e09d5c508f3ef72956a0007ca18ddd06ca5ef756a1f237689a6c&w=1920",
+   "rating": 8.7,
+   "id": "hHKWlNLYCOb-NiTO8r7KhA",
+   "kind": "show",
+   "title": "Naruto Shippūden",
+   "subtitle": "2007",
+   "posterUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/poster?v=3336d0bcf49d2b50f37c1b4dc8c590d3caf2cd24c967b00bf1a7962fe4b7e4e1&w=400",
+   "year": 2007,
+   "addedAt": "2026-10-02T04:03:27.059Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "hHKWlNLYCOb-NiTO8r7KhA"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/backdrop?v=f3dd9b98bff77ce5c1791accca4582af66701a6a7b466b95e19dfc7c2ecae33d&w=1920",
+   "rating": 8.171,
+   "id": "apcMS4fou_ExuEc6TKp4sA",
+   "kind": "show",
+   "title": "One Piece",
+   "subtitle": "1999",
+   "posterUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/poster?v=d216451408e36dfc01fa7e094d95c407653a2a534e4e0dce16cfe63b859e769d&w=400",
+   "year": 1999,
+   "addedAt": "2026-10-02T04:03:28.495Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "apcMS4fou_ExuEc6TKp4sA"
+   }
+  },
+  {
+   "backdropUrl": "/v1/metadata/show/uwdbZDGGNfL0IVJ0sSTqIg/art/backdrop?v=49b63512b8a1494c445361063b83e7e9d4ccfa6262cab75d7030fa04e74d2825&w=1920",
+   "rating": 8.327,
+   "id": "uwdbZDGGNfL0IVJ0sSTqIg",
+   "kind": "show",
+   "title": "Solo Leveling",
+   "subtitle": "2024",
+   "posterUrl": "/v1/metadata/show/uwdbZDGGNfL0IVJ0sSTqIg/art/poster?v=4f2f91cf25bdb0ced4459030192dc3a4d52803f30111e949786ee12ae4002747&w=400",
+   "year": 2024,
+   "addedAt": "2026-10-02T04:03:29.892Z",
+   "count": 4,
+   "navigation": {
+    "view": "show",
+    "entityId": "uwdbZDGGNfL0IVJ0sSTqIg"
+   }
+  }
+ ],
+ "pageInfo": {
+  "start": 0,
+  "total": 8,
+  "revision": "browse_e1c658e00527aba3b840a7465426ea1ba06b30dd5767d2503e0bc1df11b9c7e7",
+  "hasMore": false,
+  "nextCursor": ""
+ },
+ "positionIndex": [
+  {
+   "key": "A",
+   "index": 0
+  },
+  {
+   "key": "D",
+   "index": 1
+  },
+  {
+   "key": "H",
+   "index": 2
+  },
+  {
+   "key": "J",
+   "index": 3
+  },
+  {
+   "key": "M",
+   "index": 4
+  },
+  {
+   "key": "N",
+   "index": 5
+  },
+  {
+   "key": "O",
+   "index": 6
+  },
+  {
+   "key": "S",
+   "index": 7
+  }
+ ]
+}

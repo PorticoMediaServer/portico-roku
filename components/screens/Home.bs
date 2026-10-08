@@ -1,0 +1,464 @@
+' apps/native/src/screens/Home.tsx (with app/home.ts). The hero is the server's choice (what the
+' viewer was last in the middle of); under it the server's authored rows, in the server's order,
+' each a shelf. The channel ranks, hides and re-pages nothing: a row's next page is asked for by
+' the row's own cursor as focus nears its end, and a row keeps at most HomeRowMaxEntries cards.
+'
+' Hero: at least Theme.metrics.heroHeight tall, its words in a column at most
+' Theme.apple.homeHeroWidthFraction of the screen wide, bottom-aligned: the row's name as an
+' eyebrow, the title in the display role (two lines), the line under it, the facts, the synopsis
+' (three lines), a progress bar when started, then Play (primary, large, with what is left) and
+' Details. Behind it, wide artwork that stays put while the rows move.
+'
+' With no hero the screen opens on the server's name and "Home", and the first row's first card
+' takes the opening focus. A transient failure is tried again on its own (source/core/Retry.bs).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Home.bs"
+import "pkg:/source/core/Open.bs"
+import "pkg:/source/core/Retry.bs"
+import "pkg:/source/core/Time.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.backdrop = m.top.createChild("UiBackdrop")
+    m.backdrop.backdropWidth = m.width
+    m.backdrop.backdropHeight = Theme.metrics.heroHeight + Theme.apple.homeHeroArtExtra
+    m.backdrop.imageOpacity = Theme.apple.homeHeroArtOpacity
+    m.backdrop.visible = false
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    m.page.observeField("scrollY", "onHomeScroll")
+    m.body = m.page.body
+    m.task = invalid
+    m.paging = {}
+    m.rows = []
+    m.shelves = []
+    m.hero = invalid
+    m.play = invalid
+    m.loadedAt = 0
+    m.attempt = 0
+    m.claimed = false
+    m.changes = 0
+    m.retry = m.top.createChild("Timer")
+    m.retry.observeField("fire", "onHomeRetry")
+end sub
+
+sub enter()
+    HomeSkeleton()
+    HomeLoad(0)
+end sub
+
+' Returning to Home: Continue Watching and what was just added are expected to be current.
+sub resume()
+    changed = PersonalChanges() <> m.changes
+    m.changes = PersonalChanges()
+    if m.task = invalid and (changed or NowSeconds() - m.loadedAt > HomeStaleSeconds()) then HomeLoad(0)
+end sub
+
+sub leave()
+    m.retry.control = "stop"
+    m.task = invalid
+    m.paging = {}
+end sub
+
+sub focusEntry()
+    if m.play <> invalid then
+        FocusOn(m.play)
+        m.page.callFunc("follow")
+    else if not m.page.callFunc("focusEntry") then
+        m.top.setFocus(true)
+    end if
+end sub
+
+sub HomeLoad(attempt as integer)
+    m.retry.control = "stop"
+    m.attempt = attempt
+    m.task = ApiStart({ path: "/v1/home", reader: "home", context: { origin: ViewerOrigin() } }, "onHomeLoaded")
+end sub
+
+sub onHomeRetry()
+    HomeLoad(m.attempt + 1)
+end sub
+
+sub onHomeLoaded(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        facts = PresentErrorFacts(failure, "home")
+        transient = RetryIsTransient(facts.category)
+        if transient then
+            plan = RetryPlan(m.attempt)
+            m.retry.duration = plan.seconds
+            m.retry.control = "start"
+            ' During the quick retries keep the skeleton (or the rows) exactly as they are.
+            if plan.quick then return
+        end if
+        if m.rows.count() = 0 then HomeFailure(failure, transient)
+        return
+    end if
+    m.loadedAt = NowSeconds()
+    HomeBuild(result.value, task.content)
+end sub
+
+sub HomeClear()
+    m.body.removeChildrenIndex(m.body.getChildCount(), 0)
+    m.shelves = []
+    m.play = invalid
+end sub
+
+function HomeTop() as float
+    return Theme.apple.pageTopInset - Theme.space.lg
+end function
+
+' The first load reserves the hero's place, so the rows do not jump when it arrives.
+sub HomeSkeleton()
+    HomeClear()
+    page = Theme.space.page
+    y = HomeTop() + Theme.metrics.heroHeight - Theme.space.xl - Theme.metrics.control - Theme.space.lg - Theme.apple.homeSkeletonLineHeight - Theme.space.sm - Theme.apple.homeSkeletonTitleHeight
+    HomeBlock(page, y, Theme.apple.homeSkeletonTitleWidth, Theme.apple.homeSkeletonTitleHeight, -1)
+    y = y + Theme.apple.homeSkeletonTitleHeight + Theme.space.sm
+    HomeBlock(page, y, Theme.apple.homeSkeletonLineWidth, Theme.apple.homeSkeletonLineHeight, -1)
+    y = y + Theme.apple.homeSkeletonLineHeight + Theme.space.sm + Theme.space.lg
+    HomeBlock(page, y, Theme.apple.homeSkeletonButtonWidth, Theme.metrics.control, Theme.metrics.radius.control)
+    HomeBlock(page + Theme.apple.homeSkeletonButtonWidth + Theme.space.sm, y, Theme.apple.homeSkeletonButtonWidth, Theme.metrics.control, Theme.metrics.radius.control)
+    y = HomeTop() + Theme.metrics.heroHeight
+    for row = 0 to 1
+        HomeBlock(page, y, Theme.apple.homeSkeletonHeadingWidth, Theme.metrics.icon, Theme.metrics.radius.small)
+        y = y + Theme.metrics.icon + Theme.space.md
+        cardHeight = Int(Theme.metrics.posterWidth / ArtworkRatio("poster"))
+        for index = 0 to Theme.apple.homeSkeletonCards - 1
+            HomeBlock(page + index * (Theme.metrics.posterWidth + Theme.space.gutter), y, Theme.metrics.posterWidth, cardHeight, -1)
+        end for
+        y = y + cardHeight + Theme.space.xl
+    end for
+    m.page.contentHeight = y
+end sub
+
+sub HomeBlock(x as dynamic, y as dynamic, width as dynamic, height as dynamic, radius as dynamic)
+    block = m.body.createChild("UiSkeleton")
+    block.radius = radius
+    block.blockHeight = height
+    block.blockWidth = width
+    Place(block, x, y)
+end sub
+
+sub HomeFailure(failure as object, retrying as boolean)
+    HomeClear()
+    words = PresentError(failure, "home", { retrying: retrying })
+    state = m.body.createChild("UiStateView")
+    state.icon = "warning"
+    state.title = words.title
+    state.message = words.body
+    state.action = words.actionLabel
+    state.stateHeight = Theme.screen.height
+    state.stateWidth = m.width
+    state.observeField("actionPressed", "onHomeRefresh")
+    m.page.contentHeight = Theme.screen.height
+    m.page.callFunc("refresh")
+    NavClaimFocus()
+end sub
+
+sub onHomeRefresh()
+    HomeSkeleton()
+    HomeLoad(0)
+end sub
+
+sub HomeBuild(value as object, content as object)
+    had = FocusedShelfState()
+    HomeClear()
+    m.rows = value.rows
+    m.hero = value.hero
+    y = HomeTop()
+    if m.hero <> invalid then
+        y = y + HomeHeroBuild(m.hero, y)
+    else
+        ' No hero: the server's name and "Home".
+        m.backdrop.visible = false
+        viewer = m.global.session.viewer
+        name = T("web.home.serverFallback")
+        if viewer <> invalid and viewer.serverName <> "" then name = viewer.serverName
+        eyebrow = MakeText(m.body, "label", "tertiary", name)
+        title = MakeText(m.body, "title", "primary", T("web.shell.home"))
+        Place(eyebrow, Theme.space.page, y + Theme.space.xl)
+        Place(title, Theme.space.page, y + Theme.space.xl + eyebrow.height)
+        y = y + Theme.space.xl + eyebrow.height + title.height + Theme.space.lg
+    end if
+    for index = 0 to m.rows.count() - 1
+        row = m.rows[index]
+        shelf = m.body.createChild("UiShelf")
+        shelf.addFields({ rowIndex: index })
+        shelf.shelfWidth = m.width
+        shelf.shape = row.shape
+        shelf.titleLines = row.titleLines
+        shelf.title = row.title
+        shelf.seeAllLabel = row.seeAllLabel
+        shelf.seeAll = row.seeAll
+        shelf.active = false
+        shelf.items = content.getChild(index)
+        shelf.observeField("itemSelected", "onHomeSelected")
+        shelf.observeField("itemMenu", "onHomeMenu")
+        shelf.observeField("endReached", "onHomeEnd")
+        shelf.observeField("seeAllPressed", "onHomeSeeAll")
+        Place(shelf, 0, y)
+        y = y + shelf.shelfHeight
+        m.shelves.push(shelf)
+    end for
+    if m.rows.count() = 0 and m.hero = invalid then
+        ' Home with nothing on it (screens/HomeEmpty.tsx).
+        owner = false
+        viewer = m.global.session.viewer
+        if viewer <> invalid and viewer.viewer <> invalid then owner = viewer.viewer.role = "owner"
+        state = m.body.createChild("UiStateView")
+        state.icon = "home"
+        state.title = T("web.empty.homeTitle")
+        if owner then
+            state.message = T("web.empty.homeOwnerBody")
+        else
+            state.message = T("web.empty.homeMemberBody")
+        end if
+        state.stateWidth = m.width
+        Place(state, 0, y)
+        y = y + state.boundingRect().height
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+    ' A refresh keeps the viewer where they were: the same row and card.
+    if had <> invalid and RestoreShelfState(had) then return
+    if not m.claimed or had <> invalid then
+        m.claimed = true
+        NavClaimFocus()
+    end if
+end sub
+
+function HomeHeroBuild(hero as object, top as dynamic) as float
+    page = Theme.space.page
+    column = Int(Theme.screen.width * Theme.apple.homeHeroWidthFraction) - page * 2
+    cover = invalid
+    textLeft = page
+    copyWidth = column
+    if hero.art = "cover" then
+        cover = m.body.createChild("UiArtwork")
+        cover.shape = hero.coverShape
+        cover.title = hero.title
+        cover.artWidth = Theme.apple.homeHeroCover
+        cover.uri = hero.coverUri
+        textLeft = page + Theme.apple.homeHeroCover + Theme.space.xl
+        copyWidth = column - Theme.apple.homeHeroCover - Theme.space.xl
+        m.backdrop.uri = ""
+        m.backdrop.visible = true
+    else
+        m.backdrop.uri = hero.backdropUri
+        m.backdrop.visible = true
+    end if
+    texts = []
+    if hero.eyebrow <> invalid and hero.eyebrow <> "" then
+        eyebrow = MakeText(m.body, "label", "tertiary", hero.eyebrow)
+        eyebrow.maxWidth = copyWidth
+        texts.push({ node: eyebrow, gap: 0 })
+    end if
+    title = MakeText(m.body, "display")
+    title.lines = Theme.spec.hero.identity.titleLines
+    title.maxWidth = copyWidth
+    title.value = hero.title
+    texts.push({ node: title, gap: Theme.space.xs })
+    if hero.line <> invalid then
+        line = MakeText(m.body, "heading", "primary", hero.line)
+        line.maxWidth = copyWidth
+        texts.push({ node: line, gap: Theme.space.xs })
+    end if
+    if hero.meta <> invalid then
+        meta = MakeText(m.body, "body", "secondary", hero.meta)
+        meta.maxWidth = copyWidth
+        texts.push({ node: meta, gap: Theme.space.xs })
+    end if
+    copyHeight = 0
+    for each item in texts
+        copyHeight = copyHeight + item.gap + TextHeight(item.node)
+    end for
+    coverHeight = 0
+    if cover <> invalid then coverHeight = Int(Theme.apple.homeHeroCover / ArtworkRatio(hero.coverShape) + 0.5)
+    rowHeight = Max(copyHeight, coverHeight)
+
+    overview = invalid
+    overviewHeight = 0
+    if hero.overview <> invalid and hero.overview <> "" then
+        overview = MakeText(m.body, "body", "secondary")
+        overview.lines = Theme.apple.homeHeroOverviewLines
+        overview.maxWidth = Min(Theme.apple.homeHeroOverviewWidth, column)
+        overview.value = hero.overview
+        overviewHeight = Theme.space.sm + TextHeight(overview)
+    end if
+    bar = invalid
+    barHeight = 0
+    if hero.progress > 0 then
+        bar = m.body.createChild("UiProgressBar")
+        bar.barWidth = Theme.apple.homeHeroProgressWidth
+        bar.value = hero.progress
+        barHeight = Theme.space.md + Theme.apple.progressBarHeight
+    end if
+    m.play = m.body.createChild("UiButton")
+    m.play.variant = "primary"
+    m.play.size = "lg"
+    m.play.icon = "play"
+    m.play.label = hero.playLabel
+    m.play.observeField("pressed", "onHomePlay")
+    details = m.body.createChild("UiButton")
+    details.variant = "secondary"
+    details.size = "lg"
+    details.icon = "info"
+    details.label = T("action.details")
+    details.observeField("pressed", "onHomeDetails")
+    buttonsHeight = Theme.space.lg + m.play.controlHeight
+
+    content = rowHeight + overviewHeight + barHeight + buttonsHeight
+    height = Max(Theme.metrics.heroHeight, Theme.space.xxl + content + Theme.space.xl)
+    ' Bottom-aligned (justifyContent: flex-end).
+    y = top + height - Theme.space.xl - content
+    if cover <> invalid then Place(cover, page, y + rowHeight - coverHeight)
+    textY = y + rowHeight - copyHeight
+    for each item in texts
+        textY = textY + item.gap
+        Place(item.node, textLeft, textY)
+        textY = textY + TextHeight(item.node)
+    end for
+    y = y + rowHeight
+    if overview <> invalid then
+        Place(overview, page, y + Theme.space.sm)
+        y = y + overviewHeight
+    end if
+    if bar <> invalid then
+        Place(bar, page, y + Theme.space.md)
+        y = y + barHeight
+    end if
+    y = y + Theme.space.lg
+    Place(m.play, page, y)
+    Place(details, page + m.play.controlWidth + Theme.space.sm, y)
+    return height
+end function
+
+' The backdrop stays behind the rows while the page moves by focus; it fades as they cover it.
+sub onHomeScroll()
+    if not m.backdrop.visible then return
+    reach = Theme.metrics.heroHeight
+    fraction = 1 - m.page.scrollY / reach
+    m.backdrop.opacity = Clamp(fraction, 0, 1)
+end sub
+
+function FocusedShelfState() as dynamic
+    for each shelf in m.shelves
+        if shelf.hasListFocus then
+            row = m.rows[shelf.rowIndex]
+            return { rowId: row.id, index: shelf.focusedIndex }
+        end if
+    end for
+    return invalid
+end function
+
+function RestoreShelfState(state as object) as boolean
+    for each shelf in m.shelves
+        row = m.rows[shelf.rowIndex]
+        if row.id = state.rowId then
+            shelf.active = true
+            shelf.callFunc("jumpTo", state.index)
+            shelf.callFunc("focusList")
+            m.page.callFunc("follow")
+            return true
+        end if
+    end for
+    return false
+end function
+
+function HomeEntry(shelf as object, index as integer) as dynamic
+    items = shelf.items
+    if items = invalid or index < 0 or index >= items.getChildCount() then return invalid
+    return items.getChild(index).entry
+end function
+
+sub onHomeSelected(event as object)
+    shelf = event.getRoSGNode()
+    entry = HomeEntry(shelf, event.getData())
+    if entry = invalid then return
+    row = m.rows[shelf.rowIndex]
+    library = ""
+    if row.libraryId <> invalid then library = row.libraryId
+    OpenEntry(entry, "open", library)
+end sub
+
+sub onHomeMenu(event as object)
+    shelf = event.getRoSGNode()
+    entry = HomeEntry(shelf, event.getData())
+    if entry = invalid then return
+    row = m.rows[shelf.rowIndex]
+    library = ""
+    if row.libraryId <> invalid then library = row.libraryId
+    OpenEntry(entry, "more", library, row.origin)
+end sub
+
+sub onHomeSeeAll(event as object)
+    shelf = event.getRoSGNode()
+    row = m.rows[shelf.rowIndex]
+    if row.seeAllRoute <> invalid then NavPush(row.seeAllRoute.screen, row.seeAllRoute.params)
+end sub
+
+sub onHomePlay()
+    if m.hero <> invalid then OpenEntry(m.hero.entry, "play")
+end sub
+
+sub onHomeDetails()
+    if m.hero <> invalid then OpenEntry(m.hero.entry)
+end sub
+
+' The row's next page, by its own cursor, once per cursor.
+sub onHomeEnd(event as object)
+    shelf = event.getRoSGNode()
+    row = m.rows[shelf.rowIndex]
+    if row.nextCursor = "" or m.paging[row.id] <> invalid then return
+    task = ApiStart({ path: HomeRowPagePath(row.id, row.nextCursor), reader: "homeRow", context: { origin: ViewerOrigin(), rowId: row.id, shape: row.shape } }, "onHomePage")
+    task.addFields({ rowIndex: shelf.rowIndex, cursor: row.nextCursor })
+    m.paging[row.id] = task
+end sub
+
+sub onHomePage(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    index = task.rowIndex
+    if index >= m.rows.count() then return
+    row = m.rows[index]
+    held = m.paging[row.id]
+    if held = invalid or not held.isSameNode(task) then return
+    m.paging.delete(row.id)
+    if not result.ok then
+        ' A refused cursor means the row changed under the viewer: Home is read again.
+        if result.error <> invalid and result.error.code = "stale_continuation" then HomeLoad(0)
+        return
+    end if
+    if result.value.ok <> true or row.nextCursor <> task.cursor then return
+    shelf = m.shelves[index]
+    items = shelf.items
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each card in items.getChildren(-1, 0)
+        seen[card.entryId] = true
+    end for
+    fresh = []
+    limit = HomeRowMaxEntries()
+    for each card in task.content.getChildren(-1, 0)
+        if not seen.doesExist(card.entryId) and items.getChildCount() + fresh.count() < limit then fresh.push(card)
+    end for
+    items.appendChildren(fresh)
+    row.nextCursor = result.value.nextCursor
+    if items.getChildCount() >= limit then row.nextCursor = ""
+    row.total = result.value.total
+    m.rows[index] = row
+end sub

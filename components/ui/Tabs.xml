@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Tabs.tsx: the top tab strip, and the segmented control. -->
+<component name="UiTabs" extends="Group">
+    <interface>
+        <!-- [{id, label}] -->
+        <field id="items" type="array" onChange="onTabsItems" />
+        <field id="selected" type="string" value="" onChange="onTabsSelected" />
+        <!-- "tabs" (text tabs with an accent underline) or "segmented" (componentSpec.segmented). -->
+        <field id="mode" type="string" value="tabs" onChange="onTabsItems" />
+        <field id="tabsWidth" type="float" value="0" onChange="onTabsItems" />
+        <field id="tabsHeight" type="float" value="0" />
+        <!-- A tab is chosen by pressing it: moving focus across the strip changes nothing. -->
+        <field id="chosen" type="string" value="" alwaysNotify="true" />
+        <field id="focusGroup" type="boolean" value="true" />
+        <field id="lastFocus" type="node" />
+    </interface>
+</component>

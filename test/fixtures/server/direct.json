@@ -1,0 +1,27 @@
+{
+ "authority": "local",
+ "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+ "account": {
+  "id": "JSnvphCti4WXjd1OlrN_OSEUTz4Dz6nrsSs8kkUCbNQ",
+  "username": "dev",
+  "primaryProfileId": "ufz_ILzAtRkMv3b0OJEyQv8AKLf7k6l-xFaAk5yBtOs",
+  "role": "owner",
+  "revision": 1,
+  "disabled": false,
+  "allowedLibraries": []
+ },
+ "profiles": [
+  {
+   "id": "ufz_ILzAtRkMv3b0OJEyQv8AKLf7k6l-xFaAk5yBtOs",
+   "name": "dev",
+   "primary": true,
+   "position": 0,
+   "art": "blue",
+   "revision": 1,
+   "pinRevision": 1,
+   "pinRequired": false,
+   "allowedLibraries": []
+  }
+ ],
+ "canManage": true
+}

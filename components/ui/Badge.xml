@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Feedback.tsx `Badge`: a small count or status chip. -->
+<component name="UiBadge" extends="Group">
+    <interface>
+        <field id="label" type="string" value="" onChange="onBadgeLayout" />
+        <!-- neutral | accent | record | amber -->
+        <field id="tone" type="string" value="neutral" onChange="onBadgeLayout" />
+        <!-- A bordered badge with primary text (componentSpec.hero.facts.badge: the content rating). -->
+        <field id="outlined" type="boolean" value="false" onChange="onBadgeLayout" />
+        <field id="badgeWidth" type="float" value="0" />
+        <field id="badgeHeight" type="float" value="0" />
+    </interface>
+</component>

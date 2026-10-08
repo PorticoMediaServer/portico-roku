@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Button.tsx: buttons per componentSpec.button (three sizes, five variants). -->
+<component name="UiButton" extends="UiFocusable">
+    <interface>
+        <field id="label" type="string" value="" onChange="onButtonLayout" />
+        <field id="icon" type="string" value="" onChange="onButtonLayout" />
+        <!-- A number drawn inside the icon (skip seconds), with the icon's own digits removed. -->
+        <field id="iconNumber" type="integer" value="-1" onChange="onButtonLayout" />
+        <field id="trailingIcon" type="string" value="" onChange="onButtonLayout" />
+        <!-- primary | secondary | ghost | destructive | link (outline and danger are the legacy names). -->
+        <field id="variant" type="string" value="secondary" onChange="onButtonLayout" />
+        <field id="size" type="string" value="md" onChange="onButtonLayout" />
+        <!-- Player transport: "control" or "primary"; round and icon-only at the transport sizes. -->
+        <field id="transport" type="string" value="" onChange="onButtonLayout" />
+        <field id="selected" type="boolean" value="false" onChange="onButtonStyle" />
+        <field id="loading" type="boolean" value="false" onChange="onButtonLoading" />
+        <field id="round" type="boolean" value="false" onChange="onButtonLayout" />
+        <!-- A width to fill (Apple: fullWidth); 0 hugs the content. -->
+        <field id="fillWidth" type="float" value="0" onChange="onButtonLayout" />
+        <!-- 0–1 resume progress under the label (componentSpec.hero.actions.progress); negative hides it. -->
+        <field id="progress" type="float" value="-1" onChange="onButtonLayout" />
+    </interface>
+</component>

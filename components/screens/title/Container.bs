@@ -1,0 +1,114 @@
+' apps/native/src/app/container-state.ts `useContainerState`: one title's own personal state (a
+' show, season, album, book or artist): the watched default with the viewer's visible-member
+' counts, and its My List and Favorite flags. The importing component names two handlers:
+' onContainerChanged (the state to draw changed) and onContainerSaved (a watched write landed).
+import "pkg:/source/core/Detail.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub ContainerLoad(kind as string, id as string)
+    m.containerKind = kind
+    m.containerId = id
+    m.containerState = invalid
+    if kind = "" or id = "" then return
+    ContainerRead()
+end sub
+
+sub ContainerRead()
+    if m.containerKind = invalid or m.containerKind = "" then return
+    m.containerTask = ApiStart({ path: ContainerStatePath(m.containerKind, m.containerId), reader: "container", context: { counts: true } }, "onContainerRead")
+    m.containerTask.addFields({ stateId: m.containerId })
+end sub
+
+sub onContainerRead(event as object)
+    task = event.getRoSGNode()
+    if m.containerTask = invalid or not task.isSameNode(m.containerTask) or task.stateId <> m.containerId then return
+    m.containerTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then return
+    m.containerState = result.value.state
+    onContainerChanged()
+end sub
+
+sub ContainerFailed(failure as dynamic)
+    if failure = invalid then failure = { code: "invalid_response", status: 0 }
+    Toast(PresentError(failure, "library", { operation: "save" }).body, "warning")
+end sub
+
+' My List or Favorite: shown at once, put back if the write fails.
+sub ContainerSetFlag(flag as string, value as boolean)
+    state = m.containerState
+    if state = invalid then return
+    before = state[flag]
+    state[flag] = value
+    m.containerState = state
+    onContainerChanged()
+    body = { "expectedRevision": 0 }
+    body[flag] = value
+    task = ApiStart({ path: ContainerStatePath(m.containerKind, m.containerId), method: "PUT", body: body, reader: "container", context: { counts: false } }, "onContainerFlag")
+    task.addFields({ flag: flag, before: before, stateId: m.containerId })
+    m.containerFlagTask = task
+end sub
+
+sub onContainerFlag(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if (result.ok and result.value.ok = true) or task.stateId <> m.containerId then return
+    state = m.containerState
+    if state <> invalid then
+        state[task.flag] = task.before
+        m.containerState = state
+        onContainerChanged()
+    end if
+    ContainerFailed(result.error)
+end sub
+
+' The watched default: one write against the revision read; a stale revision is read again and
+' the write authored once more.
+sub ContainerSetWatched(watched as boolean)
+    state = m.containerState
+    revision = 0
+    if state <> invalid then revision = state.revision
+    ContainerWatchedSend(watched, revision, false)
+end sub
+
+sub ContainerWatchedSend(watched as boolean, revision as dynamic, again as boolean)
+    task = ApiStart({ path: ContainerStatePath(m.containerKind, m.containerId), method: "PUT", body: { "expectedRevision": revision, "watched": watched }, reader: "container", context: { counts: false } }, "onContainerWatched")
+    task.addFields({ watched: watched, again: again, stateId: m.containerId })
+    m.containerWatchedTask = task
+end sub
+
+sub onContainerWatched(event as object)
+    task = event.getRoSGNode()
+    if task.stateId <> m.containerId then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        if ContainerWriteIsStale(result.error) and not task.again then
+            reread = ApiStart({ path: ContainerStatePath(m.containerKind, m.containerId), reader: "container", context: { counts: true } }, "onContainerReread")
+            reread.addFields({ watched: task.watched, stateId: m.containerId })
+            m.containerWatchedTask = reread
+            return
+        end if
+        ContainerFailed(result.error)
+        return
+    end if
+    state = m.containerState
+    if state = invalid then state = {}
+    written = result.value.state
+    state.revision = written.revision
+    state.watched = written.watched
+    m.containerState = state
+    onContainerChanged()
+    onContainerSaved(task.watched)
+end sub
+
+sub onContainerReread(event as object)
+    task = event.getRoSGNode()
+    if task.stateId <> m.containerId then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        ContainerFailed(result.error)
+        return
+    end if
+    ContainerWatchedSend(task.watched, result.value.state.revision, true)
+end sub

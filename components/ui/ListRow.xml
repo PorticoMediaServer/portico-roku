@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/ListRow.tsx: the one row (settings, menus, episodes, tracks, chapters). -->
+<component name="UiListRow" extends="UiFocusable">
+    <interface>
+        <field id="rowId" type="string" value="" />
+        <field id="title" type="string" value="" onChange="onRowLayout" />
+        <field id="subtitle" type="string" value="" onChange="onRowLayout" />
+        <!-- Right-aligned small text (duration, date, the current value). -->
+        <field id="meta" type="string" value="" onChange="onRowLayout" />
+        <!-- Leading number (track or episode ordinal). -->
+        <field id="ordinal" type="string" value="" onChange="onRowLayout" />
+        <field id="artUri" type="string" value="" onChange="onRowLayout" />
+        <!-- True for a media row whose artwork is missing (the placeholder still takes the space). -->
+        <field id="media" type="boolean" value="false" onChange="onRowLayout" />
+        <field id="shape" type="string" value="landscape" onChange="onRowLayout" />
+        <field id="icon" type="string" value="" onChange="onRowLayout" />
+        <!-- navigation → forward chevron; value → up-down chevron; menu → more. -->
+        <field id="accessory" type="string" value="" onChange="onRowLayout" />
+        <field id="trailingIcon" type="string" value="" onChange="onRowLayout" />
+        <field id="progress" type="float" value="0" onChange="onRowLayout" />
+        <field id="watched" type="boolean" value="false" onChange="onRowLayout" />
+        <field id="selected" type="boolean" value="false" onChange="onRowLayout" />
+        <!-- A menu's current choice: an accent check at the trailing edge. -->
+        <field id="checked" type="boolean" value="false" onChange="onRowLayout" />
+        <field id="description" type="string" value="" onChange="onRowLayout" />
+        <field id="subtitleLines" type="integer" value="0" onChange="onRowLayout" />
+        <!-- default | destructive | action -->
+        <field id="tone" type="string" value="default" onChange="onRowLayout" />
+        <!-- A row with no press action is static: not focusable, no highlight. -->
+        <field id="interactive" type="boolean" value="true" onChange="onRowLayout" />
+        <!-- A static row the remote can still land on (an information page). -->
+        <field id="readable" type="boolean" value="false" onChange="onRowLayout" />
+        <!-- ToggleRow: "" (not a toggle), "on" or "off". The whole row toggles. -->
+        <field id="toggle" type="string" value="" onChange="onRowLayout" />
+        <!-- ToggleRow `locked`: shown with a lock and this text instead of a switch. -->
+        <field id="locked" type="string" value="" onChange="onRowLayout" />
+        <!-- Avatar leading view: a profile name (and art colour) in place of the icon. -->
+        <field id="avatarName" type="string" value="" onChange="onRowLayout" />
+        <field id="avatarArt" type="string" value="" onChange="onRowLayout" />
+        <field id="rowWidth" type="float" value="0" onChange="onRowLayout" />
+        <field id="rowHeight" type="float" value="0" />
+        <field id="hasLeading" type="boolean" value="false" />
+    </interface>
+</component>

@@ -1,0 +1,39 @@
+{
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+  "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+  "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+  "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+  "sessionGeneration": 1
+ },
+ "sources": [
+  {
+   "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+   "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+   "startSeconds": 0,
+   "duration": 60,
+   "sourceDuration": 60,
+   "local": true
+  }
+ ],
+ "source": {
+  "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+  "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+  "startSeconds": 0,
+  "duration": 60,
+  "sourceDuration": 60,
+  "local": true
+ },
+ "resources": [],
+ "selection": {
+  "revision": 0,
+  "resource": null
+ },
+ "canShare": true,
+ "providers": {
+  "lrclib": false,
+  "configured": true,
+  "revision": 1
+ }
+}

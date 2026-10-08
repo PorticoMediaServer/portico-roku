@@ -1,0 +1,310 @@
+' apps/native/src/screens/auth/PorticoLanding.tsx (in shell/ShellFrame.tsx). A Portico Account
+' lands in the shell at once, never on a separate "Choose a server" screen: one server opens by
+' itself; with several, the one used last on this device opens; only otherwise is a picker shown,
+' centred, with Refresh Servers. A failure says exactly what failed, with the action that fits.
+' The content is centred in a column at most Theme.apple.shellFrameWidth wide beside the rail.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Hosted.bs"
+
+sub init()
+    m.session = m.global.session
+    m.holder = m.top.createChild("Group")
+    ' shell/ShellFrame.tsx: the shell's own frame, with the rail and no destinations yet.
+    m.rail = m.top.createChild("ShellRail")
+    account = m.session.account
+    if account <> invalid then
+        if account.displayName <> invalid and account.displayName <> "" then
+            m.rail.profileName = account.displayName
+        else if account.username <> invalid then
+            m.rail.profileName = account.username
+        end if
+    end if
+    m.shown = ""
+    for each name in ["landing", "directStep", "directoryStatus", "error", "servers"]
+        m.session.observeField(name, "onLandingRender")
+    end for
+end sub
+
+sub enter()
+    onLandingRender()
+end sub
+
+sub leave()
+end sub
+
+function back() as boolean
+    return false
+end function
+
+function LandingWidth() as float
+    room = Theme.screen.width - Theme.metrics.railWidth - Theme.space.page * 2
+    return Min(Theme.apple.shellFrameWidth, room)
+end function
+
+function LandingOthers(server as dynamic) as boolean
+    servers = m.session.servers
+    if servers = invalid then return false
+    for each candidate in servers
+        if server = invalid or candidate.id <> server.id then return true
+    end for
+    return false
+end function
+
+function LandingState(icon as string, title as string, message as string, action as string, secondary as string, loading = false as boolean) as object
+    state = m.holder.createChild("UiStateView")
+    state.icon = icon
+    state.title = title
+    state.message = message
+    state.action = action
+    state.secondaryAction = secondary
+    state.loading = loading
+    state.stateWidth = LandingWidth()
+    state.observeField("actionPressed", "onLandingPrimary")
+    state.observeField("secondaryPressed", "onLandingSecondary")
+    return state
+end function
+
+function LandingButton(variant as string, label as string, handler as string, icon = "" as string, size = "md" as string) as object
+    button = m.holder.createChild("UiButton")
+    button.variant = variant
+    button.size = size
+    button.icon = icon
+    button.label = label
+    button.observeField("pressed", handler)
+    return button
+end function
+
+function LandingSignOut() as object
+    return LandingButton("ghost", T("auth.signOutOfAccount"), "onLandingSignOut", "signOut")
+end function
+
+sub onLandingRender()
+    landing = m.session.landing
+    if landing = invalid then landing = { kind: "deciding" }
+    kind = landing.kind
+    if m.session.directStep = "device-pending" then kind = "device-pending"
+    key = kind + "|" + m.session.directoryStatus + "|" + m.session.error
+    if landing.server <> invalid then key = key + "|" + landing.server.id
+    if landing.failure <> invalid then key = key + "|" + landing.failure.kind
+    if key = m.shown and kind <> "pick" then return
+    m.shown = key
+    m.primaryAction = ""
+    m.secondaryAction = ""
+    m.holder.removeChildrenIndex(m.holder.getChildCount(), 0)
+    width = LandingWidth()
+    nodes = []
+    focus = invalid
+    server = landing.server
+    if kind = "device-pending" then
+        secondary = ""
+        if LandingOthers(invalid) then secondary = T("portico.landing.chooseAnother")
+        nodes.push(LandingState("lock", T("device.approval.titleThisDevice"), T("device.approval.body"), T("device.approval.checkAgain"), secondary))
+        m.primaryAction = "retry"
+        m.secondaryAction = "pick"
+        if m.session.error <> "" then
+            problem = MakeText(m.holder, "caption", "danger", m.session.error)
+            problem.align = "center"
+            problem.maxWidth = width
+            nodes.push(problem)
+        end if
+        nodes.push(LandingSignOut())
+    else if kind = "deciding" or kind = "opening" then
+        title = T("portico.landing.finding")
+        if kind = "opening" and server <> invalid then title = T("portico.landing.opening", { server: server.name })
+        nodes.push(LandingState("info", title, "", "", "", true))
+    else if kind = "failed" then
+        failure = landing.failure.kind
+        ' A migrated sign-in is re-admitted silently; if one reaches here it is simply a failed sign-in.
+        if failure = "migrated" then failure = "other"
+        label = PresenceLabel(server.presence, NowSeconds())
+        stale = server.presence <> invalid and not server.presence.online and not (label.kind = "lastSeen" and label.recent)
+        if failure = "unreachable" and stale then
+            ' A stale offline server names the problem and offers direct sign-in with its address filled in.
+            body = T("web.chooser.unreachableBodyNever")
+            if label.kind = "lastSeen" then body = T("web.chooser.unreachableBody", { date: FormatDate(label.lastSeenAt, "dayMonth") })
+            nodes.push(LandingState("warning", T("web.chooser.unreachableTitle", { server: server.name }), body, "", ""))
+            focus = LandingButton("primary", T("web.chooser.tryAgain"), "onLandingRetry", "", "lg")
+            nodes.push(focus)
+            nodes.push(LandingButton("secondary", T("web.chooser.signInDirectly"), "onLandingDirectTo"))
+            if LandingOthers(server) then nodes.push(LandingButton("ghost", T("portico.landing.chooseAnother"), "onLandingPick"))
+            nodes.push(LandingSignOut())
+        else
+            titles = {
+                "noAccess": "portico.failure.noAccess.title", "unreachable": "portico.failure.unreachable.title", "clockSkew": "portico.failure.clockSkew.title"
+                "incompatible": "portico.failure.incompatible.title", "identity": "portico.failure.identity.title", "devicePending": "portico.failure.devicePending.title"
+                "deviceDenied": "portico.failure.deviceDenied.title", "other": "portico.failure.other.title"
+            }
+            bodies = {
+                "noAccess": "portico.failure.noAccess.body", "unreachable": "portico.failure.unreachable.body", "clockSkew": "portico.failure.clockSkew.body"
+                "incompatible": "portico.failure.incompatible.body", "identity": "portico.failure.identity.body", "devicePending": "portico.failure.devicePending.body"
+                "deviceDenied": "portico.failure.deviceDenied.body"
+            }
+            body = T("portico.failure.other.bodyUnknown")
+            if failure = "other" then
+                if landing.failure.code <> "" then body = T("portico.failure.other.body", { code: landing.failure.code })
+            else
+                body = T(bodies[failure])
+            end if
+            icon = "warning"
+            if failure = "unreachable" then icon = "network"
+            if failure = "clockSkew" then icon = "clock"
+            if failure = "noAccess" or failure = "identity" or failure = "deviceDenied" or failure = "devicePending" then icon = "lock"
+            ' No access: the server is gone from this account; trying it again cannot help.
+            retry = failure <> "noAccess" and failure <> "deviceDenied"
+            action = ""
+            secondary = ""
+            if retry then
+                action = T("action.tryAgain")
+                m.primaryAction = "retry"
+                if LandingOthers(server) then
+                    secondary = T("portico.landing.chooseAnother")
+                    m.secondaryAction = "pick"
+                end if
+            else if LandingOthers(server) then
+                action = T("portico.landing.chooseAnother")
+                m.primaryAction = "pick"
+            end if
+            nodes.push(LandingState(icon, T(titles[failure], { server: server.name }), body, action, secondary))
+            nodes.push(LandingSignOut())
+        end if
+    else if kind = "none" then
+        if m.session.directoryStatus = "error" then
+            message = m.session.error
+            if message = "" then message = T("auth.hostedUnreachable")
+            nodes.push(LandingState("warning", T("portico.landing.listFailed"), message, T("action.tryAgain"), ""))
+            m.primaryAction = "refresh"
+        else
+            nodes.push(LandingState("server", T("web.chooser.noneTitle"), T("web.chooser.noneBody"), T("web.servers.refresh"), T("auth.signInDirectly")))
+            m.primaryAction = "refresh"
+            m.secondaryAction = "direct"
+        end if
+        nodes.push(LandingSignOut())
+    else
+        title = MakeText(m.holder, "title", "primary", T("portico.landing.pickTitle"))
+        title.align = "center"
+        title.maxWidth = width
+        lead = MakeText(m.holder, "body", "secondary", T("portico.landing.pickBody"))
+        lead.align = "center"
+        lead.lines = 0
+        lead.maxWidth = width
+        group = m.holder.createChild("UiRowGroup")
+        rows = []
+        servers = m.session.servers
+        if servers = invalid then servers = []
+        for each candidate in servers
+            row = CreateObject("roSGNode", "UiListRow")
+            row.rowId = candidate.id
+            row.icon = "server"
+            row.title = candidate.name
+            presence = PresenceLabel(candidate.presence, NowSeconds())
+            if presence.kind = "lastSeen" then
+                row.subtitle = T("web.chooser.lastSeen", { date: FormatDate(presence.lastSeenAt, "dayMonth") })
+            else if presence.kind = "neverSeen" then
+                row.subtitle = T("web.chooser.neverSeen")
+            else if presence.kind = "online" then
+                row.subtitle = T("web.servers.online")
+            end if
+            row.trailingIcon = "forward"
+            if candidate.presence <> invalid and not candidate.presence.online then row.opacity = Theme.apple.serverOfflineOpacity
+            row.observeField("pressed", "onLandingChoose")
+            rows.push(row)
+        end for
+        group.groupWidth = width
+        group.callFunc("setRows", rows)
+        if rows.count() > 0 then focus = rows[0]
+        nodes.push(title)
+        nodes.push(lead)
+        nodes.push(group)
+        nodes.push(LandingButton("ghost", T("web.servers.refresh"), "onLandingRefresh", "refresh"))
+        nodes.push(LandingSignOut())
+    end if
+    gap = Theme.space.md
+    height = StackColumn(nodes, 0, gap, width, "center")
+    left = Theme.metrics.railWidth + (Theme.screen.width - Theme.metrics.railWidth - width) / 2
+    Place(m.holder, left, (Theme.screen.height - height) / 2)
+    if focus <> invalid then
+        FocusOn(focus)
+    else if not FocusFirst(m.holder) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+sub LandingAct(action as string)
+    landing = m.session.landing
+    if action = "retry" then
+        if m.session.directStep = "device-pending" then
+            m.session.callFunc("retrySignIn")
+        else if landing <> invalid and landing.server <> invalid then
+            m.session.callFunc("openServer", landing.server)
+        end if
+    else if action = "pick" then
+        m.session.callFunc("pickServer")
+    else if action = "refresh" then
+        m.session.callFunc("refreshServers")
+    else if action = "direct" then
+        m.top.directPressed = true
+    end if
+end sub
+
+sub onLandingPrimary()
+    LandingAct(m.primaryAction)
+end sub
+
+sub onLandingSecondary()
+    LandingAct(m.secondaryAction)
+end sub
+
+sub onLandingRetry()
+    LandingAct("retry")
+end sub
+
+sub onLandingPick()
+    LandingAct("pick")
+end sub
+
+sub onLandingRefresh()
+    LandingAct("refresh")
+end sub
+
+sub onLandingDirectTo()
+    landing = m.session.landing
+    if landing <> invalid and landing.server <> invalid then m.session.callFunc("setOrigin", landing.server.baseUrl)
+    m.top.directPressed = true
+end sub
+
+sub onLandingChoose(event as object)
+    row = event.getRoSGNode()
+    if row = invalid then return
+    for each server in m.session.servers
+        if server.id = row.rowId then
+            m.session.callFunc("openServer", server)
+            return
+        end if
+    end for
+end sub
+
+sub onLandingSignOut()
+    m.session.callFunc("signOutAccount")
+    m.top.signedOut = true
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    direction = FocusDirection(key)
+    if direction = "" then return false
+    if not press then return true
+    if m.rail.railFocused then
+        if direction = "right" then
+            if not FocusFirst(m.holder) then m.top.setFocus(true)
+        end if
+        return true
+    end if
+    if not FocusMove(m.holder, direction) and direction = "left" then m.rail.callFunc("focusRail")
+    return true
+end function

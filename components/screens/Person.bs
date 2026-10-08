@@ -1,0 +1,249 @@
+' apps/native/src/screens/Person.tsx. A person on the shared hero (Spec — Title Pages §1): a
+' circular portrait, the roles they are known for, life dates and the biography, "Known for" when
+' it adds something the credits do not already show, then every credit on this server as a grid.
+' The server resolves the identity and pages the credits; the role filter (All · Cast · Crew) is
+' a request parameter, never a split made here.
+'
+' The credits are read 40 at a time by the server's cursor as focus nears the end of what has
+' arrived; the grid creates cards only for the rows on screen.
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/components/screens/title/Common.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.hero = body.createChild("TitleHero")
+    m.hero.heroWidth = m.width
+    m.middle = body.createChild("Group")
+    m.heading = MakeText(body, "heading", "primary", T("title.credits"))
+    m.count = MakeText(body, "caption", "tertiary")
+    m.roles = body.createChild("UiTabs")
+    m.roles.mode = "segmented"
+    m.roles.items = [{ id: "all", label: T("title.creditsAll") }, { id: "cast", label: T("title.creditsCast") }, { id: "crew", label: T("title.creditsCrew") }]
+    m.roles.selected = "all"
+    m.roles.observeField("chosen", "onPersonRole")
+    m.area = body.createChild("Group")
+    m.role = "all"
+    m.data = invalid
+    m.task = invalid
+    m.pageTask = invalid
+    m.grid = invalid
+    m.cursor = ""
+    m.total = 0
+    m.known = invalid
+    m.claimed = false
+    m.generation = 0
+    PersonChrome(false)
+end sub
+
+sub PersonChrome(visible as boolean)
+    m.heading.visible = visible
+    m.count.visible = visible
+    m.roles.visible = visible
+end sub
+
+sub enter()
+    hero = { loading: true, art: { uri: "", shape: "circle", icon: "" } }
+    if m.top.route.name <> invalid then hero.title = m.top.route.name
+    m.hero.content = hero
+    m.page.contentHeight = Theme.screen.height
+    PersonLoad()
+end sub
+
+sub resume()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.pageTask = invalid
+end sub
+
+sub focusEntry()
+    if m.grid <> invalid then
+        m.grid.callFunc("focusGrid")
+        m.page.callFunc("follow")
+    else if not m.page.callFunc("focusEntry") then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function PersonServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function PersonRequest() as object
+    return { personId: m.top.route.personId, role: m.role, limit: PersonCreditPage() }
+end function
+
+sub PersonLoad()
+    m.generation = m.generation + 1
+    m.pageTask = invalid
+    m.task = ApiStart({ path: PersonPath(m.top.route.personId, m.role), reader: "person", context: { origin: ViewerOrigin(), serverId: PersonServerId(), request: PersonRequest() } }, "onPersonLoaded")
+end sub
+
+sub onPersonLoaded(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        if m.data = invalid then
+            m.hero.visible = false
+            m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+            TitleFailure(m.area, result.error, "person", Theme.apple.pageTopInset)
+            Place(m.area, 0, 0)
+            PersonClaim()
+        else
+            failure = result.error
+            if failure = invalid then failure = { code: "invalid_response", status: 0 }
+            Toast(PresentError(failure, "person").body, "warning")
+        end if
+        return
+    end if
+    value = result.value
+    first = m.data = invalid
+    m.data = value
+    m.cursor = value.nextCursor
+    m.total = value.total
+    m.hero.visible = true
+    if first then
+        m.hero.content = value.hero
+        if value.knownFor then m.known = task.content.getChild(1)
+    end if
+    PersonBuild(task.content.getChild(0), value)
+    PersonClaim()
+end sub
+
+sub PersonClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onTitleRetry()
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.hero.visible = true
+    PersonLoad()
+end sub
+
+sub PersonBuild(cards as object, value as object)
+    page = Theme.space.page
+    held = m.grid <> invalid and m.grid.hasGridFocus
+    y = m.hero.heroHeight
+    m.middle.removeChildrenIndex(m.middle.getChildCount(), 0)
+    if m.known <> invalid then
+        shelf = TitleShelf(m.middle, { kind: "known", title: T("title.knownFor"), shape: "poster", titleLines: 1 }, m.known, 0)
+        Place(shelf, 0, y)
+        y = y + shelf.shelfHeight
+    end if
+    PersonChrome(true)
+    Place(m.heading, page, y)
+    m.count.value = ""
+    if m.total > 0 then
+        m.count.value = T("count.titles", { count: m.total })
+        Place(m.count, m.width - page - TextWidth(m.count), y + m.heading.height - m.count.height)
+    end if
+    y = y + m.heading.height + Theme.space.sm
+    Place(m.roles, page, y)
+    y = y + m.roles.tabsHeight + Theme.space.md
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.grid = invalid
+    Place(m.area, 0, y)
+    if m.total = 0 then
+        state = m.area.createChild("UiStateView")
+        state.icon = "people"
+        state.title = T("title.noCredits")
+        if m.role = "all" then
+            state.message = T("title.noCreditsBody")
+        else
+            state.message = T("title.noRoleCredits", { role: m.role })
+        end if
+        state.stateWidth = m.width
+        y = y + state.boundingRect().height
+    else
+        m.grid = m.area.createChild("UiGrid")
+        m.grid.shape = value.shape
+        m.grid.gridWidth = m.width
+        ' The grid fills the screen once focus is in it; its rows move under the focus.
+        m.grid.gridHeight = Theme.screen.height
+        m.grid.items = cards
+        m.grid.observeField("itemSelected", "onPersonSelected")
+        m.grid.observeField("itemMenu", "onPersonMenu")
+        m.grid.observeField("visibleRange", "onPersonRange")
+        rows = (cards.getChildCount() + m.grid.columns - 1) \ m.grid.columns
+        y = y + Max(Theme.screen.height, rows * m.grid.rowStride)
+        if held then m.grid.callFunc("focusGrid")
+    end if
+    m.page.contentHeight = y
+    m.page.callFunc("refresh")
+end sub
+
+sub onPersonRole()
+    id = m.roles.chosen
+    if id = "" or id = m.role then return
+    m.role = id
+    m.roles.selected = id
+    PersonLoad()
+end sub
+
+' The next page of credits, by the server's cursor, as focus nears the end of what has arrived.
+sub onPersonRange()
+    if m.grid = invalid or m.cursor = "" or m.pageTask <> invalid then return
+    range = m.grid.visibleRange
+    if range = invalid or range.count() < 2 then return
+    if range[1] < m.grid.items.getChildCount() - 1 then return
+    request = PersonRequest()
+    m.pageTask = ApiStart({ path: PersonPath(m.top.route.personId, m.role, m.cursor), reader: "person", context: { origin: ViewerOrigin(), serverId: PersonServerId(), request: request, paged: true, shape: m.grid.shape } }, "onPersonPage")
+    m.pageTask.addFields({ generation: m.generation })
+end sub
+
+sub onPersonPage(event as object)
+    task = event.getRoSGNode()
+    if m.pageTask = invalid or not task.isSameNode(m.pageTask) or task.generation <> m.generation then return
+    m.pageTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true or m.grid = invalid then return
+    m.grid.items.appendChildren(task.content.getChild(0).getChildren(-1, 0))
+    m.cursor = result.value.nextCursor
+end sub
+
+function PersonEntry(index as integer) as dynamic
+    if m.grid = invalid or index < 0 or index >= m.grid.items.getChildCount() then return invalid
+    return m.grid.items.getChild(index).entry
+end function
+
+sub onPersonSelected()
+    entry = PersonEntry(m.grid.itemSelected)
+    if entry <> invalid then OpenEntry(entry)
+end sub
+
+sub onPersonMenu()
+    entry = PersonEntry(m.grid.itemMenu)
+    if entry <> invalid then OpenEntry(entry, "more")
+end sub
+
+sub onTitleShelfSelected(event as object)
+    shelf = event.getRoSGNode()
+    items = shelf.items
+    index = event.getData()
+    if items = invalid or index < 0 or index >= items.getChildCount() then return
+    OpenEntry(items.getChild(index).entry)
+end sub
+
+sub onTitleShelfMenu(event as object)
+    shelf = event.getRoSGNode()
+    items = shelf.items
+    index = event.getData()
+    if items = invalid or index < 0 or index >= items.getChildCount() then return
+    OpenEntry(items.getChild(index).entry, "more")
+end sub
+
+sub onTitleShelfSeeAll()
+end sub
+
+sub onTitleGenre()
+end sub

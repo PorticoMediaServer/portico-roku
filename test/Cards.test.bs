@@ -1,0 +1,103 @@
+' core/Cards.bs and core/Open.bs: what a card shows and where an entry opens.
+
+sub Test_Open_routeForEntry()
+    ' apps/native/src/app/open.ts `routeForEntry`.
+    movie = { id: "m1", kind: "movie", title: "Heat", libraryId: "lib_movies", navigation: { view: "item", entityId: "m1" } }
+    route = RouteForEntry(movie)
+    AssertEqual(route.screen, "ScreenDetail")
+    AssertEqual(route.params.itemId, "m1")
+    AssertEqual(route.params.libraryId, "lib_movies")
+    episode = { id: "e1", kind: "episode", title: "Ozymandias", navigation: { view: "item", entityId: "e1" } }
+    route = RouteForEntry(episode, "lib_tv")
+    AssertEqual(route.screen, "ScreenShow", "an episode opens on its show's page")
+    AssertEqual(route.params.episodeId, "e1")
+    AssertEqual(route.params.libraryId, "lib_tv", "the row's library stands in when the entry names none")
+    route = RouteForEntry({ id: "s1", kind: "show", title: "Severance", navigation: { view: "show" } })
+    AssertEqual(route.screen, "ScreenShow")
+    AssertEqual(route.params.showId, "s1")
+    route = RouteForEntry({ id: "se2", kind: "season", title: "Season 2", navigation: { view: "season", entityId: "se2" } })
+    AssertEqual(route.params.seasonId, "se2")
+    route = RouteForEntry({ id: "c1", kind: "category", title: "Jazz", libraryId: "lib_music", navigation: { view: "browse", category: "genre:jazz" } })
+    AssertEqual(route.screen, "ScreenLibrary")
+    AssertEqual(route.params.tab, "browse")
+    AssertEqual(route.params.category, "genre:jazz")
+    route = RouteForEntry({ id: "c2", kind: "collection", title: "x", navigation: { view: "collections" } })
+    AssertEqual(route.params.tab, "collections")
+    route = RouteForEntry({ id: "c3", kind: "category", title: "x", navigation: { view: "categories" } })
+    AssertEqual(route.params.tab, "browse")
+    route = RouteForEntry({ id: "a1", kind: "album", title: "Kind of Blue", navigation: { view: "album", entityId: "a1" } })
+    AssertEqual(route.screen, "ScreenEntity")
+    AssertEqual(route.params.view, "album")
+    AssertTrue(RouteForEntry({ id: "so1", kind: "song", title: "So What", playback: { itemId: "so1" } }) = invalid, "an entry with no destination only plays")
+end sub
+
+sub Test_Cards_serverText()
+    ' presentation/server-text.ts `serverTextLabel`.
+    globals = GetGlobalAA()
+    globals.messageCatalogue = { "home.row.recentlyAddedIn": "Recently added in {library}", "home.row.recommended": "Recommended for you" }
+    AssertEqual(ServerTextLabel({ code: "home.row.recentlyAddedIn", params: { library: "Movies" }, fallback: "Recently added in Movies (server)" }), "Recently added in Movies")
+    AssertEqual(ServerTextLabel({ code: "home.row.recentlyAddedIn", fallback: "Recently added" }), "Recently added", "a message whose parameters the server did not send")
+    AssertEqual(ServerTextLabel({ code: "home.row.somethingNew", fallback: "Something new" }), "Something new", "a code this client does not ship yet")
+    AssertEqual(ServerTextLabel({ key: "home.row.recommended", fallback: "x" }), "Recommended for you")
+    AssertEqual(ServerTextLabel(invalid, "Home"), "Home")
+    AssertEqual(SectionTitle({ key: "home.row.recommended", fallback: "x" }), "Recommended for you")
+    AssertEqual(SectionTitle({ key: "recent_abc", fallback: "Recently added in Movies" }), "Recently added in Movies")
+    AssertEqual(MessageArguments("{count, plural, one {# title in {library}} other {# titles in {library}}}").count(), 2)
+    globals.messageCatalogue = invalid
+end sub
+
+sub Test_Cards_fields()
+    globals = GetGlobalAA()
+    globals.messageCatalogue = { "title.episodeCode": "S{season} E{episode}", "card.minutesLeft": "{count} min left", "shelf.seeAll": "See all", "shelf.seeAllCount": "See all {count}", "home.row.recommended": "Recommended for you" }
+    globals.formatRegion = { locale: "en-US", hour12: true, utc: true }
+    episode = { id: "e1", kind: "episode", title: "Ozymandias", subtitle: "Breaking Bad · Season 5", seasonNumber: 5, episodeNumber: 14, duration: 2880, progressSeconds: 1440, posterUrl: "/v1/metadata/item/e1/art/poster?w=400", backdropUrl: "/v1/metadata/item/e1/art/backdrop" }
+    card = CardFields(episode, { origin: "http://192.168.1.20:32500", shape: "poster", resume: true, now: 0 })
+    AssertEqual(card.title, "Breaking Bad", "a Continue Watching card is titled by its show")
+    AssertEqual(card.caption, "S5 E14 · 24 min left")
+    AssertEqual(card.artUri, "http://192.168.1.20:32500/v1/metadata/item/e1/art/poster?w=400")
+    AssertTrue(Abs(card.progress - 0.5) < 0.001)
+    AssertEqual(card.icon, "")
+    wide = CardFields(episode, { origin: "http://h", shape: "landscape", now: 0 })
+    AssertEqual(wide.artUri, "http://h/v1/metadata/item/e1/art/backdrop", "a landscape card prefers the backdrop")
+    AssertEqual(wide.title, "Ozymandias")
+    bare = CardFields({ id: "b1", kind: "book", title: "Dune", author: "Frank Herbert", watched: true }, { origin: "http://h", shape: "square", now: 0 })
+    AssertEqual(bare.icon, "book", "no artwork: the family icon")
+    AssertEqual(bare.titleLines, 2, "books run long")
+    AssertEqual(bare.caption, "Frank Herbert")
+    AssertEqual(bare.watched, true)
+    AssertEqual(CardFields({ id: "c", kind: "collection", title: "x", watched: true }, { origin: "", shape: "poster", now: 0 }).watched, false, "a collection carries no watched mark")
+    AssertEqual(IconFor("song"), "music")
+    AssertEqual(IconFor("season"), "tv")
+    AssertEqual(IconFor("movie"), "film")
+    AssertEqual(SectionShape([{ kind: "album" }]), "square")
+    AssertEqual(SectionShape([{ kind: "episode" }]), "poster")
+    AssertEqual(SectionShape([], "music"), "square")
+    AssertEqual(SectionShape([{ kind: "collection" }], "audiobook"), "square")
+    ' See all: a recommendation row with no library opens its own page; a library's row does not.
+    row = { id: "recommended", title: "Recommended for you", kind: "recommendation", titleText: { code: "home.row.recommended", fallback: "x" }, entries: [{ id: "m", kind: "movie", title: "x" }], total: 83, nextCursor: "c" }
+    summary = HomeRowSummary(row)
+    AssertEqual(summary.title, "Recommended for you")
+    AssertEqual(summary.seeAll, true)
+    AssertEqual(summary.seeAllLabel, "See all 83")
+    AssertEqual(summary.seeAllRoute.screen, "ScreenHomeRow")
+    AssertEqual(summary.origin, "recommendation")
+    row.libraryId = "lib"
+    AssertEqual(HomeRowSummary(row).seeAll, false)
+    AssertEqual(HomeRowSummary({ id: "view:abc", title: "My view", kind: "saved_view", entries: [{ id: "m", kind: "movie", title: "x" }], total: 1, nextCursor: "" }).seeAllRoute.screen, "ScreenSavedResource")
+    AssertEqual(HomeRowSummary({ id: "continue", title: "Continue Watching", kind: "continue", entries: [{ id: "m", kind: "movie", title: "x" }], total: 1, nextCursor: "" }).resume, true)
+    globals.messageCatalogue = invalid
+    globals.formatRegion = invalid
+end sub
+
+sub Test_Retry_plan()
+    ' apps/native/src/app/home.ts: 1 s, 3 s, 8 s, then every 15 s.
+    AssertEqual(RetryPlan(0).seconds, 1)
+    AssertEqual(RetryPlan(1).seconds, 3)
+    AssertEqual(RetryPlan(2).seconds, 8)
+    AssertEqual(RetryPlan(2).quick, true)
+    AssertEqual(RetryPlan(3).seconds, 15)
+    AssertEqual(RetryPlan(3).quick, false)
+    AssertEqual(RetryPlan(40).seconds, 15)
+    AssertEqual(RetryIsTransient("unreachable"), true)
+    AssertEqual(RetryIsTransient("permission"), false)
+end sub

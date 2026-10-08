@@ -1,0 +1,179 @@
+' packages/client-core/src/library-content.ts `validateContentProjection` and the request the
+' `LibraryContentService` makes: a library's server-authored page (Discover's rows; an artist, an
+' album, a book and the other entity pages), read with bounds and checked against what was asked
+' for (the server, the library, the view and the entity) before any of it is shown.
+import "pkg:/source/core/Browse.bs"
+import "pkg:/source/core/Detail.bs"
+
+' A projection page is asked for 40 entries at a time (LibraryContentService `pageSize`).
+function ContentPageSize() as integer
+    return 40
+end function
+
+function ContentEntityViews() as object
+    return ["show", "season", "artist", "album", "book", "collection", "author", "book_series", "disc"]
+end function
+
+' GET /v1/libraries/{id}/content?view=…: `route` is {libraryId, view, entityId, sort, direction,
+' category, q}; `cursor` continues one section.
+function ContentPath(route as object, cursor = "" as string) as string
+    query = ["view=" + route.view.encodeUriComponent(), "limit=" + ContentPageSize().toStr()]
+    for each field in ["entityId", "sort", "direction", "category", "q"]
+        if route[field] <> invalid then query.push(field + "=" + route[field].encodeUriComponent())
+    end for
+    if cursor <> "" then query.push("cursor=" + cursor.encodeUriComponent())
+    return "/v1/libraries/" + route.libraryId.encodeUriComponent() + "/content?" + query.join("&")
+end function
+
+' {key, fallback, params}, or invalid.
+function ParseContentHeading(v as dynamic) as dynamic
+    if not IsObject(v) or not IsContentId(v.key) or not IsContentString(v.fallback, 512) then return invalid
+    heading = { key: v.key, fallback: v.fallback }
+    if v.doesExist("params") then
+        if not IsObject(v.params) or v.params.count() > 16 then return invalid
+        params = {}
+        params.setModeCaseSensitive()
+        for each name in v.params
+            if not IsContentId(name) or not IsContentString(v.params[name], 1024) then return invalid
+            params[name] = v.params[name]
+        end for
+        heading.params = params
+    end if
+    return heading
+end function
+
+' A row's own "See all": {ok, seeAll: {pivot, query, sort}}. A query this client cannot read
+' leaves the row without one (never fatal); a malformed pivot or sort refuses the document.
+function ParseContentSeeAll(v as dynamic) as object
+    if not IsObject(v) or not IsContentId(v.pivot) or not IsArray(v.sort) or v.sort.count() < 1 or v.sort.count() > 3 then return { ok: false }
+    sorts = []
+    for each entry in v.sort
+        if not IsObject(entry) or not IsContentId(entry.field) or not IsString(entry.direction) or (entry.direction <> "asc" and entry.direction <> "desc") then return { ok: false }
+        sorts.push({ "field": entry.field, "direction": entry.direction })
+    end for
+    seeAll = { pivot: v.pivot, sort: sorts }
+    if v.query <> invalid then
+        query = ParseBrowseNode(v.query)
+        if query = invalid then return { ok: true, seeAll: invalid }
+        seeAll.query = query
+    end if
+    return { ok: true, seeAll: seeAll }
+end function
+
+' {ok, projection: {heading, scope, revision, query, sorts, sections, entity, empty}}. `expected`
+' is the route asked for; `serverId` the server the session is bound to.
+function ParseContentProjection(raw as dynamic, expected as object, serverId as string, pageSize = 40 as integer) as object
+    bad = { ok: false, code: "invalid_projection" }
+    if not IsObject(raw) or not IsObject(raw.scope) or not IsObject(raw.revision) or not IsObject(raw.query) then return bad
+    s = raw.scope
+    r = raw.revision
+    q = raw.query
+    entityId = ""
+    if expected.entityId <> invalid then entityId = expected.entityId
+    if not IsString(s.serverId) or s.serverId <> serverId or not IsString(s.libraryId) or s.libraryId <> expected.libraryId or not IsString(s.view) or s.view <> expected.view or not IsString(s.entityId) or s.entityId <> entityId or not IsContentId(s.viewerFence) or not IsContentId(s.libraryKind) then return bad
+    if not IsNatural(r.catalog) or not IsNatural(r.viewer) then return bad
+    if not IsString(q.searchMode) or (q.searchMode <> "none" and q.searchMode <> "title_prefix") then return bad
+    if not IsContentString(q.sort) or not IsContentString(q.direction) or not IsContentString(q.category) or not IsContentString(q.q) or not IsNatural(q.limit) or q.limit < 1 or q.limit > pageSize then return bad
+    for each field in ["sort", "direction", "category", "q"]
+        if expected[field] <> invalid and expected[field] <> q[field] then return bad
+    end for
+    if not IsArray(raw.navigation) or raw.navigation.count() > 16 or not IsArray(raw.sorts) or raw.sorts.count() > 32 or not IsArray(raw.filters) or raw.filters.count() > 16 or not IsArray(raw.sections) or raw.sections.count() > 24 then return bad
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each n in raw.navigation
+        if not IsObject(n) or not IsContentId(n.id) or not IsContentId(n.labelKey) or not IsString(n.view) or not ArrayIncludes(ContentViews(), n.view) or seen.doesExist(n.id) then return bad
+        seen[n.id] = true
+    end for
+    sorts = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each n in raw.sorts
+        if not IsObject(n) or not IsContentId(n.id) or not IsContentId(n.labelKey) or not IsArray(n.directions) or n.directions.count() > 2 or seen.doesExist(n.id) then return bad
+        seen[n.id] = true
+        for each direction in n.directions
+            if not IsString(direction) or (direction <> "asc" and direction <> "desc") then return bad
+        end for
+        if n.directions.count() = 2 and n.directions[0] = n.directions[1] then return bad
+        sorts.push({ id: n.id, labelKey: n.labelKey, directions: n.directions })
+    end for
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each n in raw.filters
+        if not IsObject(n) or not IsContentId(n.id) or not IsContentId(n.labelKey) or not IsArray(n.options) or n.options.count() > 100 or seen.doesExist(n.id) then return bad
+        seen[n.id] = true
+        options = {}
+        options.setModeCaseSensitive()
+        for each o in n.options
+            if not IsObject(o) or not IsContentId(o.id) or not IsContentString(o.label) or not IsNatural(FieldOf(o, "count")) or options.doesExist(o.id) then return bad
+            options[o.id] = true
+        end for
+    end for
+    sections = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each n in raw.sections
+        if not IsObject(n) or not IsContentId(n.id) or not IsString(n.type) or not ArrayIncludes(["rail", "grid", "list"], n.type) or not IsNatural(n.totalCount) or not IsContentString(n.nextCursor, 4096) or seen.doesExist(n.id) then return bad
+        seen[n.id] = true
+        limit = 100
+        if n.type = "rail" then limit = 12
+        if not IsArray(n.entries) or n.entries.count() > limit then return bad
+        entries = []
+        ids = {}
+        ids.setModeCaseSensitive()
+        for each v in n.entries
+            if not UnknownEntryKind(v) then
+                entry = ParseContentEntry(v)
+                if entry = invalid or ids.doesExist(entry.id) then return bad
+                if entry.libraryId <> invalid and entry.libraryId <> expected.libraryId then return bad
+                ids[entry.id] = true
+                entries.push(entry)
+            end if
+        end for
+        if n.totalCount < entries.count() then return bad
+        heading = ParseContentHeading(n.heading)
+        if heading = invalid then return bad
+        section = { id: n.id, type: n.type, heading: heading, entries: entries, totalCount: n.totalCount, nextCursor: n.nextCursor }
+        if IsNatural(n.start) then section.start = n.start
+        if n.seeAll <> invalid then
+            parsed = ParseContentSeeAll(n.seeAll)
+            if not parsed.ok then return bad
+            if parsed.seeAll <> invalid then section.seeAll = parsed.seeAll
+        end if
+        sections.push(section)
+    end for
+    heading = ParseContentHeading(raw.heading)
+    if heading = invalid then return bad
+    projection = {
+        heading: heading
+        scope: { serverId: s.serverId, libraryId: s.libraryId, libraryKind: s.libraryKind, view: s.view, entityId: s.entityId, viewerFence: s.viewerFence }
+        revision: { catalog: r.catalog, viewer: r.viewer }
+        query: { sort: q.sort, direction: q.direction, category: q.category, q: q.q, limit: q.limit, searchMode: q.searchMode }
+        sorts: sorts
+        sections: sections
+    }
+    if raw.entity <> invalid and not UnknownEntryKind(raw.entity) then
+        entity = ParseContentEntry(raw.entity)
+        if entity = invalid or not ArrayIncludes(["artist", "album", "book", "disc"], expected.view) or entity.kind <> expected.view or entity.id <> entityId or entity.libraryId = invalid or entity.libraryId <> expected.libraryId or entity.playback <> invalid then return bad
+        projection.entity = entity
+    end if
+    if raw.doesExist("empty") and raw.empty <> invalid then
+        empty = ParseContentHeading(raw.empty)
+        if empty = invalid then return bad
+        projection.empty = empty
+    end if
+    if raw.doesExist("listening") then
+        listening = ParseListeningJourney(raw.listening, s.libraryId)
+        if listening = invalid then return bad
+        projection.listening = listening
+    end if
+    return { ok: true, projection: projection }
+end function
+
+' A continuation is only good against the page it continues: the same viewer fence and revisions,
+' exactly the one section asked for, and a cursor that is not the one just used.
+function ContentContinuationCheck(page as object, fence as object, sectionId as string, cursor as string) as string
+    if page.scope.viewerFence <> fence.scope.viewerFence or page.revision.catalog <> fence.revision.catalog or page.revision.viewer <> fence.revision.viewer then return "stale_continuation"
+    if page.sections.count() <> 1 or page.sections[0].id <> sectionId then return "invalid_projection"
+    if page.sections[0].nextCursor <> "" and page.sections[0].nextCursor = cursor then return "stale_continuation"
+    return ""
+end function

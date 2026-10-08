@@ -1,0 +1,1100 @@
+' apps/native/src/screens/Show.tsx (Spec — Title Pages §2), identical for TV shows and anime: the
+' shared hero with a movie's action row (Play/Resume · My List · Favorite · Watched · ⋯), then
+' Episodes: the season switcher with the season's progress beside it, and the episodes as a list
+' with the focused one shown large beside it. The episode view is a panel over the page. The
+' season is state, not a page: switching it never reloads the hero. Below the episodes: cast and
+' key crew, the show's recommendation rows (three titles or more each), and Details.
+'
+' Next up is the server's when it sends one, else found within the loaded episodes, stepping
+' forward at most Theme.apple.nextUpHops seasons. The show's and the season's own state go through
+' the container route (one write, never one per episode).
+'
+' The episode list holds a slot for every episode of the season on show (a placeholder until its
+' page arrives); pages are read by the server's cursors as focus nears them. Its size follows the
+' season, not the library.
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/source/core/Retry.bs"
+import "pkg:/components/screens/title/Common.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    body = m.page.body
+    m.hero = body.createChild("TitleHero")
+    m.hero.heroWidth = m.width
+    m.hero.observeField("pressed", "onShowHero")
+    m.switcher = body.createChild("Group")
+    m.tabs = m.switcher.createChild("UiTabs")
+    m.tabs.tabsWidth = m.width
+    m.tabs.observeField("chosen", "onShowTab")
+    m.controls = m.switcher.createChild("Group")
+    m.area = body.createChild("Group")
+    m.below = body.createChild("Group")
+    m.panel = m.top.createChild("EpisodePanel")
+    m.panel.observeField("action", "onShowPanel")
+
+    m.data = invalid
+    m.task = invalid
+    m.asked = invalid
+    m.pending = ""
+    m.auto = true
+    m.hops = 0
+    m.reanchor = "done"
+    m.linked = invalid
+    m.episodes = invalid
+    m.total = 0
+    m.cursors = {}
+    m.loaded = {}
+    m.pageTasks = {}
+    m.grid = invalid
+    m.preview = invalid
+    m.focusIndex = 0
+    m.showState = invalid
+    m.seasonState = invalid
+    m.stateTasks = {}
+    m.marking = false
+    m.rowsTask = invalid
+    m.rows = invalid
+    m.rowsContent = invalid
+    m.rowsPhase = "empty"
+    m.rowsError = invalid
+    m.people = invalid
+    m.shelves = []
+    m.menu = invalid
+    m.claimed = false
+    m.generation = 0
+end sub
+
+sub enter()
+    route = m.top.route
+    m.auto = route.seasonId = invalid and route.episodeId = invalid
+    if route.episodeId <> invalid then m.reanchor = "waiting"
+    hero = { loading: true }
+    if route.title <> invalid then hero.title = route.title
+    m.hero.content = hero
+    ShowPlace()
+    asked = { libraryId: route.libraryId }
+    for each key in ["showId", "seasonId", "episodeId"]
+        if route[key] <> invalid then asked[key] = route[key]
+    end for
+    ShowLoad(asked)
+end sub
+
+' Back from the player or a page above: Resume, ticks and bars are current again.
+sub resume()
+    ShowReread()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.pageTasks = {}
+    m.stateTasks = {}
+    m.rowsTask = invalid
+end sub
+
+sub focusEntry()
+    if m.hero.callFunc("focusPrimary") then
+        m.page.callFunc("follow")
+    else if not m.page.callFunc("focusEntry") then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function ShowServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function ShowOwner() as boolean
+    viewer = m.global.session.viewer
+    return viewer <> invalid and viewer.viewer <> invalid and viewer.viewer.role = "owner"
+end function
+
+' ---- The workspace: the show, its seasons and the selected season's first page -----------------
+
+sub ShowLoad(asked as object)
+    m.generation = m.generation + 1
+    m.pageTasks = {}
+    m.asked = asked
+    m.task = ApiStart({ path: ShowWorkspacePath(asked), reader: "show", context: { origin: ViewerOrigin(), serverId: ShowServerId(), route: asked } }, "onShowLoaded")
+end sub
+
+' The same selection, read again from its first page.
+sub ShowReread()
+    if m.data = invalid or m.task <> invalid then return
+    ShowLoad(ShowSelection(m.data.settledId))
+end sub
+
+function ShowSelection(choice as string) as object
+    asked = { libraryId: m.top.route.libraryId, showId: m.data.show.id }
+    prefix = "group:"
+    if Left(choice, Len(prefix)) = prefix then
+        asked.group = Mid(choice, Len(prefix) + 1)
+    else if choice <> "" then
+        asked.selectedSeasonId = choice
+    end if
+    return asked
+end function
+
+sub ShowChoose(choice as string, byViewer as boolean)
+    if byViewer then m.auto = false
+    m.pending = choice
+    ShowLoad(ShowSelection(choice))
+end sub
+
+sub onShowLoaded(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.pending = ""
+        m.reanchor = "done"
+        if m.data <> invalid then
+            ' The season could not be read: the page stays on the one it has.
+            failure = result.error
+            if failure = invalid then failure = { code: "invalid_response", status: 0 }
+            Toast(PresentError(failure, "show").body, "warning")
+            ShowSwitcher()
+            return
+        end if
+        m.hero.visible = false
+        m.switcher.visible = false
+        m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+        TitleFailure(m.area, result.error, "show", Theme.apple.pageTopInset)
+        m.page.contentHeight = Theme.screen.height
+        ShowClaim()
+        return
+    end if
+    value = result.value
+    first = m.data = invalid
+    content = task.content
+    ' A link to an episode reads the page starting at that episode: its panel opens, and the season
+    ' is read again from its start so positions are stable.
+    if m.reanchor = "waiting" and value.selected.episodeId <> invalid then
+        m.data = value
+        cells = content.getChild(0)
+        if cells.getChildCount() > 0 then m.linked = cells.getChild(0).entry
+        m.reanchor = "reading"
+        m.people = content
+        ShowHero()
+        if value.settledId <> "" then
+            ShowChoose(value.settledId, false)
+        else
+            m.reanchor = "done"
+        end if
+        if first then ShowAfterFirst()
+        return
+    end if
+    if m.reanchor = "reading" then m.reanchor = "done"
+    m.pending = ""
+    m.data = value
+    m.people = content
+    m.hero.visible = true
+    m.switcher.visible = true
+    ShowEpisodesFrom(content.getChild(0), value)
+    ShowHero()
+    ShowSwitcher()
+    ShowArea()
+    ShowBelow()
+    ShowPlace()
+    if first then ShowAfterFirst()
+    ShowSeasonStateLoad()
+    ShowAutoSeason()
+    if m.linked <> invalid then
+        entry = m.linked
+        m.linked = invalid
+        ShowPanelOpen(entry, ShowIndexOf(entry.id))
+    else
+        ShowClaim()
+    end if
+end sub
+
+sub ShowAfterFirst()
+    ShowStateLoad("show", m.data.show.id)
+    ShowRowsLoad()
+end sub
+
+sub ShowClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onTitleRetry()
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.hero.visible = true
+    route = m.top.route
+    asked = { libraryId: route.libraryId }
+    for each key in ["showId", "seasonId", "episodeId"]
+        if route[key] <> invalid then asked[key] = route[key]
+    end for
+    ShowLoad(asked)
+end sub
+
+' ---- Episodes: a slot for each, pages by the server's cursors ----------------------------------
+
+sub ShowEpisodesFrom(cells as object, value as object)
+    m.total = value.total
+    if m.total < value.shown then m.total = value.shown
+    m.cursors = { "0": "" }
+    m.loaded = { "0": true }
+    if value.nextCursor <> "" then m.cursors["1"] = value.nextCursor
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(cells.getChildren(-1, 0))
+    missing = m.total - content.getChildCount()
+    if missing > 0 then content.appendChildren(ShowPlaceholders(missing))
+    m.episodes = content
+end sub
+
+function ShowPlaceholders(count as integer) as object
+    out = []
+    for index = 1 to count
+        node = CreateObject("roSGNode", "ContentNode")
+        node.addFields({ placeholder: true, title: "", number: "", meta: "", progress: 0, watched: false, entryId: "" })
+        out.push(node)
+    end for
+    return out
+end function
+
+function ShowEntryAt(index as integer) as dynamic
+    if m.episodes = invalid or index < 0 or index >= m.episodes.getChildCount() then return invalid
+    node = m.episodes.getChild(index)
+    if node.placeholder = true then return invalid
+    return node.entry
+end function
+
+function ShowIndexOf(id as string) as integer
+    if m.episodes = invalid then return -1
+    for index = 0 to m.episodes.getChildCount() - 1
+        if m.episodes.getChild(index).entryId = id then return index
+    end for
+    return -1
+end function
+
+' The episodes that have arrived, in order, from the start of the list (the first page and what
+' followed it without a gap).
+function ShowLoadedRun() as object
+    out = []
+    if m.episodes = invalid then return out
+    for index = 0 to m.episodes.getChildCount() - 1
+        node = m.episodes.getChild(index)
+        if node.placeholder = true then return out
+        out.push(node.entry)
+    end for
+    return out
+end function
+
+' The page that holds `index`, and the one after it when focus is in its second half, are asked
+' for; a page whose cursor is not known yet is reached by reading the pages before it.
+sub ShowEnsure(index as integer)
+    size = ShowEpisodePageSize()
+    page = index \ size
+    wanted = [page]
+    if (index mod size) * 2 >= size then wanted.push(page + 1)
+    for each target in wanted
+        if target * size < m.total and not m.loaded.doesExist(target.toStr()) then
+            at = target
+            while at > 0 and not m.cursors.doesExist(at.toStr())
+                at = at - 1
+            end while
+            ShowPageLoad(at)
+        end if
+    end for
+end sub
+
+sub ShowPageLoad(page as integer)
+    key = page.toStr()
+    if m.loaded.doesExist(key) or m.pageTasks.doesExist(key) or not m.cursors.doesExist(key) or m.pageTasks.count() > 0 then return
+    asked = ShowSelection(m.data.settledId)
+    task = ApiStart({ path: ShowWorkspacePath(asked, m.cursors[key]), reader: "show", context: { origin: ViewerOrigin(), serverId: ShowServerId(), route: asked, paged: true } }, "onShowPage")
+    task.addFields({ generation: m.generation, page: page })
+    m.pageTasks[key] = task
+end sub
+
+sub onShowPage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    key = task.page.toStr()
+    m.pageTasks.delete(key)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then return
+    value = result.value
+    ' The list changed since its first page: it is read again.
+    if value.revision.catalog <> m.data.revision.catalog or value.viewerFence <> m.data.scope.viewerFence then
+        ShowReread()
+        return
+    end if
+    cells = task.content.getChild(0).getChildren(-1, 0)
+    slot = task.page * ShowEpisodePageSize()
+    if cells.count() > 0 and slot + cells.count() <= m.episodes.getChildCount() then m.episodes.replaceChildren(cells, slot)
+    m.loaded[key] = true
+    if value.nextCursor <> "" then m.cursors[(task.page + 1).toStr()] = value.nextCursor
+    ShowEnsure(m.focusIndex)
+    ShowPreview()
+end sub
+
+' ---- Next up and the hero ----------------------------------------------------------------------
+
+function ShowNextUp() as dynamic
+    if m.data.nextUp <> invalid then return m.data.nextUp
+    return NextUpIn(ShowLoadedRun())
+end function
+
+function ShowStable() as boolean
+    return m.data <> invalid and m.pending = "" and m.reanchor = "done" and m.data.selected.episodeId = invalid
+end function
+
+' Without a next-up episode in the season on show, the page steps to the next season (a few at most).
+sub ShowAutoSeason()
+    if not m.auto or not ShowStable() then return
+    if ShowNextUp() <> invalid or m.data.nextCursor <> "" then
+        m.auto = false
+        return
+    end if
+    order = []
+    for each choice in m.data.choices
+        if choice.number <> invalid and choice.number > 0 then order.push(choice)
+    end for
+    following = invalid
+    for index = 0 to order.count() - 1
+        if order[index].id = m.data.settledId and index + 1 < order.count() then following = order[index + 1]
+    end for
+    if following <> invalid and m.hops < Theme.apple.nextUpHops then
+        m.hops = m.hops + 1
+        ShowChoose(following.id, false)
+    else
+        m.auto = false
+    end if
+end sub
+
+function ShowStartOf(entry as object) as dynamic
+    if entry.watched = true then return 0
+    if entry.playback <> invalid and entry.playback.startSeconds <> invalid then return entry.playback.startSeconds
+    if entry.progressSeconds <> invalid then return entry.progressSeconds
+    return 0
+end function
+
+function ShowPrimary() as dynamic
+    if m.data = invalid then return invalid
+    nextUp = ShowNextUp()
+    entry = nextUp
+    if entry = invalid then
+        for each candidate in ShowLoadedRun()
+            if entry = invalid and candidate.playback <> invalid then entry = candidate
+        end for
+    end if
+    if entry = invalid or entry.playback = invalid then return invalid
+    resumes = nextUp <> invalid and nextUp.progressSeconds <> invalid and nextUp.progressSeconds > 0
+    return { entry: entry, resumes: resumes }
+end function
+
+sub ShowHero()
+    hero = {}
+    hero.append(m.data.hero)
+    primary = ShowPrimary()
+    if primary <> invalid then
+        code = TitleEpisodeCode(primary.entry)
+        label = T("entry.play")
+        if primary.resumes then label = T("entry.resume")
+        if code <> "" then
+            if primary.resumes then
+                label = T("title.resumeEpisode", { code: code })
+            else
+                label = T("title.playEpisode", { code: code })
+            end if
+        end if
+        hero.primary = { label: label, icon: "play" }
+        if primary.resumes then
+            fraction = ResumeFraction(primary.entry)
+            if fraction <> invalid then hero.primary.progress = fraction
+        end if
+    end if
+    actions = []
+    state = m.showState
+    if state <> invalid then
+        if state.watchlisted then
+            actions.push({ id: "watchlist", icon: "bookmarkFilled", label: T("entry.removeFromWatchlist"), selected: true })
+        else
+            actions.push({ id: "watchlist", icon: "bookmark", label: T("entry.addToWatchlist"), selected: false })
+        end if
+        if state.favorite then
+            actions.push({ id: "favorite", icon: "heartFilled", label: T("entry.removeFromFavorites"), selected: true })
+        else
+            actions.push({ id: "favorite", icon: "heart", label: T("entry.addToFavorites"), selected: false })
+        end if
+        if state.watched then
+            actions.push({ id: "watched", icon: "watched", label: T("entry.markShowUnwatched"), selected: true })
+        else
+            actions.push({ id: "watched", icon: "check", label: T("entry.markShowWatched"), selected: false })
+        end if
+    end if
+    actions.push({ id: "more", icon: "more", label: T("title.moreActions"), selected: false })
+    hero.actions = actions
+    m.hero.content = hero
+end sub
+
+function ShowEntry() as object
+    show = m.data.show
+    entry = { id: show.id, libraryId: show.libraryId, kind: "show", title: show.title, navigation: { view: "show", entityId: show.id } }
+    if show.posterUrl <> invalid then entry.posterUrl = show.posterUrl
+    if show.backdropUrl <> invalid then entry.backdropUrl = show.backdropUrl
+    return entry
+end function
+
+sub onShowHero()
+    id = m.hero.pressed
+    if m.data = invalid then return
+    if id = "primary" then
+        primary = ShowPrimary()
+        if primary = invalid then return
+        start = 0
+        if primary.resumes then start = ShowStartOf(primary.entry)
+        at = ShowIndexOf(primary.entry.id)
+        if at >= 0 then
+            ShowPlayAt(at, start)
+        else
+            ' A next-up episode from another season is not in this list: the show plays from it.
+            scene = m.top.getScene()
+            if scene <> invalid then scene.callFunc("play", { itemId: primary.entry.playback.itemId, startSeconds: start, entry: primary.entry, queue: [primary.entry], index: 0, container: { kind: "show", id: m.data.show.id } })
+        end if
+    else if id = "watchlist" then
+        ShowSetFlag("watchlisted")
+    else if id = "favorite" then
+        ShowSetFlag("favorite")
+    else if id = "watched" then
+        if not m.marking and m.showState <> invalid then ShowSetWatched("show", m.data.show.id, m.showState, not m.showState.watched)
+    else if id = "more" then
+        OpenEntry(ShowEntry(), "more", m.data.show.libraryId, "page")
+    end if
+end sub
+
+' Plays from `index`, queueing the loaded episodes after it. On Playback v1 the season plays as
+' one server request from this episode; an episode group that is not a season keeps the list.
+sub ShowPlayAt(index as integer, startSeconds as dynamic)
+    queue = []
+    limit = ShowEpisodePageSize() * 2
+    for at = index to index + limit - 1
+        entry = ShowEntryAt(at)
+        if entry = invalid then exit for
+        if entry.playback <> invalid then queue.push(entry)
+    end for
+    if queue.count() = 0 then return
+    request = { itemId: queue[0].playback.itemId, startSeconds: startSeconds, entry: queue[0], queue: queue, index: 0 }
+    if m.data.selected.group = invalid and m.data.selected.seasonId <> invalid then request.container = { kind: "season", id: m.data.selected.seasonId }
+    scene = m.top.getScene()
+    if scene <> invalid then scene.callFunc("play", request)
+end sub
+
+' ---- The show's and the season's own state (the container route) -------------------------------
+
+sub ShowStateLoad(kind as string, id as string)
+    task = ApiStart({ path: ContainerStatePath(kind, id), reader: "container", context: { counts: true } }, "onShowState")
+    task.addFields({ stateKind: kind, stateId: id })
+    m.stateTasks[kind] = task
+end sub
+
+sub ShowSeasonStateLoad()
+    m.seasonState = invalid
+    if ShowStable() and m.data.selected.group = invalid and m.data.selected.seasonId <> invalid then ShowStateLoad("season", m.data.selected.seasonId)
+end sub
+
+sub onShowState(event as object)
+    task = event.getRoSGNode()
+    held = m.stateTasks[task.stateKind]
+    if held = invalid or not held.isSameNode(task) then return
+    m.stateTasks.delete(task.stateKind)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then return
+    if task.stateKind = "show" then
+        m.showState = result.value.state
+        ShowHero()
+    else if m.data <> invalid and m.data.selected.seasonId <> invalid and task.stateId = m.data.selected.seasonId then
+        m.seasonState = result.value.state
+        ShowSwitcher()
+    end if
+end sub
+
+' My List and Favorite: shown at once, put back if the write fails.
+sub ShowSetFlag(flag as string)
+    state = m.showState
+    if state = invalid then return
+    value = not state[flag]
+    before = state[flag]
+    state[flag] = value
+    m.showState = state
+    ShowHero()
+    body = { "expectedRevision": 0 }
+    body[flag] = value
+    task = ApiStart({ path: ContainerStatePath("show", m.data.show.id), method: "PUT", body: body, reader: "container", context: { counts: false } }, "onShowFlag")
+    task.addFields({ flag: flag, before: before })
+end sub
+
+sub onShowFlag(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if result.ok and result.value.ok = true then return
+    state = m.showState
+    if state <> invalid then
+        state[task.flag] = task.before
+        m.showState = state
+        ShowHero()
+    end if
+    ShowSaveFailed(result.error)
+end sub
+
+sub ShowSaveFailed(failure as dynamic)
+    if failure = invalid then failure = { code: "invalid_response", status: 0 }
+    Toast(PresentError(failure, "show", { operation: "save" }).body, "warning")
+end sub
+
+' The watched default of the show or a season: one write against the revision read; a stale
+' revision is read again and the write authored once more.
+sub ShowSetWatched(kind as string, id as string, state as object, watched as boolean)
+    m.marking = true
+    task = ApiStart({ path: ContainerStatePath(kind, id), method: "PUT", body: { "expectedRevision": state.revision, "watched": watched }, reader: "container", context: { counts: false } }, "onShowWatched")
+    task.addFields({ stateKind: kind, stateId: id, watched: watched, again: false })
+    m.watchedTask = task
+end sub
+
+sub onShowWatched(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        if ContainerWriteIsStale(result.error) and not task.again then
+            reread = ApiStart({ path: ContainerStatePath(task.stateKind, task.stateId), reader: "container", context: { counts: true } }, "onShowWatchedReread")
+            reread.addFields({ stateKind: task.stateKind, stateId: task.stateId, watched: task.watched })
+            m.watchedTask = reread
+            return
+        end if
+        m.marking = false
+        ShowSaveFailed(result.error)
+        return
+    end if
+    m.marking = false
+    if task.stateKind = "season" then
+        label = T("title.episodes")
+        for each choice in m.data.choices
+            if choice.id = task.stateId then label = choice.label
+        end for
+        if task.watched then
+            Toast(T("title.seasonMarkedWatched", { season: label }), "check")
+        else
+            Toast(T("title.seasonMarkedUnwatched", { season: label }), "check")
+        end if
+    end if
+    ShowStateLoad("show", m.data.show.id)
+    ShowReread()
+end sub
+
+sub onShowWatchedReread(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.marking = false
+        ShowSaveFailed(result.error)
+        return
+    end if
+    again = ApiStart({ path: ContainerStatePath(task.stateKind, task.stateId), method: "PUT", body: { "expectedRevision": result.value.state.revision, "watched": task.watched }, reader: "container", context: { counts: false } }, "onShowWatched")
+    again.addFields({ stateKind: task.stateKind, stateId: task.stateId, watched: task.watched, again: true })
+    m.watchedTask = again
+end sub
+
+' ---- The season switcher ----------------------------------------------------------------------
+
+function ShowSelected() as string
+    if m.pending <> "" then return m.pending
+    return m.data.settledId
+end function
+
+sub ShowSwitcher()
+    data = m.data
+    choices = data.choices
+    selected = ShowSelected()
+    tabbed = choices.count() > 1 and choices.count() <= Theme.apple.seasonTabLimit
+    m.tabs.visible = tabbed
+    y = 0
+    if tabbed then
+        items = []
+        for each choice in choices
+            items.push({ id: choice.id, label: choice.label })
+        end for
+        same = m.tabs.items <> invalid and m.tabs.items.count() = items.count()
+        if same then
+            for index = 0 to items.count() - 1
+                if m.tabs.items[index].id <> items[index].id then same = false
+            end for
+        end if
+        if not same then m.tabs.items = items
+        if m.tabs.selected <> selected then m.tabs.selected = selected
+        y = m.tabs.tabsHeight + Theme.space.md
+    end if
+    heading = T("title.episodes")
+    for each choice in choices
+        if choice.id = selected then heading = choice.label
+    end for
+    held = ""
+    current = FocusCurrent(m.controls)
+    if current <> invalid and current.hasField("controlId") then held = current.controlId
+    m.controls.removeChildrenIndex(m.controls.getChildCount(), 0)
+    x = Theme.space.page
+    height = 0
+    nodes = []
+    if not tabbed and choices.count() > 1 then
+        picker = ShowControl("pick", "secondary", "", heading)
+        picker.trailingIcon = "chevronDown"
+        nodes.push(picker)
+    else if not tabbed then
+        text = MakeText(m.controls, "heading", "primary", heading)
+        nodes.push(text)
+    end if
+    state = m.seasonState
+    if state <> invalid and ShowStable() then
+        progress = SeasonProgress(state.watchedCount, state.unwatchedCount)
+        if progress <> invalid then nodes.push(MakeText(m.controls, "caption", "secondary", T("title.seasonProgress", progress)))
+    end if
+    if ShowSeasonActions().count() > 0 then
+        options = ShowControl("options", "ghost", "more", "")
+        options.round = true
+        nodes.push(options)
+    end if
+    for each node in nodes
+        size = node.boundingRect()
+        nodeHeight = size.height
+        if node.hasField("controlHeight") then nodeHeight = node.controlHeight
+        if nodeHeight > height then height = nodeHeight
+    end for
+    for each node in nodes
+        nodeHeight = node.boundingRect().height
+        nodeWidth = node.boundingRect().width
+        if node.hasField("controlHeight") then
+            nodeHeight = node.controlHeight
+            nodeWidth = node.controlWidth
+        end if
+        Place(node, x, y + (height - nodeHeight) / 2)
+        x = x + nodeWidth + Theme.space.sm
+        if node.hasField("controlId") and node.controlId = held then FocusOn(node)
+    end for
+    m.switcherHeight = y + height + Theme.space.md
+end sub
+
+function ShowControl(id as string, variant as string, icon as string, label as string) as object
+    button = m.controls.createChild("UiButton")
+    button.addFields({ controlId: id })
+    button.variant = variant
+    button.size = "md"
+    if icon <> "" then button.icon = icon
+    button.label = label
+    button.observeField("pressed", "onShowControl")
+    return button
+end function
+
+sub onShowTab()
+    id = m.tabs.chosen
+    if id = "" or m.data = invalid or id = ShowSelected() then return
+    ShowChoose(id, true)
+end sub
+
+function ShowSeasonActions() as object
+    items = []
+    if m.data = invalid then return items
+    loaded = ShowLoadedRun()
+    if ShowStable() and loaded.count() > 0 then
+        playable = false
+        for each entry in loaded
+            if entry.playback <> invalid then playable = true
+        end for
+        if playable then
+            if m.data.flat then
+                items.push({ id: "play", label: T("entry.play"), icon: "play" })
+            else
+                items.push({ id: "play", label: T("title.playSeason"), icon: "play" })
+            end if
+        end if
+        if not m.marking and m.data.selected.group = invalid and m.data.selected.seasonId <> invalid then
+            if ShowSeasonWatched(loaded) then
+                items.push({ id: "unwatched", label: T("title.markSeasonUnwatched"), icon: "eyeOff" })
+            else
+                items.push({ id: "watched", label: T("title.markSeasonWatched"), icon: "check" })
+            end if
+        end if
+    end if
+    return items
+end function
+
+function ShowSeasonWatched(loaded as object) as boolean
+    if m.seasonState <> invalid then return m.seasonState.watched
+    if loaded.count() = 0 or m.data.nextCursor <> "" then return false
+    for each entry in loaded
+        if entry.watched <> true then return false
+    end for
+    return true
+end function
+
+sub onShowControl(event as object)
+    button = event.getRoSGNode()
+    if m.menu = invalid then
+        m.menu = m.top.createChild("UiMenu")
+        m.menu.observeField("chosen", "onShowMenu")
+    end if
+    heading = T("title.episodes")
+    for each choice in m.data.choices
+        if choice.id = ShowSelected() then heading = choice.label
+    end for
+    if button.controlId = "pick" then
+        items = []
+        for each choice in m.data.choices
+            items.push({ id: "season:" + choice.id, label: choice.label, selected: choice.id = ShowSelected() })
+        end for
+        m.menu.title = T("title.seasons")
+        m.menu.items = items
+        m.menu.callFunc("open")
+    else if button.controlId = "options" then
+        m.menu.title = heading
+        m.menu.items = ShowSeasonActions()
+        m.menu.callFunc("open")
+    end if
+end sub
+
+sub onShowMenu()
+    id = m.menu.chosen
+    prefix = "season:"
+    if Left(id, Len(prefix)) = prefix then
+        choice = Mid(id, Len(prefix) + 1)
+        if choice <> ShowSelected() then ShowChoose(choice, true)
+    else if id = "play" then
+        ShowPlayAt(0, 0)
+    else if id = "watched" or id = "unwatched" then
+        seasonId = m.data.selected.seasonId
+        state = m.seasonState
+        if state = invalid then state = { revision: 0 }
+        if seasonId <> invalid then ShowSetWatched("season", seasonId, state, id = "watched")
+    end if
+end sub
+
+' ---- The episode list, with the focused episode shown large -------------------------------------
+
+sub ShowArea()
+    held = m.grid <> invalid and m.grid.hasGridFocus
+    m.area.removeChildrenIndex(m.area.getChildCount(), 0)
+    m.grid = invalid
+    m.preview = invalid
+    m.areaHeight = 0
+    if not ShowStable() then return
+    if m.total = 0 then
+        state = m.area.createChild("UiStateView")
+        state.icon = "tv"
+        state.title = T("title.noEpisodes")
+        state.message = T("title.noEpisodesBody")
+        state.stateWidth = m.width
+        m.areaHeight = state.boundingRect().height
+        return
+    end if
+    page = Theme.space.page
+    inner = m.width - page * 2
+    rowHeight = Theme.apple.episodeRowHeight
+    listWidth = Int(inner * Theme.apple.episodeListFraction + 0.5)
+    rows = Min(m.total, Theme.apple.episodeRowsVisible)
+    m.grid = m.area.createChild("UiGrid")
+    m.grid.mode = "rows"
+    m.grid.cell = "EpisodeCell"
+    m.grid.cellHeight = rowHeight
+    m.grid.cellWidth = listWidth
+    m.grid.floating = true
+    m.grid.gridWidth = listWidth
+    m.grid.gridHeight = rows * rowHeight
+    m.grid.items = m.episodes
+    m.grid.observeField("itemFocused", "onShowFocus")
+    m.grid.observeField("itemSelected", "onShowSelected")
+    m.grid.observeField("itemMenu", "onShowDetails")
+    Place(m.grid, page, 0)
+    ' The list opens on the next-up episode.
+    start = 0
+    nextUp = ShowNextUp()
+    if nextUp <> invalid then start = Max(0, ShowIndexOf(nextUp.id))
+    if m.focusIndex > 0 and m.focusIndex < m.total and held then start = m.focusIndex
+    m.focusIndex = start
+    m.grid.callFunc("jumpTo", start)
+    m.previewWidth = Min(inner - listWidth - Theme.space.xxxl, Theme.apple.episodePreviewMax)
+    m.preview = m.area.createChild("Group")
+    Place(m.preview, page + listWidth + Theme.space.xxxl, 0)
+    ShowPreview()
+    m.areaHeight = Max(rows * rowHeight, m.previewHeight)
+    if held then m.grid.callFunc("focusGrid")
+    ShowEnsure(start)
+end sub
+
+' The focused episode, large: its still (or its code on the show's colour), "S2 E4 · Title", the
+' line under it, four lines of synopsis, and Episode details.
+sub ShowPreview()
+    if m.preview = invalid then return
+    details = m.detailsButton <> invalid and m.detailsButton.isInFocusChain()
+    m.preview.removeChildrenIndex(m.preview.getChildCount(), 0)
+    m.detailsButton = invalid
+    width = m.previewWidth
+    stillHeight = Int(width / ArtworkRatio("landscape") + 0.5)
+    entry = ShowEntryAt(m.focusIndex)
+    y = 0
+    if entry = invalid then
+        block = m.preview.createChild("UiSkeleton")
+        block.radius = Theme.metrics.radius.card
+        block.blockHeight = stillHeight
+        block.blockWidth = width
+        m.previewHeight = stillHeight
+        return
+    end if
+    still = m.preview.createChild("UiArtwork")
+    still.shape = "landscape"
+    still.artWidth = width
+    if entry.stillUrl <> invalid and entry.stillUrl <> "" then
+        still.title = entry.title
+        still.priority = true
+        still.uri = MediaUrl(ViewerOrigin(), entry.stillUrl)
+    else
+        still.title = TitleEpisodeCode(entry)
+    end if
+    if entry.watched <> true then still.progress = ProgressFor(entry)
+    y = stillHeight + Theme.space.md
+    title = MakeText(m.preview, "heading", "primary", EpisodeTitle(entry))
+    title.maxWidth = width
+    Place(title, 0, y)
+    y = y + title.height + Theme.space.xs
+    meta = EpisodeMeta(entry)
+    if meta <> "" then
+        line = MakeText(m.preview, "caption", "tertiary", meta)
+        line.maxWidth = width
+        Place(line, 0, y)
+        y = y + line.height + Theme.space.xs
+    end if
+    if entry.overview <> invalid and entry.overview <> "" then
+        overview = MakeText(m.preview, "body", "secondary")
+        overview.lines = Theme.apple.episodeOverviewLines
+        overview.maxWidth = width
+        overview.value = entry.overview
+        Place(overview, 0, y)
+        y = y + TextHeight(overview) + Theme.space.xs
+    end if
+    m.detailsButton = m.preview.createChild("UiButton")
+    m.detailsButton.variant = "secondary"
+    m.detailsButton.icon = "info"
+    m.detailsButton.label = T("title.episodeDetails")
+    m.detailsButton.observeField("pressed", "onShowDetailsButton")
+    Place(m.detailsButton, 0, y + Theme.space.xs)
+    if details then FocusOn(m.detailsButton)
+    m.previewHeight = y + Theme.space.xs + m.detailsButton.controlHeight
+end sub
+
+sub onShowFocus()
+    if m.grid = invalid then return
+    index = m.grid.itemFocused
+    if index < 0 or index = m.focusIndex then return
+    m.focusIndex = index
+    ShowPreview()
+    ShowEnsure(index)
+end sub
+
+' Select on an episode plays it (from where it was left, unless it is watched); an episode with
+' nothing to play opens its panel.
+sub onShowSelected()
+    index = m.grid.itemSelected
+    entry = ShowEntryAt(index)
+    if entry = invalid then return
+    if entry.playback <> invalid then
+        ShowPlayAt(index, ShowStartOf(entry))
+    else
+        ShowPanelOpen(entry, index)
+    end if
+end sub
+
+sub onShowDetails()
+    entry = ShowEntryAt(m.grid.itemMenu)
+    if entry <> invalid then ShowPanelOpen(entry, m.grid.itemMenu)
+end sub
+
+sub onShowDetailsButton()
+    entry = ShowEntryAt(m.focusIndex)
+    if entry <> invalid then ShowPanelOpen(entry, m.focusIndex)
+end sub
+
+' ---- The episode panel -------------------------------------------------------------------------
+
+sub ShowPanelOpen(entry as object, index as integer)
+    m.panel.libraryId = m.data.show.libraryId
+    m.panel.showId = m.data.show.id
+    m.panel.showTitle = m.data.show.title
+    request = { entry: entry, index: index, hasPrevious: false, hasNext: false }
+    if index >= 0 then
+        request.hasPrevious = index > 0 and ShowEntryAt(index - 1) <> invalid
+        request.hasNext = index + 1 < m.total and ShowEntryAt(index + 1) <> invalid
+    end if
+    ShowHighlight(entry.id)
+    m.panel.callFunc("open", request)
+end sub
+
+' The episode whose panel is open is tinted in the list.
+sub ShowHighlight(id as string)
+    if m.episodes = invalid then return
+    for index = 0 to m.episodes.getChildCount() - 1
+        node = m.episodes.getChild(index)
+        on = id <> "" and node.entryId = id
+        if node.hasField("highlighted") and node.highlighted <> on then node.highlighted = on
+    end for
+end sub
+
+sub onShowPanel()
+    action = m.panel.action
+    kind = action.kind
+    if kind = "navigate" then
+        entry = ShowEntryAt(action.index)
+        if entry <> invalid then
+            if m.grid <> invalid then m.grid.callFunc("jumpTo", action.index)
+            m.focusIndex = action.index
+            ShowPreview()
+            ShowEnsure(action.index)
+            ShowPanelOpen(entry, action.index)
+        end if
+        return
+    end if
+    if kind = "changed" then
+        ShowReread()
+        return
+    end if
+    ShowHighlight("")
+    if kind = "play" then
+        if action.index <> invalid and action.index >= 0 and ShowEntryAt(action.index) <> invalid and ShowEntryAt(action.index).id = action.entry.id then
+            ShowPlayAt(action.index, action.startSeconds)
+        else if action.entry.playback <> invalid then
+            PlayItem(action.entry.playback.itemId, action.startSeconds, action.entry)
+        end if
+    else if kind = "more" then
+        OpenEntry(action.entry, "more", m.data.show.libraryId)
+    else if kind = "person" then
+        NavPush("ScreenPerson", { personId: action.personId, name: action.name })
+    else if kind = "closed" then
+        ' A panel opened by a link has no control to return to: focus goes to the primary action.
+        if FocusCurrent(m.page) = invalid then focusEntry()
+    end if
+end sub
+
+' ---- Below the episodes: people, recommendation rows, Details ----------------------------------
+
+sub ShowRowsLoad()
+    id = m.data.show.id
+    m.rowsPhase = "loading"
+    m.rowsTask = ApiStart({ path: "/v1/shows/" + id.encodeUriComponent() + "/recommendations?limit=" + ShowRelatedEntries().toStr(), reader: "titleRows", context: { origin: ViewerOrigin(), field: "showId", id: id } }, "onShowRows")
+end sub
+
+function ShowRelatedEntries() as integer
+    return Theme.apple.relatedEntries
+end function
+
+sub onShowRows(event as object)
+    task = event.getRoSGNode()
+    if m.rowsTask = invalid or not task.isSameNode(m.rowsTask) then return
+    m.rowsTask = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.rowsPhase = "error"
+        m.rowsError = result.error
+    else if result.value.sections.count() = 0 then
+        m.rowsPhase = "empty"
+    else
+        m.rowsPhase = "ready"
+        m.rows = result.value.sections
+        m.rowsContent = task.content
+    end if
+    ShowBelow()
+    ShowPlace()
+end sub
+
+sub onShowRowsRetry()
+    ShowRowsLoad()
+    ShowBelow()
+    ShowPlace()
+end sub
+
+sub ShowBelow()
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    m.shelves = []
+    m.belowHeight = 0
+    if m.data = invalid then return
+    y = Theme.space.xl
+    sections = m.data.sections
+    for index = 0 to sections.count() - 1
+        ' The people's cards follow the episodes in the reader's content.
+        shelf = TitleShelf(m.below, sections[index], m.people.getChild(index + 1), index)
+        Place(shelf, 0, y)
+        y = y + shelf.shelfHeight
+        m.shelves.push(shelf)
+    end for
+    if m.rowsPhase = "loading" then
+        block = m.below.createChild("UiSkeleton")
+        block.blockHeight = Int(Theme.metrics.posterWidth / ArtworkRatio("poster") + 0.5)
+        block.blockWidth = Theme.metrics.posterWidth
+        Place(block, Theme.space.page, y)
+        y = y + block.blockHeight + Theme.space.lg
+    else if m.rowsPhase = "error" then
+        failure = m.rowsError
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        y = y + TitleNotice(m.below, "error", PresentError(failure, "show").body, T("action.tryAgain"), "onShowRowsRetry", y) + Theme.space.lg
+    else if m.rowsPhase = "ready" then
+        for index = 0 to m.rows.count() - 1
+            shelf = TitleShelf(m.below, m.rows[index], m.rowsContent.getChild(index), index)
+            Place(shelf, 0, y)
+            y = y + shelf.shelfHeight
+            m.shelves.push(shelf)
+        end for
+    end if
+    y = y + TitleDetails(m.below, m.data.details, m.data.genres, [], y)
+    m.belowHeight = y
+end sub
+
+' Where each part of the page sits, top to bottom.
+sub ShowPlace()
+    y = m.hero.heroHeight
+    if m.data = invalid then
+        m.page.contentHeight = Max(y, Theme.screen.height)
+        return
+    end if
+    y = y + Theme.space.md
+    Place(m.switcher, 0, y)
+    y = y + m.switcherHeight
+    Place(m.area, 0, y)
+    y = y + m.areaHeight
+    Place(m.below, 0, y)
+    y = y + m.belowHeight
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+end sub
+
+sub onTitleShelfSelected(event as object)
+    shelf = event.getRoSGNode()
+    items = shelf.items
+    index = event.getData()
+    if items = invalid or index < 0 or index >= items.getChildCount() then return
+    card = items.getChild(index)
+    if shelf.shape = "person" then
+        TitleOpenPerson(card)
+    else
+        OpenEntry(card.entry, "open", m.data.show.libraryId)
+    end if
+end sub
+
+sub onTitleShelfMenu(event as object)
+    shelf = event.getRoSGNode()
+    items = shelf.items
+    index = event.getData()
+    if shelf.shape = "person" or items = invalid or index < 0 or index >= items.getChildCount() then return
+    OpenEntry(items.getChild(index).entry, "more", m.data.show.libraryId, "recommendation")
+end sub
+
+sub onTitleShelfSeeAll()
+end sub
+
+' Genres are links: each opens this show's library filtered to it.
+sub onTitleGenre(event as object)
+    button = event.getRoSGNode()
+    NavPush("ScreenLibrary", { libraryId: m.data.show.libraryId, tab: "browse", genre: button.genre })
+end sub

@@ -1,0 +1,496 @@
+' Portico playback protocol v1 (Spec — Playback Protocol v1 §4–§8), as
+' packages/client-core/src/playback-v1 (types.ts, sessions.ts, queue.ts, timeline.ts) reads and
+' writes it. The server decides what plays and how (direct, or a stream it prepares); the channel
+' asks, plays the URL it is given, and reports the timeline. A queue is the server's: Play,
+' Shuffle and Next are requests, never a list kept here.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ClientProfileTables.bs"
+
+function IsPlaybackId(value as dynamic) as boolean
+    return MatchesPattern(value, "^[A-Za-z0-9_.-]{1,128}$")
+end function
+
+function PlaybackText(value as dynamic, fallback = "" as string) as string
+    if IsString(value) then return value
+    return fallback
+end function
+
+function PlaybackNumber(value as dynamic, fallback = 0 as dynamic) as dynamic
+    kind = Type(value)
+    if kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" or kind = "LongInteger" or kind = "roLongInteger" then return value
+    return fallback
+end function
+
+function PlaybackOneOf(value as dynamic, values as object, fallback as string) as string
+    if IsString(value) and ArrayIncludes(values, value) then return value
+    return fallback
+end function
+
+function IsPlaybackUrl(value as dynamic) as boolean
+    if not IsString(value) or Len(value) > 4096 then return false
+    return Left(value, 4) = "/v1/" or Left(value, 7) = "http://" or Left(value, 8) = "https://"
+end function
+
+function PlaybackList(value as dynamic) as object
+    out = []
+    if not IsArray(value) then return out
+    for each item in value
+        if IsObject(item) then out.push(item)
+    end for
+    return out
+end function
+
+function PlaybackReasons(value as dynamic) as object
+    out = []
+    if not IsArray(value) then return out
+    for each item in value
+        if IsString(item) then out.push(item)
+    end for
+    return out
+end function
+
+' types.ts `parseOptions` (spec §4.1): {ok, options: {itemId, kind, resume, versions, chapters,
+' markers, preferred, plan}}. A tolerant reader: unknown values fall back, a malformed id refuses.
+function ParsePlaybackOptions(v as dynamic) as object
+    bad = { ok: false, code: "invalid_playback" }
+    if not IsObject(v) or not IsPlaybackId(v.itemId) then return bad
+    versions = []
+    if IsArray(v.versions) then
+        for each x in v.versions
+            if not IsObject(x) or not IsPlaybackId(x.id) then return bad
+            version = { id: x.id, label: PlaybackText(x.label), durationMs: PlaybackNumber(x.durationMs), parts: [], video: [], audio: [], subtitles: [] }
+            if IsString(x.edition) then version.edition = x.edition
+            if IsString(x.container) then version.container = x.container
+            for each p in PlaybackList(x.parts)
+                if not IsPlaybackId(p.id) then return bad
+                version.parts.push({ id: p.id, index: PlaybackNumber(p.index), durationMs: PlaybackNumber(p.durationMs) })
+            end for
+            for each s in PlaybackList(x.video)
+                if not IsPlaybackId(s.id) then return bad
+                stream = { id: s.id, codec: PlaybackText(s.codec) }
+                for each key in ["bitDepth", "width", "height", "fps", "bitrateKbps"]
+                    if PlaybackNumber(s[key], invalid) <> invalid then stream[key] = s[key]
+                end for
+                if IsString(s.profile) then stream.profile = s.profile
+                if IsString(s.hdr) then stream.hdr = s.hdr
+                version.video.push(stream)
+            end for
+            for each s in PlaybackList(x.audio)
+                if not IsPlaybackId(s.id) then return bad
+                stream = { id: s.id, codec: PlaybackText(s.codec), atmos: IsBoolean(s.atmos) and s.atmos, isDefault: IsBoolean(s.default) and s.default, commentary: IsBoolean(s.commentary) and s.commentary, visualImpaired: IsBoolean(s.visualImpaired) and s.visualImpaired }
+                if PlaybackNumber(s.channels, invalid) <> invalid then stream.channels = s.channels
+                if IsString(s.layout) then stream.layout = s.layout
+                if IsString(s.language) then stream.language = s.language
+                if IsString(s.title) then stream.title = s.title
+                version.audio.push(stream)
+            end for
+            for each s in PlaybackList(x.subtitles)
+                if not IsPlaybackId(s.id) then return bad
+                stream = { id: s.id, format: PlaybackText(s.format), source: PlaybackOneOf(s.source, ["embedded", "sidecar", "downloaded"], "other"), forced: IsBoolean(s.forced) and s.forced, sdh: IsBoolean(s.sdh) and s.sdh, isDefault: IsBoolean(s.default) and s.default }
+                if IsString(s.language) then stream.language = s.language
+                if IsString(s.title) then stream.title = s.title
+                version.subtitles.push(stream)
+            end for
+            versions.push(version)
+        end for
+    end if
+    options = { itemId: v.itemId, kind: PlaybackText(v.kind, "other"), versions: versions, chapters: [], markers: [] }
+    if IsObject(v.resume) then options.resume = { positionMs: PlaybackNumber(v.resume.positionMs), partIndex: PlaybackNumber(v.resume.partIndex) }
+    for each c in PlaybackList(v.chapters)
+        chapter = { startMs: PlaybackNumber(c.startMs), title: PlaybackText(c.title) }
+        options.chapters.push(chapter)
+    end for
+    for each marker in PlaybackList(v.markers)
+        options.markers.push({ id: PlaybackText(marker.id), type: PlaybackOneOf(marker.type, ["intro", "recap", "credits", "preview", "commercial"], "other"), startMs: PlaybackNumber(marker.startMs), endMs: PlaybackNumber(marker.endMs), confidence: PlaybackOneOf(marker.confidence, ["detected", "manual", "embedded"], "other"), automaticSafe: IsBoolean(marker.automaticSafe) and marker.automaticSafe })
+    end for
+    if IsObject(v.trickplay) and not IsPlaybackUrl(v.trickplay.url) then return bad
+    if IsObject(v.preferred) then
+        if not IsPlaybackId(v.preferred.versionId) then return bad
+        preferred = { versionId: v.preferred.versionId, reason: PlaybackText(v.preferred.reason) }
+        for each key in ["audioId", "subtitleId"]
+            if v.preferred[key] <> invalid then
+                if not IsPlaybackId(v.preferred[key]) then return bad
+                preferred[key] = v.preferred[key]
+            end if
+        end for
+        options.preferred = preferred
+    end if
+    if IsObject(v.plan) then
+        if not IsPlaybackId(v.plan.versionId) then return bad
+        plan = { versionId: v.plan.versionId, mode: PlaybackOneOf(v.plan.mode, ["direct", "stream"], "stream"), streams: [] }
+        for each s in PlaybackList(v.plan.streams)
+            plan.streams.push({ id: PlaybackText(s.id), action: PlaybackOneOf(s.action, ["direct", "copy", "transcode", "burn", "drop"], "other"), reasons: PlaybackReasons(s.reasons) })
+        end for
+        options.plan = plan
+    end if
+    return { ok: true, options: options }
+end function
+
+function ParsePlaybackDecision(v as dynamic) as dynamic
+    if not IsObject(v) then return invalid
+    decision = { action: PlaybackOneOf(v.action, ["direct", "copy", "transcode", "burn", "drop"], "other"), reasons: PlaybackReasons(v.reasons) }
+    if IsString(v["to"]) then decision["to"] = v["to"]
+    if PlaybackNumber(v.channels, invalid) <> invalid then decision.channels = v.channels
+    return decision
+end function
+
+' types.ts `parsePresentation`: what to play: {generation, mode, url, startPositionMs, subtitles,
+' decision, container}, or invalid.
+function ParsePresentation(p as dynamic) as dynamic
+    if not IsObject(p) or not IsNatural(p.generation) or not IsPlaybackUrl(p.url) then return invalid
+    presentation = { generation: p.generation, mode: PlaybackOneOf(p.mode, ["direct", "stream"], "stream"), url: p.url, startPositionMs: PlaybackNumber(p.startPositionMs), subtitles: [], decision: {} }
+    for each s in PlaybackList(p.subtitles)
+        if not IsPlaybackId(s.trackId) or not IsPlaybackUrl(s.url) then return invalid
+        presentation.subtitles.push({ trackId: s.trackId, format: PlaybackText(s.format), url: s.url })
+    end for
+    if IsObject(p.decision) then
+        for each key in ["video", "audio", "subtitles"]
+            decision = ParsePlaybackDecision(p.decision[key])
+            if decision <> invalid then presentation.decision[key] = decision
+        end for
+    end if
+    if PlaybackNumber(p.bitrateKbps, invalid) <> invalid then presentation.bitrateKbps = p.bitrateKbps
+    if IsString(p.container) then presentation.container = p.container
+    return presentation
+end function
+
+' types.ts `parseSession`: {ok, session: {id, revision, kind, role, state, itemId, versionId,
+' queue, reportEveryMs, presentation, endReason, endMessage}}.
+function ParsePlaybackSession(v as dynamic) as object
+    bad = { ok: false, code: "invalid_playback" }
+    if not IsObject(v) or not IsPlaybackId(v.id) or not IsString(v.revision) or v.revision = "" or Len(v.revision) > 256 then return bad
+    presentation = ParsePresentation(v.presentation)
+    if presentation = invalid then return bad
+    session = { id: v.id, revision: v.revision, kind: PlaybackOneOf(v.kind, ["vod", "audio", "live", "channel"], "other"), role: PlaybackOneOf(v.role, ["local", "receiver", "group_member"], "other"), state: PlaybackOneOf(v.state, ["playing", "paused", "ended"], "other"), reportEveryMs: 10000, presentation: presentation }
+    for each key in ["itemId", "versionId"]
+        if v[key] <> invalid then
+            if not IsPlaybackId(v[key]) then return bad
+            session[key] = v[key]
+        end if
+    end for
+    if IsObject(v.queue) then
+        if not IsPlaybackId(v.queue.queueId) or not IsPlaybackId(v.queue.entryId) then return bad
+        session.queue = { queueId: v.queue.queueId, entryId: v.queue.entryId }
+    end if
+    if IsObject(v.lease) then session.reportEveryMs = PlaybackNumber(v.lease.reportEveryMs, 10000)
+    if IsObject(v["end"]) and IsString(v["end"].reason) and v["end"].reason <> "" then
+        session.endReason = v["end"].reason
+        if IsString(v["end"].message) and v["end"].message <> "" then session.endMessage = v["end"].message
+    end if
+    return { ok: true, session: session }
+end function
+
+' types.ts `parseQueue`: {id, revision, total, current, repeat, shuffled, next, postPlay}, or invalid.
+function ParseQueueHeader(v as dynamic) as dynamic
+    if not IsObject(v) or not IsNatural(v.total) or not IsPlaybackId(v.id) or not IsString(v.revision) or v.revision = "" or Len(v.revision) > 256 then return invalid
+    queue = { id: v.id, revision: v.revision, total: v.total, repeat: PlaybackOneOf(v.repeat, ["off", "one", "all"], "off"), shuffled: IsObject(v.shuffle) }
+    if IsObject(v.current) then
+        if not IsPlaybackId(v.current.entryId) then return invalid
+        queue.current = { entryId: v.current.entryId, position: PlaybackNumber(v.current.position) }
+    end if
+    if IsObject(v["next"]) then
+        upcoming = { available: IsBoolean(v["next"].available) and v["next"].available, reason: PlaybackOneOf(v["next"].reason, ["ready", "end", "unavailable"], "unavailable") }
+        if IsString(v["next"].entryId) then upcoming.entryId = v["next"].entryId
+        queue.upcoming = upcoming
+    end if
+    if IsObject(v.postPlay) then queue.postPlay = { autoplay: IsBoolean(v.postPlay.autoplay) and v.postPlay.autoplay, countdownSeconds: PlaybackNumber(v.postPlay.countdownSeconds, 10), passoutCheckDue: IsBoolean(v.postPlay.passoutCheckDue) and v.postPlay.passoutCheckDue }
+    return queue
+end function
+
+' types.ts `parseEntry`: one entry of a queue's window, or invalid.
+function ParseQueueEntry(v as dynamic) as dynamic
+    if not IsObject(v) or not IsPlaybackId(v.entryId) then return invalid
+    available = not (IsBoolean(v.available) and v.available = false)
+    itemId = ""
+    if available then
+        if not IsPlaybackId(v.itemId) then return invalid
+        itemId = v.itemId
+    else if IsString(v.itemId) then
+        itemId = v.itemId
+    end if
+    entry = { entryId: v.entryId, position: PlaybackNumber(v.position), itemId: itemId, kind: PlaybackText(v.kind, "other"), title: PlaybackText(v.title), available: available }
+    if PlaybackNumber(v.durationMs, invalid) <> invalid then entry.durationMs = v.durationMs
+    if IsString(v.albumId) and v.albumId <> "" then entry.albumId = v.albumId
+    return entry
+end function
+
+' The answer to POST /v1/queues (queue.ts `create`) and to a queue command (`command`): {ok,
+' queue, window, session}. A command may answer with the header alone.
+function ParseQueueResult(body as dynamic) as object
+    bad = { ok: false, code: "invalid_playback" }
+    if not IsObject(body) then return bad
+    header = body
+    if body.queue <> invalid then header = body.queue
+    queue = ParseQueueHeader(header)
+    if queue = invalid then return bad
+    out = { ok: true, queue: queue, window: [] }
+    if IsArray(body.window) then
+        for each raw in body.window
+            entry = ParseQueueEntry(raw)
+            if entry = invalid then return bad
+            out.window.push(entry)
+        end for
+    end if
+    if body.session <> invalid then
+        parsed = ParsePlaybackSession(body.session)
+        if not parsed.ok then return bad
+        out.session = parsed.session
+    end if
+    return out
+end function
+
+' ---- Requests ----------------------------------------------------------------------------------
+
+' Seconds as whole milliseconds. The whole seconds and the fraction are converted apart, so a
+' long position keeps its milliseconds in single precision.
+function PlaybackMs(seconds as dynamic) as longinteger
+    whole& = Int(seconds)
+    fraction = seconds - whole&
+    part& = Int(fraction * 1000 + 0.5)
+    return whole& * 1000 + part&
+end function
+
+' POST /v1/playback/sessions (spec §5.1). `target` is {itemId} or {queue: {queueId, entryId}};
+' `choices` is {versionId, audioId, subtitleId (a track id, or "off"), quality}.
+function SessionStartBody(target as object, startSeconds as dynamic, choices = invalid as dynamic) as object
+    ' Home or away is the server's to decide, from the address it sees (X-Portico-Transport-Class
+    ' says only what this device is connected over): the body claims nothing.
+    body = { "state": "playing" }
+    if target.itemId <> invalid then body["itemId"] = target.itemId
+    if target.queue <> invalid then body["queue"] = { "queueId": target.queue.queueId, "entryId": target.queue.entryId }
+    if startSeconds <> invalid and startSeconds > 0 then
+        body["startPositionMs"] = PlaybackMs(startSeconds)
+    else
+        body["startFrom"] = "beginning"
+    end if
+    body["quality"] = { "mode": "original" }
+    if choices <> invalid then
+        if choices.versionId <> invalid then body["versionId"] = choices.versionId
+        if choices.audioId <> invalid then body["audio"] = { "trackId": choices.audioId }
+        if choices.subtitleId <> invalid then
+            if choices.subtitleId = "off" then
+                body["subtitles"] = { "trackId": invalid }
+            else
+                body["subtitles"] = { "trackId": choices.subtitleId, "delivery": "auto" }
+            end if
+        end if
+        if choices.quality <> invalid then body["quality"] = choices.quality
+    end if
+    return body
+end function
+
+' PATCH /v1/playback/sessions/{id} (spec §5.7): one choice changed.
+function SessionChangeBody(kind as string, value as dynamic) as object
+    if kind = "audio" then return { "audio": { "trackId": value } }
+    if kind = "subtitles" then
+        if value = "off" then return { "subtitles": { "trackId": invalid } }
+        return { "subtitles": { "trackId": value, "delivery": "auto" } }
+    end if
+    if kind = "quality" then return { "quality": value }
+    if kind = "version" then return { "versionId": value }
+    return {}
+end function
+
+' playback-v1/sessions.ts `start`: a 202 says the server is getting the title ready; the same
+' request (the same Idempotency-Key) is sent again after the wait it names.
+function SessionIsPreparing(status as dynamic) as boolean
+    return status <> invalid and status = 202
+end function
+
+' The wait a 202 names (`retryAfterMs`), kept between a quarter of a second and ten; one second
+' when it names none.
+function SessionPrepareWaitMs(body as dynamic) as integer
+    wait = 1000
+    if IsObject(body) and IsNumber(body.retryAfterMs) then wait = Int(body.retryAfterMs)
+    if wait < 250 then wait = 250
+    if wait > 10000 then wait = 10000
+    return wait
+end function
+
+' The longest a title is waited for before the start fails (MAX_PREPARE_MS).
+function SessionPrepareLimitMs() as integer
+    return 120000
+end function
+
+function SessionPrepareTimeout() as object
+    return { status: 504, code: "preparation_timeout", message: "", retryable: true }
+end function
+
+' post-play.ts: what the queue's finish policy asks of the player when a title ends: whether the
+' next one starts by itself, after how many seconds, and whether the viewer is asked first
+' ("Still watching?"). Without a policy nothing starts by itself.
+function PostPlayPlan(queue as dynamic) as object
+    plan = { autoplay: false, seconds: 0, passout: false }
+    if queue = invalid or queue.postPlay = invalid then return plan
+    policy = queue.postPlay
+    plan.passout = policy.passoutCheckDue = true
+    plan.seconds = policy.countdownSeconds
+    plan.autoplay = policy.autoplay = true and not plan.passout and plan.seconds > 0
+    return plan
+end function
+
+' Whether what plays is a song (lyrics, and no ten-second skips): the entry the page handed over
+' says so, else the queue's own entry (a window names songs "track"), else an album, an artist or
+' a playlist that is playing as audio.
+function IsSongPlaying(entryKind as dynamic, windowKind as dynamic, audio as boolean) as boolean
+    if IsString(entryKind) and entryKind = "song" then return true
+    if IsString(windowKind) then return windowKind = "track"
+    return audio and IsString(entryKind) and (entryKind = "album" or entryKind = "artist" or entryKind = "playlist")
+end function
+
+' The sleep timer's length in seconds.
+function SleepSeconds(minutes as integer) as integer
+    return minutes * 60
+end function
+
+' The quality choices a viewer can make for this play: Original (direct play, or the least
+' conversion the device needs), then the shared ladder's ceilings no taller than the source.
+' [{id, height (0 for Original), request}].
+function QualityChoices(sourceHeight = 0 as dynamic) as object
+    out = [{ id: "original", height: 0, request: { "mode": "original" } }]
+    for each rung in PlaybackQualityLadder()
+        if sourceHeight <= 0 or rung.height <= sourceHeight then out.push({ id: rung.height.toStr(), height: rung.height, request: { "mode": "limit", "maxHeight": rung.height, "maxVideoBitrateKbps": rung.kbps } })
+    end for
+    return out
+end function
+
+' POST /v1/playback/sessions/{id}/timeline (spec §6): progress, lease renewal and observation.
+function TimelineReport(seq as integer, generation as dynamic, state as string, positionSeconds as dynamic, rate = 1 as dynamic) as object
+    position& = 0
+    if positionSeconds <> invalid and positionSeconds > 0 then position& = PlaybackMs(positionSeconds)
+    return { "seq": seq, "generation": generation, "state": state, "positionMs": position&, "rate": rate }
+end function
+
+' How long until the next report: the lease's cadence while playing, three times it while paused
+' (10 s and 30 s by default), never less than a second.
+function TimelineCadenceSeconds(state as string, reportEveryMs as dynamic) as integer
+    every = 10000
+    if reportEveryMs <> invalid and reportEveryMs > 0 then every = reportEveryMs
+    seconds = Int(every / 1000)
+    if state <> "playing" and seconds < 30 then seconds = 30
+    if seconds < 1 then seconds = 1
+    return seconds
+end function
+
+' POST /v1/queues (spec §8): Play, Shuffle or play-from-here is one request. `request` is {
+' container: {kind, id, shuffle}, queue: [entries], index, shuffle}. A container the protocol
+' names is a selector; anything else is the entries' own ids (at most 500).
+function QueueCreateBody(request as object, start as boolean) as object
+    segment = {}
+    container = request.container
+    kind = ""
+    if container <> invalid then kind = QueueContainerKind(container.kind)
+    if kind <> "" then
+        id = container.id
+        if kind = "disc" then id = QueueDiscId(container.id)
+        segment["source"] = { "container": { "kind": kind, "id": id } }
+        if container.shuffle = true then
+            segment["order"] = { "mode": "shuffle" }
+        else if request.queue <> invalid and request.queue.count() > 0 and request.queue[0].playback <> invalid then
+            ' Play from here: the queue starts at the entry pressed.
+            segment["anchor"] = { "itemId": request.queue[0].playback.itemId }
+        end if
+    else
+        ids = []
+        if request.queue <> invalid then
+            for each entry in request.queue
+                if entry.playback <> invalid and ids.count() < 500 then ids.push(entry.playback.itemId)
+            end for
+        end if
+        segment["source"] = { "items": { "ids": ids } }
+        if request.shuffle = true then segment["order"] = { "mode": "shuffle" }
+    end if
+    body = { "owner": "device", "segments": [segment] }
+    if start then body["startPlayback"] = { "state": "playing" }
+    return body
+end function
+
+' app/container-play.ts `sequenceContainer`: the container kinds a queue can be made from.
+function QueueContainerKind(kind as dynamic) as string
+    if not IsString(kind) then return ""
+    if ArrayIncludes(["album", "artist", "disc", "book", "playlist", "collection", "show", "season"], kind) then return kind
+    return ""
+end function
+
+' A disc page's id ("albumId:disc:N") as the protocol's disc id ("albumId:N").
+function QueueDiscId(id as string) as string
+    parts = CreateObject("roRegex", "^(.+):disc:(\d{1,4})$", "").match(id)
+    if parts.count() = 3 then return parts[1] + ":" + parts[2]
+    return id
+end function
+
+' POST /v1/queues/{id}:advance: "completion", "next", "previous" or a jump to an entry.
+' queue.ts `window`: the entries around the one playing (the player shows the title of what the
+' queue moved to). Never more than the protocol's 200.
+function QueueWindowPath(id as string, before as integer, after as integer) as string
+    limit = 200
+    b = before
+    if b < 0 then b = 0
+    if b > limit then b = limit
+    a = after
+    if a < 0 then a = 0
+    if a > limit - b then a = limit - b
+    return "/v1/queues/" + id.encodeUriComponent() + "/window?around=current&before=" + b.toStr() + "&after=" + a.toStr()
+end function
+
+' types.ts `parsePage` over `parseEntry`: {ok, window: [entries]}; one bad entry rejects the page.
+function ParseQueueWindow(body as dynamic) as object
+    bad = { ok: false, code: "invalid_playback" }
+    if not IsObject(body) or not IsArray(FieldOf(body, "items")) then return bad
+    out = { ok: true, window: [] }
+    for each raw in FieldOf(body, "items")
+        entry = ParseQueueEntry(raw)
+        if entry = invalid then return bad
+        out.window.push(entry)
+    end for
+    return out
+end function
+
+' The entry of a window the session is playing, or invalid.
+function QueueEntryFor(window as dynamic, session as dynamic) as dynamic
+    if window = invalid or session = invalid or session.queue = invalid then return invalid
+    for each entry in window
+        if entry.entryId = session.queue.entryId then return entry
+    end for
+    return invalid
+end function
+
+function QueueAdvanceBody(reason as string, entryId = "" as string) as object
+    body = { "reason": reason }
+    if entryId <> "" then body["entryId"] = entryId
+    return body
+end function
+
+' ---- What the player draws ---------------------------------------------------------------------
+
+' The marker the position is inside (Skip intro, Skip recap, Skip credits), or invalid.
+function ActiveMarker(markers as object, positionSeconds as dynamic) as dynamic
+    position = positionSeconds * 1000
+    for each marker in markers
+        if marker.endMs > marker.startMs and position >= marker.startMs and position < marker.endMs - 1000 then
+            if marker.type = "intro" or marker.type = "recap" or marker.type = "credits" or marker.type = "preview" then return marker
+        end if
+    end for
+    return invalid
+end function
+
+' The stream format a Video node is told for a presentation: HLS for a stream the server
+' prepares, else the file's own container.
+function StreamFormatFor(presentation as object) as string
+    if presentation.mode = "stream" or Instr(1, presentation.url, ".m3u8") > 0 then return "hls"
+    container = ""
+    if presentation.container <> invalid then container = LCase(presentation.container)
+    if container = "mkv" or container = "matroska" or container = "webm" then return "mkv"
+    if container = "mp3" then return "mp3"
+    if container = "flac" then return "flac"
+    if container = "ts" or container = "mpegts" or container = "m2ts" then return "ts"
+    if container = "ogg" or container = "opus" then return "ogg"
+    if container = "wav" then return "wav"
+    return "mp4"
+end function
+
+' The media URL as the Video node is given it: on the selected server.
+function PlaybackUrl(origin as string, url as string) as string
+    if Left(url, 1) = "/" then return origin + url
+    return url
+end function

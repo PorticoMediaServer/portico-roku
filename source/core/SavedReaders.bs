@@ -1,0 +1,246 @@
+' The readers behind Search and Saved (core/Readers.bs dispatches to them).
+import "pkg:/source/core/Cards.bs"
+import "pkg:/source/core/Search.bs"
+import "pkg:/source/core/Saved.bs"
+import "pkg:/source/core/Browse.bs"
+import "pkg:/source/core/TitleReaders.bs"
+
+' One search result as its card (screens/Search.tsx `useResultCard`): a person is a circle that
+' opens their page, a channel a landscape card, anything else a media card in its own shape.
+function SearchCardNode(entry as object, origin as string) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    if entry.kind = "person" then
+        fields = { person: true, title: entry.title, caption: "", artUri: MediaUrl(origin, entry.posterUrl), shape: "person", progress: 0, watched: false, icon: "", titleLines: 1, entryId: entry.id, personId: entry.navigation.entityId, entry: entry }
+        if entry.subtitle <> invalid then fields.caption = entry.subtitle
+        node.addFields(fields)
+        return node
+    end if
+    if entry.kind = "channel" then
+        fields = { title: entry.title, caption: "", artUri: MediaUrl(origin, entry.posterUrl), shape: "landscape", progress: 0, watched: false, icon: "", titleLines: 1, entryId: entry.id, entry: entry }
+        if entry.subtitle <> invalid then fields.caption = entry.subtitle
+        if entry.posterUrl = invalid then fields.icon = "live"
+        node.addFields(fields)
+        return node
+    end if
+    node.addFields(CardFields(entry, { origin: origin, shape: SearchShape(entry) }))
+    return node
+end function
+
+function SearchCardsNode(entries as object, origin as string) as object
+    node = CreateObject("roSGNode", "ContentNode")
+    children = []
+    for each entry in entries
+        children.push(SearchCardNode(entry, origin))
+    end for
+    node.appendChildren(children)
+    return node
+end function
+
+' GET /v1/search. `context`: {origin, serverId, asked: {q, group}}. The value is {ok, groups:
+' [{id, title, shape, totalCount, nextCursor, shown, seeAll, seeAllLabel}], counts, failed, top,
+' viewerFence, revision}; the content has one child per group that has results, in the chips'
+' order.
+function ReadSearch(data as dynamic, context as object) as object
+    parsed = ParseSearch(data, context.asked, context.serverId)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    origin = context.origin
+    counts = {}
+    failed = []
+    for each group in parsed.groups
+        counts[group.id] = group.totalCount
+        if group.status = "error" then failed.push(T(SearchGroupLabel(group.id)))
+    end for
+    groups = []
+    children = []
+    for each group in OrderedSearchGroups(parsed.groups)
+        summary = { id: group.id, title: T(SearchGroupLabel(group.id)), shape: SearchShape(group.entries[0]), totalCount: group.totalCount, nextCursor: group.nextCursor, shown: group.entries.count(), seeAll: group.totalCount > group.entries.count() or group.nextCursor <> "", seeAllLabel: T("shelf.seeAll") }
+        if group.totalCount > 0 then summary.seeAllLabel = T("shelf.seeAllCount", { count: MessageNumber(group.totalCount) })
+        groups.push(summary)
+        children.push(SearchCardsNode(group.entries, origin))
+    end for
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(children)
+    value = { ok: true, groups: groups, counts: counts, failed: failed, viewerFence: parsed.viewerFence, revision: parsed.revision, top: invalid }
+    group = ""
+    if context.asked.group <> invalid then group = context.asked.group
+    if group = "" then
+        top = TopSearchResult(context.asked.q, parsed.groups)
+        if top <> invalid then
+            entry = top.entry
+            caption = entry.subtitle
+            if entry.kind <> "person" and entry.kind <> "channel" then caption = CardCaption(entry)
+            shape = SearchShape(entry)
+            if shape = "landscape" then shape = "poster"
+            if shape = "person" then shape = "circle"
+            icon = ""
+            if entry.posterUrl = invalid then
+                icon = "person"
+                if entry.kind <> "person" then icon = IconFor(entry.kind)
+            end if
+            value.top = { group: top.group, entry: entry, title: entry.title, line: FactsLine([T(TopResultKindLabel(top.group)), caption]), artUri: MediaUrl(origin, entry.posterUrl), shape: shape, icon: icon }
+        end if
+    end if
+    return { value: value, content: content }
+end function
+
+' GET /v1/content?view=watchlist|favorites|playlists, or /v1/playlists/{id}/content. `context`:
+' {origin, serverId, selected: {view, playlistId, sort, direction}, start}. The value is {ok,
+' view, sorts, sort, direction, emptyTitle, total, nextCursor, shown, shape, viewerFence,
+' revision, cards (Playlists), playable}; the content's only child holds the cards (My List,
+' Favorites) or the rows (a playlist's entries, numbered from `start`).
+function ReadSaved(data as dynamic, context as object) as object
+    parsed = ParseSavedProjection(data, context.serverId, context.selected)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    projection = parsed.projection
+    origin = context.origin
+    entries = []
+    total = 0
+    cursor = ""
+    for each section in projection.sections
+        entries.append(section.entries)
+        total = total + section.totalCount
+        if cursor = "" then cursor = section.nextCursor
+    end for
+    sorts = []
+    for each sort in projection.sorts
+        sorts.push({ id: sort.id, label: SavedSortLabel(sort.labelKey) })
+    end for
+    value = { ok: true, view: projection.view, sorts: sorts, sort: projection.sort, direction: projection.direction, emptyTitle: projection.emptyTitle, total: total, nextCursor: cursor, shown: entries.count(), viewerFence: projection.viewerFence, revision: projection.revision, shape: "poster" }
+    content = CreateObject("roSGNode", "ContentNode")
+    if projection.view = "playlists" then
+        value.cards = entries
+        return { value: value, content: content }
+    end if
+    if projection.view = "playlist" then
+        start = 0
+        if context.start <> invalid then start = context.start
+        rows = CreateObject("roSGNode", "ContentNode")
+        children = []
+        for index = 0 to entries.count() - 1
+            occurrence = entries[index]
+            node = invalid
+            if occurrence.hidden then
+                node = CreateObject("roSGNode", "ContentNode")
+                node.addFields({ ordinal: (start + index + 1).toStr(), title: T("title.unavailableItem"), caption: T("title.notVisible"), meta: "", artUri: "", shape: "poster", icon: "eyeOff", watched: false, disabled: true, entryId: occurrence.id, occurrenceId: occurrence.id, hidden: true })
+            else
+                media = occurrence.media
+                caption = CardCaption(media)
+                node = TrackRowNode(media, { origin: origin, ordinal: start + index + 1, art: true, caption: caption })
+                node.addFields({ occurrenceId: occurrence.id, hidden: false })
+            end if
+            children.push(node)
+        end for
+        rows.appendChildren(children)
+        content.appendChild(rows)
+        return { value: value, content: content }
+    end if
+    ' One card geometry for the page: the shape every entry shares, else posters.
+    value.shape = SavedDominantShape(entries)
+    content.appendChild(CardsNode(entries, { origin: origin, shape: value.shape }))
+    return { value: value, content: content }
+end function
+
+' screens/Saved.tsx: the shape all of a page's entries share, else "poster".
+function SavedDominantShape(entries as object) as string
+    shape = ""
+    for each entry in entries
+        own = ShapeFor(entry.kind)
+        if shape = "" then
+            shape = own
+        else if shape <> own then
+            return "poster"
+        end if
+    end for
+    if shape = "" then return "poster"
+    return shape
+end function
+
+' GET /v1/playlists/{id}. `context`: {serverId, playlistId}.
+function ReadPlaylist(data as dynamic, context as object) as object
+    return { value: ParsePlaylistResource(data, context.serverId, context.playlistId) }
+end function
+
+' GET /v1/personal-history. `context`: {origin, serverId, now}. The value is {ok, days: [{label,
+' shape, shown}], nextCursor, revision, viewerFence, shown}; the content has one child per day
+' (cards captioned with when, a finished one badged).
+function ReadHistory(data as dynamic, context as object) as object
+    parsed = ParseHistory(data, context.serverId)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    origin = context.origin
+    atSeconds = context.now
+    if atSeconds = invalid then atSeconds = NowSeconds()
+    days = []
+    children = []
+    current = invalid
+    cards = []
+    for each row in parsed.entries
+        label = HistoryDayLabel(row.updatedAt, atSeconds)
+        if current = invalid or current.label <> label then
+            if current <> invalid then
+                node = CreateObject("roSGNode", "ContentNode")
+                node.appendChildren(cards)
+                children.push(node)
+            end if
+            current = { label: label, shape: ShapeFor(row.media.kind), shown: 0 }
+            days.push(current)
+            cards = []
+        end if
+        entry = row.media
+        fields = CardFields(entry, { origin: origin, shape: current.shape })
+        when = FormatRelativeTime(row.updatedAt, atSeconds)
+        if when <> "" then fields.caption = when
+        if row.completed then
+            fields.progress = 0
+            fields.badge = T("saved.watched")
+        else if entry.duration <> invalid and entry.duration > 0 and row.positionSeconds > 0 then
+            fields.progress = row.positionSeconds / entry.duration
+            if fields.progress > 1 then fields.progress = 1
+        end if
+        fields.watched = false
+        card = CreateObject("roSGNode", "ContentNode")
+        card.addFields(fields)
+        cards.push(card)
+        current.shown = current.shown + 1
+        days[days.count() - 1] = current
+    end for
+    if current <> invalid then
+        node = CreateObject("roSGNode", "ContentNode")
+        node.appendChildren(cards)
+        children.push(node)
+    end if
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChildren(children)
+    return { value: { ok: true, days: days, nextCursor: parsed.nextCursor, revision: parsed.revision, viewerFence: parsed.viewerFence, shown: parsed.entries.count() }, content: content }
+end function
+
+' GET /v1/saved-resources?kind=…. `context`: {serverId, kind}.
+function ReadSavedResources(data as dynamic, context as object) as object
+    return { value: ParseSavedResources(data, context.serverId, context.kind) }
+end function
+
+' GET /v1/saved-resources/{id}/content. `context`: {origin, serverId, resourceId, shape}. The
+' value is {ok, resource, nextCursor, shown, shape, playable, hidden}; the content's only child
+' holds the cards.
+function ReadSavedResource(data as dynamic, context as object) as object
+    browse = invalid
+    if IsObject(data) and data.browse <> invalid then
+        browse = ParseBrowseResult(data.browse)
+        if browse.ok then browse.cursor = data.browse.pageInfo.nextCursor
+    end if
+    parsed = ParseSavedResourceContent(data, context.serverId, context.resourceId, browse)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    media = []
+    hidden = 0
+    for each entry in parsed.entries
+        if entry.hidden then
+            hidden = hidden + 1
+        else
+            media.push(entry.media)
+        end if
+    end for
+    shape = context.shape
+    if shape = invalid or shape = "" then shape = SavedDominantShape(media)
+    content = CreateObject("roSGNode", "ContentNode")
+    content.appendChild(CardsNode(media, { origin: context.origin, shape: shape }))
+    return { value: { ok: true, resource: parsed.resource, nextCursor: parsed.nextCursor, shown: media.count(), shape: shape, hidden: hidden }, content: content }
+end function

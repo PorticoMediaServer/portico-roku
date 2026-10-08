@@ -1,0 +1,78 @@
+' apps/native/src/screens/BrowseFilters.tsx `JumpTo` (TV-LIB-02): one "Jump to" button opens a
+' centred sheet of large keys, one per position anchor the server computed for this sort (letters
+' for title), wrapped in rows and centred; the key for where the viewer is now is the primary one
+' and takes focus. Choosing a key closes the sheet and reports it.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Browse.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.sheet = m.top.createChild("UiSheet")
+    m.sheet.kind = "picker"
+    m.sheet.observeField("closed", "onJumpClosed")
+    m.pending = invalid
+end sub
+
+sub open()
+    anchors = m.top.anchors
+    if anchors = invalid then anchors = []
+    m.sheet.title = T("lib.jumpTo")
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    gap = Theme.space.sm
+    lines = []
+    line = { keys: [], width: 0 }
+    entry = invalid
+    for each anchor in anchors
+        key = body.createChild("UiButton")
+        key.addFields({ anchorKey: anchor.key })
+        key.variant = "secondary"
+        if anchor.key = m.top.current then key.variant = "primary"
+        key.label = FormatBrowseAnchor(anchor.key, m.top.sortField, T("library.anchorNoValue"))
+        if key.controlWidth < Theme.apple.jumpKeyMinWidth then key.fillWidth = Theme.apple.jumpKeyMinWidth
+        key.observeField("pressed", "onJumpKey")
+        if entry = invalid or anchor.key = m.top.current then entry = key
+        needed = key.controlWidth
+        if line.keys.count() > 0 then needed = needed + gap
+        if line.keys.count() > 0 and line.width + needed > width then
+            lines.push(line)
+            line = { keys: [], width: 0 }
+            needed = key.controlWidth
+        end if
+        line.keys.push(key)
+        line.width = line.width + needed
+    end for
+    if line.keys.count() > 0 then lines.push(line)
+    y = Theme.space.sm
+    for each row in lines
+        x = (width - row.width) / 2
+        height = 0
+        for each key in row.keys
+            Place(key, x, y)
+            x = x + key.controlWidth + gap
+            if key.controlHeight > height then height = key.controlHeight
+        end for
+        y = y + height + gap
+    end for
+    m.pending = invalid
+    m.sheet.callFunc("setBody", body, y - gap + Theme.space.sm)
+    m.sheet.callFunc("open")
+    if entry <> invalid then m.sheet.callFunc("focusBody", entry)
+end sub
+
+sub onJumpKey(event as object)
+    key = event.getRoSGNode()
+    m.pending = key.anchorKey
+    m.sheet.callFunc("close")
+end sub
+
+' Reported once the sheet has closed and focus is back on the page.
+sub onJumpClosed()
+    if m.pending = invalid then return
+    m.top.chosen = m.pending
+    m.pending = invalid
+    m.top.picked = true
+end sub

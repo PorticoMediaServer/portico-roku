@@ -1,0 +1,296 @@
+' core/LibraryTabs.bs, core/Browse.bs, core/BrowseToolbar.bs and core/ContentProjection.bs against
+' client-core (presentation/library-tabs.ts, browse.ts, presentation/browse-toolbar.ts,
+' library-content.ts) over the development server's own documents (test/fixtures/server), with
+' variants that have one thing wrong; and core/BrowseWindow.bs, the channel's own windowing rule.
+
+function LibraryFixture() as dynamic
+    globals = GetGlobalAA()
+    if globals.libraryFixture = invalid then globals.libraryFixture = TestFixture("golden/library.json")
+    fixture = globals.libraryFixture
+    if fixture = invalid then return invalid
+    globals.messageCatalogue = fixture.catalogue
+    globals.formatRegion = { locale: "en-US", hour12: true, utc: true }
+    return fixture
+end function
+
+sub LibraryFixtureDone()
+    globals = GetGlobalAA()
+    globals.messageCatalogue = invalid
+    globals.formatRegion = invalid
+end sub
+
+sub Test_Library_tabs()
+    fixture = LibraryFixture()
+    if fixture = invalid then return
+    for each item in fixture.tabs
+        AssertSame(LibraryTabs(item.kind, item.owner, item.unmatched), item.tabs, "tabs of " + item.kind)
+    end for
+    for each item in fixture.tabFor
+        AssertEqual(LibraryTab(item.kind, item.id, true, true).id, item.tab, "tab " + item.id + " of " + item.kind)
+    end for
+    for each item in fixture.pivotFor
+        found = LibraryTabForPivot(item.kind, item.pivot)
+        id = invalid
+        if found <> invalid then id = found.id
+        AssertEqual(id, item.tab, "tab for pivot " + item.pivot + " of " + item.kind)
+    end for
+    for each item in fixture.releases
+        groups = []
+        for each group in ArtistReleaseGroups(item.entries)
+            ids = []
+            for each entry in group.entries
+                ids.push(entry.id)
+            end for
+            groups.push({ id: group.id, label: group.label, ids: ids })
+        end for
+        AssertSame(groups, item.groups, "release groups")
+    end for
+    LibraryFixtureDone()
+end sub
+
+sub Test_Library_capabilities()
+    fixture = LibraryFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.capabilities.count() > 20, "there are capabilities documents")
+    for each item in fixture.capabilities
+        parsed = ParseBrowseCapabilities(item.raw)
+        AssertEqual(parsed.ok, item.ok, "capabilities " + item.name)
+        if parsed.ok and item.ok then
+            value = parsed.capabilities
+            pivots = []
+            for each pivot in value.pivots
+                pivots.push(pivot.id)
+            end for
+            value.pivots = pivots
+            AssertSame(value, item.value, "capabilities " + item.name)
+        end if
+    end for
+    LibraryFixtureDone()
+end sub
+
+sub Test_Library_results()
+    fixture = LibraryFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.results.count() > 20, "there are browse pages")
+    for each item in fixture.results
+        parsed = ParseBrowseResult(item.raw)
+        AssertEqual(parsed.ok, item.ok, "browse page " + item.name)
+        if parsed.ok and item.ok then
+            value = parsed.result
+            ids = []
+            for each entry in value.entries
+                ids.push(entry.id)
+            end for
+            value.delete("entries")
+            value.ids = ids
+            AssertSame(value, item.value, "browse page " + item.name)
+        end if
+    end for
+    for each item in fixture.facets
+        parsed = ParseBrowseFacets(item.raw, item.expected)
+        AssertEqual(parsed.ok, item.ok, "facets " + item.name)
+        if parsed.ok and item.ok and item.values <> invalid then AssertSame(parsed.values, item.values, "facets " + item.name)
+    end for
+    for each item in fixture.anchors
+        AssertEqual(FormatBrowseAnchor(item.key, item.sortField, item.noValue), item.label, "anchor " + item.key + " under " + item.sortField)
+    end for
+    LibraryFixtureDone()
+end sub
+
+sub Test_Library_request()
+    predicates = [{ "field": "genre", "operator": "contains-any", "value": ["Drama"] }]
+    sort = { field: "added", direction: "desc" }
+    AssertSame(BrowseRequestBody("movies", [], invalid, 0, 60), { pivot: "movies", limit: 60, range: { start: 0 } }, "the first page of a default view")
+    AssertSame(BrowseRequestBody("movies", predicates, sort, 120, 60, "rev-1"), { pivot: "movies", limit: 60, range: { start: 120, revision: "rev-1" }, query: { all: predicates }, sort: [sort] }, "a later range, pinned")
+    published = { pivot: "movies", sort: [{ "field": "year", "direction": "desc" }, { "field": "title", "direction": "asc" }], query: { "any": predicates } }
+    AssertSame(BrowseRequestBody("movies", predicates, sort, 0, 60, "", published), { pivot: "movies", limit: 60, range: { start: 0 }, query: published.query, sort: published.sort }, "a published See all keeps its own query and sort")
+    plain = { pivot: "movies", sort: [{ "field": "year", "direction": "desc" }] }
+    AssertSame(BrowseRequestBody("movies", predicates, sort, 0, 60, "", plain), { pivot: "movies", limit: 60, range: { start: 0 }, sort: plain.sort }, "a published See all without a query sends none")
+end sub
+
+sub Test_Library_toolbar()
+    fixture = LibraryFixture()
+    if fixture = invalid then return
+    documents = {}
+    for each item in fixture.capabilities
+        if item.ok then documents[item.name] = item.raw
+    end for
+    for each item in fixture.toolbars
+        capabilities = ParseBrowseCapabilities(documents[item.name]).capabilities
+        for each expected in item.fields
+            field = CapabilityField(capabilities, expected.id)
+            label = item.name + " field " + expected.id
+            AssertEqual(BrowseFieldLabel(field.id, field.labelKey), expected.label, "label of " + label)
+            AssertEqual(ToolbarGroupOf(field.id), expected.group, "group of " + label)
+            AssertEqual(FilterControlOf(field), expected.control, "control of " + label)
+            AssertSame(FilterValuesField(field), expected.values, "values field of " + label)
+            presets = []
+            for each preset in RangePresets(field, fixture.now)
+                presets.push({ id: preset.id, label: T(preset.label.id, preset.label.values), predicates: preset.predicates })
+            end for
+            AssertSame(presets, expected.presets, "presets of " + label)
+        end for
+        for each expected in item.sortLabels
+            labelKey = ""
+            for each sort in capabilities.sorts
+                if sort.id = expected.id then labelKey = sort.labelKey
+            end for
+            AssertEqual(BrowseFieldLabel(expected.id, labelKey), expected.label, item.name + " sort " + expected.id)
+            AssertEqual(SortDirectionLabel(expected.id, "asc"), expected.directions.asc, item.name + " sort " + expected.id + " ascending")
+            AssertEqual(SortDirectionLabel(expected.id, "desc"), expected.directions.desc, item.name + " sort " + expected.id + " descending")
+        end for
+        for each expected in item.quickLabels
+            AssertEqual(BrowseQuickFilterLabel(expected.labelKey), expected.label, item.name + " quick filter " + expected.labelKey)
+        end for
+        for each expected in item.cases
+            label = item.name + " with " + FormatJson(expected.predicates).left(90)
+            model = ToolbarModel(capabilities, item.kind, expected.predicates, expected.sort, expected.owner)
+            shown = { promoted: [], quick: [], groups: [], sorts: [], sort: model.sort, applied: model.applied }
+            for each field in model.promoted
+                shown.promoted.push(field.id)
+            end for
+            for each filter in model.quick
+                shown.quick.push(filter.id)
+            end for
+            summaries = {}
+            for each group in model.groups
+                ids = []
+                for each field in group.fields
+                    ids.push(field.id)
+                    summaries[field.id] = FieldSelectionSummary(field, expected.predicates)
+                end for
+                shown.groups.push({ id: group.id, fields: ids })
+            end for
+            for each sort in model.sorts
+                shown.sorts.push(sort.id)
+            end for
+            AssertSame(shown, expected.model, "toolbar of " + label)
+            AssertSame(summaries, expected.summaries, "summaries of " + label)
+            labels = []
+            for each predicate in expected.predicates
+                labels.push(PredicateLabel(predicate, capabilities))
+            end for
+            AssertSame(labels, expected.labels, "applied labels of " + label)
+            AssertEqual(SortControlLabel(capabilities, expected.sort), expected.sortLabel, "sort label of " + label)
+            for each choice in expected.nextSorts
+                AssertSame(NextToolbarSort(capabilities, expected.sort, choice.field), choice.next, "sort after choosing " + choice.field + " in " + label)
+            end for
+        end for
+    end for
+    presets = RangePresets(fixture.presets.field, fixture.now)
+    for each item in fixture.presets.active
+        AssertEqual(ActiveRangePreset(presets, item.predicates), item.active, "active preset for " + FormatJson(item.predicates))
+    end for
+    for each item in fixture.valueLabels
+        AssertEqual(BrowseValueLabel(item.value), item.label, "value label of " + item.value)
+    end for
+    for each item in fixture.ordering
+        order = []
+        for each value in OrderFilterValues(item.field, item.values)
+            order.push(value.value)
+        end for
+        AssertSame(order, item.order, "order of " + item.field.id + " values")
+    end for
+    AssertSame(GenreFilter("Drama"), { field: "genre", operator: "contains-any", value: ["Drama"] }, "a genre's filter")
+    AssertSame(FilterRowParts("value:Sci-Fi: Space"), { kind: "value", value: "Sci-Fi: Space" }, "a value row's id keeps the value's own colons")
+    AssertSame(FilterRowParts("any"), { kind: "any", value: "" }, "a row with no value")
+    field = { id: "year" }
+    replaced = ReplaceFieldPredicates(field, [{ "field": "decade", "operator": "in", "value": [1990] }, { "field": "genre", "operator": "in", "value": ["Drama"] }], [{ "field": "decade", "operator": "in", "value": [2000] }])
+    AssertSame(replaced, [{ field: "genre", operator: "in", value: ["Drama"] }, { field: "decade", operator: "in", value: [2000] }], "Year's predicates are its decades")
+    LibraryFixtureDone()
+end sub
+
+sub Test_Library_projections()
+    fixture = LibraryFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.projections.count() > 30, "there are projections")
+    for each item in fixture.projections
+        parsed = ParseContentProjection(item.raw, item.route, item.serverId)
+        AssertEqual(parsed.ok, item.ok, "projection " + item.name)
+        if parsed.ok and item.ok then
+            value = parsed.projection
+            sections = []
+            for each section in value.sections
+                ids = []
+                for each entry in section.entries
+                    ids.push(entry.id)
+                end for
+                section.delete("entries")
+                section.ids = ids
+                sections.push(section)
+            end for
+            value.sections = sections
+            if value.entity <> invalid then value.entity = value.entity.id
+            value.delete("listening")
+            AssertSame(value, item.value, "projection " + item.name)
+        end if
+    end for
+    route = { libraryId: "lib 1", view: "album", entityId: "a/b", sort: "title" }
+    AssertEqual(ContentPath(route), "/v1/libraries/lib%201/content?view=album&limit=40&entityId=a%2Fb&sort=title", "a projection's path")
+    AssertEqual(ContentPath({ libraryId: "l", view: "discover" }, "c=1"), "/v1/libraries/l/content?view=discover&limit=40&cursor=c%3D1", "a continuation's path")
+    page = { scope: { viewerFence: "f" }, revision: { catalog: 1, viewer: 2 }, sections: [{ id: "recent", nextCursor: "c2" }] }
+    fence = { scope: { viewerFence: "f" }, revision: { catalog: 1, viewer: 2 } }
+    AssertEqual(ContentContinuationCheck(page, fence, "recent", "c1"), "", "a continuation of the same page")
+    AssertEqual(ContentContinuationCheck(page, { scope: { viewerFence: "g" }, revision: fence.revision }, "recent", "c1"), "stale_continuation", "another viewer fence")
+    AssertEqual(ContentContinuationCheck(page, { scope: fence.scope, revision: { catalog: 2, viewer: 2 } }, "recent", "c1"), "stale_continuation", "another catalogue revision")
+    AssertEqual(ContentContinuationCheck(page, fence, "other", "c1"), "invalid_projection", "another section")
+    AssertEqual(ContentContinuationCheck(page, fence, "recent", "c2"), "stale_continuation", "a cursor that repeats")
+    LibraryFixtureDone()
+end sub
+
+' The window over a library of any size: bounded residency, whole rows, nearest chunks first.
+sub Test_Library_window()
+    window = BrowseWindowNew(7)
+    AssertEqual(window.chunk, 56, "a chunk is whole rows and at most a page (seven columns)")
+    AssertEqual(BrowseWindowNew(6).chunk, 60, "six columns")
+    AssertEqual(BrowseWindowNew(1).chunk, 60, "rows")
+    AssertEqual(BrowseWindowNew(7, 20).chunk, 14, "the server's limit bounds a chunk")
+    AssertEqual(BrowseWindowLength(window), 0, "nothing is resident before the total is known")
+
+    BrowseWindowTotal(window, 10000000)
+    AssertEqual(BrowseWindowChunks(window), 178572, "ten million titles in chunks")
+    AssertEqual(BrowseWindowLength(window), 280, "five chunks are resident whatever the total")
+    AssertSame(BrowseWindowWanted(window, 0, 2), [0, 1], "the chunks nearest focus are asked for first")
+    BrowseWindowAsked(window, 0)
+    BrowseWindowAsked(window, 1)
+    AssertSame(BrowseWindowWanted(window, 0, 2), [2, 3], "a chunk is asked for once")
+    AssertEqual(BrowseWindowArrived(window, 0), 0, "the first chunk fills the first slots")
+    AssertEqual(BrowseWindowArrived(window, 1), 56, "the second fills the next")
+    AssertSame(BrowseWindowRange(window, 3), { start: 168, limit: 56 }, "a chunk's range")
+
+    AssertEqual(BrowseWindowFocus(window, 100), 0, "focus inside the window leaves it where it is")
+    AssertEqual(BrowseWindowFocus(window, 230), 2, "focus in the last resident chunk moves the window to centre on it")
+    AssertEqual(window.first, 2, "the window's first chunk after moving")
+    AssertEqual(BrowseWindowBase(window), 112, "the window's first slot")
+    AssertEqual(BrowseWindowLength(window), 280, "still five chunks")
+    AssertEqual(window.loaded.count(), 0, "chunks that left the window are forgotten")
+    AssertSame(BrowseWindowWanted(window, 230, 3), [4, 5, 3], "after moving, nearest first, both sides")
+    AssertEqual(BrowseWindowArrived(window, 1), -1, "an answer for a chunk that left is not wanted")
+    AssertEqual(BrowseWindowFocus(window, 120), -2, "focus in the first resident chunk moves the window back")
+    AssertEqual(window.first, 0, "back at the start")
+    AssertEqual(BrowseWindowFocus(window, 10), 0, "the first chunk of the list is an edge with nothing before it")
+
+    AssertTrue(BrowseWindowJump(window, 5000000), "a jump far away moves the window")
+    AssertEqual(window.first, 89283, "centred on the chunk that holds the position")
+    AssertEqual(BrowseWindowBase(window) <= 5000000 and 5000000 < BrowseWindowBase(window) + BrowseWindowLength(window), true, "the position is resident")
+    AssertTrue(not BrowseWindowJump(window, 5000010), "a jump inside the same window does not move it")
+    AssertEqual(BrowseWindowFocus(window, 9999999), 89284, "the end of the list")
+    AssertEqual(window.first, 178567, "the last five chunks")
+    AssertEqual(BrowseWindowLength(window), 10000000 - 178567 * 56, "the last chunk is partial")
+    AssertEqual(BrowseWindowFocus(window, 9999990), 0, "the last chunk of the list is an edge with nothing after it")
+
+    small = BrowseWindowNew(6)
+    BrowseWindowTotal(small, 130)
+    AssertEqual(BrowseWindowLength(small), 130, "a small list is wholly resident")
+    AssertEqual(BrowseWindowFocus(small, 129), 0, "and never moves")
+    AssertSame(BrowseWindowWanted(small, 125, 5), [2, 1, 0], "all its chunks, nearest first")
+    BrowseWindowAsked(small, 2)
+    BrowseWindowFailed(small, 2)
+    AssertSame(BrowseWindowWanted(small, 125, 1), [2], "a chunk that failed is asked for again")
+    BrowseWindowTotal(small, 0)
+    AssertEqual(BrowseWindowLength(small), 0, "an empty list")
+    AssertSame(BrowseWindowWanted(small, 0, 2), [], "asks for nothing")
+
+    AssertEqual(BrowseAnchorIndex([{ key: "A", index: 0 }, { key: "B", index: 40 }], "B"), 40, "an anchor's position")
+    AssertEqual(BrowseAnchorIndex([{ key: "A", index: 0 }], "Z"), -1, "an anchor the server did not send")
+end sub

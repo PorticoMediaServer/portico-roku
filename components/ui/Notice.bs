@@ -1,0 +1,77 @@
+' apps/native/src/ui/Feedback.tsx `Notice` (componentSpec.feedback.notice, television column): one
+' glyph per tone in the tone's colour, on a tint of that colour with a border of it; an optional
+' title, the message in the secondary tone, and an optional small secondary action.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.fill = m.top.createChild("Poster")
+    m.border = m.top.createChild("Poster")
+    m.iconNode = m.top.createChild("Poster")
+    m.titleNode = MakeText(m.top, Theme.spec.feedback.notice.title)
+    m.titleNode.lines = 0
+    m.messageNode = MakeText(m.top, Theme.spec.feedback.notice.text, "secondary")
+    m.messageNode.lines = 0
+    m.button = invalid
+end sub
+
+sub onNoticeLayout()
+    width = m.top.noticeWidth
+    if width <= 0 then return
+    tones = ThemeSpecTable().feedback.notice.tones
+    tone = m.top.tone
+    if tone = "danger" then tone = "error"
+    spec = tones[tone]
+    if spec = invalid then spec = tones.info
+    color = ThemeColor(spec.color)
+    padding = Theme.spec.feedback.notice.padding
+    gap = Theme.spec.feedback.notice.gap
+    iconSize = Theme.spec.feedback.notice.icon
+    buttonWidth = 0
+    if m.top.action <> "" then
+        if m.button = invalid then
+            m.button = m.top.createChild("UiButton")
+            m.button.size = Theme.spec.feedback.notice.action.size
+            m.button.variant = Theme.spec.feedback.notice.action.variant
+            m.button.observeField("pressed", "onNoticeAction")
+        end if
+        m.button.label = m.top.action
+        buttonWidth = m.button.controlWidth + gap
+    end if
+    if m.button <> invalid then
+        m.button.visible = m.top.action <> ""
+        m.button.focusable = m.top.action <> ""
+    end if
+    copyWidth = width - padding * 2 - iconSize - gap - buttonWidth
+    copyHeight = 0
+    m.titleNode.visible = m.top.title <> ""
+    if m.top.title <> "" then
+        m.titleNode.maxWidth = copyWidth
+        m.titleNode.value = m.top.title
+        copyHeight = TextHeight(m.titleNode)
+    end if
+    m.messageNode.maxWidth = copyWidth
+    m.messageNode.value = m.top.message
+    copyHeight = copyHeight + TextHeight(m.messageNode)
+    height = Max(copyHeight, iconSize) + padding * 2
+    if m.top.action <> "" then height = Max(height, m.button.controlHeight + padding * 2)
+    StyleShape(m.fill, width, height, Theme.spec.feedback.notice.radius, ColorAlpha(color, spec.tintAlpha))
+    StyleRing(m.border, width, height, Theme.spec.feedback.notice.radius, Theme.spec.overlay.border.width, ColorAlpha(color, spec.borderAlpha))
+    StyleIcon(m.iconNode, spec.icon, iconSize, color)
+    Place(m.iconNode, padding, (height - iconSize) / 2)
+    x = padding + iconSize + gap
+    y = (height - copyHeight) / 2
+    if m.top.title <> "" then
+        Place(m.titleNode, x, y)
+        y = y + TextHeight(m.titleNode)
+    end if
+    Place(m.messageNode, x, y)
+    if m.top.action <> "" then Place(m.button, width - padding - m.button.controlWidth, (height - m.button.controlHeight) / 2)
+    m.top.noticeHeight = height
+end sub
+
+sub onNoticeAction()
+    m.top.actionPressed = true
+end sub

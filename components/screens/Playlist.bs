@@ -1,0 +1,291 @@
+' apps/native/src/screens/title/SavedPages.tsx `PlaylistScreen`. A playlist on the shared hero
+' (Spec — Title Pages §1, "Collection / Playlist"): "N items · length", Play and Shuffle, then its
+' entries in the owner's order. Pressing an entry plays the playlist from there. Hidden entries
+' (titles this profile cannot see) keep their number, so the order still reads correctly. On
+' Playback v1 the playlist plays as one server request; the entries are what a failed one plays.
+'
+' Not on this platform yet: moving and removing entries (the row menu on Apple TV).
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/source/core/Saved.bs"
+import "pkg:/components/screens/title/Common.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    m.hero = m.page.body.createChild("TitleHero")
+    m.hero.heroWidth = m.width
+    m.hero.observeField("pressed", "onPlaylistHero")
+    m.below = m.page.body.createChild("Group")
+    m.playlist = invalid
+    m.value = invalid
+    m.rows = invalid
+    m.task = invalid
+    m.resourceTask = invalid
+    m.pageTask = invalid
+    m.cursor = ""
+    m.failed = false
+    m.claimed = false
+    m.generation = 0
+end sub
+
+sub enter()
+    hero = { loading: true }
+    if m.top.route.title <> invalid then hero.title = m.top.route.title
+    m.hero.content = hero
+    m.page.contentHeight = Theme.screen.height
+    PlaylistLoad()
+end sub
+
+sub resume()
+end sub
+
+sub leave()
+    m.task = invalid
+    m.resourceTask = invalid
+    m.pageTask = invalid
+end sub
+
+sub focusEntry()
+    if m.hero.callFunc("focusPrimary") then
+        m.page.callFunc("follow")
+    else if not m.page.callFunc("focusEntry") then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function PlaylistServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function PlaylistSelected() as object
+    return { view: "playlist", playlistId: m.top.route.playlistId }
+end function
+
+sub PlaylistLoad()
+    m.generation = m.generation + 1
+    id = m.top.route.playlistId
+    m.task = ApiStart({ path: PlaylistContentPath(id), reader: "saved", context: { origin: ViewerOrigin(), serverId: PlaylistServerId(), selected: PlaylistSelected(), start: 0 } }, "onPlaylistLoaded")
+    m.task.addFields({ generation: m.generation })
+    m.resourceTask = ApiStart({ path: PlaylistPath(id), reader: "playlist", context: { serverId: PlaylistServerId(), playlistId: id } }, "onPlaylistResource")
+end sub
+
+sub onPlaylistResource(event as object)
+    result = event.getData()
+    m.resourceTask = invalid
+    if result.ok and result.value.ok = true then
+        m.playlist = result.value.playlist
+        PlaylistBuild()
+    end if
+end sub
+
+sub onPlaylistLoaded(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.failed = true
+        m.hero.visible = false
+        m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+        TitleFailure(m.below, result.error, "playlist", Theme.apple.pageTopInset)
+        PlaylistClaim()
+        return
+    end if
+    m.failed = false
+    m.value = result.value
+    m.rows = task.content.getChild(0)
+    m.cursor = result.value.nextCursor
+    PlaylistBuild()
+    PlaylistClaim()
+end sub
+
+sub PlaylistClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onTitleRetry()
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    m.hero.visible = true
+    PlaylistLoad()
+end sub
+
+function PlaylistMedia() as object
+    out = []
+    if m.rows = invalid then return out
+    for each row in m.rows.getChildren(-1, 0)
+        if not row.hidden then out.push(row.entry)
+    end for
+    return out
+end function
+
+sub PlaylistBuild()
+    if m.value = invalid or m.failed then return
+    media = PlaylistMedia()
+    playable = 0
+    length = 0
+    covers = []
+    for each entry in media
+        if entry.playback <> invalid then playable = playable + 1
+        if entry.duration <> invalid then length = length + entry.duration
+        if covers.count() < 2 * 2 then
+            art = entry.posterUrl
+            if art = invalid then art = entry.backdropUrl
+            if art <> invalid then covers.push(MediaUrl(ViewerOrigin(), art))
+        end if
+    end for
+    title = ""
+    if m.top.route.title <> invalid then title = m.top.route.title
+    summary = ""
+    total = m.value.total
+    if m.playlist <> invalid then
+        title = m.playlist.name
+        summary = m.playlist.summary
+        total = m.playlist.entryCount
+    end if
+    facts = []
+    if total > 0 then facts.push(T("count.items", { count: total }))
+    ' The total length only when the whole playlist is on the page; a page's sum would be wrong.
+    if m.cursor = "" and length > 0 then facts.push(FormatDuration(length))
+    hero = { loading: false, title: title, eyebrow: T("title.kind", { kind: "playlist" }), facts: FactsLine(facts), art: { uri: "", shape: "square", icon: "queue", mosaic: covers } }
+    if covers.count() > 0 then hero.art.icon = ""
+    if summary <> "" then hero.synopsis = summary
+    if playable > 0 then hero.primary = { label: T("entry.play"), icon: "play" }
+    hero.actions = []
+    if playable > 1 then hero.actions.push({ id: "shuffle", icon: "shuffle", label: T("title.shuffle"), selected: false })
+    m.hero.content = hero
+
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    y = m.hero.heroHeight
+    count = m.rows.getChildCount()
+    if count = 0 then
+        state = m.below.createChild("UiStateView")
+        state.icon = "queue"
+        state.title = T("title.playlistEmpty")
+        state.message = T("title.playlistEmptyBodyTV")
+        state.stateWidth = m.width
+        Place(state, 0, y)
+        y = y + state.boundingRect().height
+    end if
+    inset = Theme.space.page - Theme.space.sm
+    for index = 0 to count - 1
+        item = m.rows.getChild(index)
+        if index > 0 then
+            line = MakeRect(m.below, m.width - inset * 2 - Theme.space.sm * 2, 1, Theme.colors.line)
+            Place(line, inset + Theme.space.sm, y)
+            y = y + 1
+        end if
+        row = m.below.createChild("UiListRow")
+        row.addFields({ rowIndex: index })
+        row.media = item.artUri <> ""
+        row.shape = item.shape
+        row.ordinal = item.ordinal
+        row.title = item.title
+        row.subtitle = item.caption
+        row.meta = item.meta
+        row.artUri = item.artUri
+        if item.icon <> "" then row.icon = item.icon
+        row.watched = item.watched
+        row.disabled = item.disabled
+        row.rowWidth = m.width - inset * 2
+        row.observeField("pressed", "onPlaylistRow")
+        row.observeField("menuRequested", "onPlaylistRowMenu")
+        Place(row, inset, y)
+        y = y + row.rowHeight
+    end for
+    if m.cursor <> "" then
+        more = m.below.createChild("UiButton")
+        more.variant = "secondary"
+        more.label = T("action.showMore")
+        more.loading = m.pageTask <> invalid
+        more.observeField("pressed", "onPlaylistMore")
+        Place(more, (m.width - more.controlWidth) / 2, y + Theme.space.md)
+        y = y + Theme.space.md + more.controlHeight
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+end sub
+
+sub PlaylistPlay(from as integer, shuffle as boolean)
+    queue = []
+    for index = from to m.rows.getChildCount() - 1
+        row = m.rows.getChild(index)
+        if not row.hidden and row.entry.playback <> invalid then queue.push(row.entry)
+    end for
+    if queue.count() = 0 then return
+    container = { kind: "playlist", id: m.top.route.playlistId }
+    if shuffle then container.shuffle = true
+    scene = m.top.getScene()
+    if scene <> invalid then scene.callFunc("play", { itemId: queue[0].playback.itemId, startSeconds: 0, entry: queue[0], queue: queue, index: 0, container: container })
+end sub
+
+sub onPlaylistHero()
+    id = m.hero.pressed
+    if id = "primary" then PlaylistPlay(0, false)
+    if id = "shuffle" then PlaylistPlay(0, true)
+end sub
+
+sub onPlaylistRow(event as object)
+    row = event.getRoSGNode()
+    item = m.rows.getChild(row.rowIndex)
+    if item.hidden then return
+    if item.entry.playback <> invalid then
+        PlaylistPlay(row.rowIndex, false)
+    else
+        OpenEntry(item.entry)
+    end if
+end sub
+
+sub onPlaylistRowMenu(event as object)
+    row = event.getRoSGNode()
+    item = m.rows.getChild(row.rowIndex)
+    if not item.hidden then OpenEntry(item.entry, "more")
+end sub
+
+sub onPlaylistMore()
+    if m.pageTask <> invalid or m.cursor = "" then return
+    id = m.top.route.playlistId
+    m.pageTask = ApiStart({ path: PlaylistContentPath(id, m.cursor), reader: "saved", context: { origin: ViewerOrigin(), serverId: PlaylistServerId(), selected: PlaylistSelected(), start: m.rows.getChildCount() } }, "onPlaylistPage")
+    m.pageTask.addFields({ generation: m.generation })
+    PlaylistBuild()
+end sub
+
+sub onPlaylistPage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    m.pageTask = invalid
+    result = event.getData()
+    count = m.rows.getChildCount()
+    if result.ok and result.value.ok = true then
+        ' The playlist changed since its first page: it is read again.
+        if result.value.viewerFence <> m.value.viewerFence then
+            PlaylistLoad()
+            return
+        end if
+        m.rows.appendChildren(task.content.getChild(0).getChildren(-1, 0))
+        m.cursor = result.value.nextCursor
+    end if
+    PlaylistBuild()
+    for each child in m.below.getChildren(-1, 0)
+        if child.hasField("rowIndex") and child.rowIndex = count then
+            FocusOn(child)
+            m.page.callFunc("follow")
+        end if
+    end for
+end sub
+
+sub onTitleShelfSelected()
+end sub
+
+sub onTitleShelfMenu()
+end sub
+
+sub onTitleShelfSeeAll()
+end sub
+
+sub onTitleGenre()
+end sub

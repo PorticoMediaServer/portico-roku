@@ -1,0 +1,182 @@
+' packages/client-core/src/home.ts: server-composed Home rows. The channel renders membership,
+' order and policy as published; it never ranks, hides or pages a row itself.
+import "pkg:/source/core/ContentEntry.bs"
+
+function HomeUnreadable() as object
+    return { ok: false, code: "invalid_home", message: "The server sent an answer Portico couldn't read." }
+end function
+
+' home.ts `parseServerText`: {ok, text} where text is {code, fallback, params} or invalid when absent.
+function ParseServerText(value as dynamic) as object
+    if value = invalid then return { ok: true, text: invalid }
+    if not IsObject(value) or not IsContentString(value.code, 128) or not IsContentString(value.fallback, 1024) then return { ok: false }
+    if not value.doesExist("params") then return { ok: true, text: { code: value.code, fallback: value.fallback } }
+    if not IsObject(value.params) or value.params.count() > 16 then return { ok: false }
+    params = {}
+    params.setModeCaseSensitive()
+    for each name in value.params.keys()
+        if not IsContentId(name) or not IsContentString(value.params[name], 1024) then return { ok: false }
+        params[name] = value.params[name]
+    end for
+    return { ok: true, text: { code: value.code, fallback: value.fallback, params: params } }
+end function
+
+function ParseHomeRevision(value as dynamic) as dynamic
+    if not IsObject(value) or not IsNatural(value.catalog) or not IsNatural(value.viewer) then return invalid
+    return { catalog: value.catalog, viewer: value.viewer }
+end function
+
+' home.ts `validateHomeRow`: {ok, row}.
+function ParseHomeRow(value as dynamic) as object
+    bad = HomeUnreadable()
+    if not IsObject(value) or not IsContentId(value.id) or not IsContentString(value.title, 1024) or not IsContentId(value.kind) then return bad
+    if not IsString(value.artworkShape) or not ArrayIncludes(["poster", "square", "landscape"], value.artworkShape) then return bad
+    if not IsContentId(value.endpoint) or not IsContentId(value.privacySensitivity) or not IsContentId(value.policyState) then return bad
+    for each field in ["priority", "cacheTtlSeconds", "total", "start", "limit"]
+        if not IsNatural(value[field]) then return bad
+    end for
+    for each flag in ["required", "hideable", "reorderable", "critical", "cursorCapable", "hasMore"]
+        if not IsBoolean(value[flag]) then return bad
+    end for
+    if value.required and value.hideable then return bad
+    if not IsArray(value.entries) or value.entries.count() > 200 or not IsContentString(value.nextCursor, 4096) then return bad
+    entries = ParseContentEntries(value.entries, 200)
+    if entries = invalid or entries.count() > value.total then return bad
+    revision = ParseHomeRevision(value.revision)
+    if revision = invalid then return bad
+    row = {
+        id: value.id, title: value.title, kind: value.kind, artworkShape: value.artworkShape, endpoint: value.endpoint
+        privacySensitivity: value.privacySensitivity, policyState: value.policyState, priority: value.priority
+        cacheTtlSeconds: value.cacheTtlSeconds, required: value.required, hideable: value.hideable
+        reorderable: value.reorderable, critical: value.critical, cursorCapable: value.cursorCapable
+        entries: entries, total: value.total, start: value.start, limit: value.limit
+        hasMore: value.hasMore, nextCursor: value.nextCursor, revision: revision
+        rawEntryCount: value.entries.count()
+    }
+    titleText = ParseServerText(value.titleText)
+    if not titleText.ok then return bad
+    if titleText.text <> invalid then row.titleText = titleText.text
+    for each field in ["explanation", "libraryId", "relation", "provider", "evidenceId", "anchorId", "family"]
+        if value.doesExist(field) then
+            if not IsContentString(value[field], 1024) then return bad
+            row[field] = value[field]
+        end if
+    end for
+    return { ok: true, row: row }
+end function
+
+' home.ts `validateHomeLayout`: {revision, rowOrder, hiddenRowIds}, or invalid.
+function ParseHomeLayout(value as dynamic) as dynamic
+    if not IsObject(value) or not IsNatural(value.revision) or not IsArray(value.rowOrder) or not IsArray(value.hiddenRowIds) then return invalid
+    if value.rowOrder.count() > 64 or value.hiddenRowIds.count() > 64 then return invalid
+    for each list in [value.rowOrder, value.hiddenRowIds]
+        seen = {}
+        seen.setModeCaseSensitive()
+        for each id in list
+            if not IsContentId(id) or seen.doesExist(id) then return invalid
+            seen[id] = true
+        end for
+    end for
+    return { revision: value.revision, rowOrder: value.rowOrder, hiddenRowIds: value.hiddenRowIds }
+end function
+
+' home.ts `validateHomeDocument`: {ok, document: {serverId, viewerFence, rows, hero, layout, revision, generatedAt}}.
+function ParseHomeDocument(value as dynamic) as object
+    bad = HomeUnreadable()
+    if not IsObject(value) or not IsContentId(value.serverId) or not IsContentId(value.viewerFence) or not IsArray(value.rows) or value.rows.count() > 64 then return bad
+    if not IsContentString(value.generatedAt, 128) or value.generatedAt = "" then return bad
+    rows = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each raw in value.rows
+        parsed = ParseHomeRow(raw)
+        if not parsed.ok or seen.doesExist(parsed.row.id) then return bad
+        seen[parsed.row.id] = true
+        rows.push(parsed.row)
+    end for
+    layout = ParseHomeLayout(value.layout)
+    if layout = invalid then return bad
+    ' The server never publishes a row the viewer hid, nor an empty row that is not critical.
+    for each row in rows
+        if ArrayIncludes(layout.hiddenRowIds, row.id) then return bad
+        if row.entries.count() = 0 and row.rawEntryCount = 0 and not row.critical then return bad
+    end for
+    revision = ParseHomeRevision(value.revision)
+    if revision = invalid then return bad
+    document = { serverId: value.serverId, viewerFence: value.viewerFence, rows: rows, layout: layout, revision: revision, generatedAt: value.generatedAt }
+    if value.doesExist("hero") then
+        hero = value.hero
+        if not IsObject(hero) or not IsContentId(hero.rowId) or not IsContentId(hero.entryId) then return bad
+        ' A hero whose entry this client cannot draw (a kind it does not know) is simply absent.
+        for each row in rows
+            if row.id = hero.rowId then
+                for each entry in row.entries
+                    if entry.id = hero.entryId then document.hero = { rowId: hero.rowId, entryId: hero.entryId }
+                end for
+            end if
+        end for
+    end if
+    return { ok: true, document: document }
+end function
+
+' home.ts `homeRowHeading`: a row's title as a heading: its title code and params when it has
+' them, its id and title otherwise.
+function HomeRowHeading(row as object) as object
+    if row.titleText = invalid or row.titleText.code = "" then return { key: row.id, fallback: row.title }
+    heading = { key: row.titleText.code, fallback: row.title }
+    if row.titleText.params <> invalid then heading.params = row.titleText.params
+    return heading
+end function
+
+' Home is a summary: a row paged sideways keeps at most this many entries on the device
+' (home.ts `HOME_ROW_MAX_ENTRIES`, PERF-S14). Past it the row's See all is the full, windowed view.
+function HomeRowMaxEntries() as integer
+    return 100
+end function
+
+' home.ts `appendHomeRowPage`: a row after one more page: new entries appended (duplicates
+' dropped), capped.
+function AppendHomeRowPage(row as object, page as object) as object
+    limit = HomeRowMaxEntries()
+    seen = {}
+    seen.setModeCaseSensitive()
+    entries = []
+    for each entry in row.entries
+        seen[entry.id] = true
+        entries.push(entry)
+    end for
+    for each entry in page.entries
+        if entries.count() < limit and not seen.doesExist(entry.id) then
+            seen[entry.id] = true
+            entries.push(entry)
+        end if
+    end for
+    out = {}
+    out.append(row)
+    out.entries = entries
+    out.nextCursor = page.nextCursor
+    if entries.count() >= limit then out.nextCursor = ""
+    out.hasMore = page.hasMore
+    out.total = page.total
+    return out
+end function
+
+' home.ts `fetchHomeRow`'s path: GET /v1/home/rows/{id}?cursor=…
+function HomeRowPagePath(rowId as string, cursor as string, limit = 0 as integer) as string
+    path = "/v1/home/rows/" + rowId.encodeUriComponent()
+    query = []
+    if limit > 0 then query.push("limit=" + limit.toStr())
+    if cursor <> "" then query.push("cursor=" + cursor.encodeUriComponent())
+    if query.count() > 0 then path = path + "?" + query.join("&")
+    return path
+end function
+
+' home-row-page.ts `HOME_ROW_PAGE_LIMIT`: a row's See all page reads this many entries at a time.
+function HomeRowPageLimit() as integer
+    return 60
+end function
+
+' card-caption.ts `isContinueRow`: the rows of what the viewer is in the middle of.
+function IsContinueRow(rowId as string) as boolean
+    return rowId = "continue" or rowId = "continue_listening" or rowId = "continue_watching"
+end function

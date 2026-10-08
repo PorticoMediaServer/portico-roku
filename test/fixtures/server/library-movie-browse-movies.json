@@ -1,0 +1,1537 @@
+{
+ "pivot": "movies",
+ "applied": {
+  "query": null,
+  "sort": [
+   {
+    "field": "title",
+    "direction": "asc"
+   }
+  ]
+ },
+ "entries": [
+  {
+   "watched": true,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/backdrop?v=ea4b00314a53f302772593f2b4275e98b1a078accc4c3d639cbb7199746f4fd2&w=1920",
+   "rating": 8.574,
+   "resolution": "sd",
+   "id": "FnVfQzincjaryvRl0TA1jw",
+   "kind": "movie",
+   "title": "12 Angry Men",
+   "subtitle": "1957",
+   "posterUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/poster?v=eb1377a0e9a63f2e5117563b1500edb042f517ec7df5a338bdd1cfdcd0d0a449&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1957,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:14.777Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "FnVfQzincjaryvRl0TA1jw"
+   },
+   "playback": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/p5-ALfsYAfyzc1yCLsTv9A/art/backdrop?v=e5b613b5f357a44a241cdd9ca15ffcb076e15fba423ae730416df79c58559df1&w=1920",
+   "rating": 8.174,
+   "resolution": "sd",
+   "id": "p5-ALfsYAfyzc1yCLsTv9A",
+   "kind": "movie",
+   "title": "Alien",
+   "subtitle": "1979",
+   "posterUrl": "/v1/metadata/item/p5-ALfsYAfyzc1yCLsTv9A/art/poster?v=9d3a5ec38ed9ce867b68c294b9815b583750eca67f698421f8fb49f7e3a44e6b&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1979,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:15.348Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "p5-ALfsYAfyzc1yCLsTv9A"
+   },
+   "playback": {
+    "itemId": "p5-ALfsYAfyzc1yCLsTv9A"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/5pMzLjHOUcSto9jQfcupNw/art/backdrop?v=329e83cb9d996b9acb5eef5e621c2ee722727fe0f2503a9487885c401a18526c&w=1920",
+   "rating": 7.967,
+   "resolution": "sd",
+   "id": "5pMzLjHOUcSto9jQfcupNw",
+   "kind": "movie",
+   "title": "Aliens",
+   "subtitle": "1986",
+   "posterUrl": "/v1/metadata/item/5pMzLjHOUcSto9jQfcupNw/art/poster?v=526eedd3d008166d5eb801fa5a05a889267469f8f8a00c9f8a6aa5cc14bbd5c7&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1986,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:15.963Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "5pMzLjHOUcSto9jQfcupNw"
+   },
+   "playback": {
+    "itemId": "5pMzLjHOUcSto9jQfcupNw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/VIl1AgC4v9jTNvqBGtFLKA/art/backdrop?v=da77374bf576b5ed48e4d2376ecb988d51345b7cc8eb0bbe1cf6d299e7e837db&w=1920",
+   "rating": 5.083,
+   "resolution": "sd",
+   "id": "VIl1AgC4v9jTNvqBGtFLKA",
+   "kind": "movie",
+   "title": "Alpha",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/VIl1AgC4v9jTNvqBGtFLKA/art/poster?v=2f375e6026931470265f88ed69c3699d2f4f4bdd26bd6ddda62ede2a970533bc&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:16.586Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "VIl1AgC4v9jTNvqBGtFLKA"
+   },
+   "playback": {
+    "itemId": "VIl1AgC4v9jTNvqBGtFLKA"
+   }
+  },
+  {
+   "watched": true,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "resolution": "720p",
+   "id": "beY2yoj4M5j3h7NaUN4HcQ",
+   "kind": "movie",
+   "title": "Arrival",
+   "subtitle": "2016",
+   "available": false,
+   "duration": 45.023,
+   "year": 2016,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T05:04:22.697Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "beY2yoj4M5j3h7NaUN4HcQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/Bey2xi_FMNzSf5sRGVMbfQ/art/backdrop?v=da52fda10a3001555727291d6a5c1a14018dd61d052a21d9d4eb5925c2945eea&w=1920",
+   "rating": 7.61,
+   "resolution": "sd",
+   "id": "Bey2xi_FMNzSf5sRGVMbfQ",
+   "kind": "movie",
+   "title": "Avatar",
+   "subtitle": "2009",
+   "posterUrl": "/v1/metadata/item/Bey2xi_FMNzSf5sRGVMbfQ/art/poster?v=2ab0046d57c1ca6dbbd0b1a46eae427f438e72279e2602519e62a8a3af24904e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2009,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:17.230Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "Bey2xi_FMNzSf5sRGVMbfQ"
+   },
+   "playback": {
+    "itemId": "Bey2xi_FMNzSf5sRGVMbfQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/_pJnqdRK04iw157pZmvg-w/art/backdrop?v=b352271c5c2dafc14fd557cb591b159c4c303ba065d98914f9237eb416c7e230&w=1920",
+   "rating": 8.079,
+   "resolution": "sd",
+   "id": "_pJnqdRK04iw157pZmvg-w",
+   "kind": "movie",
+   "title": "The Avengers",
+   "subtitle": "2012",
+   "posterUrl": "/v1/metadata/item/_pJnqdRK04iw157pZmvg-w/art/poster?v=aa8fd567151e7562608ed396ed35e452a96d9957230b3492eb79eeae18a53e77&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2012,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:46.052Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "_pJnqdRK04iw157pZmvg-w"
+   },
+   "playback": {
+    "itemId": "_pJnqdRK04iw157pZmvg-w"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/y8oXiJeHazf4OV8zL5ojaw/art/backdrop?v=75d456773e5c5c3901f1bf555e5b7d121b393ccd0221181f9c291bc5c5e663b4&w=1920",
+   "rating": 8.245,
+   "resolution": "sd",
+   "id": "y8oXiJeHazf4OV8zL5ojaw",
+   "kind": "movie",
+   "title": "Avengers: Endgame",
+   "subtitle": "2019",
+   "posterUrl": "/v1/metadata/item/y8oXiJeHazf4OV8zL5ojaw/art/poster?v=8558693e26908b56e883465352338467984711b9f4a034698f542f54465c60cb&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2019,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:17.799Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "y8oXiJeHazf4OV8zL5ojaw"
+   },
+   "playback": {
+    "itemId": "y8oXiJeHazf4OV8zL5ojaw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/Lm8f_gi0D9dWFg0c70U1Mw/art/backdrop?v=1522fddb438adc89d4a447efe1746e40b1408057eeed698cbd62935bcace9b4e&w=1920",
+   "rating": 8.244,
+   "resolution": "sd",
+   "id": "Lm8f_gi0D9dWFg0c70U1Mw",
+   "kind": "movie",
+   "title": "Avengers: Infinity War",
+   "subtitle": "2018",
+   "posterUrl": "/v1/metadata/item/Lm8f_gi0D9dWFg0c70U1Mw/art/poster?v=1e9c62ec2762ef3d766b1e30719c5b9934e66332386a54db2da4c0f36eb37a12&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2018,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:18.373Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "Lm8f_gi0D9dWFg0c70U1Mw"
+   },
+   "playback": {
+    "itemId": "Lm8f_gi0D9dWFg0c70U1Mw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/dUZNQGlhCsSl-eHSf0R8dg/art/backdrop?v=4b6c6e0485ca42a29277737d41a186360a44b3f073885640bbcd7b0bf709f353&w=1920",
+   "rating": 8.33,
+   "resolution": "sd",
+   "id": "dUZNQGlhCsSl-eHSf0R8dg",
+   "kind": "movie",
+   "title": "Back to the Future",
+   "subtitle": "1985",
+   "posterUrl": "/v1/metadata/item/dUZNQGlhCsSl-eHSf0R8dg/art/poster?v=51e462a2e634ecc755b4a3440cbbe56dab706b815bf990fddfb753ba5a0ecb80&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1985,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:19.003Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "dUZNQGlhCsSl-eHSf0R8dg"
+   },
+   "playback": {
+    "itemId": "dUZNQGlhCsSl-eHSf0R8dg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/HXpEAgjJXZYbh9Iyn7fExQ/art/backdrop?v=97e49733b81c7fcdeecaad2f7d9eba7c00a58b4c8f5f0702dc53fd387b883b24&w=1920",
+   "rating": 7.02,
+   "resolution": "sd",
+   "id": "HXpEAgjJXZYbh9Iyn7fExQ",
+   "kind": "movie",
+   "title": "Backrooms",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/HXpEAgjJXZYbh9Iyn7fExQ/art/poster?v=71205797efec538fec76f2b90d1cfddc67274366cc61e8be8afba19d3fa68d95&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:19.588Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "HXpEAgjJXZYbh9Iyn7fExQ"
+   },
+   "playback": {
+    "itemId": "HXpEAgjJXZYbh9Iyn7fExQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/_G7paDI9ycW_YRC-kO2Rrg/art/backdrop?v=a8ac4256fe75de1068c598c89738e23a760da5ce74196aa4bc31670f73d80c58&w=1920",
+   "rating": 6.907,
+   "resolution": "sd",
+   "id": "_G7paDI9ycW_YRC-kO2Rrg",
+   "kind": "movie",
+   "title": "Barbie",
+   "subtitle": "2023",
+   "posterUrl": "/v1/metadata/item/_G7paDI9ycW_YRC-kO2Rrg/art/poster?v=2e548a554362629a2207294e1a76f2c4a1ca2c8da58f75089bf5cdecf781a5f9&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2023,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:20.191Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "_G7paDI9ycW_YRC-kO2Rrg"
+   },
+   "playback": {
+    "itemId": "_G7paDI9ycW_YRC-kO2Rrg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/V8TT3n2HcXi0lKwgW0Fuqg/art/backdrop?v=feebe04b6957d2a14826d997b982e387511ed511f1de44efea5a9f08aeb3f966&w=1920",
+   "rating": 6.5,
+   "resolution": "720p",
+   "id": "V8TT3n2HcXi0lKwgW0Fuqg",
+   "kind": "movie",
+   "title": "Big Buck Bunny",
+   "subtitle": "2008",
+   "posterUrl": "/v1/metadata/item/V8TT3n2HcXi0lKwgW0Fuqg/art/poster?v=d9a8f38882439583d2be9d02bf40f8756e3c3e03eae7f1f8dac6aa9cb4b95593&w=400",
+   "available": true,
+   "duration": 30,
+   "year": 2008,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-03T09:18:21.411Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "V8TT3n2HcXi0lKwgW0Fuqg"
+   },
+   "playback": {
+    "itemId": "V8TT3n2HcXi0lKwgW0Fuqg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/ymnkJz8MBT73UVWYrkaXvg/art/backdrop?v=71ab9b0c35242298d84cbbd77efd6bf7cff043497d43e69390505229c4e2ae69&w=1920",
+   "rating": 7.936,
+   "resolution": "sd",
+   "id": "ymnkJz8MBT73UVWYrkaXvg",
+   "kind": "movie",
+   "title": "Blade Runner",
+   "subtitle": "1982",
+   "posterUrl": "/v1/metadata/item/ymnkJz8MBT73UVWYrkaXvg/art/poster?v=b1f49507009159fb8dfb56e16775da54454ba9b8ddfcd3bb74c166739a27ceed&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1982,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:20.753Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "ymnkJz8MBT73UVWYrkaXvg"
+   },
+   "playback": {
+    "itemId": "ymnkJz8MBT73UVWYrkaXvg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/wrUmR23BVPH2a-KDdkmktQ/art/backdrop?v=2f2ea5157fa25d2d277a51663fe256921da843240b0637819eae45d42a317c06&w=1920",
+   "rating": 7.554,
+   "resolution": "sd",
+   "id": "wrUmR23BVPH2a-KDdkmktQ",
+   "kind": "movie",
+   "title": "Coyote vs. Acme",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/wrUmR23BVPH2a-KDdkmktQ/art/poster?v=a3fc834a5b8fcd2ff6ef888a86de20798cea475c85ff4d8af443e5578955052c&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:21.376Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "wrUmR23BVPH2a-KDdkmktQ"
+   },
+   "playback": {
+    "itemId": "wrUmR23BVPH2a-KDdkmktQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/ts6hDDGBfJOO1xm106cwBA/art/backdrop?v=a3d17a070b0e2796ca972c4e7913e0f86a6a17da05a1cab6564b9a1e4b0f2c5f&w=1920",
+   "rating": 8.537,
+   "resolution": "sd",
+   "id": "ts6hDDGBfJOO1xm106cwBA",
+   "kind": "movie",
+   "title": "The Dark Knight",
+   "subtitle": "2008",
+   "posterUrl": "/v1/metadata/item/ts6hDDGBfJOO1xm106cwBA/art/poster?v=1e8c9af3d5d8747396057b10f58227ba43d89bd83d11361b4aa4b57ff21f217b&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2008,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:46.643Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "ts6hDDGBfJOO1xm106cwBA"
+   },
+   "playback": {
+    "itemId": "ts6hDDGBfJOO1xm106cwBA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/0DU3BGRwBxGYUQmeSfMMkw/art/backdrop?v=f060c5397210931f95577c49f230a462b1112a6f2be9b8f667ba028a49de9c32&w=1920",
+   "rating": 6.8,
+   "resolution": "sd",
+   "id": "0DU3BGRwBxGYUQmeSfMMkw",
+   "kind": "movie",
+   "title": "Drawn Together",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/0DU3BGRwBxGYUQmeSfMMkw/art/poster?v=1e2f2c4b65b884db569d2f98108e835015acae4b164ece3d2b4cfc0d6501d0ad&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:21.976Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "0DU3BGRwBxGYUQmeSfMMkw"
+   },
+   "playback": {
+    "itemId": "0DU3BGRwBxGYUQmeSfMMkw"
+   }
+  },
+  {
+   "watched": true,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/wvbgAqyZ3z1zaMtce5c3ug/art/backdrop?v=9374cea27f314ae5b25bedfa341fa97c86ef946a851aa019c58a707ffc09b999&w=1920",
+   "rating": 7.8,
+   "resolution": "sd",
+   "id": "wvbgAqyZ3z1zaMtce5c3ug",
+   "kind": "movie",
+   "title": "Dune",
+   "subtitle": "2021",
+   "posterUrl": "/v1/metadata/item/wvbgAqyZ3z1zaMtce5c3ug/art/poster?v=6e1907651f0f3fa03f451e65205c8c0d25f40bcf618f9e27df54b8b2b6ec420b&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2021,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:22.580Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "wvbgAqyZ3z1zaMtce5c3ug"
+   },
+   "playback": {
+    "itemId": "wvbgAqyZ3z1zaMtce5c3ug"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/t6O-HQibz2LvaR8QnLyESg/art/backdrop?v=9374cea27f314ae5b25bedfa341fa97c86ef946a851aa019c58a707ffc09b999&w=1920",
+   "rating": 7.784,
+   "resolution": "720p",
+   "id": "t6O-HQibz2LvaR8QnLyESg",
+   "kind": "movie",
+   "title": "Dune",
+   "subtitle": "2021",
+   "posterUrl": "/v1/metadata/item/t6O-HQibz2LvaR8QnLyESg/art/poster?v=6e1907651f0f3fa03f451e65205c8c0d25f40bcf618f9e27df54b8b2b6ec420b&w=400",
+   "available": true,
+   "duration": 90.021,
+   "year": 2021,
+   "progressSeconds": 30.008,
+   "addedAt": "2026-10-02T04:57:36.348Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "t6O-HQibz2LvaR8QnLyESg"
+   },
+   "playback": {
+    "itemId": "t6O-HQibz2LvaR8QnLyESg"
+   }
+  },
+  {
+   "watched": true,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/KC-CUfhKbXASZccFLIQLZg/art/backdrop?v=8f39e8d1cee7994daf17959fce6ea8642b62877dcf29af5139d16e1ce3fcf563&w=1920",
+   "rating": 8.138,
+   "resolution": "sd",
+   "id": "KC-CUfhKbXASZccFLIQLZg",
+   "kind": "movie",
+   "title": "Dune: Part Two",
+   "subtitle": "2024",
+   "posterUrl": "/v1/metadata/item/KC-CUfhKbXASZccFLIQLZg/art/poster?v=cc84d63ea94a04f144076dc524651b80e79996e3fb0b87a4b03c5c58585b3e83&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2024,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:23.188Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "KC-CUfhKbXASZccFLIQLZg"
+   },
+   "playback": {
+    "itemId": "KC-CUfhKbXASZccFLIQLZg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/uvexyG1WHo4Kky5ijFEmoQ/art/backdrop?v=1d887ace4537ea2517cecae0f276d6cb119d23d4d364ffc998c6ae91494b8d23&w=1920",
+   "rating": 8.393,
+   "resolution": "sd",
+   "id": "uvexyG1WHo4Kky5ijFEmoQ",
+   "kind": "movie",
+   "title": "The Empire Strikes Back",
+   "subtitle": "1980",
+   "posterUrl": "/v1/metadata/item/uvexyG1WHo4Kky5ijFEmoQ/art/poster?v=08661ca554528e58d718b89cea29f8bc12f32c491f618f6ec1ccbc4228f5ed67&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1980,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:47.225Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "uvexyG1WHo4Kky5ijFEmoQ"
+   },
+   "playback": {
+    "itemId": "uvexyG1WHo4Kky5ijFEmoQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/VCL7bPj4HZ_mOLY4thS6aw/art/backdrop?v=7bac096c251afe86fe73a857310e4ac55bb7f0504be1d5bb628f59d4e1cf07b1&w=1920",
+   "rating": 7.053,
+   "resolution": "sd",
+   "id": "VCL7bPj4HZ_mOLY4thS6aw",
+   "kind": "movie",
+   "title": "The End of Oak Street",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/VCL7bPj4HZ_mOLY4thS6aw/art/poster?v=dd4e9eac2c385a15eaead76a443da3e946cd22fee8ff1614297800ea62fb371c&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:47.897Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "VCL7bPj4HZ_mOLY4thS6aw"
+   },
+   "playback": {
+    "itemId": "VCL7bPj4HZ_mOLY4thS6aw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/T5MdRYfh6FRwPG4BeuwWjg/art/backdrop?v=f8d5998ebee55f1ad372d0c62f27da244f69dd32d33f8a3699066249ef7b43d7&w=1920",
+   "rating": 8.437,
+   "resolution": "sd",
+   "id": "T5MdRYfh6FRwPG4BeuwWjg",
+   "kind": "movie",
+   "title": "Fight Club",
+   "subtitle": "1999",
+   "posterUrl": "/v1/metadata/item/T5MdRYfh6FRwPG4BeuwWjg/art/poster?v=627e3eb64b4c07dfea8f09fa42580a15900dd343af5073e84ec25547bc1892de&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1999,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:23.766Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "T5MdRYfh6FRwPG4BeuwWjg"
+   },
+   "playback": {
+    "itemId": "T5MdRYfh6FRwPG4BeuwWjg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/cV7RBrFN52KA1vXPyvT3VQ/art/backdrop?v=75879060b342c384dce2dfb8b1f094748e31b595dc8a7661aa75b598daeb278e&w=1920",
+   "rating": 7.179,
+   "resolution": "sd",
+   "id": "cV7RBrFN52KA1vXPyvT3VQ",
+   "kind": "movie",
+   "title": "The Fix",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/cV7RBrFN52KA1vXPyvT3VQ/art/poster?v=62add5e94e27b9ef6469ca6fffb1e223faa4e6b8dff308170204af173d4706fd&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:48.443Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "cV7RBrFN52KA1vXPyvT3VQ"
+   },
+   "playback": {
+    "itemId": "cV7RBrFN52KA1vXPyvT3VQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/iEY5eCPZtFWdz18iLP-UDg/art/backdrop?v=8f9ddab6e24702d8d2d676deeaa71b55963431213cbc0b4ebbdab8bd9368179c&w=1920",
+   "rating": 8.461,
+   "resolution": "sd",
+   "id": "iEY5eCPZtFWdz18iLP-UDg",
+   "kind": "movie",
+   "title": "Forrest Gump",
+   "subtitle": "1994",
+   "posterUrl": "/v1/metadata/item/iEY5eCPZtFWdz18iLP-UDg/art/poster?v=9228ebc4fc4e10adedf2f8e09cae0bfc3f53637cedd5af19c9687a3adef03b95&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1994,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:24.377Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "iEY5eCPZtFWdz18iLP-UDg"
+   },
+   "playback": {
+    "itemId": "iEY5eCPZtFWdz18iLP-UDg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/RmCoJCvBUsUpxUsFvbTR3w/art/backdrop?v=309567c8b2f9302b46ffd1ea3ec6998824ef9762fc011ccf3785bd4cf5a25dc9&w=1920",
+   "rating": 8.231,
+   "resolution": "sd",
+   "id": "RmCoJCvBUsUpxUsFvbTR3w",
+   "kind": "movie",
+   "title": "Gladiator",
+   "subtitle": "2000",
+   "posterUrl": "/v1/metadata/item/RmCoJCvBUsUpxUsFvbTR3w/art/poster?v=0164cfdeea11fd1c5848a871c6118867405f81554e8ff566038bacbba5da1145&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2000,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:24.976Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "RmCoJCvBUsUpxUsFvbTR3w"
+   },
+   "playback": {
+    "itemId": "RmCoJCvBUsUpxUsFvbTR3w"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/backdrop?v=01713ca725b58fd74807acf00d43c340d90bde9a58304af49ea9119d43b143f4&w=1920",
+   "rating": 8.688,
+   "resolution": "sd",
+   "id": "jYY0bqzSZAYSmDdF3rEWmA",
+   "kind": "movie",
+   "title": "The Godfather",
+   "subtitle": "1972",
+   "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1972,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:49.083Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+   },
+   "playback": {
+    "itemId": "jYY0bqzSZAYSmDdF3rEWmA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/DZs2il2jVWj_ZdSIruE0nA/art/backdrop?v=d92ad89926b8c43010307fd6df14c90954528d287b2c2a5212bfa718e935d62b&w=1920",
+   "rating": 8.573,
+   "resolution": "sd",
+   "id": "DZs2il2jVWj_ZdSIruE0nA",
+   "kind": "movie",
+   "title": "The Godfather Part II",
+   "subtitle": "1974",
+   "posterUrl": "/v1/metadata/item/DZs2il2jVWj_ZdSIruE0nA/art/poster?v=5b9396d9c07576d5c0f87516e3fc1989394fd2cd932fa5d8b3636e60ad71bb88&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1974,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:49.659Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "DZs2il2jVWj_ZdSIruE0nA"
+   },
+   "playback": {
+    "itemId": "DZs2il2jVWj_ZdSIruE0nA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/E98BeAQtDVbhDJFe9TQWCg/art/backdrop?v=60df4265eaf9517f542c9c6067840f9558aa331e22276f269e0cbe2ca978abc5&w=1920",
+   "rating": 8.45,
+   "resolution": "sd",
+   "id": "E98BeAQtDVbhDJFe9TQWCg",
+   "kind": "movie",
+   "title": "GoodFellas",
+   "subtitle": "1990",
+   "posterUrl": "/v1/metadata/item/E98BeAQtDVbhDJFe9TQWCg/art/poster?v=9a2d3d449519c4b93b28373f3ed263a99a00cde039334b2b8bcbca2c5edbbd09&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1990,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:25.569Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "E98BeAQtDVbhDJFe9TQWCg"
+   },
+   "playback": {
+    "itemId": "E98BeAQtDVbhDJFe9TQWCg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/0Xu1HSbD_cjluhIbgoVBZQ/art/backdrop?v=fa6a18c8c49308e0e2c455a3af1043e973c49854d448da8726bec8791404b4e6&w=1920",
+   "rating": 8.45,
+   "resolution": "sd",
+   "id": "0Xu1HSbD_cjluhIbgoVBZQ",
+   "kind": "movie",
+   "title": "Grave of the Fireflies",
+   "subtitle": "1988",
+   "posterUrl": "/v1/metadata/item/0Xu1HSbD_cjluhIbgoVBZQ/art/poster?v=2a336d27fbbbd9ed6228fea2c8e16e2f316069c8c1d43a99cb9fe58dfce2856f&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1988,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:26.198Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "0Xu1HSbD_cjluhIbgoVBZQ"
+   },
+   "playback": {
+    "itemId": "0Xu1HSbD_cjluhIbgoVBZQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/MbvgJV0I6OP_2PiDdG57HA/art/backdrop?v=8978c683db9e4182c553cd96323651f9ea73eaf2969b230dc3887f7c4a9dfff3&w=1920",
+   "rating": 8.506,
+   "resolution": "sd",
+   "id": "MbvgJV0I6OP_2PiDdG57HA",
+   "kind": "movie",
+   "title": "The Green Mile",
+   "subtitle": "1999",
+   "posterUrl": "/v1/metadata/item/MbvgJV0I6OP_2PiDdG57HA/art/poster?v=f0bb1573e03dc239e8f432a058bdc24aeaa8747f6a7dced307408a82bbb31f9c&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1999,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:50.236Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "MbvgJV0I6OP_2PiDdG57HA"
+   },
+   "playback": {
+    "itemId": "MbvgJV0I6OP_2PiDdG57HA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/pifG-3ffrLZT3oOfvqjKQw/art/backdrop?v=9c7829ea8f85769f845912775a38579d7ae794934ff51980090d005bf633b857&w=1920",
+   "rating": 7.22,
+   "resolution": "sd",
+   "id": "pifG-3ffrLZT3oOfvqjKQw",
+   "kind": "movie",
+   "title": "Hope",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/pifG-3ffrLZT3oOfvqjKQw/art/poster?v=43e6c98243aa42a30b777aec4e5fdaf61270a8c4291769bf02e0b5739f43c25d&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:26.766Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "pifG-3ffrLZT3oOfvqjKQw"
+   },
+   "playback": {
+    "itemId": "pifG-3ffrLZT3oOfvqjKQw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/vXWtUJAEQ241sbpLR9x_kg/art/backdrop?v=b6804b7d6a4be81d775c45b735effb2c04d4eca95be56b9335c6bd2bd4040cd1&w=1920",
+   "rating": 7.868,
+   "resolution": "sd",
+   "id": "vXWtUJAEQ241sbpLR9x_kg",
+   "kind": "movie",
+   "title": "How to Train Your Dragon",
+   "subtitle": "2010",
+   "posterUrl": "/v1/metadata/item/vXWtUJAEQ241sbpLR9x_kg/art/poster?v=e74cc987c7e5b1899962df4fa8e05d629dd29e0892cfab4a914a3cc5ea5fbba1&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2010,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:27.394Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "vXWtUJAEQ241sbpLR9x_kg"
+   },
+   "playback": {
+    "itemId": "vXWtUJAEQ241sbpLR9x_kg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/r1CtLp6xQId25P--kvpDiA/art/backdrop?v=20e7f25e44fcfa2ea9f6f48991f8e9f5bca21b1c2541fa58eefab8a7708d8d7a&w=1920",
+   "rating": 8.374,
+   "resolution": "sd",
+   "id": "r1CtLp6xQId25P--kvpDiA",
+   "kind": "movie",
+   "title": "Inception",
+   "subtitle": "2010",
+   "posterUrl": "/v1/metadata/item/r1CtLp6xQId25P--kvpDiA/art/poster?v=d000514fa33c16ee1885ee728679f455fbe3a1115e2c3049bacf8f1bdad15341&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2010,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:27.975Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "r1CtLp6xQId25P--kvpDiA"
+   },
+   "playback": {
+    "itemId": "r1CtLp6xQId25P--kvpDiA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/oQUcYTbpK5t02B9iGwI_1w/art/backdrop?v=577cb66563b650cb0352a1195a92ba09e690406b4a509eabd43aac2690f82914&w=1920",
+   "rating": 7.729,
+   "resolution": "sd",
+   "id": "oQUcYTbpK5t02B9iGwI_1w",
+   "kind": "movie",
+   "title": "The Incredibles",
+   "subtitle": "2004",
+   "posterUrl": "/v1/metadata/item/oQUcYTbpK5t02B9iGwI_1w/art/poster?v=b6f237f7a92bf326cb70b571a0e098958a35e7c5ab34156a998eaee2371d6b6e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2004,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:50.860Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "oQUcYTbpK5t02B9iGwI_1w"
+   },
+   "playback": {
+    "itemId": "oQUcYTbpK5t02B9iGwI_1w"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/Ps4xLMC2g00XpHhSdUsEyQ/art/backdrop?v=06ecd2c0a66e51333e34568701ea5a78ac87746de057da00be2f0ba8d6937f3d&w=1920",
+   "rating": 7.453,
+   "resolution": "sd",
+   "id": "Ps4xLMC2g00XpHhSdUsEyQ",
+   "kind": "movie",
+   "title": "Incredibles 2",
+   "subtitle": "2018",
+   "posterUrl": "/v1/metadata/item/Ps4xLMC2g00XpHhSdUsEyQ/art/poster?v=6498ccefed41ac81c615aaa02683c89ea9ceec071c03f17294b87ba493c2b692&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2018,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:28.576Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "Ps4xLMC2g00XpHhSdUsEyQ"
+   },
+   "playback": {
+    "itemId": "Ps4xLMC2g00XpHhSdUsEyQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/L9w0rUoGiluwAY9VMEr70Q/art/backdrop?v=e1a4f1e47a8fecfa5a50eec872ba919c6b5b24285dae4b7cf44136528a475013&w=1920",
+   "rating": 7.9,
+   "resolution": "sd",
+   "id": "L9w0rUoGiluwAY9VMEr70Q",
+   "kind": "movie",
+   "title": "Inside Out",
+   "subtitle": "2015",
+   "posterUrl": "/v1/metadata/item/L9w0rUoGiluwAY9VMEr70Q/art/poster?v=a2b0eb398643611c4e64dcb46d25cf37c5278b68a12392c018fba8fca80a0125&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2015,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:29.216Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "L9w0rUoGiluwAY9VMEr70Q"
+   },
+   "playback": {
+    "itemId": "L9w0rUoGiluwAY9VMEr70Q"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+   "rating": 8.489,
+   "resolution": "sd",
+   "id": "YEa_W0N2olpVOk2F8yR1mA",
+   "kind": "movie",
+   "title": "Interstellar",
+   "subtitle": "2014",
+   "posterUrl": "/v1/metadata/item/YEa_W0N2olpVOk2F8yR1mA/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2014,
+   "progressSeconds": 27.582,
+   "addedAt": "2026-10-02T04:02:29.777Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "YEa_W0N2olpVOk2F8yR1mA"
+   },
+   "playback": {
+    "itemId": "YEa_W0N2olpVOk2F8yR1mA"
+   }
+  },
+  {
+   "watched": true,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/backdrop?v=33d477e4f863e5603cd84012307b8acb20f668565df53f45d26501a1d1183cdd&w=1920",
+   "rating": 8.489,
+   "resolution": "sd",
+   "id": "5z16dE7IyIlNQHZH3YWJJQ",
+   "kind": "movie",
+   "title": "Interstellar",
+   "subtitle": "2014",
+   "posterUrl": "/v1/metadata/item/5z16dE7IyIlNQHZH3YWJJQ/art/poster?v=b61fdac6969d8c131727a796991e78f784c5aff63f1318d141bb4fb74b5e675d&w=400",
+   "available": true,
+   "duration": 240.023,
+   "year": 2014,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T05:08:59.527Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "5z16dE7IyIlNQHZH3YWJJQ"
+   },
+   "playback": {
+    "itemId": "5z16dE7IyIlNQHZH3YWJJQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/BqFINRo1AWFS9UlF6fBXpw/art/backdrop?v=a426a9e572ad800d675830630d241f8816c9de0ddce471df6f9967463f4350cb&w=1920",
+   "rating": 7.687,
+   "resolution": "sd",
+   "id": "BqFINRo1AWFS9UlF6fBXpw",
+   "kind": "movie",
+   "title": "Jaws",
+   "subtitle": "1975",
+   "posterUrl": "/v1/metadata/item/BqFINRo1AWFS9UlF6fBXpw/art/poster?v=02644b41092e81a4f1579233d09e713d4a593d54603561a8e8c0ca7b213f1681&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1975,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:30.407Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "BqFINRo1AWFS9UlF6fBXpw"
+   },
+   "playback": {
+    "itemId": "BqFINRo1AWFS9UlF6fBXpw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/Gk77agMbMFWlwLe-U77QKw/art/backdrop?v=9a73f76e5e62d416de2ec6f4e3b35aaa823f5a2562bd84c51a7a06f789424130&w=1920",
+   "rating": 7.976,
+   "resolution": "sd",
+   "id": "Gk77agMbMFWlwLe-U77QKw",
+   "kind": "movie",
+   "title": "Jurassic Park",
+   "subtitle": "1993",
+   "posterUrl": "/v1/metadata/item/Gk77agMbMFWlwLe-U77QKw/art/poster?v=b46ea47f1559d9dbefc66a0b49edcbaac3960f7d7c4f40224a16c05f55ff4769&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1993,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:30.990Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "Gk77agMbMFWlwLe-U77QKw"
+   },
+   "playback": {
+    "itemId": "Gk77agMbMFWlwLe-U77QKw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/U06TYO13ESWEGXgSwkKFiQ/art/backdrop?v=64cd33e3f9b3473fc1cd6bc81782d96313cba67d20910e37dc6bb675db21c3f0&w=1920",
+   "rating": 8.446,
+   "resolution": "sd",
+   "id": "U06TYO13ESWEGXgSwkKFiQ",
+   "kind": "movie",
+   "title": "The Lord of the Rings: The Fellowship of the Ring",
+   "subtitle": "2001",
+   "posterUrl": "/v1/metadata/item/U06TYO13ESWEGXgSwkKFiQ/art/poster?v=029a12b70f4dd0243addcdc605275edbc24e79bd8bc2fc5d9602611f662a9b67&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2001,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:51.453Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "U06TYO13ESWEGXgSwkKFiQ"
+   },
+   "playback": {
+    "itemId": "U06TYO13ESWEGXgSwkKFiQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/1ALEHUIhinjn5V9lgZpjew/art/backdrop?v=01389149241d1c3643f098944c3cfb98f82510c7d44eccbf994a473ce495d32f&w=1920",
+   "rating": 8.505,
+   "resolution": "sd",
+   "id": "1ALEHUIhinjn5V9lgZpjew",
+   "kind": "movie",
+   "title": "The Lord of the Rings: The Return of the King",
+   "subtitle": "2003",
+   "posterUrl": "/v1/metadata/item/1ALEHUIhinjn5V9lgZpjew/art/poster?v=d6a38ac38f0b52752c8707224d0b380f965959ec488cd4806c7e73548c5f2dfe&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2003,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:52.060Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "1ALEHUIhinjn5V9lgZpjew"
+   },
+   "playback": {
+    "itemId": "1ALEHUIhinjn5V9lgZpjew"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/kXH-nfSl1_Fw9QhSTZEIOQ/art/backdrop?v=452ac9d7771f42a15b3d4bbe81d63ab70c413b4a1be5c16a071cd9c999cc95f2&w=1920",
+   "rating": 8.429,
+   "resolution": "sd",
+   "id": "kXH-nfSl1_Fw9QhSTZEIOQ",
+   "kind": "movie",
+   "title": "The Lord of the Rings: The Two Towers",
+   "subtitle": "2002",
+   "posterUrl": "/v1/metadata/item/kXH-nfSl1_Fw9QhSTZEIOQ/art/poster?v=f2544ed15cf41fd5bd5c7e304537236f27113d1b774bc451cd298a0449d163eb&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2002,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:52.666Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "kXH-nfSl1_Fw9QhSTZEIOQ"
+   },
+   "playback": {
+    "itemId": "kXH-nfSl1_Fw9QhSTZEIOQ"
+   }
+  },
+  {
+   "watched": true,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/kCxZzhYCNyBWfdpJn34zAA/art/backdrop?v=2e5b38aa113c771b2170a3c9bdf2f112b107639038f38616889efcef5dcc638a&w=1920",
+   "rating": 8.26,
+   "resolution": "sd",
+   "id": "kCxZzhYCNyBWfdpJn34zAA",
+   "kind": "movie",
+   "title": "The Matrix",
+   "subtitle": "1999",
+   "posterUrl": "/v1/metadata/item/kCxZzhYCNyBWfdpJn34zAA/art/poster?v=b5be6208351cdb33adf9ffb02c1f8676143dc86c15da3f6fecaca2d4e7fcdf09&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1999,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:53.237Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "kCxZzhYCNyBWfdpJn34zAA"
+   },
+   "playback": {
+    "itemId": "kCxZzhYCNyBWfdpJn34zAA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/pJrFnOw8waaZK-ZJjgCl-A/art/backdrop?v=0c2792c3a6a6362ca2826418c118d81bddb06cedfa857014125f9591702c53b8&w=1920",
+   "rating": 7.97,
+   "resolution": "sd",
+   "id": "pJrFnOw8waaZK-ZJjgCl-A",
+   "kind": "movie",
+   "title": "Mayday",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/pJrFnOw8waaZK-ZJjgCl-A/art/poster?v=dd6c511571d079f964c2083a606b7a2074c788a130820a667a98f54f083a5cd5&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:31.601Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "pJrFnOw8waaZK-ZJjgCl-A"
+   },
+   "playback": {
+    "itemId": "pJrFnOw8waaZK-ZJjgCl-A"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/OfgyR1tYaHqpMg-RHH90Qg/art/backdrop?v=55c802bfa6a4e8f943330e48b33fa6bdde03ac97c03da3ac511ae428c09f11a6&w=1920",
+   "rating": 7.398,
+   "resolution": "sd",
+   "id": "OfgyR1tYaHqpMg-RHH90Qg",
+   "kind": "movie",
+   "title": "Moana",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/OfgyR1tYaHqpMg-RHH90Qg/art/poster?v=c409c3304f071c7a3077637e84a5f18089b0bb9a85bd5e29de15e01d393f3f2e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:32.214Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "OfgyR1tYaHqpMg-RHH90Qg"
+   },
+   "playback": {
+    "itemId": "OfgyR1tYaHqpMg-RHH90Qg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/dgsJgFTVlzE3D9TXLZfUKA/art/backdrop?v=ec1d4534f64a3ecc1ae51b0c10d02a2c117418927d87c5efec31dbeb2aafc015&w=1920",
+   "rating": 7.9,
+   "resolution": "sd",
+   "id": "dgsJgFTVlzE3D9TXLZfUKA",
+   "kind": "movie",
+   "title": "Monsters, Inc.",
+   "subtitle": "2001",
+   "posterUrl": "/v1/metadata/item/dgsJgFTVlzE3D9TXLZfUKA/art/poster?v=8cf9c18fceac142a3b9b05c025a10eb4621a620dc128838ea084431f2548184e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2001,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:32.814Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "dgsJgFTVlzE3D9TXLZfUKA"
+   },
+   "playback": {
+    "itemId": "dgsJgFTVlzE3D9TXLZfUKA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/e6FKU_0xhr6U2ueq_RM-OA/art/backdrop?v=7e3080681914f689fd1204f54c7fb69456313fb309c2350c62694e0bb5d54e18&w=1920",
+   "rating": 8.186,
+   "resolution": "sd",
+   "id": "e6FKU_0xhr6U2ueq_RM-OA",
+   "kind": "movie",
+   "title": "Obsession",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/e6FKU_0xhr6U2ueq_RM-OA/art/poster?v=7088ab6acd58e27a39f145316d665d148aa161b2b9cbbed306e48e42f7036a2e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:33.417Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "e6FKU_0xhr6U2ueq_RM-OA"
+   },
+   "playback": {
+    "itemId": "e6FKU_0xhr6U2ueq_RM-OA"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/iLqxit9xW6O-v9-cnshjbg/art/backdrop?v=26517e37e08f9af5b970c115787d009a3535e55aa20f68d5a12d0050668ae2ab&w=1920",
+   "rating": 8.011,
+   "resolution": "sd",
+   "id": "iLqxit9xW6O-v9-cnshjbg",
+   "kind": "movie",
+   "title": "The Odyssey",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/iLqxit9xW6O-v9-cnshjbg/art/poster?v=e25fbc6e79bca041e27ddc65dfa562f6d7278dfdd01b098ef2c52a658a4d6ce8&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:53.854Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "iLqxit9xW6O-v9-cnshjbg"
+   },
+   "playback": {
+    "itemId": "iLqxit9xW6O-v9-cnshjbg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/A-lx0HQACuybqDB5Cqr7ug/art/backdrop?v=6661302c75b21459fecf63e313272df4b59e1bc724d103ad274532b704944064&w=1920",
+   "rating": 8.404,
+   "resolution": "sd",
+   "id": "A-lx0HQACuybqDB5Cqr7ug",
+   "kind": "movie",
+   "title": "One Flew Over the Cuckoo's Nest",
+   "subtitle": "1975",
+   "posterUrl": "/v1/metadata/item/A-lx0HQACuybqDB5Cqr7ug/art/poster?v=ee1bf05e3b1acf2910a355ff600c084603bd1da8c5aa07439aa3c39bf6ebf8ce&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1975,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:34.012Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "A-lx0HQACuybqDB5Cqr7ug"
+   },
+   "playback": {
+    "itemId": "A-lx0HQACuybqDB5Cqr7ug"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/QHtgSncitIITpR8iZjG8fw/art/backdrop?v=8c4847230bcf2ccc55aa07875e4700e79d9e76d7cb688bb6a643fdbbe78e331e&w=1920",
+   "rating": 6.465,
+   "resolution": "sd",
+   "id": "QHtgSncitIITpR8iZjG8fw",
+   "kind": "movie",
+   "title": "One Night Only",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/QHtgSncitIITpR8iZjG8fw/art/poster?v=33f2c09adef0335c939f9f9148c274f37a998379bbd25701b7391826a5fe5c46&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:34.608Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "QHtgSncitIITpR8iZjG8fw"
+   },
+   "playback": {
+    "itemId": "QHtgSncitIITpR8iZjG8fw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/eQzAv9woWEVDYred2rTYTg/art/backdrop?v=968d1bedde89686ae13739391bb99bd3898f3bf43b5b6338077570caeeccf948&w=1920",
+   "rating": 8.022,
+   "resolution": "sd",
+   "id": "eQzAv9woWEVDYred2rTYTg",
+   "kind": "movie",
+   "title": "Oppenheimer",
+   "subtitle": "2023",
+   "posterUrl": "/v1/metadata/item/eQzAv9woWEVDYred2rTYTg/art/poster?v=c25a2037975ef10983ec5aa5055424054750fdf367d8906f1c028494a6275b92&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2023,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:35.237Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "eQzAv9woWEVDYred2rTYTg"
+   },
+   "playback": {
+    "itemId": "eQzAv9woWEVDYred2rTYTg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/l_PaPfXC4nd4UMXjeuabsw/art/backdrop?v=8ef1787e75a427831a9070a9efc51aac7d7f93840a1632953820653df822a618&w=1920",
+   "rating": 6.651,
+   "resolution": "sd",
+   "id": "l_PaPfXC4nd4UMXjeuabsw",
+   "kind": "movie",
+   "title": "Parenthood",
+   "subtitle": "1989",
+   "posterUrl": "/v1/metadata/item/l_PaPfXC4nd4UMXjeuabsw/art/poster?v=0240e2b184383a87558dd48fdd001074a5173cea296b7220023fa414ef460f45&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1989,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:35.808Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "l_PaPfXC4nd4UMXjeuabsw"
+   },
+   "playback": {
+    "itemId": "l_PaPfXC4nd4UMXjeuabsw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/GG86IkNezb9qlaWTUE2BJg/art/backdrop?v=504bad658de146db8913c9dd66cf0d0d2d379c5b8514461731b15c7f499580ee&w=1920",
+   "rating": 6.157,
+   "resolution": "sd",
+   "id": "GG86IkNezb9qlaWTUE2BJg",
+   "kind": "movie",
+   "title": "Practical Magic 2",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/GG86IkNezb9qlaWTUE2BJg/art/poster?v=8bcecda4a8a446936f5d650af12cd9bac343756bc1901b123437b9aafaf8927e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:36.417Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "GG86IkNezb9qlaWTUE2BJg"
+   },
+   "playback": {
+    "itemId": "GG86IkNezb9qlaWTUE2BJg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/zx038379rId8i8anvLQorw/art/backdrop?v=3904a7eebc485fba3bd584a44dfb030247a320a90a49c3d4655cced2050094fe&w=1920",
+   "rating": 8.642,
+   "resolution": "sd",
+   "id": "zx038379rId8i8anvLQorw",
+   "kind": "movie",
+   "title": "Project Hail Mary",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/zx038379rId8i8anvLQorw/art/poster?v=d5aaa143eed9407bb8678928a0bcb3f2449a51f07591e175f608fe7c166fb406&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:37.035Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "zx038379rId8i8anvLQorw"
+   },
+   "playback": {
+    "itemId": "zx038379rId8i8anvLQorw"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/GPpxfKgakCQI5O5vvxPfww/art/backdrop?v=f0879a2f3f0f2f0521492a7a72ded5d8f77bf21e01c73b35d2cc66db944314f3&w=1920",
+   "rating": 8.48,
+   "resolution": "sd",
+   "id": "GPpxfKgakCQI5O5vvxPfww",
+   "kind": "movie",
+   "title": "Pulp Fiction",
+   "subtitle": "1994",
+   "posterUrl": "/v1/metadata/item/GPpxfKgakCQI5O5vvxPfww/art/poster?v=f9d2ea5131dec1ffcbd0c36ab9cc3469f6dfa0c19d715b2bbe77e87106d57f5a&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1994,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:37.624Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "GPpxfKgakCQI5O5vvxPfww"
+   },
+   "playback": {
+    "itemId": "GPpxfKgakCQI5O5vvxPfww"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/UwQ9xBPFqYxrKh3dlwwyMg/art/backdrop?v=08f95c1bde9d1afca29a228ae42b082997cdcca52db1ba478ff7154649298a57&w=1920",
+   "rating": 7.928,
+   "resolution": "sd",
+   "id": "UwQ9xBPFqYxrKh3dlwwyMg",
+   "kind": "movie",
+   "title": "Raiders of the Lost Ark",
+   "subtitle": "1981",
+   "posterUrl": "/v1/metadata/item/UwQ9xBPFqYxrKh3dlwwyMg/art/poster?v=f031f82ed96452b1aff99577034b0b517988d240ef0a1df283e7e5fae0f6acc3&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1981,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:38.243Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "UwQ9xBPFqYxrKh3dlwwyMg"
+   },
+   "playback": {
+    "itemId": "UwQ9xBPFqYxrKh3dlwwyMg"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/jJz6GeyqTkLDIWvP8HeMFQ/art/backdrop?v=5b8248607c596adff52251c39f301cfced704c9953bdf77b76ae8a5fea251eab&w=1920",
+   "rating": 7.3,
+   "resolution": "sd",
+   "id": "jJz6GeyqTkLDIWvP8HeMFQ",
+   "kind": "movie",
+   "title": "Resident Evil",
+   "subtitle": "2026",
+   "posterUrl": "/v1/metadata/item/jJz6GeyqTkLDIWvP8HeMFQ/art/poster?v=4194058a2142923db743405849b37307d25ff29cb1ee2598b34ed028cc35e42a&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 2026,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:38.855Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "jJz6GeyqTkLDIWvP8HeMFQ"
+   },
+   "playback": {
+    "itemId": "jJz6GeyqTkLDIWvP8HeMFQ"
+   }
+  },
+  {
+   "watched": false,
+   "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "backdropUrl": "/v1/metadata/item/scr9_ls2zwQG0xGqs9j-OQ/art/backdrop?v=45eff8ba118d782c464b431077c3eaf9610823474d64fd794fd15d3072ee60e7&w=1920",
+   "rating": 7.912,
+   "resolution": "sd",
+   "id": "scr9_ls2zwQG0xGqs9j-OQ",
+   "kind": "movie",
+   "title": "Return of the Jedi",
+   "subtitle": "1983",
+   "posterUrl": "/v1/metadata/item/scr9_ls2zwQG0xGqs9j-OQ/art/poster?v=6eab51be5bc47a0888692d5c589a72dcdad9db0c1e70d1c922081ff78fa67c4e&w=400",
+   "available": true,
+   "duration": 45,
+   "year": 1983,
+   "progressSeconds": 0,
+   "addedAt": "2026-10-02T04:02:39.415Z",
+   "navigation": {
+    "view": "item",
+    "entityId": "scr9_ls2zwQG0xGqs9j-OQ"
+   },
+   "playback": {
+    "itemId": "scr9_ls2zwQG0xGqs9j-OQ"
+   }
+  }
+ ],
+ "pageInfo": {
+  "start": 0,
+  "total": 84,
+  "revision": "browse_8e44061836026db1065f2fad6d034ed26aa4b44a5d211b5ac1b39402bb14296a",
+  "hasMore": true,
+  "nextCursor": ""
+ },
+ "positionIndex": [
+  {
+   "key": "#",
+   "index": 0
+  },
+  {
+   "key": "A",
+   "index": 1
+  },
+  {
+   "key": "B",
+   "index": 9
+  },
+  {
+   "key": "C",
+   "index": 14
+  },
+  {
+   "key": "D",
+   "index": 15
+  },
+  {
+   "key": "E",
+   "index": 20
+  },
+  {
+   "key": "F",
+   "index": 22
+  },
+  {
+   "key": "G",
+   "index": 25
+  },
+  {
+   "key": "H",
+   "index": 31
+  },
+  {
+   "key": "I",
+   "index": 33
+  },
+  {
+   "key": "J",
+   "index": 39
+  },
+  {
+   "key": "L",
+   "index": 41
+  },
+  {
+   "key": "M",
+   "index": 44
+  },
+  {
+   "key": "O",
+   "index": 48
+  },
+  {
+   "key": "P",
+   "index": 53
+  },
+  {
+   "key": "R",
+   "index": 57
+  },
+  {
+   "key": "S",
+   "index": 61
+  },
+  {
+   "key": "T",
+   "index": 72
+  },
+  {
+   "key": "W",
+   "index": 81
+  },
+  {
+   "key": "Y",
+   "index": 82
+  }
+ ]
+}

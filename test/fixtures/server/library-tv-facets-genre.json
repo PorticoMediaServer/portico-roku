@@ -1,0 +1,45 @@
+{
+ "field": "genre",
+ "values": [
+  {
+   "value": "Drama",
+   "label": "Drama",
+   "count": 16
+  },
+  {
+   "value": "Sci-Fi & Fantasy",
+   "label": "Sci-Fi & Fantasy",
+   "count": 10
+  },
+  {
+   "value": "Action & Adventure",
+   "label": "Action & Adventure",
+   "count": 7
+  },
+  {
+   "value": "Crime",
+   "label": "Crime",
+   "count": 7
+  },
+  {
+   "value": "Comedy",
+   "label": "Comedy",
+   "count": 6
+  },
+  {
+   "value": "Mystery",
+   "label": "Mystery",
+   "count": 6
+  },
+  {
+   "value": "Animation",
+   "label": "Animation",
+   "count": 4
+  },
+  {
+   "value": "War & Politics",
+   "label": "War & Politics",
+   "count": 1
+  }
+ ]
+}

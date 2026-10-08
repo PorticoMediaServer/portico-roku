@@ -1,0 +1,135 @@
+' apps/native/src/screens/auth/AuthFrame.tsx. On television: a column Theme.apple.authWidth wide
+' (authWidthWide for a `wide` landing), centred, the page gutter at the sides, Theme.apple.authTopInset
+' and Theme.space.xl above, Theme.space.xxl below, and the column centred in what is left. In the
+' column, Theme.space.lg apart: the wordmark (authWordmark tall; authWordmarkCentered when
+' `centered`), the title in the display role, the lead in the secondary body, a quiet note or the
+' error notice with Dismiss, then the screen's own content. The atmosphere is the scene's.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.wordmark = m.top.createChild("Poster")
+    m.wordmark.uri = "pkg:/images/brand/wordmark.png"
+    m.wordmark.blendColor = Theme.colors.text
+    m.titleNode = MakeText(m.top, "display")
+    m.titleNode.lines = 0
+    m.leadNode = MakeText(m.top, "body", "secondary")
+    m.leadNode.lines = 0
+    m.noteNode = MakeText(m.top, "body", "secondary")
+    m.noteNode.lines = 0
+    m.notice = m.top.createChild("UiNotice")
+    m.notice.tone = "error"
+    m.notice.observeField("actionPressed", "onFrameDismiss")
+    m.holder = m.top.createChild("Group")
+    m.contentHeight = 0
+    FrameWidth()
+end sub
+
+function FrameWidth() as float
+    width = Theme.apple.authWidth
+    if m.top.wide then width = Theme.apple.authWidthWide
+    limit = Theme.screen.width - Theme.space.page * 2
+    if width > limit then width = limit
+    m.top.contentWidth = width
+    return width
+end function
+
+' The screen's own content: any node `height` tall, laid out contentWidth wide.
+sub setContent(content as object, height as float)
+    m.holder.removeChildrenIndex(m.holder.getChildCount(), 0)
+    if content <> invalid then m.holder.appendChild(content)
+    m.contentHeight = height
+    onFrameLayout()
+end sub
+
+sub onFrameLayout()
+    width = FrameWidth()
+    align = "left"
+    if m.top.centered then align = "center"
+    left = (Theme.screen.width - width) / 2
+    gap = Theme.space.lg
+
+    markHeight = Theme.apple.authWordmark
+    if m.top.centered then markHeight = Theme.apple.authWordmarkCentered
+    m.wordmark.height = markHeight
+    m.wordmark.width = markHeight * Theme.apple.wordmarkAspect
+
+    m.titleNode.align = align
+    m.titleNode.maxWidth = width
+    m.titleNode.value = m.top.title
+    m.leadNode.visible = m.top.lead <> ""
+    m.leadNode.align = align
+    m.leadNode.maxWidth = width
+    m.leadNode.value = m.top.lead
+    showNote = m.top.note <> "" and m.top.error = ""
+    m.noteNode.visible = showNote
+    m.noteNode.align = align
+    m.noteNode.maxWidth = width
+    m.noteNode.value = m.top.note
+    m.notice.visible = m.top.error <> ""
+    if m.top.error <> "" then
+        m.notice.message = m.top.error
+        m.notice.action = ""
+        if m.top.dismissable then m.notice.action = T("action.dismiss")
+        m.notice.noticeWidth = width
+    end if
+
+    ' Measure the column, then centre it between the top and bottom padding.
+    total = markHeight + Theme.space.sm + gap + TextHeight(m.titleNode)
+    if m.leadNode.visible then total = total + gap + TextHeight(m.leadNode)
+    if showNote then total = total + gap + TextHeight(m.noteNode)
+    if m.notice.visible then total = total + gap + m.notice.noticeHeight
+    if m.contentHeight > 0 then total = total + gap + m.contentHeight
+    top = Theme.apple.authTopInset + Theme.space.xl
+    room = Theme.screen.height - top - Theme.space.xxl
+    y = top
+    if total < room then y = top + (room - total) / 2
+
+    markX = left
+    if m.top.centered then markX = left + (width - m.wordmark.width) / 2
+    Place(m.wordmark, markX, y)
+    y = y + markHeight + Theme.space.sm + gap
+    Place(m.titleNode, left, y)
+    y = y + TextHeight(m.titleNode)
+    if m.leadNode.visible then
+        y = y + gap
+        Place(m.leadNode, left, y)
+        y = y + TextHeight(m.leadNode)
+    end if
+    if showNote then
+        y = y + gap
+        Place(m.noteNode, left, y)
+        y = y + TextHeight(m.noteNode)
+    end if
+    if m.notice.visible then
+        y = y + gap
+        Place(m.notice, left, y)
+        y = y + m.notice.noticeHeight
+    end if
+    Place(m.holder, left, y + gap)
+end sub
+
+sub onFrameDismiss()
+    m.top.errorDismissed = true
+end sub
+
+' Gives focus to the content's first control (or the one the screen prefers).
+sub focusContent(preferred = invalid as dynamic)
+    if preferred <> invalid then
+        FocusOn(preferred)
+    else if not FocusFirst(m.holder) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    direction = FocusDirection(key)
+    if direction = "" then return false
+    if press then FocusMove(m.top, direction)
+    return true
+end function

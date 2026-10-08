@@ -1,0 +1,63 @@
+' Notifications against the real TypeScript (scripts/golden.mjs `notifications`): notifications.ts
+' parsers over the development server's inbox and made messages; inbox.ts' list rules.
+import "pkg:/source/core/Notifications.bs"
+
+sub Test_Notifications_parse()
+    fixture = TestFixture("golden/notifications.json")
+    if fixture = invalid then return
+    for each item in fixture.cases
+        parsed = ParseNotificationInbox(item.document)
+        AssertEqual(parsed.ok, item.ok, "the inbox, " + item.name)
+        if parsed.ok and item.ok then
+            copy = {}
+            copy.append(parsed)
+            copy.delete("ok")
+            AssertSame(copy, item.expected, "what the inbox holds, " + item.name)
+        end if
+    end for
+    AssertTrue(not ParseNotificationInbox(invalid).ok, "no document")
+    for each item in fixture.summaries
+        AssertEqual(ParseNotificationUnread(item.document), item.unread, "the unread count")
+    end for
+    for each item in fixture.batches
+        parsed = ParseNotificationBatch(item.document)
+        AssertEqual(parsed.ok, item.ok, "a change's answer")
+        if parsed.ok then AssertSame(parsed.counts, item.counts, "the counts after a change")
+    end for
+end sub
+
+sub Test_Notifications_list()
+    GetGlobalAA().messageCatalogue = { "notifications.markRead": "Mark read", "notifications.markUnread": "Mark unread", "notifications.archive": "Archive", "notifications.unarchive": "Move back to inbox", "notifications.caughtUp": "You’re all caught up", "notifications.noneArchived": "Nothing archived", "notifications.none": "No notifications", "notifications.audience.profile": "For you", "notifications.audience.admin": "Server" }
+    items = [{ id: "a", read: false, archived: false }, { id: "b", read: true, archived: false }, { id: "c", read: true, archived: true }]
+    AssertEqual(NotificationVisible(items, "unread").count(), 1, "Unread shows what is neither read nor archived")
+    AssertEqual(NotificationVisible(items, "all").count(), 2, "All shows what is not archived")
+    AssertEqual(NotificationVisible(items, "archived")[0].id, "c", "Archived shows what is")
+    AssertEqual(NotificationApplied(items, "read", "a", "unread").count(), 0, "a message marked read leaves Unread at once")
+    AssertEqual(NotificationApplied(items, "archive", "b", "all").count(), 1, "an archived message leaves All")
+    AssertEqual(NotificationApplied(items, "unarchive", "c", "archived").count(), 0, "one moved back leaves Archived")
+    AssertEqual(NotificationApplied(items, "unread", "b", "unread").count(), 2, "one marked unread joins Unread")
+    AssertEqual(NotificationApplied(items, "read-all", "", "unread").count(), 0, "Mark all read empties Unread")
+    AssertEqual(items[0].read, false, "the list that was held is not changed")
+    ids = []
+    for each action in NotificationMenu(items[0], "unread")
+        ids.push(action.id)
+    end for
+    AssertSame(ids, ["read", "archive"], "an unread message can be marked read or archived")
+    ids = []
+    for each action in NotificationMenu(items[2], "archived")
+        ids.push(action.id)
+    end for
+    AssertSame(ids, ["unarchive"], "an archived one can only be moved back")
+    AssertEqual(NotificationMenu(items[1], "all")[0].id, "unread", "a read one can be marked unread")
+    AssertEqual(NotificationIcon("critical"), "error", "a critical message's icon")
+    AssertEqual(NotificationIcon("info"), "bell", "an ordinary message's icon")
+    AssertEqual(NotificationEmpty("unread").title, "You’re all caught up", "an empty Unread")
+    AssertEqual(NotificationEmpty("archived").icon, "archive", "an empty Archived")
+    AssertEqual(NotificationAudienceLabel("account-admin"), "Server", "the owner's messages")
+    AssertEqual(NotificationInboxPath("account-admin", "all"), "/v1/notifications/inbox?audience=account-admin&state=all&limit=50", "the first page of a view")
+    AssertEqual(NotificationInboxPath("profile", "unread", "c 1"), "/v1/notifications/inbox?audience=profile&state=unread&limit=50&cursor=c%201", "the page after a cursor")
+    body = NotificationActionsBody("op1", "profile", "archive", ["a"])
+    AssertSame(body, { operationId: "op1", expectedRevision: 0, audience: "profile", operations: [{ action: "archive", ids: ["a"] }] }, "one change")
+    AssertSame(NotificationActionsBody("op2", "profile", "read-all", invalid)["operations"], [{ action: "read-all" }], "Mark all read names no message")
+    GetGlobalAA().messageCatalogue = invalid
+end sub

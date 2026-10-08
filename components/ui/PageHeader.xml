@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Page.tsx `PageHeader`: title, optional eyebrow and subtitle. -->
+<component name="UiPageHeader" extends="Group">
+    <interface>
+        <field id="title" type="string" value="" onChange="onHeaderLayout" />
+        <field id="eyebrow" type="string" value="" onChange="onHeaderLayout" />
+        <field id="subtitle" type="string" value="" onChange="onHeaderLayout" />
+        <field id="headerWidth" type="float" value="0" onChange="onHeaderLayout" />
+        <field id="headerHeight" type="float" value="0" />
+    </interface>
+</component>

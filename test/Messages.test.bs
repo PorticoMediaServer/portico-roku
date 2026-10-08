@@ -1,0 +1,35 @@
+' core/Messages.bs against packages/i18n/src/messageformat.ts. The cases are the ones in
+' packages/client-core/test/i18n.test.ts, then every catalogue message that takes arguments, each
+' with expected text produced by the TypeScript formatter itself (scripts/golden.mjs).
+
+sub Test_Messages_i18nTestCases()
+    AssertEqual(FormatMessage("Hello {name}", { name: "Alex" }), "Hello Alex")
+    AssertEqual(FormatMessage("{n, plural, =0 {none} one {# title} other {# titles}}", { n: 0 }), "none")
+    AssertEqual(FormatMessage("{n, plural, one {# title} other {# titles}}", { n: 1 }), "1 title")
+    AssertEqual(FormatMessage("{n, plural, one {# title} other {# titles}}", { n: 1234 }), "1,234 titles")
+    AssertEqual(FormatMessage("{k, select, a {Apple} other {Other}}", { k: "a" }), "Apple")
+    AssertEqual(FormatMessage("{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}", { n: 22 }), "22nd")
+    AssertEqual(FormatMessage("It''s '{literal}'", {}), "It's {literal}")
+    AssertEqual(FormatMessage("{p, number, percent}", { p: 0.42 }), "42%")
+end sub
+
+sub Test_Messages_numbers()
+    AssertEqual(MessageNumber(0), "0")
+    AssertEqual(MessageNumber(999), "999")
+    AssertEqual(MessageNumber(1000), "1,000")
+    AssertEqual(MessageNumber(1234567), "1,234,567")
+    AssertEqual(MessageNumber(-1234), "-1,234")
+    AssertEqual(MessageNumber(1.5), "1.5")
+    AssertEqual(MessageNumber(2.25), "2.25")
+    AssertEqual(MessageNumber(3.7, "integer"), "4")
+    AssertEqual(MessageNumber(4294967296&), "4,294,967,296")
+end sub
+
+sub Test_Messages_catalogueGolden()
+    cases = TestFixture("golden/messages.json")
+    if cases = invalid then return
+    AssertTrue(cases.count() > 100, "the catalogue sweep has cases")
+    for each item in cases
+        AssertEqual(FormatMessage(item.source, item.values), item.expected, item.id)
+    end for
+end sub

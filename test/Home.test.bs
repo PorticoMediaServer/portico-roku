@@ -1,0 +1,148 @@
+' core/ContentEntry.bs, core/Home.bs and core/CardCaption.bs against client-core
+' (library-content.ts, home.ts, presentation/card-caption.ts, card-shape.ts, home-hero.ts). The
+' Home document is the development server's own (test/fixtures/server/home.json), with variants;
+' scripts/golden.mjs records what the TypeScript made of each.
+
+function HomeFixture() as dynamic
+    fixture = TestFixture("golden/home.json")
+    if fixture = invalid then return invalid
+    globals = GetGlobalAA()
+    globals.messageCatalogue = fixture.catalogue
+    globals.formatRegion = { locale: "en-US", hour12: true, utc: true }
+    return fixture
+end function
+
+sub HomeFixtureDone()
+    globals = GetGlobalAA()
+    globals.messageCatalogue = invalid
+    globals.formatRegion = invalid
+end sub
+
+function TestOptional(value as dynamic) as dynamic
+    ' The TypeScript says undefined (null in the fixture) where BrightScript says invalid.
+    return value
+end function
+
+sub Test_Home_entries()
+    fixture = HomeFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.entries.count() > 60, "there are entries (the server's and the synthetic ones)")
+    for each item in fixture.entries
+        label = "entry " + FormatJson(item.raw).left(80)
+        parsed = invalid
+        if not UnknownEntryKind(item.raw) then parsed = ParseContentEntry(item.raw)
+        AssertEqual(parsed <> invalid, item.ok, label)
+        if item.ok and parsed <> invalid then
+            keys = parsed.keys()
+            AssertEqual(keys.count(), item.keys.count(), "fields of " + label)
+            AssertEqual(parsed.genres, item.genres, "genres of " + label)
+            AssertEqual(parsed.artworkPaths, item.artworkPaths, "artwork paths of " + label)
+            AssertEqual(CardCaption(parsed, fixture.now), item.caption, "caption of " + label)
+            AssertEqual(ContinueCaption(parsed, fixture.now), item.continueCaption, "continue caption of " + label)
+            AssertEqual(ContinueTitle(parsed), item.continueTitle, "continue title of " + label)
+            AssertEqual(RemainingLabel(parsed), item.remaining, "remaining of " + label)
+            AssertEqual(EpisodeCode(parsed), item.episodeCode, "episode code of " + label)
+            for each context in item.shapes.keys()
+                AssertEqual(ShapeFor(parsed.kind, context), item.shapes[context], "shape in " + context + " of " + label)
+            end for
+            AssertEqual(ShapeFor(parsed.kind, "shelf", "music"), item.squareFamily, "shape in a music library of " + label)
+            AssertEqual(WatchedWords(parsed.kind).mark, item.watched.mark, "watched words of " + label)
+        end if
+    end for
+    HomeFixtureDone()
+end sub
+
+sub Test_Home_documents()
+    fixture = HomeFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.documents.count() >= 15, "there are Home documents")
+    for each item in fixture.documents
+        parsed = ParseHomeDocument(item.value)
+        AssertEqual(parsed.ok, item.ok, "Home: " + item.name)
+        if item.ok and parsed.ok then
+            document = parsed.document
+            AssertEqual(document.rows.count(), item.rows.count(), "rows of " + item.name)
+            for index = 0 to item.rows.count() - 1
+                row = document.rows[index]
+                expected = item.rows[index]
+                AssertEqual(row.id, expected.id, "row order of " + item.name)
+                ids = []
+                for each entry in row.entries
+                    ids.push(entry.id)
+                end for
+                AssertEqual(ids, expected.entries, "entries of " + expected.id)
+                heading = HomeRowHeading(row)
+                AssertEqual(heading.key, expected.heading.key, "heading of " + expected.id)
+                AssertEqual(heading.fallback, expected.heading.fallback, "heading of " + expected.id)
+            end for
+            AssertEqual(document.hero <> invalid, item.heroRef <> invalid, "hero of " + item.name)
+            hero = HomeHero(document)
+            AssertEqual(hero <> invalid, item.hero <> invalid, "hero words of " + item.name)
+            if hero <> invalid and item.hero <> invalid then
+                AssertEqual(hero.entry.id, item.hero.entryId, "hero entry of " + item.name)
+                AssertEqual(hero.title, item.hero.title, "hero title of " + item.name)
+                AssertEqual(hero.line, item.hero.line, "hero line of " + item.name)
+                AssertEqual(hero.meta, item.hero.meta, "hero meta of " + item.name)
+                AssertEqual(hero.playLabel, item.hero.playLabel, "hero play label of " + item.name)
+                AssertEqual(hero.art, item.hero.art, "hero art of " + item.name)
+                AssertEqual(hero.coverShape, item.hero.coverShape, "hero cover of " + item.name)
+                AssertTrue(Abs(hero.progress - item.hero.progress) < 0.0001, "hero progress of " + item.name)
+            end if
+        end if
+    end for
+    HomeFixtureDone()
+end sub
+
+sub Test_Home_rowPaging()
+    fixture = HomeFixture()
+    if fixture = invalid or fixture.paging = invalid then return
+    row = ParseHomeRow(fixture.paging.row).row
+    page = ParseHomeRow(fixture.paging.page).row
+    merged = AppendHomeRowPage(row, page)
+    ids = []
+    for each entry in merged.entries
+        ids.push(entry.id)
+    end for
+    AssertEqual(ids, fixture.paging.merged.ids, "a page is appended without its duplicates")
+    AssertEqual(merged.nextCursor, fixture.paging.merged.nextCursor)
+    AssertEqual(merged.total, fixture.paging.merged.total)
+    ' A row never keeps more than HomeRowMaxEntries on the device.
+    big = {}
+    big.append(row)
+    entries = []
+    for each id in fixture.paging.big
+        entry = {}
+        entry.append(row.entries[0])
+        entry.id = id
+        entries.push(entry)
+    end for
+    big.entries = entries
+    capped = AppendHomeRowPage(big, page)
+    AssertEqual(capped.entries.count(), fixture.paging.capped.count)
+    AssertEqual(capped.nextCursor, fixture.paging.capped.nextCursor, "a capped row stops offering more")
+    AssertEqual(HomeRowPagePath("for_you:top", "abc/def=="), "/v1/home/rows/for_you%3Atop?cursor=abc%2Fdef%3D%3D")
+    AssertEqual(HomeRowPagePath("recommended", "", HomeRowPageLimit()), "/v1/home/rows/recommended?limit=60")
+    AssertEqual(HomeRowPagePath("recommended", "c", 60), "/v1/home/rows/recommended?limit=60&cursor=c")
+    AssertEqual(IsContinueRow("continue"), true)
+    AssertEqual(IsContinueRow("recommended"), false)
+    HomeFixtureDone()
+end sub
+
+sub Test_Home_realSignInParses()
+    ' The development server's own sign-in answer (tokens stripped) goes through the parser.
+    raw = TestFixture("server/direct-sign-in.json")
+    if raw = invalid then return
+    issued = IsoToSeconds(raw.session.expiresAt)
+    AssertTrue(issued <> invalid, "the session's expiry is a strict UTC timestamp")
+    parsed = ParseDirectSignIn(raw, issued - 60)
+    AssertTrue(parsed.ok, "the server's sign-in answer is accepted")
+    if parsed.ok then
+        AssertEqual(parsed.kind, "signed-in")
+        AssertEqual(parsed.accountScoped, false)
+        AssertTrue(parsed.session.serverIdentity <> invalid, "a direct sign-in carries the server's key")
+    end if
+    libraries = ParseLibraries(TestFixture("server/libraries.json"))
+    AssertTrue(libraries.count() > 0, "the server's libraries are read")
+    AssertEqual(MediaFamilyIcon(libraries[0].kind) <> invalid, true)
+    AssertEqual(MediaFamilyIcon("podcast"), invalid)
+end sub

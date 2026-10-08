@@ -1,0 +1,18 @@
+{
+ "data": [
+  {
+   "id": "d1AU-Smc90paf_45WIxNkjpUQ6aeKmT5Lv1Oj7YVoec",
+   "code": "state-permissions",
+   "severity": "warning",
+   "status": "resolved",
+   "firstAt": 1791012951517,
+   "lastAt": 1791227009122,
+   "occurrences": 1,
+   "revision": 2
+  }
+ ],
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "viewerFence": "82c7da14f75e1dee0fca91d2e662067f8d76bc859cef0ecb3a4e294768e24ae3"
+ }
+}

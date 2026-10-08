@@ -1,0 +1,128 @@
+{
+ "now": 1791028800,
+ "servers": [
+  {
+   "id": "unknown-1",
+   "name": "A"
+  },
+  {
+   "id": "offline-old",
+   "name": "B",
+   "presence": {
+    "online": false,
+    "lastSeenAt": "2026-09-01T00:00:00Z"
+   }
+  },
+  {
+   "id": "online-1",
+   "name": "C",
+   "presence": {
+    "online": true,
+    "lastSeenAt": "2026-10-03T11:59:00Z"
+   }
+  },
+  {
+   "id": "offline-recent",
+   "name": "D",
+   "presence": {
+    "online": false,
+    "lastSeenAt": "2026-10-03T11:30:00Z"
+   }
+  },
+  {
+   "id": "never",
+   "name": "E",
+   "presence": {
+    "online": false,
+    "lastSeenAt": null
+   }
+  },
+  {
+   "id": "online-2",
+   "name": "F",
+   "presence": {
+    "online": true,
+    "lastSeenAt": null
+   }
+  },
+  {
+   "id": "malformed",
+   "name": "G",
+   "presence": {
+    "online": "yes"
+   }
+  },
+  {
+   "id": "bad-date",
+   "name": "H",
+   "presence": {
+    "online": false,
+    "lastSeenAt": "last week"
+   }
+  }
+ ],
+ "order": [
+  "online-1",
+  "online-2",
+  "offline-recent",
+  "offline-old",
+  "never",
+  "bad-date",
+  "unknown-1",
+  "malformed"
+ ],
+ "labels": [
+  {
+   "id": "unknown-1",
+   "label": {
+    "kind": "unknown"
+   }
+  },
+  {
+   "id": "offline-old",
+   "label": {
+    "kind": "lastSeen",
+    "lastSeenAt": "2026-09-01T00:00:00Z",
+    "recent": false
+   }
+  },
+  {
+   "id": "online-1",
+   "label": {
+    "kind": "online"
+   }
+  },
+  {
+   "id": "offline-recent",
+   "label": {
+    "kind": "lastSeen",
+    "lastSeenAt": "2026-10-03T11:30:00Z",
+    "recent": true
+   }
+  },
+  {
+   "id": "never",
+   "label": {
+    "kind": "neverSeen"
+   }
+  },
+  {
+   "id": "online-2",
+   "label": {
+    "kind": "online"
+   }
+  },
+  {
+   "id": "malformed",
+   "label": {
+    "kind": "unknown"
+   }
+  },
+  {
+   "id": "bad-date",
+   "label": {
+    "kind": "neverSeen"
+   }
+  }
+ ]
+}

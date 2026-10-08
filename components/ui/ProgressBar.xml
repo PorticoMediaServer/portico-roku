@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Feedback.tsx `ProgressBar`: a horizontal progress bar. -->
+<component name="UiProgressBar" extends="Group">
+    <interface>
+        <field id="value" type="float" value="0" onChange="onProgressLayout" />
+        <field id="barWidth" type="float" value="0" onChange="onProgressLayout" />
+        <field id="barHeight" type="float" value="0" onChange="onProgressLayout" />
+    </interface>
+</component>

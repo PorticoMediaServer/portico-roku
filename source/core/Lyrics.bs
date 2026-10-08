@@ -1,0 +1,215 @@
+' packages/client-core/src/lyrics.ts: the lyrics of the song that is playing, bound to the
+' playback session and its generation. The server chooses and stores them; the channel shows the
+' selected lyrics, follows them with the player's position, and can jump to a line.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+
+' GET /v1/items/{id}/lyrics for a session.
+function LyricsPath(itemId as string, sessionId as string, suffix = "" as string) as string
+    path = "/v1/items/" + itemId.encodeUriComponent() + "/lyrics" + suffix
+    if suffix = "" and sessionId <> "" then path = path + "?sessionId=" + sessionId.encodeUriComponent()
+    return path
+end function
+
+function IsLyricText(value as dynamic, limit as integer) as boolean
+    if not IsString(value) or Len(value) > limit then return false
+    return not MatchesPattern(value, "[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+end function
+
+function IsLyricId(value as dynamic) as boolean
+    return IsString(value) and MatchesPattern(value, "^[A-Za-z0-9_-]{1,256}$")
+end function
+
+function IsLyricHash(value as dynamic) as boolean
+    return IsString(value) and MatchesPattern(value, "^[0-9a-f]{64}$")
+end function
+
+function IsLyricSeconds(value as dynamic) as boolean
+    return IsNumber(value) and value >= 0 and value <= 86400
+end function
+
+function IsLyricOffset(value as dynamic) as boolean
+    return IsNumber(value) and Int(value) = value and Abs(value) <= 600000
+end function
+
+' {format, lines: [{atMs, text}]} (atMs is invalid for plain text), or invalid.
+function ParseLyricDocument(v as dynamic) as dynamic
+    if not IsObject(v) or not IsString(v.format) or (v.format <> "lrc" and v.format <> "text") or not IsLyricText(v.text, 262144) or not IsLyricOffset(v.embeddedOffsetMs) then return invalid
+    if not IsArray(v.lines) or v.lines.count() = 0 or v.lines.count() > 4096 then return invalid
+    previous = -1
+    length = 0
+    lines = []
+    for each line in v.lines
+        if not IsObject(line) or not IsLyricText(line.text, 8192) then return invalid
+        if v.format = "lrc" then
+            if not IsNatural(line.atMs) or line.atMs > 86400000 or line.atMs < previous then return invalid
+            previous = line.atMs
+            lines.push({ atMs: line.atMs, text: line.text })
+        else
+            if line.atMs <> invalid then return invalid
+            lines.push({ text: line.text })
+        end if
+        length = length + Len(line.text)
+        if length > 262144 then return invalid
+    end for
+    return { format: v.format, lines: lines }
+end function
+
+' One set of lyrics a viewer can choose: {id, revision, language, offsetMs, format, deleted,
+' label, document}, or invalid. `content` says the words themselves must be there.
+function ParseLyricRevision(v as dynamic, content = false as boolean) as dynamic
+    if not IsObject(v) or not IsLyricId(v.id) or not IsNatural(v.revision) or v.revision < 1 or v.revision > 128 then return invalid
+    if not IsString(v.scope) or (v.scope <> "private" and v.scope <> "library") or not IsBoolean(v.canManage) or not IsBoolean(v.deleted) then return invalid
+    if not IsString(v.language) or Len(v.language) > 63 or not MatchesPattern(v.language, "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$") then return invalid
+    if not IsLyricOffset(v.offsetMs) or not IsString(v.format) or (v.format <> "lrc" and v.format <> "text") or not IsLyricHash(v.digest) or not IsLyricText(v.createdAt, 64) then return invalid
+    p = v.provenance
+    if not IsObject(p) or not ArrayIncludes(["upload", "sidecar", "embedded", "lrclib"], p.origin) or not IsLyricText(p.providerId, 64) or not IsLyricText(p.label, 1024) or not IsLyricText(p.rights, 1024) then return invalid
+    out = { id: v.id, revision: v.revision, language: v.language, offsetMs: v.offsetMs, format: v.format, deleted: v.deleted, label: p.label }
+    if v.document <> invalid then
+        document = ParseLyricDocument(v.document)
+        if document = invalid or document.format <> v.format then return invalid
+        out.document = document
+    else if content then
+        return invalid
+    end if
+    if v.format = "text" and v.offsetMs <> 0 then return invalid
+    return out
+end function
+
+function ParseLyricSource(v as dynamic) as dynamic
+    if not IsObject(v) or not IsLyricId(v.id) or not IsLyricHash(v.version) or not IsLyricSeconds(v.startSeconds) or not IsLyricSeconds(v.duration) or not IsLyricSeconds(v.sourceDuration) then return invalid
+    if v.duration <= 0 or v.sourceDuration <= 0 or v.startSeconds + v.duration > v.sourceDuration + 0.1 or not IsBoolean(v.local) then return invalid
+    return { id: v.id, version: v.version, startSeconds: v.startSeconds, duration: v.duration, sourceDuration: v.sourceDuration }
+end function
+
+' `parseLyricsView`: {ok, source, resources, selectionRevision, selected}. `target` is {itemId,
+' libraryId (may be ""), sessionId, sessionGeneration}; an answer for another song, library,
+' session or generation is refused.
+function ParseLyricsView(raw as dynamic, serverId as string, target as object) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) or not IsObject(raw.scope) then return bad
+    scope = raw.scope
+    if not IsString(scope.serverId) or scope.serverId <> serverId or not IsString(scope.itemId) or scope.itemId <> target.itemId or not IsString(scope.libraryId) then return bad
+    if target.libraryId <> "" and scope.libraryId <> target.libraryId then return bad
+    if not IsLyricHash(scope.viewerFence) or not IsString(scope.sessionId) or scope.sessionId <> target.sessionId or not IsNumber(scope.sessionGeneration) or scope.sessionGeneration <> target.sessionGeneration then return bad
+    sourceList = FieldOf(raw, "sources")
+    if not IsArray(sourceList) or sourceList.count() > 32 or not IsArray(raw.resources) or raw.resources.count() > 64 or not IsBoolean(raw.canShare) then return bad
+    if not IsObject(raw.selection) or not IsNatural(raw.selection.revision) or not IsObject(raw.providers) or not IsBoolean(raw.providers.lrclib) or not IsBoolean(raw.providers.configured) or not IsNatural(raw.providers.revision) then return bad
+    seen = {}
+    seen.setModeCaseSensitive()
+    sources = []
+    for each v in sourceList
+        source = ParseLyricSource(v)
+        if source = invalid or seen.doesExist(source.id) then return bad
+        seen[source.id] = source.version
+        sources.push(source)
+    end for
+    chosen = invalid
+    if raw.source <> invalid then
+        chosen = ParseLyricSource(raw.source)
+        if chosen = invalid or not seen.doesExist(chosen.id) or seen[chosen.id] <> chosen.version then return bad
+    end if
+    ids = {}
+    ids.setModeCaseSensitive()
+    resources = []
+    for each v in raw.resources
+        resource = ParseLyricRevision(v)
+        if resource = invalid or ids.doesExist(resource.id) then return bad
+        ids[resource.id] = true
+        resources.push(resource)
+    end for
+    selected = invalid
+    if raw.selection.resource <> invalid then
+        selected = ParseLyricRevision(raw.selection.resource, true)
+        if selected = invalid then return bad
+    end if
+    if chosen = invalid and (resources.count() > 0 or selected <> invalid) then return bad
+    if target.sessionId = "" and selected <> invalid then return bad
+    if selected <> invalid and chosen <> invalid then
+        for each line in selected.document.lines
+            if line.atMs <> invalid and line.atMs > chosen.sourceDuration * 1000 + 1000 then return bad
+        end for
+    end if
+    return { ok: true, source: chosen, resources: resources, selectionRevision: raw.selection.revision, selected: selected }
+end function
+
+' `activeLyricLine`: the index of the line being sung, or -1. A positive offset delays the
+' lyrics; equal timestamps select the last of them.
+function ActiveLyricLine(document as dynamic, positionSeconds as dynamic, offsetMs as dynamic, sourceStartSeconds = 0 as dynamic) as integer
+    if document = invalid or document.format <> "lrc" or positionSeconds = invalid then return -1
+    at = (positionSeconds + sourceStartSeconds) * 1000 - offsetMs
+    low = 0
+    high = document.lines.count()
+    while low < high
+        middle = (low + high) \ 2
+        if document.lines[middle].atMs <= at then
+            low = middle + 1
+        else
+            high = middle
+        end if
+    end while
+    return low - 1
+end function
+
+' `lyricSeekPosition`: where pressing a line jumps to (seconds), or invalid for a line with no
+' time or one outside what is playing.
+function LyricSeekPosition(line as object, offsetMs as dynamic, source as dynamic) as dynamic
+    if line.atMs = invalid or source = invalid then return invalid
+    seconds = (line.atMs + offsetMs) / 1000 - source.startSeconds
+    if seconds >= 0 and seconds < source.duration then return seconds
+    return invalid
+end function
+
+' `choose`: PUT …/lyrics/selection, bound to the verified source and the session.
+function LyricsSelectionBody(view as object, sessionId as string, resource as dynamic) as dynamic
+    if view.source = invalid then return invalid
+    body = { "sourceId": view.source.id, "sourceVersion": view.source.version, "sessionId": sessionId, "expectedSelectionRevision": view.selectionRevision, "resourceId": "", "revision": 0 }
+    if resource <> invalid then
+        body["resourceId"] = resource.id
+        body["revision"] = resource.revision
+    end if
+    return body
+end function
+
+' Lyrics.tsx: the resources a viewer may choose from (deleted ones are not offered): [{id, label}].
+function LyricChoices(view as object) as object
+    out = []
+    for each resource in view.resources
+        if not resource.deleted then
+            label = resource.label
+            if label = "" then label = resource.language
+            out.push({ id: resource.id, label: label })
+        end if
+    end for
+    return out
+end function
+
+' The lines the panel holds at once, around the line it rests on: a song's lyrics can run to
+' thousands of lines, and only what is near the screen is drawn. {first, last}; last < first for none.
+function LyricWindow(count as integer, anchor as integer) as object
+    if count <= 0 then return { first: 0, last: -1 }
+    at = anchor
+    if at < 0 then at = 0
+    if at > count - 1 then at = count - 1
+    first = at - 6
+    if first < 0 then first = 0
+    last = at + 14
+    if last > count - 1 then last = count - 1
+    return { first: first, last: last }
+end function
+
+' What a line shows: its words, or a note for a line with none (an instrumental passage).
+function LyricLineText(line as object) as string
+    if line.text = "" then return Chr(9834)
+    return line.text
+end function
+
+' A song with no lyrics on the server (404), as a view with nothing in it.
+function EmptyLyricsView() as object
+    return { ok: true, source: invalid, resources: [], selectionRevision: 0, selected: invalid }
+end function
+
+' `refresh`: a 404 says the song has no lyrics, which is an answer and not a failure.
+function LyricsMissing(status as dynamic) as boolean
+    return status = 404
+end function

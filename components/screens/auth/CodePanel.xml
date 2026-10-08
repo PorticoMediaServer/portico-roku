@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The QR code and the code beside it, shared by Activation.tsx and QuickConnect.tsx (the same row in both). -->
+<component name="AuthCodePanel" extends="Group">
+    <interface>
+        <!-- creating | waiting | approved | denied | error -->
+        <field id="phase" type="string" value="creating" onChange="onPanelLayout" />
+        <field id="userCode" type="string" value="" onChange="onPanelLayout" />
+        <field id="link" type="string" value="" onChange="onPanelLayout" />
+        <!-- The page to visit, shown above the code (Activation only). -->
+        <field id="host" type="string" value="" onChange="onPanelLayout" />
+        <!-- What is said when there is no code (preparing, failed), and the button under it. -->
+        <field id="message" type="string" value="" onChange="onPanelLayout" />
+        <field id="action" type="string" value="" onChange="onPanelLayout" />
+        <field id="qrSize" type="float" value="0" onChange="onPanelLayout" />
+        <field id="panelWidth" type="float" value="0" onChange="onPanelLayout" />
+        <field id="boxWidth" type="float" value="0" />
+        <field id="boxHeight" type="float" value="0" />
+        <field id="actionPressed" type="boolean" value="false" alwaysNotify="true" />
+    </interface>
+</component>

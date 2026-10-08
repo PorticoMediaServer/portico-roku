@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/BrowseFilters.tsx: the filter panel at the side (the grouped list, then one field's values). -->
+<component name="LibraryFilters" extends="Group">
+    <interface>
+        <field id="libraryId" type="string" value="" />
+        <field id="capabilities" type="assocarray" />
+        <field id="predicates" type="array" />
+        <field id="owner" type="boolean" value="false" />
+        <!-- The predicates after a change, as the viewer makes it. -->
+        <field id="changed" type="array" alwaysNotify="true" />
+        <field id="closed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="open" />
+    </interface>
+</component>

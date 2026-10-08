@@ -1,0 +1,186 @@
+' packages/client-core/src/library-content.ts `validateContentEntry`: one entry of a server-authored
+' projection (a card, a row), read with bounds before it is used. An unknown kind is a future
+' server card: only that entry is left out. Optional facts that are malformed are dropped, never
+' fatal; a required field that is malformed refuses the document.
+import "pkg:/source/core/Validate.bs"
+
+function ContentEntryKinds() as object
+    return ["movie", "show", "season", "episode", "artist", "album", "song", "book", "audiobook_file", "chapter", "collection", "category", "author", "book_series", "disc", "extra"]
+end function
+
+function ContentViews() as object
+    return ["home", "discover", "browse", "collections", "categories", "show", "season", "artist", "album", "book", "collection", "releases", "songs", "authors", "series", "author", "book_series", "disc"]
+end function
+
+' A string of at most `limit` characters with no control characters (it may be empty).
+function IsContentString(value as dynamic, limit = 512 as integer) as boolean
+    if not IsString(value) or Len(value) > limit then return false
+    if m.validateControl = invalid then m.validateControl = CreateObject("roRegex", "[\x00-\x1f\x7f]", "")
+    return not m.validateControl.isMatch(value)
+end function
+
+function IsContentId(value as dynamic) as boolean
+    return IsContentString(value, 256) and Len(value) > 0
+end function
+
+' A synopsis may hold tabs and line breaks.
+function IsSynopsis(value as dynamic) as boolean
+    if not IsString(value) or Len(value) > 16384 then return false
+    if m.validateSynopsis = invalid then m.validateSynopsis = CreateObject("roRegex", "[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "")
+    return not m.validateSynopsis.isMatch(value)
+end function
+
+function IsNumber(value as dynamic) as boolean
+    kind = Type(value)
+    return kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" or kind = "LongInteger" or kind = "roLongInteger"
+end function
+
+function IsWholeNumber(value as dynamic) as boolean
+    return IsNumber(value) and value = Int(value)
+end function
+
+' library-content.ts `unknownContentEntryKind`.
+function UnknownEntryKind(value as dynamic) as boolean
+    return IsObject(value) and IsString(value.kind) and not ArrayIncludes(ContentEntryKinds(), value.kind)
+end function
+
+' Returns the entry, or invalid when it must be refused.
+function ParseContentEntry(v as dynamic) as dynamic
+    if not IsObject(v) or not IsContentId(v.id) or not IsString(v.kind) or not ArrayIncludes(ContentEntryKinds(), v.kind) or not IsContentString(v.title, 2048) then return invalid
+    row = { id: v.id, kind: v.kind, title: v.title }
+    if v.doesExist("libraryId") then
+        if not IsContentId(v.libraryId) then return invalid
+        row.libraryId = v.libraryId
+    end if
+    if v.doesExist("overview") then
+        if not IsSynopsis(v.overview) then return invalid
+        row.overview = v.overview
+    end if
+    for each field in ["subtitle", "posterUrl", "backdropUrl", "stillUrl"]
+        if v.doesExist(field) then
+            if not IsContentString(v[field], 4096) then return invalid
+            row[field] = v[field]
+        end if
+    end for
+    if v.doesExist("addedAt") then
+        if v.addedAt <> invalid and not IsContentString(v.addedAt, 128) then return invalid
+        row.addedAt = v.addedAt
+    end if
+    if v.doesExist("count") then
+        if not IsNatural(FieldOf(v, "count")) then return invalid
+        row["count"] = FieldOf(v, "count")
+    end if
+    if v.doesExist("watched") then
+        if not IsBoolean(v.watched) then return invalid
+        row.watched = v.watched
+    end if
+    for each field in ["trackNumber", "episodeNumber", "seasonNumber"]
+        if v.doesExist(field) then
+            if not IsNatural(v[field]) then return invalid
+            row[field] = v[field]
+        end if
+    end for
+    if v.doesExist("available") then
+        if not IsBoolean(v.available) then return invalid
+        row.available = v.available
+    end if
+    for each field in ["duration", "progressSeconds"]
+        if v.doesExist(field) then
+            if not IsNumber(v[field]) or v[field] < 0 then return invalid
+            row[field] = v[field]
+        end if
+    end for
+    if v.doesExist("year") then
+        if not IsWholeNumber(v.year) or v.year <= 0 then return invalid
+        row.year = v.year
+    end if
+    if v.doesExist("contentRating") then
+        if not IsContentString(v.contentRating, 64) then return invalid
+        row.contentRating = v.contentRating
+    end if
+    if IsArray(v.genres) then
+        genres = []
+        for each genre in v.genres
+            if IsContentString(genre, 128) and Len(genre) > 0 then genres.push(genre)
+        end for
+        if genres.count() > 0 then row.genres = genres
+    end if
+    if v.doesExist("watchlisted") then
+        if not IsBoolean(v.watchlisted) then return invalid
+        row.watchlisted = v.watchlisted
+    end if
+    for each field in ["artist", "album"]
+        a = v[field]
+        if IsObject(a) and IsContentId(a.id) and IsContentString(a.name, 2048) and Len(a.name) > 0 then row[field] = { id: a.id, name: a.name }
+    end for
+    if IsContentString(v.author, 512) and Len(v.author) > 0 then row.author = v.author
+    if v.doesExist("plays") then
+        if not IsWholeNumber(v.plays) or v.plays < 1 then return invalid
+        row.plays = v.plays
+    end if
+    if IsString(v.role) and ArrayIncludes(["album", "ep", "single", "compilation", "appearance"], v.role) then row.role = v.role
+    if IsArray(v.artworkPaths) then
+        paths = []
+        for each path in v.artworkPaths
+            if paths.count() < 4 and IsContentString(path, 4096) and Len(path) > 0 then paths.push(path)
+        end for
+        if paths.count() > 0 then row.artworkPaths = paths
+    end if
+    if IsContentString(v.airDate, 10) and MatchesPattern(v.airDate, "^\d{4}-\d{2}-\d{2}$") then row.airDate = v.airDate
+    if IsObject(v.latestEpisode) then
+        l = v.latestEpisode
+        if IsString(l.airDate) and MatchesPattern(l.airDate, "^\d{4}-\d{2}-\d{2}") and IsWholeNumber(l.episodeNumber) and IsWholeNumber(FieldOf(l, "count")) and FieldOf(l, "count") > 0 then
+            latest = { airDate: Left(l.airDate, 10), episodeNumber: l.episodeNumber, "count": FieldOf(l, "count") }
+            if IsWholeNumber(l.seasonNumber) then latest.seasonNumber = l.seasonNumber
+            if IsString(l.title) and Len(l.title) <= 2048 and l.title <> "" then latest.title = l.title
+            row.latestEpisode = latest
+        end if
+    end if
+    if IsWholeNumber(v.absoluteNumber) and v.absoluteNumber > 0 then row.absoluteNumber = v.absoluteNumber
+    if IsNumber(v.rating) and v.rating > 0 and v.rating <= 10 then row.rating = v.rating
+    if IsString(v.resolution) and ArrayIncludes(["4k", "1080p", "720p", "sd"], v.resolution) then row.resolution = v.resolution
+    if IsContentString(v.overviewSource, 128) and Len(v.overviewSource) > 0 then row.overviewSource = v.overviewSource
+    if IsContentString(v.overviewSourceUrl, 4096) and Left(v.overviewSourceUrl, 8) = "https://" then row.overviewSourceUrl = v.overviewSourceUrl
+    if IsContentString(v.country, 8) and Len(v.country) > 0 then row.country = v.country
+    if IsWholeNumber(v.activeBeginYear) and v.activeBeginYear > 0 then row.activeBeginYear = v.activeBeginYear
+    if IsWholeNumber(v.activeEndYear) and v.activeEndYear > 0 then row.activeEndYear = v.activeEndYear
+    if IsContentString(v.label, 256) and Len(v.label) > 0 then row.label = v.label
+    if IsContentString(v.albumType, 64) and Len(v.albumType) > 0 then row.albumType = v.albumType
+    if v.doesExist("navigation") then
+        n = v.navigation
+        if not IsObject(n) or not IsString(n.view) or not (ArrayIncludes(ContentViews(), n.view) or n.view = "item") then return invalid
+        if n.doesExist("entityId") and not IsContentString(n.entityId, 256) then return invalid
+        if n.doesExist("category") and not IsContentString(n.category, 256) then return invalid
+        navigation = { view: n.view }
+        if n.doesExist("entityId") then navigation.entityId = n.entityId
+        if n.doesExist("category") then navigation.category = n.category
+        row.navigation = navigation
+    end if
+    if v.doesExist("playback") then
+        p = v.playback
+        if not IsObject(p) or not IsContentId(p.itemId) then return invalid
+        if p.doesExist("startSeconds") and (not IsNumber(p.startSeconds) or p.startSeconds < 0) then return invalid
+        playback = { itemId: p.itemId }
+        if p.doesExist("startSeconds") then playback.startSeconds = p.startSeconds
+        row.playback = playback
+    end if
+    return row
+end function
+
+' A list of entries as a projection carries them: unknown kinds left out, the rest validated, ids
+' distinct. Returns the entries, or invalid when one is refused.
+function ParseContentEntries(list as dynamic, limit as integer) as dynamic
+    if not IsArray(list) or list.count() > limit then return invalid
+    seen = {}
+    seen.setModeCaseSensitive()
+    out = []
+    for each raw in list
+        if not UnknownEntryKind(raw) then
+            entry = ParseContentEntry(raw)
+            if entry = invalid or seen.doesExist(entry.id) then return invalid
+            seen[entry.id] = true
+            out.push(entry)
+        end if
+    end for
+    return out
+end function

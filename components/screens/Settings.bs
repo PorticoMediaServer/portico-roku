@@ -1,0 +1,1148 @@
+' apps/native/src/screens/Settings.tsx `TelevisionSettings`: the pages in a column on the left and
+' the open page's rows beside them, so a row and its value sit within one glance. A page opens as
+' focus reaches it. The pages, their order and their rows are authored once
+' (settings-structure.ts, generated into SettingsTables.bs); this screen only draws them
+' (settings/SettingsPage.tsx `RowView`, `Panel`) and the owner's Dashboard (server/Dashboard.tsx).
+'
+' Personal rows save on change. A value the device keeps (Text size, Reduce motion) is kept in
+' this installation's registry.
+'
+' Differences from the Apple TV app: the Dashboard's figures are read again every
+' Theme.apple.dashboardRefreshMs rather than on server events; Stop playback has no message
+' field; health has no history lines; "Receive from other devices", the devices list, Switch
+' server, Notifications and Watch Together are not here (see the port log).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/Crypto.bs"
+import "pkg:/source/core/Store.bs"
+import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/Settings.bs"
+import "pkg:/source/core/ServerAdmin.bs"
+import "pkg:/source/core/Devices.bs"
+import "pkg:/source/core/Notifications.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.columnWidth = Theme.apple.settingsColumn
+    m.left = m.top.createChild("UiPage")
+    m.left.pageWidth = Theme.space.page + m.columnWidth
+    m.rightX = Theme.space.page + m.columnWidth + Theme.space.xxl
+    m.rightWidth = m.width - m.rightX - Theme.space.page
+    m.right = m.top.createChild("UiPage")
+    m.right.pageWidth = m.width - m.rightX
+    Place(m.right, m.rightX, 0)
+    m.session = m.global.session
+    m.structure = invalid
+    m.address = ""
+    m.snapshot = invalid
+    m.snapshotFailed = false
+    m.system = invalid
+    m.columnRows = {}
+    m.rows = {}
+    m.rowNodes = {}
+    m.pendingDraw = false
+    m.tasks = {}
+    m.admin = {}
+    m.unread = 0
+    m.devices = invalid
+    m.menu = invalid
+    m.menuFor = invalid
+    m.confirm = invalid
+    m.confirmFor = invalid
+    m.saving = false
+    m.refresh = m.top.createChild("Timer")
+    m.refresh.duration = Theme.apple.dashboardRefreshMs / 1000
+    m.refresh.repeat = true
+    m.refresh.observeField("fire", "onSettingsRefresh")
+end sub
+
+sub enter()
+    m.device = SettingsDevice()
+    SettingsResolve()
+    SettingsColumn()
+    SettingsOpen(SettingsFirstAddress())
+    m.tasks.preferences = ApiStart({ path: "/v1/preferences?deviceClass=television", reader: "preferences" }, "onSettingsPreferences")
+    m.tasks.system = ApiStart({ path: "/v1/system" }, "onSettingsSystem")
+    SettingsUnreadLoad()
+end sub
+
+sub resume()
+    if SettingsOnDashboard() then SettingsDashboardLoad()
+    SettingsUnreadLoad()
+end sub
+
+' The bell's count: the profile's unread messages.
+sub SettingsUnreadLoad()
+    m.tasks.unread = ApiStart({ path: NotificationUnreadPath("profile"), reader: "notificationUnread" }, "onSettingsUnread")
+end sub
+
+sub onSettingsUnread(event as object)
+    result = event.getData()
+    if not result.ok or result.value.unread = invalid or result.value.unread = m.unread then return
+    m.unread = result.value.unread
+    inColumn = m.left.isInFocusChain()
+    held = ""
+    for each key in m.columnRows.keys()
+        if m.columnRows[key].isInFocusChain() then held = key
+    end for
+    SettingsColumn()
+    if inColumn then
+        if held <> "" then
+            focusEntry()
+        else
+            FocusFirst(m.left)
+        end if
+    end if
+end sub
+
+sub leave()
+    m.refresh.control = "stop"
+    m.tasks = {}
+end sub
+
+sub focusEntry()
+    row = m.columnRows[m.address]
+    if row <> invalid then
+        FocusOn(row)
+    else if not FocusFirst(m.left) then
+        m.top.setFocus(true)
+    end if
+end sub
+
+' ---- What this viewer sees -----------------------------------------------------------------------
+
+function SettingsViewer() as object
+    viewer = m.session.viewer
+    if viewer = invalid or viewer.viewer = invalid then return { role: "", authority: "" }
+    return viewer.viewer
+end function
+
+sub SettingsResolve()
+    viewer = SettingsViewer()
+    capabilities = RokuSettingsCapabilities()
+    capabilities.localAccount = viewer.authority = "local"
+    capabilities.hostedAccount = m.session.hasAccount
+    keys = PreferenceKeys(m.snapshot)
+    if keys <> invalid then capabilities.preferenceKeys = keys
+    m.structure = SettingsStructureFor({ owner: viewer.role = "owner", capabilities: capabilities })
+end sub
+
+function SettingsFirstAddress() as string
+    route = m.top.route
+    wanted = invalid
+    if route <> invalid then wanted = route.address
+    found = FindSettingsPage(m.structure, wanted)
+    if found = invalid then return ""
+    return SettingsPageId(found.heading.id, found.page.id)
+end function
+
+function SettingsOnDashboard() as boolean
+    return m.address = SettingsPageId("server", "dashboard")
+end function
+
+' The device's own values (this installation's registry).
+function SettingsDevice() as object
+    stored = StoreReadJson(StoreRegistry(), "portico", "devicePreferences")
+    device = { reduceMotion: false, textSize: "standard", receiveFromDevices: true }
+    if Type(stored) = "roAssociativeArray" then
+        if Type(stored.reduceMotion) = "Boolean" or Type(stored.reduceMotion) = "roBoolean" then device.reduceMotion = stored.reduceMotion
+        if Type(stored.receiveFromDevices) = "Boolean" or Type(stored.receiveFromDevices) = "roBoolean" then device.receiveFromDevices = stored.receiveFromDevices
+        if stored.textSize = "large" then device.textSize = "large"
+    end if
+    return device
+end function
+
+sub SettingsDeviceWrite(id as string, value as dynamic)
+    m.device[id] = value
+    StoreWriteJson(StoreRegistry(), "portico", "devicePreferences", { reduceMotion: m.device.reduceMotion, textSize: m.device.textSize, receiveFromDevices: m.device.receiveFromDevices })
+    m.global.reduceMotion = m.device.reduceMotion
+    ' The shell starts or stops being a receiver as this changes.
+    m.global.receiveFromDevices = m.device.receiveFromDevices
+    scale = 1.0
+    if m.device.textSize = "large" then scale = Theme.apple.textScaleLarge
+    m.global.textScale = scale
+end sub
+
+' ---- The column of pages -------------------------------------------------------------------------
+
+sub SettingsColumn()
+    body = m.left.body
+    body.removeChildrenIndex(body.getChildCount(), 0)
+    m.columnRows = {}
+    x = Theme.space.page
+    title = MakeText(body, "title", "primary", T("settings.title"))
+    Place(title, x, 0)
+    y = title.height + Theme.space.xl
+    for each heading in m.structure.headings
+        rows = []
+        for each page in heading.pages
+            address = SettingsPageId(heading.id, page.id)
+            row = CreateObject("roSGNode", "UiListRow")
+            row.rowId = address
+            row.icon = page.icon
+            row.title = T(page.title)
+            row.selected = address = m.address
+            row.observeField("isFocused", "onSettingsColumnFocus")
+            row.observeField("pressed", "onSettingsColumnPress")
+            rows.push(row)
+            m.columnRows[address] = row
+        end for
+        if rows.count() > 0 then y = SettingsGroup(body, x, y, m.columnWidth, T(heading.title), "", rows) + Theme.space.xl
+    end for
+    ' What is reached from here but is not a settings page.
+    shortcuts = []
+    if SettingsViewer().authority = "local" then
+        row = CreateObject("roSGNode", "UiListRow")
+        row.rowId = "shortcut:profile"
+        row.icon = "switch"
+        row.title = T("settings.switchProfile")
+        row.accessory = "navigation"
+        row.observeField("pressed", "onSettingsShortcut")
+        shortcuts.push(row)
+    end if
+    ' An account on several servers switches between them here; so does a server by its address.
+    row = CreateObject("roSGNode", "UiListRow")
+    row.rowId = "shortcut:server"
+    row.icon = "server"
+    row.title = T("settings.switchServer")
+    row.accessory = "navigation"
+    row.observeField("pressed", "onSettingsShortcut")
+    shortcuts.push(row)
+    ' Television has no top bar, so its bell is this row.
+    row = CreateObject("roSGNode", "UiListRow")
+    row.rowId = "shortcut:notifications"
+    row.icon = "bell"
+    row.title = T("notifications.title")
+    badges = PreferenceValueOf(m.snapshot, "notifications.badges")
+    if m.unread > 0 and not (IsBoolean(badges) and badges = false) then row.meta = T("settings.unreadCount", { count: m.unread })
+    row.accessory = "navigation"
+    row.observeField("pressed", "onSettingsShortcut")
+    shortcuts.push(row)
+    row = CreateObject("roSGNode", "UiListRow")
+    row.rowId = "shortcut:together"
+    row.icon = "people"
+    row.title = T("feature.watchTogether")
+    together = m.global.together
+    if together <> invalid and together.inRoom = true then row.subtitle = T("settings.inGroup")
+    row.accessory = "navigation"
+    row.observeField("pressed", "onSettingsShortcut")
+    shortcuts.push(row)
+    if shortcuts.count() > 0 then
+        heading = ""
+        more = "settings.more"
+        if HasMessage(more) then heading = T(more)
+        y = SettingsGroup(body, x, y, m.columnWidth, heading, "", shortcuts) + Theme.space.xl
+    end if
+    m.left.contentHeight = y + Theme.space.xxxl
+    m.left.callFunc("refresh")
+end sub
+
+function SettingsGroup(parent as object, x as dynamic, y as dynamic, width as dynamic, title as string, footer as string, rows as object) as float
+    group = parent.createChild("UiRowGroup")
+    if title <> "" then group.title = title
+    if footer <> "" then group.footer = footer
+    group.groupWidth = width
+    group.callFunc("setRows", rows)
+    Place(group, x, y)
+    return y + group.groupHeight
+end function
+
+sub onSettingsColumnFocus(event as object)
+    row = event.getRoSGNode()
+    if row.isFocused and row.rowId <> m.address then SettingsOpen(row.rowId)
+end sub
+
+sub onSettingsColumnPress(event as object)
+    row = event.getRoSGNode()
+    if row.rowId <> m.address then SettingsOpen(row.rowId)
+    SettingsToPage()
+end sub
+
+sub onSettingsShortcut(event as object)
+    row = event.getRoSGNode()
+    if row.rowId = "shortcut:profile" then m.session.callFunc("switchProfile")
+    if row.rowId = "shortcut:server" then m.session.callFunc("switchServer")
+    if row.rowId = "shortcut:notifications" then NavPush("ScreenNotifications", {})
+    if row.rowId = "shortcut:together" then NavPush("ScreenTogether", {})
+end sub
+
+sub SettingsOpen(address as string)
+    m.address = address
+    for each key in m.columnRows.keys()
+        m.columnRows[key].selected = m.columnRows[key].rowId = address
+    end for
+    m.right.callFunc("scrollToTop")
+    SettingsPage("")
+    m.refresh.control = "stop"
+    if address = "profile" then SettingsDevicesLoad()
+    if SettingsOnDashboard() then
+        SettingsDashboardLoad()
+        m.refresh.control = "start"
+    end if
+end sub
+
+sub SettingsToPage()
+    if FocusFirst(m.right) then m.right.callFunc("follow")
+end sub
+
+' ---- The open page -------------------------------------------------------------------------------
+
+' Draws the open page. `held` is the id of the row to hold focus (after a value changed).
+sub SettingsPage(held as string)
+    body = m.right.body
+    inside = m.right.isInFocusChain()
+    body.removeChildrenIndex(body.getChildCount(), 0)
+    m.rows = {}
+    m.rowNodes = {}
+    found = invalid
+    if m.address <> "" then found = FindSettingsPage(m.structure, m.address)
+    if found = invalid then return
+    width = m.rightWidth
+    title = MakeText(body, "heading", "secondary", T(found.page.title))
+    y = title.height + Theme.space.lg
+    registry = false
+    for each section in found.page.sections
+        for each row in section.rows
+            if row.kind = "preference" or (row.kind = "composite" and row.storage = "registry") then registry = true
+        end for
+    end for
+    if registry and m.snapshotFailed and m.snapshot = invalid then
+        notice = body.createChild("UiNotice")
+        notice.tone = "warning"
+        notice.title = T("preferences.unavailableTitle")
+        notice.message = T("preferences.unavailableServer")
+        notice.action = T("action.tryAgain")
+        notice.noticeWidth = width
+        notice.observeField("actionPressed", "onSettingsRetry")
+        Place(notice, 0, y)
+        y = y + notice.noticeHeight + Theme.space.xl
+    end if
+    for each section in found.page.sections
+        rows = []
+        for each row in section.rows
+            if row.kind = "custom" then
+                ' A panel is a group of its own (or rows of its section's group).
+                panel = SettingsPanel(body, row.id, y, width)
+                if panel.rows <> invalid then
+                    rows.append(panel.rows)
+                else
+                    y = panel.y
+                end if
+            else if SettingsRowShown(row, m.snapshot) then
+                node = SettingsRowNode(row)
+                if node <> invalid then rows.push(node)
+            end if
+        end for
+        if rows.count() > 0 then
+            heading = ""
+            if section.title <> invalid then heading = T(section.title)
+            y = SettingsGroup(body, 0, y, width, heading, "", rows) + Theme.space.xl
+        end if
+    end for
+    m.right.contentHeight = y + Theme.space.xxxl
+    m.right.callFunc("refresh")
+    if inside then
+        node = m.rowNodes[held]
+        if node <> invalid then
+            FocusOn(node)
+        else if not FocusFirst(m.right) then
+            focusEntry()
+        end if
+        m.right.callFunc("follow")
+    end if
+end sub
+
+sub onSettingsRetry()
+    m.snapshotFailed = false
+    m.tasks.preferences = ApiStart({ path: "/v1/preferences?deviceClass=television", reader: "preferences" }, "onSettingsPreferences")
+end sub
+
+' One authored row with this channel's controls: a switch, a value that opens a picker, a list of
+' languages, an action.
+function SettingsRowNode(row as object) as dynamic
+    node = CreateObject("roSGNode", "UiListRow")
+    id = SettingsRowId(row)
+    node.rowId = id
+    if row.kind = "action" then
+        if row.id = "signOut" then
+            node.icon = "signOut"
+            node.tone = "destructive"
+            node.title = T("account.signOutThisTV")
+        else if row.id = "resetRecommendations" then
+            node.title = T("settings.resetRecommendations")
+            node.subtitle = T("settings.resetRecommendations.help")
+        else
+            return invalid
+        end if
+    else
+        model = SettingsRowModel(row, m.snapshot, m.device)
+        if model = invalid then return invalid
+        node.title = model.title
+        node.subtitle = model.subtitle
+        if model.control = "switch" then
+            node.toggle = "off"
+            if model.value then node.toggle = "on"
+        else
+            node.meta = model.label
+            node.accessory = "value"
+        end if
+    end if
+    node.subtitleLines = Theme.apple.detailSubtitleLines
+    node.observeField("pressed", "onSettingsRow")
+    m.rows[id] = row
+    m.rowNodes[id] = node
+    return node
+end function
+
+function SettingsReadable(title as string, meta as string, subtitle = "" as string, icon = "" as string) as object
+    node = CreateObject("roSGNode", "UiListRow")
+    node.readable = true
+    node.title = title
+    if meta <> "" then node.meta = meta
+    if subtitle <> "" then node.subtitle = subtitle
+    if icon <> "" then node.icon = icon
+    return node
+end function
+
+' The `custom` rows: {rows} to join the section's group, or {y} after a group of their own.
+function SettingsPanel(body as object, id as string, y as dynamic, width as dynamic) as object
+    viewer = m.session.viewer
+    facts = SettingsViewer()
+    if id = "identity" then
+        name = T("account.serverAccount")
+        if viewer <> invalid and viewer.username <> "" then name = viewer.username
+        account = m.session.account
+        if m.session.hasAccount and account <> invalid then
+            if account.displayName <> invalid and account.displayName <> "" then
+                name = account.displayName
+            else if account.username <> invalid and account.username <> "" then
+                name = account.username
+            end if
+        end if
+        using = ""
+        if viewer <> invalid and viewer.profileName <> "" then using = T("account.usingProfile", { name: viewer.profileName })
+        return { y: SettingsGroup(body, 0, y, width, T("account.signedInAs"), "", [SettingsReadable(name, "", using, "account")]) + Theme.space.xl }
+    end if
+    if id = "profiles" then
+        ' A direct sign-in manages its profiles on a phone or computer.
+        if facts.authority <> "local" or viewer = invalid then return { y: y }
+        return { y: SettingsHandoff(body, y, width, viewer.origin + "/settings/profile", T("account.tvHandoffTitle"), "") + Theme.space.xl }
+    end if
+    if id = "porticoAccount" then
+        if not m.session.hasAccount then return { y: y }
+        return { y: SettingsHandoff(body, y, width, SessionHostedUrl() + "/account", T("account.manageHosted"), T("account.hostedManagedAt")) + Theme.space.xl }
+    end if
+    if id = "devices" then return { y: SettingsDevicesPanel(body, y, width) }
+    if id = "servers" then
+        name = T("servers.fallbackName")
+        version = ""
+        if m.system <> invalid then
+            if m.system.name <> invalid and m.system.name <> "" then name = m.system.name
+            if m.system.version <> invalid and m.system.version <> "" then version = T("servers.version", { version: m.system.version })
+        end if
+        how = T("settings.connectedDirectly")
+        if facts.authority = "hosted" then how = T("settings.connectedThroughAccount")
+        host = ""
+        if viewer <> invalid then host = FriendlyHost(viewer.origin)
+        if host = "" then host = how
+        line = host
+        if version <> "" then line = host + " · " + version
+        return { rows: [SettingsReadable(name, "", line, "server")] }
+    end if
+    if id = "deviceName" then
+        name = ""
+        info = CreateObject("roDeviceInfo")
+        if info <> invalid then name = info.getFriendlyName()
+        return { rows: [SettingsReadable(T("settings.row.deviceName"), name)] }
+    end if
+    if id = "about" then
+        none = T("about.notAvailable")
+        version = none
+        app = CreateObject("roAppInfo")
+        if app <> invalid and app.getVersion() <> "" then version = app.getVersion()
+        name = none
+        serverVersion = none
+        if m.system <> invalid then
+            if m.system.name <> invalid and m.system.name <> "" then name = m.system.name
+            if m.system.version <> invalid and m.system.version <> "" then serverVersion = m.system.version
+        end if
+        rows = [SettingsReadable(T("about.appVersion"), version), SettingsReadable(T("about.server"), name), SettingsReadable(T("about.serverVersion"), serverVersion)]
+        return { y: SettingsGroup(body, 0, y, width, "", T("about.legal") + " " + T("about.datasetCredit"), rows) + Theme.space.xl }
+    end if
+    if IsServerPanel(id) then return { y: SettingsDashboardPanel(body, id, y, width) }
+    return { y: y }
+end function
+
+' SettingsPages.tsx `WebHandoff` on television: the page as a QR code and a printed address.
+function SettingsHandoff(body as object, y as dynamic, width as dynamic, url as string, title as string, subtitle as string) as float
+    pad = Theme.space.lg
+    size = Theme.apple.handoffQr
+    panel = body.createChild("Group")
+    plate = MakeShape(panel, width, size + Theme.space.sm * 2 + pad * 2, Theme.metrics.radius.panel, Theme.colors.raised)
+    tile = MakeShape(panel, size + Theme.space.sm * 2, size + Theme.space.sm * 2, Theme.apple.handoffQrRadius, Theme.colors.white)
+    Place(tile, pad, pad)
+    code = panel.createChild("UiQrCode")
+    code.qrSize = size
+    code.value = url
+    Place(code, pad + Theme.space.sm, pad + Theme.space.sm)
+    left = pad + size + Theme.space.sm * 2 + Theme.space.xl
+    room = width - left - pad
+    shown = WebAddressShown(url)
+    lines = [MakeText(panel, "subheading", "primary", title)]
+    if subtitle <> "" then lines.push(MakeText(panel, "body", "secondary", subtitle))
+    lines.push(MakeText(panel, "body", "secondary", T("settings.openOnWeb", { url: shown })))
+    height = 0
+    for each line in lines
+        line.lines = 0
+        line.maxWidth = room
+        height = height + TextHeight(line) + Theme.space.sm
+    end for
+    top = pad + (size + Theme.space.sm * 2 - (height - Theme.space.sm)) / 2
+    if top < pad then top = pad
+    for each line in lines
+        Place(line, left, top)
+        top = top + TextHeight(line) + Theme.space.sm
+    end for
+    Place(panel, 0, y)
+    return y + size + Theme.space.sm * 2 + pad * 2
+end function
+
+' ---- Changing a value ------------------------------------------------------------------------------
+
+sub onSettingsRow(event as object)
+    node = event.getRoSGNode()
+    row = m.rows[node.rowId]
+    if row = invalid then return
+    if row.kind = "action" then
+        SettingsConfirm(row.id, invalid)
+        return
+    end if
+    model = SettingsRowModel(row, m.snapshot, m.device)
+    if model = invalid then return
+    if model.control = "switch" then
+        SettingsWrite(row, not model.value)
+    else if model.control = "languages" then
+        SettingsLanguages(row, model, "list")
+    else
+        items = []
+        for each option in model.options
+            items.push({ id: "choice:" + option.id, label: option.label, selected: option.selected })
+        end for
+        SettingsMenu(row, model.title, items)
+    end if
+end sub
+
+sub SettingsMenu(row as dynamic, title as string, items as object, subtitle = "" as string)
+    if m.menu = invalid then
+        m.menu = m.top.createChild("UiMenu")
+        m.menu.observeField("chosen", "onSettingsChoice")
+        m.menu.observeField("closed", "onSettingsOverlayClosed")
+    end if
+    m.menuFor = row
+    m.menu.title = title
+    m.menu.subtitle = subtitle
+    m.menu.items = items
+    m.menu.callFunc("open")
+end sub
+
+' language-list.ts and LanguageListPicker.tsx: the ordered list, one menu at a time.
+sub SettingsLanguages(row as object, model as object, mode as string, index = -1 as integer)
+    codes = model.value
+    items = []
+    title = model.title
+    if mode = "list" then
+        for at = 0 to codes.count() - 1
+            items.push({ id: "language:" + at.toStr(), label: LanguageName(codes[at]), detail: (at + 1).toStr() })
+        end for
+        if codes.count() < SettingsMaxLanguages() then items.push({ id: "languageAdd", label: T("preferences.language.add"), icon: "plus" })
+    else if mode = "add" then
+        title = T("preferences.language.add")
+        for each code in AvailableLanguages(codes)
+            items.push({ id: "languagePick:" + code, label: LanguageName(code) })
+        end for
+    else
+        title = LanguageName(codes[index])
+        items.push({ id: "languageUp:" + index.toStr(), label: T("preferences.language.moveUp"), disabled: index <= 0 })
+        items.push({ id: "languageDown:" + index.toStr(), label: T("preferences.language.moveDown"), disabled: index >= codes.count() - 1 })
+        items.push({ id: "languageRemove:" + index.toStr(), label: T("action.remove", { label: title }) })
+    end if
+    SettingsMenu(row, title, items)
+end sub
+
+sub onSettingsChoice()
+    chosen = m.menu.chosen
+    row = m.menuFor
+    if row = invalid then return
+    at = Instr(1, chosen, ":")
+    kind = chosen
+    value = ""
+    if at > 0 then
+        kind = Left(chosen, at - 1)
+        value = Mid(chosen, at + 1)
+    end if
+    if kind = "session" or kind = "job" or kind = "device" then
+        SettingsAdminChoice(kind, value)
+        return
+    end if
+    model = SettingsRowModel(row, m.snapshot, m.device)
+    if model = invalid then return
+    if kind = "choice" then
+        picked = SettingsChoiceValue(row, value)
+        if picked <> invalid and SettingsValueId(picked) <> SettingsValueId(model.value) then SettingsWrite(row, picked)
+    else if kind = "language" then
+        SettingsLanguages(row, model, "act", value.toInt())
+    else if kind = "languageAdd" then
+        SettingsLanguages(row, model, "add")
+    else if kind = "languagePick" then
+        SettingsWrite(row, AddLanguage(model.value, value))
+    else if kind = "languageUp" then
+        SettingsWrite(row, MoveLanguage(model.value, value.toInt(), "up"))
+    else if kind = "languageDown" then
+        SettingsWrite(row, MoveLanguage(model.value, value.toInt(), "down"))
+    else if kind = "languageRemove" then
+        SettingsWrite(row, RemoveLanguage(model.value, value.toInt()))
+    end if
+end sub
+
+' A device value is kept here; a registry value is written one scope at a time, each answer the
+' new snapshot. The row shows the new value at once and goes back if the server refuses it.
+sub SettingsWrite(row as object, value as dynamic)
+    id = SettingsRowId(row)
+    patch = SettingsRowPatch(row, value)
+    if patch = invalid then
+        SettingsDeviceWrite(row.id, value)
+        ' Text size changes every row: the column is drawn again too.
+        SettingsColumn()
+        SettingsPage(id)
+        return
+    end if
+    if m.snapshot = invalid or m.saving then return
+    requests = PreferencePatchRequests(m.snapshot, patch)
+    if requests.count() = 0 then return
+    m.before = m.snapshot.effective
+    shown = {}
+    shown.setModeCaseSensitive()
+    shown.append(m.snapshot.effective)
+    for each key in patch.keys()
+        if m.snapshot.fields[key] <> invalid then shown[key] = patch[key]
+    end for
+    m.snapshot.effective = shown
+    m.pending = requests
+    m.heldRow = id
+    m.saving = true
+    SettingsPage(id)
+    SettingsSaveNext()
+end sub
+
+sub SettingsSaveNext()
+    request = m.pending.shift()
+    ' Each scope is written against the revision the last answer gave it.
+    for each document in m.snapshot.documents
+        if document.scope = request["scope"] then request["expectedRevision"] = document.revision
+    end for
+    request["idempotencyKey"] = NewRequestId()
+    m.tasks.save = ApiStart({ path: "/v1/preferences", method: "PATCH", body: request, reader: "preferences" }, "onSettingsSaved")
+end sub
+
+sub onSettingsSaved(event as object)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.saving = false
+        m.pending = []
+        m.snapshot.effective = m.before
+        failure = result.error
+        if failure = invalid then failure = { code: "invalid_response", status: 0 }
+        Toast(PresentError(failure, "preferences", { operation: "save" }).body, "warning")
+        SettingsPage(m.heldRow)
+        ' What the server holds now, in case another device changed it.
+        m.tasks.preferences = ApiStart({ path: "/v1/preferences?deviceClass=television", reader: "preferences" }, "onSettingsPreferences")
+        return
+    end if
+    m.snapshot = result.value
+    if m.pending.count() > 0 then
+        SettingsSaveNext()
+        return
+    end if
+    m.saving = false
+    SettingsRegion()
+    SettingsPage(m.heldRow)
+end sub
+
+sub onSettingsPreferences(event as object)
+    result = event.getData()
+    if m.saving then return
+    if result.ok and result.value.ok = true then
+        m.snapshot = result.value
+        m.snapshotFailed = false
+        SettingsRegion()
+        before = FormatJson(SettingsAddresses(m.structure))
+        SettingsResolve()
+        ' The registry may leave a page without rows: the column follows the structure.
+        if FormatJson(SettingsAddresses(m.structure)) <> before then
+            inColumn = m.left.isInFocusChain()
+            if not ArrayIncludes(SettingsAddresses(m.structure), m.address) then m.address = SettingsFirstAddress()
+            SettingsColumn()
+            if inColumn then focusEntry()
+        end if
+    else
+        m.snapshotFailed = true
+    end if
+    SettingsDraw()
+end sub
+
+function SettingsOverlayOpen() as boolean
+    if m.menu <> invalid and m.menu.isInFocusChain() then return true
+    return m.confirm <> invalid and m.confirm.isOpen
+end function
+
+' Draws the page again, keeping focus where it is; while a menu or a confirmation is open the
+' row that opened it must stay, so the page waits until it has closed.
+sub SettingsDraw()
+    if SettingsOverlayOpen() then
+        m.pendingDraw = true
+        return
+    end if
+    m.pendingDraw = false
+    SettingsPage(SettingsFocusedRow())
+end sub
+
+sub onSettingsOverlayClosed()
+    if m.pendingDraw and not SettingsOverlayOpen() then SettingsDraw()
+end sub
+
+sub onSettingsSystem(event as object)
+    result = event.getData()
+    if result.ok and Type(result.value) = "roAssociativeArray" then
+        m.system = result.value
+        SettingsDraw()
+    end if
+end sub
+
+' Language, hour cycle and time zone apply at once: the words on this screen are said again.
+sub SettingsRegion()
+    choice = RegionChoiceFor(m.snapshot)
+    if m.global.region = choice then return
+    m.global.region = choice
+    inColumn = m.left.isInFocusChain()
+    SettingsColumn()
+    if inColumn then focusEntry()
+end sub
+
+' ---- Confirmations (sign out, reset recommendations, stop playback) ---------------------------------
+
+sub SettingsConfirm(kind as string, subject as dynamic)
+    if m.confirm = invalid then
+        m.confirm = m.top.createChild("UiSheet")
+        m.confirm.kind = "form"
+        m.confirm.primaryTone = "destructive"
+        m.confirm.observeField("primaryPressed", "onSettingsConfirmed")
+        m.confirm.observeField("closed", "onSettingsOverlayClosed")
+    end if
+    m.confirmFor = { kind: kind, subject: subject }
+    title = ""
+    words = ""
+    action = ""
+    if kind = "signOut" then
+        server = T("servers.fallbackName")
+        if m.system <> invalid and m.system.name <> invalid and m.system.name <> "" then server = m.system.name
+        title = T("settings.signOutConfirm.title", { server: server, device: SettingsDeviceNoun() })
+        words = T("settings.signOutConfirm.bodyTV")
+        action = T("action.signOut")
+    else if kind = "deviceSignOut" or kind = "deviceRemove" then
+        action = "signOut"
+        if kind = "deviceRemove" then action = "remove"
+        asked = DeviceConfirmWords(subject, action)
+        title = asked.title
+        words = asked.body
+        action = asked.action
+    else if kind = "resetRecommendations" then
+        title = T("settings.resetRecommendations.confirmTitle")
+        words = T("settings.resetRecommendations.confirmBody")
+        action = T("settings.resetRecommendations.confirm")
+        m.confirmFor.operationId = NewRequestId()
+    else
+        name = subject.title
+        if name = "" then name = T("web.nowPlaying.untitled")
+        title = T("web.nowPlaying.stopTitle", { title: name })
+        words = T("web.nowPlaying.stopBody", { viewer: SessionViewer(subject) })
+        action = T("web.nowPlaying.stopConfirm")
+        m.confirmFor.operationId = NewRequestId()
+    end if
+    m.confirm.title = title
+    m.confirm.primaryLabel = action
+    m.confirm.primaryLoading = false
+    body = CreateObject("roSGNode", "Group")
+    text = MakeText(body, "body", "secondary")
+    text.lines = 0
+    text.maxWidth = m.confirm.bodyWidth - Theme.space.md * 2
+    text.value = words
+    Place(text, Theme.space.md, 0)
+    m.confirm.callFunc("setBody", body, TextHeight(text))
+    m.confirm.callFunc("open")
+end sub
+
+' The device noun in "Sign out of {server} on this {device}?": the product's own name.
+function SettingsDeviceNoun() as string
+    return "Roku"
+end function
+
+sub onSettingsConfirmed()
+    asked = m.confirmFor
+    if asked = invalid then return
+    if asked.kind = "signOut" then
+        m.confirm.callFunc("close")
+        m.session.callFunc("signOut")
+        return
+    end if
+    m.confirm.primaryLoading = true
+    if asked.kind = "deviceSignOut" or asked.kind = "deviceRemove" then
+        action = "signOutConfirmed"
+        if asked.kind = "deviceRemove" then action = "removeConfirmed"
+        request = DeviceRequest(asked.subject, action)
+        m.tasks.confirm = ApiStart({ path: request.path, method: request.method }, "onSettingsConfirmDone")
+    else if asked.kind = "resetRecommendations" then
+        ' One operation id per confirmation: a retry after a lost answer cannot reset twice.
+        m.tasks.confirm = ApiStart({ path: "/v1/me/recommendations:reset", method: "POST", body: { "operationId": asked.operationId } }, "onSettingsConfirmDone")
+    else
+        m.tasks.confirm = ApiStart({ path: SessionTerminatePath(asked.subject), method: "POST", body: {}, headers: { "Idempotency-Key": asked.operationId } }, "onSettingsConfirmDone")
+    end if
+end sub
+
+sub onSettingsConfirmDone(event as object)
+    result = event.getData()
+    asked = m.confirmFor
+    m.confirm.primaryLoading = false
+    m.confirm.callFunc("close")
+    if asked = invalid then return
+    if asked.kind = "deviceSignOut" or asked.kind = "deviceRemove" then
+        if not result.ok then
+            Toast(PresentError(result.error, "devices", { operation: "save" }).body, "warning")
+        else if asked.kind = "deviceSignOut" and asked.subject.current then
+            ' This device's own sessions are gone: the sign-in here ends too.
+            m.session.callFunc("signOut")
+            return
+        end if
+        SettingsDevicesLoad()
+        return
+    end if
+    if asked.kind = "resetRecommendations" then
+        if result.ok then
+            Toast(T("settings.resetRecommendations.done"), "check")
+            NotePersonalChange()
+        else
+            Toast(T("settings.resetRecommendations.failed"), "warning")
+        end if
+        return
+    end if
+    ' A session that is already gone (404) was stopped.
+    if not TerminateSucceeded(result) then
+        Toast(PresentError(result.error, "generic", { operation: "action" }).body, "warning")
+    end if
+    SettingsDashboardLoad()
+end sub
+
+' ---- The Dashboard (owners) ------------------------------------------------------------------------
+
+sub SettingsDashboardLoad()
+    for each item in [["sessions", "/v1/admin/sessions?limit=50", "adminSessions"], ["alerts", "/v1/admin/console/alerts", "adminAlerts"], ["health", "/v1/admin/console/panels/health", "adminHealth"], ["storage", "/v1/admin/console/panels/storage", "adminStorage"], ["telemetry", "/v1/admin/telemetry?window=1h", "adminTelemetry"], ["jobs", "/v1/admin/console/jobs?cursor=", "adminJobs"]]
+        task = ApiStart({ path: item[1], reader: item[2] }, "onSettingsAdmin")
+        task.addFields({ adminKey: item[0] })
+        m.tasks["admin:" + item[0]] = task
+    end for
+end sub
+
+sub onSettingsRefresh()
+    if SettingsOnDashboard() and not SettingsOverlayOpen() then SettingsDashboardLoad()
+end sub
+
+sub onSettingsAdmin(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    entry = { ok: false, failure: result.error }
+    if result.ok and result.value.ok = true then entry = result.value
+    ' The page is drawn again only when what it shows changed.
+    before = FormatJson(m.admin[task.adminKey])
+    m.admin[task.adminKey] = entry
+    if SettingsOnDashboard() and FormatJson(entry) <> before then SettingsDraw()
+end sub
+
+function SettingsFocusedRow() as string
+    for each id in m.rowNodes.keys()
+        if m.rowNodes[id].isInFocusChain() then return id
+    end for
+    return ""
+end function
+
+function SettingsFailureNotice(body as object, y as dynamic, width as dynamic, entry as dynamic) as float
+    if entry = invalid or entry.ok = true then return y
+    failure = entry.failure
+    if failure = invalid then failure = { code: "invalid_response", status: 0 }
+    notice = body.createChild("UiNotice")
+    notice.tone = "error"
+    notice.message = PresentError(failure, "generic").body
+    notice.noticeWidth = width
+    Place(notice, 0, y)
+    return y + notice.noticeHeight + Theme.space.sm
+end function
+
+function SettingsDashboardPanel(body as object, id as string, y as dynamic, width as dynamic) as float
+    if id = "server.nowPlaying" then
+        data = m.admin.sessions
+        y = SettingsFailureNotice(body, y, width, data)
+        title = T("web.nowPlaying.title")
+        rows = []
+        if data <> invalid and data.ok = true then
+            if data.sessions.count() = 0 then
+                rows.push(SettingsReadable(T("web.nowPlaying.empty"), "", "", "play"))
+            else
+                title = title + " · " + data.sessions.count().toStr()
+            end if
+            for each session in data.sessions
+                node = CreateObject("roSGNode", "UiListRow")
+                node.rowId = "session:" + session.id
+                node.addFields({ adminKind: "session", adminId: session.id })
+                node.title = session.title
+                if session.title = "" then node.title = T("web.nowPlaying.untitled")
+                node.subtitle = SessionFacts(session)
+                node.subtitleLines = Theme.apple.detailSubtitleLines
+                node.accessory = "menu"
+                node.observeField("pressed", "onSettingsAdminRow")
+                m.rowNodes[node.rowId] = node
+                rows.push(node)
+            end for
+        end if
+        if rows.count() = 0 then return y
+        return SettingsGroup(body, 0, y, width, title, "", rows) + Theme.space.xl
+    end if
+    if id = "server.alerts" then
+        data = m.admin.alerts
+        y = SettingsFailureNotice(body, y, width, data)
+        if data = invalid or data.ok <> true then return y
+        open = OpenAlerts(data.alerts)
+        if open.count() = 0 then
+            notice = body.createChild("UiNotice")
+            notice.tone = "success"
+            notice.message = T("web.overview.noAlerts")
+            notice.noticeWidth = width
+            Place(notice, 0, y)
+            return y + notice.noticeHeight + Theme.space.xl
+        end if
+        for each alert in open
+            notice = body.createChild("UiNotice")
+            notice.addFields({ alertId: alert.id })
+            notice.tone = "warning"
+            if alert.severity = "critical" then notice.tone = "error"
+            notice.title = AlertLabel(alert)
+            notice.message = AlertLine(alert)
+            if alert.status = "open" then
+                notice.action = T("web.overview.acknowledge")
+                notice.observeField("actionPressed", "onSettingsAcknowledge")
+            end if
+            notice.noticeWidth = width
+            Place(notice, 0, y)
+            y = y + notice.noticeHeight + Theme.space.sm
+        end for
+        return y - Theme.space.sm + Theme.space.xl
+    end if
+    if id = "server.health" then
+        y = SettingsFailureNotice(body, y, width, m.admin.health)
+        rows = []
+        if m.admin.health <> invalid and m.admin.health.ok = true then
+            words = HealthWords(HealthFacts(m.admin.health, m.admin.storage))
+            icon = "check"
+            if words.degraded then icon = "warning"
+            rows.push(SettingsReadable(words.title, "", words.line, icon))
+        end if
+        if m.admin.telemetry <> invalid and m.admin.telemetry.ok = true then
+            load = LoadRows(m.admin.telemetry)
+            for each figure in load
+                rows.push(SettingsReadable(T(figure.label), figure.value))
+            end for
+            ' A figure this server cannot measure is left out; when none can be, that is said once.
+            if load.count() = 0 then rows.push(SettingsReadable(T("server.health.loadNotMeasured"), ""))
+        end if
+        if rows.count() = 0 then return y
+        return SettingsGroup(body, 0, y, width, T("settings.server.health"), "", rows) + Theme.space.xl
+    end if
+    if id = "server.activity" then
+        data = m.admin.jobs
+        y = SettingsFailureNotice(body, y, width, data)
+        if data = invalid or data.ok <> true then return y
+        rows = []
+        if data.jobs.count() = 0 then rows.push(SettingsReadable(T("web.activity.noTasks"), "", T("web.activity.noTasksBody"), "check"))
+        for each job in data.jobs
+            node = SettingsReadable(JobLabel(job.kind), JobStateLabel(job.state), JobLine(job))
+            if job.actions.count() > 0 then
+                node.readable = false
+                node.rowId = "job:" + job.id
+                node.addFields({ adminKind: "job", adminId: job.id })
+                node.accessory = "menu"
+                node.observeField("pressed", "onSettingsAdminRow")
+                m.rowNodes[node.rowId] = node
+            end if
+            rows.push(node)
+        end for
+        footer = ""
+        if data.more then footer = T("server.tasks.latestOnly")
+        return SettingsGroup(body, 0, y, width, T("web.activity.tasks"), footer, rows) + Theme.space.xl
+    end if
+    return y
+end function
+
+sub onSettingsAdminRow(event as object)
+    node = event.getRoSGNode()
+    if node.adminKind = "device" then
+        device = SettingsDeviceOf(node.adminId)
+        if device = invalid then return
+        m.adminSubject = device
+        items = []
+        for each action in DeviceActions(device)
+            items.push({ id: "device:" + action.id, label: action.label, icon: action.icon, destructive: action.destructive = true })
+        end for
+        SettingsMenu({ kind: "admin" }, device.name, items, DeviceMenuLine(device))
+    else if node.adminKind = "session" then
+        session = SettingsSessionOf(node.adminId)
+        if session = invalid then return
+        m.adminSubject = session
+        SettingsMenu({ kind: "admin" }, node.title, [{ id: "session:stop", label: T("web.nowPlaying.stop"), icon: "stop", destructive: true }])
+    else
+        job = SettingsJobOf(node.adminId)
+        if job = invalid then return
+        m.adminSubject = job
+        items = []
+        for each action in job.actions
+            items.push({ id: "job:" + action, label: JobActionLabel(action), destructive: action = "cancel" })
+        end for
+        SettingsMenu({ kind: "admin" }, JobLabel(job.kind), items)
+    end if
+end sub
+
+function SettingsSessionOf(id as string) as dynamic
+    data = m.admin.sessions
+    if data = invalid or data.ok <> true then return invalid
+    for each session in data.sessions
+        if session.id = id then return session
+    end for
+    return invalid
+end function
+
+function SettingsJobOf(id as string) as dynamic
+    data = m.admin.jobs
+    if data = invalid or data.ok <> true then return invalid
+    for each job in data.jobs
+        if job.id = id then return job
+    end for
+    return invalid
+end function
+
+sub SettingsAdminChoice(kind as string, value as string)
+    subject = m.adminSubject
+    if subject = invalid then return
+    if kind = "device" then
+        if value = "signOut" then
+            SettingsConfirm("deviceSignOut", subject)
+        else if value = "remove" then
+            SettingsConfirm("deviceRemove", subject)
+        else
+            request = DeviceRequest(subject, value)
+            if request <> invalid then m.tasks.command = ApiStart(request, "onSettingsDeviceCommand")
+        end if
+    else if kind = "session" then
+        SettingsConfirm("stop", subject)
+    else
+        m.tasks.command = ApiStart({ path: JobCommandPath(subject, value), method: "POST", body: { "expectedRevision": subject.revision } }, "onSettingsCommand")
+    end if
+end sub
+
+sub onSettingsAcknowledge(event as object)
+    notice = event.getRoSGNode()
+    data = m.admin.alerts
+    if data = invalid or data.ok <> true then return
+    for each alert in data.alerts
+        if alert.id = notice.alertId then m.tasks.command = ApiStart({ path: AlertAcknowledgePath(alert), method: "POST", body: { "expectedRevision": alert.revision } }, "onSettingsCommand")
+    end for
+end sub
+
+sub onSettingsCommand(event as object)
+    result = event.getData()
+    if not result.ok then Toast(PresentError(result.error, "generic", { operation: "action" }).body, "warning")
+    SettingsDashboardLoad()
+end sub
+
+' ---- Devices (Security.tsx `DevicesSection`): where this account is signed in ------------------------
+
+sub SettingsDevicesLoad()
+    if SettingsViewer().authority <> "local" then return
+    installation = InstallationIdentity(StoreRegistry())
+    m.tasks.devices = ApiStart({ path: DevicesPath(installation.installationId), reader: "devices" }, "onSettingsDevices")
+end sub
+
+sub onSettingsDevices(event as object)
+    result = event.getData()
+    entry = { ok: false, failure: result.error }
+    if result.ok and result.value.ok = true then entry = result.value
+    before = FormatJson(m.devices)
+    m.devices = entry
+    if m.address = "profile" and FormatJson(entry) <> before then SettingsDraw()
+end sub
+
+sub onSettingsDeviceCommand(event as object)
+    result = event.getData()
+    if not result.ok then Toast(PresentError(result.error, "devices", { operation: "save" }).body, "warning")
+    SettingsDevicesLoad()
+end sub
+
+function SettingsDeviceOf(id as string) as dynamic
+    if m.devices = invalid or m.devices.ok <> true then return invalid
+    for each device in m.devices.devices
+        if device.id = id then return device
+    end for
+    return invalid
+end function
+
+function SettingsDevicesPanel(body as object, y as dynamic, width as dynamic) as float
+    y = SettingsFailureNotice(body, y, width, m.devices)
+    if m.devices = invalid or m.devices.ok <> true or m.devices.devices.count() = 0 then return y
+    rows = []
+    now = NowSeconds()
+    for each device in m.devices.devices
+        words = DeviceRow(device, FormatRelativeTime(device.lastSeen, now))
+        node = CreateObject("roSGNode", "UiListRow")
+        node.rowId = "device:" + device.id
+        node.addFields({ adminKind: "device", adminId: device.id })
+        node.icon = words.icon
+        node.title = words.title
+        node.subtitle = words.subtitle
+        node.meta = words.meta
+        node.accessory = "menu"
+        node.observeField("pressed", "onSettingsAdminRow")
+        m.rowNodes[node.rowId] = node
+        rows.push(node)
+    end for
+    return SettingsGroup(body, 0, y, width, T("devices.title"), T("devices.footer"), rows) + Theme.space.xl
+end function
+
+' ---- Keys ------------------------------------------------------------------------------------------
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press then return false
+    ' Right from the column opens the page beside it; Left from the page returns to the page's
+    ' row in the column, not to whichever row is nearest.
+    if key = "right" and m.left.isInFocusChain() then
+        SettingsToPage()
+        return true
+    end if
+    if key = "left" and m.right.isInFocusChain() then
+        focusEntry()
+        m.left.callFunc("follow")
+        return true
+    end if
+    return false
+end function

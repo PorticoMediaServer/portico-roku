@@ -1,0 +1,22 @@
+' apps/native/src/ui/Feedback.tsx `ProgressBar`: a rounded track in the rest colour with an accent
+' fill, Theme.apple.progressBarHeight tall unless a height is given.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.track = m.top.createChild("Poster")
+    m.fill = m.top.createChild("Poster")
+end sub
+
+sub onProgressLayout()
+    width = m.top.barWidth
+    if width <= 0 then return
+    height = m.top.barHeight
+    if height <= 0 then height = Theme.apple.progressBarHeight
+    value = Clamp(m.top.value, 0, 1)
+    StyleShape(m.track, width, height, height / 2, Theme.colors.trackRest)
+    m.fill.visible = value > 0
+    if value > 0 then StyleShape(m.fill, Max(height, width * value), height, height / 2, Theme.colors.accent)
+end sub

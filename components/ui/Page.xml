@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Page.tsx: the vertical scrolling page body. -->
+<component name="UiPage" extends="Group">
+    <interface>
+        <field id="pageWidth" type="float" value="0" onChange="onPageLayout" />
+        <field id="pageHeight" type="float" value="0" onChange="onPageLayout" />
+        <!-- The group a screen adds its content to. -->
+        <field id="body" type="node" />
+        <!-- The laid-out height of the content, with its top and bottom padding. -->
+        <field id="contentHeight" type="float" value="0" />
+        <field id="scrollY" type="float" value="0" />
+        <field id="hasFocusInside" type="boolean" value="false" />
+        <function name="follow" />
+        <function name="focusEntry" />
+        <function name="scrollToTop" />
+        <function name="refresh" />
+    </interface>
+</component>

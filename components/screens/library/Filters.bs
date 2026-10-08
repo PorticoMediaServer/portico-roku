@@ -1,0 +1,309 @@
+' apps/native/src/screens/BrowseFilters.tsx, the television form: every filter is in a panel at
+' the side, two short lists deep, and nothing in it is typed. The first level lists the fields in
+' three groups (about the title, your activity, about the file) with each field's current
+' selection on the right; a field opens its values: the library's own values with counts (ticked
+' rows), Any / Yes / No, a short list of choices, or a range offered as presets. Every choice
+' applies at once (the grid behind re-queries); Done closes the panel, Clear all removes every
+' filter, and from a field "Filters" goes back to the list.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/BrowseToolbar.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.sheet = m.top.createChild("UiSheet")
+    m.sheet.kind = "form"
+    m.sheet.placement = "side"
+    m.sheet.cancelLabel = "-"
+    m.sheet.primaryLabel = T("lib.done")
+    m.sheet.observeField("primaryPressed", "onFiltersDone")
+    m.sheet.observeField("leadingPressed", "onFiltersLeading")
+    m.sheet.observeField("closed", "onFiltersClosed")
+    m.field = invalid
+    m.values = invalid
+    m.task = invalid
+    m.predicates = []
+    m.focusValue = invalid
+end sub
+
+sub open()
+    m.predicates = []
+    if m.top.predicates <> invalid then m.predicates = m.top.predicates
+    m.field = invalid
+    FiltersList("")
+    m.sheet.callFunc("open")
+end sub
+
+sub onFiltersDone()
+    m.sheet.callFunc("close")
+end sub
+
+sub onFiltersClosed()
+    m.task = invalid
+    m.top.closed = true
+end sub
+
+sub onFiltersLeading()
+    if m.field <> invalid then
+        ' Back to the list, on the field just left.
+        left = m.field.id
+        m.field = invalid
+        m.task = invalid
+        FiltersList(left)
+        return
+    end if
+    FiltersApply([])
+    FiltersList("")
+end sub
+
+sub FiltersApply(predicates as object)
+    m.predicates = predicates
+    m.top.changed = predicates
+end sub
+
+function FiltersModel() as object
+    capabilities = m.top.capabilities
+    sort = { field: "title", direction: "asc" }
+    return ToolbarModel(capabilities, capabilities.library.kind, m.predicates, sort, m.top.owner)
+end function
+
+' The first level: the fields, grouped, each with what it currently selects.
+sub FiltersList(focusId as string)
+    model = FiltersModel()
+    m.sheet.title = T("filter.title")
+    if m.predicates.count() > 0 then
+        m.sheet.subtitle = T("lib.activeFilters", { count: m.predicates.count() })
+    else
+        m.sheet.subtitle = T("lib.narrow")
+    end if
+    m.sheet.leadingLabel = T("lib.clearAll")
+    m.sheet.leadingDisabled = m.predicates.count() = 0
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    y = 0
+    entry = invalid
+    names = { "title": T("filter.group.title"), "activity": T("filter.group.activity"), "file": T("filter.group.file") }
+    for each group in model.groups
+        if y > 0 then y = y + Theme.space.lg
+        holder = body.createChild("UiRowGroup")
+        holder.title = names[group.id]
+        rows = []
+        for each field in group.fields
+            row = CreateObject("roSGNode", "UiListRow")
+            row.rowId = field.id
+            row.title = BrowseFieldLabel(field.id, field.labelKey)
+            row.meta = FieldSelectionSummary(field, m.predicates)
+            row.accessory = "navigation"
+            row.observeField("pressed", "onFiltersField")
+            rows.push(row)
+            if entry = invalid or field.id = focusId then entry = row
+        end for
+        holder.groupWidth = width
+        holder.callFunc("setRows", rows)
+        Place(holder, 0, y)
+        y = y + holder.groupHeight
+    end for
+    m.sheet.callFunc("setBody", body, y)
+    if m.sheet.isOpen and entry <> invalid then m.sheet.callFunc("focusBody", entry)
+end sub
+
+sub onFiltersField(event as object)
+    row = event.getRoSGNode()
+    field = CapabilityField(m.top.capabilities, row.rowId)
+    if field = invalid then return
+    m.field = field
+    m.values = invalid
+    FiltersValues(true)
+    control = FilterControlOf(field)
+    target = FilterValuesField(field)
+    counted = control = "values" and (field.id = "year" or field.facetSource <> invalid or field.controlHint = "facet-multi-select")
+    if counted then
+        path = "/v1/libraries/" + m.top.libraryId.encodeUriComponent() + "/facets?field=" + target.facet.encodeUriComponent() + "&limit=100"
+        m.task = ApiStart({ path: path, reader: "facets", context: { field: target.facet } }, "onFiltersFacets")
+        m.task.addFields({ fieldId: field.id })
+    end if
+end sub
+
+sub onFiltersFacets(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) or m.field = invalid or m.field.id <> task.fieldId then return
+    m.task = invalid
+    result = event.getData()
+    m.values = []
+    if result.ok and result.value.ok = true then m.values = result.value.values
+    FiltersValues(true)
+end sub
+
+' The values listed at once (screens/BrowseFilters.tsx `MAX_VALUES`).
+function FiltersMaxValues() as integer
+    return Theme.apple.filterMaxValues
+end function
+
+' The second level: one field's values.
+sub FiltersValues(refocus as boolean)
+    field = m.field
+    mine = FieldPredicates(field, m.predicates)
+    m.sheet.title = BrowseFieldLabel(field.id, field.labelKey)
+    m.sheet.subtitle = FieldSelectionSummary(field, m.predicates)
+    m.sheet.leadingLabel = T("filter.title")
+    m.sheet.leadingDisabled = false
+    control = FilterControlOf(field)
+    items = []
+    note = ""
+    if control = "values" then
+        target = FilterValuesField(field)
+        counted = field.id = "year" or field.facetSource <> invalid or field.controlHint = "facet-multi-select"
+        chosen = FiltersChosen(mine)
+        options = []
+        if m.values <> invalid then
+            options = m.values
+        else if not counted and field.allowedValues <> invalid then
+            for each v in field.allowedValues
+                options.push({ value: v, label: v, total: 0 })
+            end for
+        end if
+        options = OrderFilterValues(field, options)
+        ' Chosen values stay listed (first) even when the server's top values leave them out.
+        shown = []
+        for each value in chosen.order
+            present = false
+            for each option in options
+                if option.value = value then present = true
+            end for
+            if not present then shown.push({ value: value, label: value, total: 0 })
+        end for
+        limit = FiltersMaxValues()
+        if chosen.order.count() > limit then limit = chosen.order.count()
+        for each option in options
+            if shown.count() < limit then shown.push(option)
+        end for
+        for each option in shown
+            title = FilterValueText(field, option.value)
+            if option.label <> "" and option.label <> option.value then title = option.label
+            meta = ""
+            if counted and option.total > 0 then meta = MessageNumber(option.total)
+            items.push({ id: "value:" + option.value, title: title, meta: meta, selected: chosen.has.doesExist(option.value) })
+        end for
+        if m.values <> invalid and m.values.count() = 0 then note = T("lib.nothingToFilter")
+    else if control = "toggle" then
+        current = invalid
+        if mine.count() > 0 then current = mine[0].value
+        isTrue = IsBoolean(current) and current = true
+        isFalse = IsBoolean(current) and current = false
+        items.push({ id: "any", title: T("lib.any"), meta: "", selected: not isTrue and not isFalse })
+        items.push({ id: "yes", title: T("lib.yes"), meta: "", selected: isTrue })
+        items.push({ id: "no", title: T("lib.no"), meta: "", selected: isFalse })
+    else if control = "choice" then
+        current = ""
+        if mine.count() > 0 and mine[0].value <> invalid then current = BrowseScalarText(mine[0].value)
+        items.push({ id: "any", title: T("lib.any"), meta: "", selected: current = "" })
+        for each v in field.allowedValues
+            items.push({ id: "choice:" + v, title: FilterValueText(field, v), meta: "", selected: current = v })
+        end for
+    else if control = "range" then
+        presets = RangePresets(field, NowSeconds())
+        active = ActiveRangePreset(presets, mine)
+        items.push({ id: "any", title: T("lib.any"), meta: "", selected: mine.count() = 0 })
+        for each preset in presets
+            items.push({ id: "preset:" + preset.id, title: T(preset.label.id, preset.label.values), meta: "", selected: active = preset.id })
+        end for
+    end if
+
+    width = m.sheet.bodyWidth
+    body = CreateObject("roSGNode", "Group")
+    y = 0
+    ' The level opens on the first chosen value, else the first; a value just ticked keeps focus.
+    keep = m.focusValue
+    m.focusValue = invalid
+    first = invalid
+    firstSelected = invalid
+    kept = invalid
+    if items.count() > 0 then
+        holder = body.createChild("UiRowGroup")
+        rows = []
+        for each item in items
+            row = CreateObject("roSGNode", "UiListRow")
+            row.rowId = item.id
+            row.title = item.title
+            row.meta = item.meta
+            row.selected = item.selected
+            row.checked = item.selected
+            row.observeField("pressed", "onFiltersValue")
+            rows.push(row)
+            if first = invalid then first = row
+            if item.selected and firstSelected = invalid then firstSelected = row
+            if keep <> invalid and item.id = keep then kept = row
+        end for
+        holder.groupWidth = width
+        holder.callFunc("setRows", rows)
+        y = holder.groupHeight
+    end if
+    if note <> "" then
+        label = MakeText(body, "caption", "tertiary", note)
+        label.maxWidth = width - Theme.space.md * 2
+        Place(label, Theme.space.md, y + Theme.space.sm)
+        y = y + Theme.space.sm + TextHeight(label)
+    end if
+    m.sheet.callFunc("setBody", body, y)
+    entry = first
+    if firstSelected <> invalid then entry = firstSelected
+    if kept <> invalid then entry = kept
+    if refocus and entry <> invalid then m.sheet.callFunc("focusBody", entry)
+end sub
+
+' The values a field's predicates select: {has: {value: true}, order: [value]}.
+function FiltersChosen(mine as object) as object
+    has = {}
+    has.setModeCaseSensitive()
+    order = []
+    for each p in mine
+        values = []
+        if IsArray(p.value) then
+            values = p.value
+        else if p.value <> invalid then
+            values = [p.value]
+        end if
+        for each v in values
+            text = BrowseScalarText(v)
+            if not has.doesExist(text) then
+                has[text] = true
+                order.push(text)
+            end if
+        end for
+    end for
+    return { has: has, order: order }
+end function
+
+sub onFiltersValue(event as object)
+    row = event.getRoSGNode()
+    field = m.field
+    if field = invalid then return
+    id = row.rowId
+    parts = FilterRowParts(id)
+    mine = []
+    if parts.kind = "yes" or parts.kind = "no" then
+        mine = [{ "field": field.id, "operator": "equals", "value": parts.kind = "yes" }]
+    else if parts.kind = "choice" then
+        mine = [{ "field": field.id, "operator": "equals", "value": parts.value }]
+    else if parts.kind = "preset" then
+        for each preset in RangePresets(field, NowSeconds())
+            if preset.id = parts.value then mine = preset.predicates
+        end for
+    else if parts.kind = "value" then
+        value = parts.value
+        target = FilterValuesField(field)
+        chosen = FiltersChosen(FieldPredicates(field, m.predicates))
+        values = []
+        numeric = field.id = "year" or field.type = "number"
+        for each v in chosen.order
+            if v <> value then values.push(FilterStoredValue(v, numeric))
+        end for
+        if not chosen.has.doesExist(value) then values.push(FilterStoredValue(value, numeric))
+        if values.count() > 0 then mine = [{ "field": target.field, "operator": target.operator, "value": values }]
+    end if
+    m.focusValue = id
+    FiltersApply(ReplaceFieldPredicates(field, m.predicates, mine))
+    FiltersValues(true)
+end sub

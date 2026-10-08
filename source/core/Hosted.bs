@@ -1,0 +1,293 @@
+' The Portico Account (the account service, "Hosted"): the activation code a television shows
+' (packages/client-core/src/device-authorization.ts), the account's session and its renewal
+' (credentials.ts), its list of servers (index.ts `HttpHostedApi.servers`, the presence rules), and
+' signing the account in to one of its servers (server-connections.ts `connectHostedServer`,
+' portico-servers.ts `porticoSignIn`). The account service proves who a person is and keeps an
+' index of their servers; each server decides who may use it.
+import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/AccountNotices.bs"
+
+function HostedApi(ctx as object, token = "" as string) as object
+    return SessionApi(ctx, ctx.hostedUrl, token)
+end function
+
+' POST /v1/device-authorizations: a code for this television.
+function HostedCodeCreate(ctx as object) as object
+    body = SessionDeviceIdentity(ctx)
+    body["requestId"] = NewRequestId()
+    if ctx.requestId <> invalid then body["requestId"] = ctx.requestId
+    body["platform"] = "roku"
+    answer = ApiRequest(HostedApi(ctx), "/v1/device-authorizations", "POST", body)
+    if not answer.ok then return { ok: false, failure: answer.error }
+    if not SetupCodeValid(answer.data, SessionNow(ctx)) then return { ok: false, failure: { code: "invalid_response", status: 0, message: "The activation response was invalid." } }
+    return { ok: true, authorization: answer.data }
+end function
+
+' POST /v1/device-authorizations/token. Returns {ok, next}: "approved" (with `grant`, saved), or
+' SetupCodeAfterPoll's next.
+function HostedCodePoll(ctx as object, authorization as object) as object
+    answer = ApiRequest(HostedApi(ctx), "/v1/device-authorizations/token", "POST", { "deviceCode": authorization.deviceCode })
+    if not answer.ok then
+        after = SetupCodeAfterPoll(authorization.interval, answer.error)
+        after.ok = true
+        return after
+    end if
+    if not HostedGrantValid(answer.data) then return { ok: true, next: "retry", interval: authorization.interval, waitSeconds: 5, failure: { code: "invalid_response", status: 0, message: "" } }
+    HostedSave(ctx, answer.data)
+    return { ok: true, next: "approved", grant: answer.data }
+end function
+
+sub HostedCodeCancel(ctx as object, authorization as dynamic)
+    if authorization = invalid then return
+    ApiRequest(HostedApi(ctx), "/v1/device-authorizations/cancel", "POST", { "deviceCode": authorization.deviceCode })
+end sub
+
+sub HostedSave(ctx as object, grant as object)
+    StoreWriteJson(ctx.store, "portico", "hosted", grant)
+end sub
+
+function HostedLoad(ctx as object) as dynamic
+    grant = StoreReadJson(ctx.store, "portico", "hosted")
+    if not HostedGrantValid(grant) then return invalid
+    return grant
+end function
+
+sub HostedClear(ctx as object)
+    ctx.store.remove("portico", "hosted")
+    ctx.store.remove("portico", "hostedPendingRefresh")
+end sub
+
+' The account's session with an access token that is still good, renewing it when less than a
+' minute remains (credentials.ts: POST /v1/sessions/refresh {refreshToken, requestId}). A refusal
+' ends the account's sign-in on this device. Returns {ok, hosted} or {ok: false, signOut, failure}.
+function HostedLive(ctx as object) as object
+    hosted = HostedLoad(ctx)
+    if hosted = invalid then return { ok: false, signOut: true, failure: { code: "signed_out", status: 401, message: "" } }
+    expires = IsoToSeconds(hosted.expiresAt)
+    if expires - SessionNow(ctx) > 60 then return { ok: true, hosted: hosted }
+    requestId = ctx.store.read("portico", "hostedPendingRefresh")
+    if requestId = invalid or requestId = "" then
+        requestId = NewRequestId()
+        if ctx.requestId <> invalid then requestId = ctx.requestId
+        ctx.store.write("portico", "hostedPendingRefresh", requestId)
+    end if
+    answer = ApiRequest(HostedApi(ctx), "/v1/sessions/refresh", "POST", { "refreshToken": hosted.refreshToken, "requestId": requestId })
+    if not answer.ok then
+        if answer.status = 401 or answer.status = 403 then
+            HostedClear(ctx)
+            return { ok: false, signOut: true, failure: answer.error }
+        end if
+        return { ok: false, signOut: false, failure: answer.error }
+    end if
+    if not HostedGrantValid(answer.data) then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    HostedSave(ctx, answer.data)
+    ctx.store.remove("portico", "hostedPendingRefresh")
+    return { ok: true, hosted: answer.data }
+end function
+
+' Signing the account out: the session is revoked (best effort) and forgotten.
+sub HostedSignOut(ctx as object)
+    hosted = HostedLoad(ctx)
+    if hosted <> invalid then ApiRequest(HostedApi(ctx), "/v1/sessions/revoke", "POST", { "refreshToken": hosted.refreshToken })
+    HostedClear(ctx)
+end sub
+
+' index.ts `parseServerPresence`: anything malformed is unknown (invalid).
+function ParseServerPresence(value as dynamic) as dynamic
+    if not IsObject(value) or not IsBoolean(value.online) then return invalid
+    lastSeen = invalid
+    if IsString(value.lastSeenAt) and Len(value.lastSeenAt) <= 64 and IsoToSeconds(value.lastSeenAt) <> invalid then lastSeen = value.lastSeenAt
+    return { online: value.online, lastSeenAt: lastSeen }
+end function
+
+' index.ts `sortServersByPresence`: online first, then the rest by when they were last seen
+' (latest first; never seen and unknown last). Stable.
+function SortServersByPresence(servers as object) as object
+    ranked = []
+    for index = 0 to servers.count() - 1
+        server = servers[index]
+        rank = 2
+        seen = -1
+        if server.presence <> invalid then
+            rank = 1
+            if server.presence.online then rank = 0
+            if server.presence.lastSeenAt <> invalid then seen = IsoToSeconds(server.presence.lastSeenAt)
+        end if
+        ranked.push({ server: server, rank: rank, seen: seen, index: index })
+    end for
+    for i = 1 to ranked.count() - 1
+        held = ranked[i]
+        j = i - 1
+        while j >= 0 and ServerSortsAfter(ranked[j], held)
+            ranked[j + 1] = ranked[j]
+            j = j - 1
+        end while
+        ranked[j + 1] = held
+    end for
+    out = []
+    for each entry in ranked
+        out.push(entry.server)
+    end for
+    return out
+end function
+
+function ServerSortsAfter(a as object, b as object) as boolean
+    if a.rank <> b.rank then return a.rank > b.rank
+    if a.seen = b.seen then return false
+    if a.seen < 0 then return true
+    if b.seen < 0 then return false
+    return a.seen < b.seen
+end function
+
+' index.ts `presenceLabel`: "online", "lastSeen" (with `recent`: within the hour), "neverSeen" or "unknown".
+function PresenceLabel(presence as dynamic, atSeconds as dynamic) as object
+    if presence = invalid then return { kind: "unknown" }
+    if presence.online then return { kind: "online" }
+    if presence.lastSeenAt = invalid then return { kind: "neverSeen" }
+    seen = IsoToSeconds(presence.lastSeenAt)
+    return { kind: "lastSeen", lastSeenAt: presence.lastSeenAt, recent: seen <= atSeconds and atSeconds - seen < 3600 }
+end function
+
+' apps/native/src/app/portico-landing.ts `landingChoice`: one server opens by itself; with
+' several, the one used last opens; only otherwise is a picker shown.
+function LandingChoice(servers as object, lastUsed as dynamic) as object
+    if servers.count() = 0 then return { kind: "none" }
+    if servers.count() = 1 then return { kind: "open", server: servers[0] }
+    if lastUsed <> invalid and lastUsed <> "" then
+        for each server in servers
+            if server.id = lastUsed then return { kind: "open", server: server }
+        end for
+    end if
+    return { kind: "pick" }
+end function
+
+' GET /v1/servers: the account's servers, in presence order. Returns {ok, servers}.
+function HostedServers(ctx as object) as object
+    live = HostedLive(ctx)
+    if not live.ok then return live
+    answer = ApiRequest(HostedApi(ctx, live.hosted.accessToken), "/v1/servers")
+    if not answer.ok then return { ok: false, signOut: false, failure: answer.error }
+    if not IsObject(answer.data) or not IsArray(FieldOf(answer.data, "items")) then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    servers = []
+    for each item in FieldOf(answer.data, "items")
+        if IsObject(item) and IsText(item.id, 128) and IsText(item.name, 2048) and IsString(item.baseUrl) and IsString(item.publicKey) and IsNatural(item.policyRevision) then
+            server = { id: item.id, name: item.name, baseUrl: item.baseUrl, publicKey: item.publicKey, policyRevision: item.policyRevision, routes: item.routes }
+            presence = ParseServerPresence(item.presence)
+            if presence <> invalid then server.presence = presence
+            servers.push(server)
+        end if
+    end for
+    return { ok: true, servers: SortServersByPresence(servers), hosted: live.hosted }
+end function
+
+' Opens one of the account's servers. The account service's signed routes for it are verified
+' (they name the server's key and where it can be reached), the server proves itself at one of
+' those addresses, it issues a challenge it signs, the account service answers the challenge with
+' an identity assertion, and the server signs the account in exactly as for a password: profiles,
+' PINs and device approval are the server's own. Returns a sign-in outcome
+' (core/Session.bs `SessionSignInOutcome`), with `stage` ("route" or "signIn") on a failure.
+function HostedOpen(ctx as object, server as object) as object
+    live = HostedLive(ctx)
+    if not live.ok then
+        live.stage = "route"
+        return live
+    end if
+    hosted = live.hosted
+    account = HostedApi(ctx, hosted.accessToken)
+    keyAnswer = ApiRequest(HostedApi(ctx), "/v1/keys")
+    if not keyAnswer.ok then return { ok: false, stage: "route", failure: keyAnswer.error }
+    key = keyAnswer.data
+    if not IsObject(key) or not IsString(key.keyId) or not IsString(key.publicKey) or Len(key.keyId) > 256 or Len(key.publicKey) <> 43 then return { ok: false, stage: "route", failure: { code: "invalid_account_key", status: 0, message: "Account route verification is unavailable." } }
+    signed = server.routes
+    if signed = invalid then
+        routesAnswer = ApiRequest(account, "/v1/servers/" + server.id.encodeUriComponent() + "/routes")
+        if not routesAnswer.ok then return { ok: false, stage: "route", failure: routesAnswer.error }
+        signed = routesAnswer.data
+    end if
+    verified = VerifyRoutes(signed, { keyId: key.keyId, publicKey: key.publicKey }, { accountId: hosted.account.id, serverId: server.id }, SessionNow(ctx))
+    if not verified.ok then return { ok: false, stage: "route", failure: { code: verified.code, status: 0, message: verified.message } }
+    document = verified.document
+    if document.publicKey <> server.publicKey or document.policyRevision < server.policyRevision then return { ok: false, stage: "route", failure: { code: "identity_mismatch", status: 0, message: "The server directory and signed identity disagree." } }
+    pin = { serverId: document.serverId, publicKey: document.publicKey, fingerprint: document.fingerprint }
+    ' The home network first, then the addresses the wider network can reach.
+    ordered = []
+    for each candidate in document.candidates
+        if candidate["class"] = "lan" then ordered.push(candidate.baseUrl)
+    end for
+    for each candidate in document.candidates
+        if candidate["class"] <> "lan" then ordered.push(candidate.baseUrl)
+    end for
+    if ordered.count() = 0 then return { ok: false, stage: "route", failure: { code: "server_unavailable", status: 0, message: "This server has not published a usable address." } }
+    connection = invalid
+    last = { code: "route_unavailable", status: 0, message: "" }
+    for each origin in ordered
+        proof = SessionProbe(ctx, origin, pin)
+        if proof.ok then
+            connection = { origin: origin, pin: proof.pin }
+            exit for
+        end if
+        last = proof.failure
+        ' An address that answers as a different server is never tried around.
+        if proof.failure.code = "identity_mismatch" then return { ok: false, stage: "route", failure: proof.failure }
+    end for
+    if connection = invalid then
+        if last.code <> "network" and last.code <> "timeout" then last.code = "route_unavailable"
+        return { ok: false, stage: "route", failure: last }
+    end if
+
+    serverApi = SessionApi(ctx, connection.origin)
+    nonce = Base64UrlEncode(RandomBytes(32))
+    if ctx.nonce <> invalid then nonce = ctx.nonce
+    challengeAnswer = ApiRequest(serverApi, "/v1/direct/portico-challenge", "POST", { "nonce": nonce })
+    if not challengeAnswer.ok then return { ok: false, stage: "signIn", failure: challengeAnswer.error }
+    challenge = ChallengeProofCheck(challengeAnswer.data, server.id, nonce)
+    if not challenge.ok then return { ok: false, stage: "signIn", failure: { code: challenge.code, status: 0, message: challenge.message } }
+    assertionAnswer = ApiRequest(account, "/v1/servers/" + server.id.encodeUriComponent() + "/identity", "POST", { "challenge": challenge.challenge })
+    if not assertionAnswer.ok then return { ok: false, stage: "signIn", failure: assertionAnswer.error }
+    assertion = assertionAnswer.data
+    if not IsObject(assertion) or not IsText(assertion.payload, 8192) or not IsText(assertion.signature, 128) or not IsText(assertion.keyId, 128) then return { ok: false, stage: "signIn", failure: { code: "invalid_response", status: 0, message: "" } }
+    identity = { "payload": assertion.payload, "signature": assertion.signature, "keyId": assertion.keyId }
+    if assertion.certificate <> invalid then identity["certificate"] = assertion.certificate
+    answered = ApiRequest(serverApi, "/v1/direct/sign-in", "POST", { "porticoIdentity": identity })
+    details = { hosted: { "origin": ctx.hostedUrl, "accountId": hosted.account.id, "key": { "keyId": key.keyId, "publicKey": key.publicKey } }, serverName: server.name, username: hosted.account.username }
+    outcome = SessionSignInOutcome(ctx, connection, answered, details)
+    outcome.stage = "signIn"
+    outcome.connection = connection
+    outcome.details = details
+    if outcome.ok then ctx.store.write("portico", "lastHostedServer", server.id)
+    return outcome
+end function
+
+' account-notifications.ts `AccountNotificationsClient`: one request to the account service with
+' the account's live session. `ask` is {kind: "page", cursor} | {kind: "read", ids} (ids invalid
+' for all) | {kind: "preferences"} | {kind: "savePreferences", preferences}. Returns {ok, ...} with
+' `page` or `preferences`; a refusal of the account's session says `signOut`.
+function HostedAccountNotices(ctx as object, ask as object) as object
+    live = HostedLive(ctx)
+    if not live.ok then return live
+    api = HostedApi(ctx, live.hosted.accessToken)
+    if ask.kind = "page" then
+        cursor = ""
+        if ask.cursor <> invalid then cursor = ask.cursor
+        answer = ApiRequest(api, AccountNoticesPath(cursor))
+        if not answer.ok then return { ok: false, signOut: false, failure: answer.error }
+        page = ParseAccountNotices(answer.data)
+        if not page.ok then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+        return { ok: true, page: page }
+    end if
+    if ask.kind = "read" then
+        answer = ApiRequest(api, "/v1/account/notifications/read", "POST", AccountNoticesReadBody(ask.ids))
+        if not answer.ok then return { ok: false, signOut: false, failure: answer.error }
+        return { ok: true }
+    end if
+    answer = invalid
+    if ask.kind = "savePreferences" then
+        answer = ApiRequest(api, "/v1/account/notification-preferences", "PUT", AccountNoticePreferencesBody(ask.preferences))
+    else
+        answer = ApiRequest(api, "/v1/account/notification-preferences")
+    end if
+    if not answer.ok then return { ok: false, signOut: false, failure: answer.error }
+    preferences = ParseAccountNoticePreferences(answer.data)
+    if preferences = invalid then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    return { ok: true, preferences: preferences }
+end function

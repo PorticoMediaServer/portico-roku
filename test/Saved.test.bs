@@ -1,0 +1,155 @@
+' core/Search.bs and core/Saved.bs against client-core (search.ts, presentation/search-model.ts,
+' saved.ts, personal-saved.ts), over the development server's own documents and variants with one
+' thing wrong.
+
+function SavedFixture() as dynamic
+    globals = GetGlobalAA()
+    if globals.savedFixture = invalid then globals.savedFixture = TestFixture("golden/saved.json")
+    fixture = globals.savedFixture
+    if fixture = invalid then return invalid
+    globals.messageCatalogue = fixture.catalogue
+    globals.formatRegion = { locale: "en-US", hour12: true, utc: true }
+    return fixture
+end function
+
+sub SavedFixtureDone()
+    globals = GetGlobalAA()
+    globals.messageCatalogue = invalid
+    globals.formatRegion = invalid
+end sub
+
+sub Test_Saved_search()
+    fixture = SavedFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.searches.count() > 30, "there are search answers")
+    for each item in fixture.searches
+        parsed = ParseSearch(item.raw, item.asked, item.serverId)
+        AssertEqual(parsed.ok, item.ok, "search " + item.name)
+        if parsed.ok and item.ok then
+            groups = []
+            for each group in parsed.groups
+                groups.push({ id: group.id, title: group.title, status: group.status, errorCode: group.errorCode, ids: TestIds(group.entries), totalCount: group.totalCount, hasMore: group.hasMore, nextCursor: group.nextCursor })
+            end for
+            AssertSame(groups, item.groups, "groups of " + item.name)
+            AssertSame(TestIds(OrderedSearchGroups(parsed.groups)), item.ordered, "order of " + item.name)
+            if item.asked.group = invalid then
+                top = TopSearchResult(item.asked.q, parsed.groups)
+                shown = invalid
+                if top <> invalid then shown = { group: top.group, id: top.entry.id }
+                AssertSame(shown, item.top, "top result of " + item.name)
+            end if
+        end if
+    end for
+    for each item in fixture.tops
+        groups = []
+        for each group in item.groups
+            groups.push({ id: group.id, entries: FieldOf(group, "items") })
+        end for
+        top = TopSearchResult(item.query, groups)
+        shown = invalid
+        if top <> invalid then shown = { group: top.group, id: top.entry.id }
+        AssertSame(shown, item.top, "top result for " + item.query)
+    end for
+    for each item in fixture.searchable
+        AssertEqual(Searchable(Left(item.q.trim(), SearchMaxQuery())), item.searchable, "whether '" + Left(item.q, 20) + "' is searched")
+    end for
+    for each item in fixture.paths
+        AssertEqual(SearchPath(item.q, item.group, item.cursor), item.path.replace("+", "%20"), "search path for " + item.q)
+    end for
+    AssertSame(SearchChips(), fixture.chips, "the chips, in their order")
+    for each item in fixture.kinds
+        AssertEqual(TopResultKindLabel(item.group), item.label, "what a top result of " + item.group + " is called")
+    end for
+    SavedFixtureDone()
+end sub
+
+sub Test_Saved_lists()
+    fixture = SavedFixture()
+    if fixture = invalid then return
+    AssertTrue(fixture.saved.count() > 20, "there are saved lists")
+    for each item in fixture.saved
+        parsed = ParseSavedProjection(item.raw, item.serverId, item.selected)
+        AssertEqual(parsed.ok, item.ok, "saved " + item.name)
+        if parsed.ok and item.ok then
+            projection = parsed.projection
+            sections = []
+            for each section in projection.sections
+                sections.push({ id: section.id, type: section.type, title: section.title, ids: TestIds(section.entries), totalCount: section.totalCount, nextCursor: section.nextCursor })
+            end for
+            projection.sections = sections
+            AssertSame(projection, item.value, "saved " + item.name)
+        end if
+    end for
+    for each item in fixture.savedPaths
+        AssertEqual(SavedListPath(item.view, item.sort, item.direction, item.cursor), item.path, "saved path of " + item.view)
+    end for
+    for each item in fixture.personal
+        label = "personal " + item.name
+        if item.kind = "history" then
+            parsed = ParseHistory(item.raw, item.serverId)
+            AssertEqual(parsed.ok, item.ok, label)
+            if parsed.ok and item.ok then
+                entries = []
+                for each entry in parsed.entries
+                    entries.push({ id: entry.id, media: entry.media.id, updatedAt: entry.updatedAt, positionSeconds: entry.positionSeconds, completed: entry.completed })
+                end for
+                AssertSame({ entries: entries, nextCursor: parsed.nextCursor, revision: parsed.revision, viewerFence: parsed.viewerFence }, item.value, label)
+            end if
+        else if item.kind = "content" then
+            browse = invalid
+            if item.raw.browse <> invalid then
+                browse = ParseBrowseResult(item.raw.browse)
+                if browse.ok then browse.cursor = item.raw.browse.pageInfo.nextCursor
+            end if
+            parsed = ParseSavedResourceContent(item.raw, item.serverId, item.resourceId, browse)
+            AssertEqual(parsed.ok, item.ok, label)
+            if parsed.ok and item.ok then
+                entries = []
+                for each entry in parsed.entries
+                    shown = { id: entry.id, hidden: entry.hidden }
+                    if entry.media <> invalid then shown.media = entry.media.id
+                    entries.push(shown)
+                end for
+                AssertSame({ entries: entries, nextCursor: parsed.nextCursor, name: parsed.resource.name }, item.value, label)
+            end if
+        else
+            parsed = ParseSavedResources(item.raw, item.serverId, item.kind)
+            AssertEqual(parsed.ok, item.ok, label)
+            if parsed.ok and item.ok then
+                rows = []
+                for each resource in parsed.resources
+                    rows.push({ id: resource.id, kind: resource.kind, name: resource.name, summary: resource.summary, visibility: resource.visibility, entryCount: resource.entryCount })
+                end for
+                AssertSame({ resources: rows, nextCursor: parsed.nextCursor }, item.value, label)
+            end if
+        end if
+    end for
+    SavedFixtureDone()
+end sub
+
+sub Test_Saved_rules()
+    fixture = SavedFixture()
+    if fixture = invalid then return
+    ' 2026-10-03 12:00 UTC, a Saturday.
+    atSeconds = 1791028800
+    AssertEqual(HistoryDayLabel("2026-10-03T08:00:00Z", atSeconds), "Today", "earlier today")
+    AssertEqual(HistoryDayLabel("2026-10-02T23:59:00Z", atSeconds), "Yesterday", "last night")
+    AssertEqual(HistoryDayLabel("2026-09-29T10:00:00Z", atSeconds), "Tuesday, Sep 29", "within the week")
+    AssertEqual(HistoryDayLabel("2026-09-20T10:00:00Z", atSeconds), "Sep 20, 2026", "before that")
+    AssertEqual(HistoryDayLabel("not a date", atSeconds), "Earlier", "a date that cannot be read")
+    AssertEqual(SavedSortLabel("sort.added"), T("lib.sortField", { field: "added" }), "a known sort")
+    AssertEqual(SavedSortLabel("sort.date_watched"), "Date watched", "a sort this client does not know")
+    media = [{ kind: "movie" }, { kind: "show" }]
+    AssertEqual(SavedDominantShape(media), "poster", "films and shows share posters")
+    AssertEqual(SavedDominantShape([{ kind: "album" }, { kind: "song" }]), "square", "music is square")
+    AssertEqual(SavedDominantShape([{ kind: "album" }, { kind: "movie" }]), "poster", "a mixed page falls back to posters")
+    AssertSame(PlaylistCreateBody("op", "Road trip", ["i1"]), { operationId: "op", name: "Road trip", itemIds: ["i1"] }, "a new playlist with a title in it")
+    AssertSame(PlaylistAddBody("op", 4, "i1"), { operationId: "op", expectedRevision: 4, itemId: "i1" }, "adding to a playlist")
+    receipt = { serverId: "s", viewerFence: "f", operationId: "op", playlistId: "p", revision: 5, deleted: false }
+    AssertTrue(PlaylistReceiptOk(receipt, "s", "op"), "a playlist receipt")
+    AssertTrue(not PlaylistReceiptOk(receipt, "s", "other"), "a receipt for another command")
+    AssertSame(HistoryClearBody(9), { expectedRevision: 9, action: "clear-history" }, "clearing history")
+    AssertEqual(SavedResourcesPath("view", "c=1"), "/v1/saved-resources?limit=40&cursor=c%3D1&kind=view", "the saved views' path")
+    AssertEqual(PlaylistContentPath("p 1"), "/v1/playlists/p%201/content?limit=40", "a playlist's path")
+    SavedFixtureDone()
+end sub

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/app/session.tsx: the session the screens read and act through (m.global.session). -->
+<component name="AppSession" extends="Node">
+    <interface>
+        <!-- restoring | signedOut | ready | unavailable -->
+        <field id="phase" type="string" value="restoring" />
+        <field id="busy" type="boolean" value="false" />
+        <!-- The words for what went wrong, for the screen on show. -->
+        <field id="error" type="string" value="" />
+        <!-- A sign-in that ended says so quietly on the sign-in screen. -->
+        <field id="note" type="string" value="" />
+        <!-- The server address as typed, and the username the server accepted last for it. -->
+        <field id="origin" type="string" value="" />
+        <field id="username" type="string" value="" />
+        <!-- The server that proved itself at that address: {origin, pin}. -->
+        <field id="connection" type="assocarray" />
+        <field id="connected" type="boolean" value="false" alwaysNotify="true" />
+        <!-- A step a direct sign-in stopped at: challenge | password-change | device-pending. -->
+        <field id="directStep" type="string" value="" />
+        <!-- An account session waiting for a profile: {snapshot, accountSession}. -->
+        <field id="pending" type="assocarray" />
+        <field id="hasPending" type="boolean" value="false" />
+        <!-- Signed in: {origin, token, serverId, viewer, profileName, serverName, username}. -->
+        <field id="viewer" type="assocarray" />
+        <!-- The viewer's access token as last renewed (requests renew it in their own thread and publish it here). -->
+        <field id="token" type="string" value="" />
+        <!-- The Portico Account on this device: {id, username, displayName}. -->
+        <field id="account" type="assocarray" />
+        <field id="hasAccount" type="boolean" value="false" />
+        <field id="servers" type="array" />
+        <!-- idle | loading | ready | error -->
+        <field id="directoryStatus" type="string" value="idle" />
+        <!-- Where the account landed: {kind: deciding | opening | pick | none | failed, server, failure}. -->
+        <field id="landing" type="assocarray" />
+        <!-- unavailable: the saved server that did not answer: {origin, username, serverName}. -->
+        <field id="recovery" type="assocarray" />
+        <field id="hasRecovery" type="boolean" value="false" />
+        <function name="restore" />
+        <function name="setOrigin" />
+        <function name="connect" />
+        <function name="signIn" />
+        <function name="completeChallenge" />
+        <function name="changeRequiredPassword" />
+        <function name="retrySignIn" />
+        <function name="cancelStep" />
+        <function name="chooseProfile" />
+        <function name="cancelPending" />
+        <function name="acceptOutcome" />
+        <function name="accountApproved" />
+        <function name="refreshServers" />
+        <function name="openServer" />
+        <function name="pickServer" />
+        <function name="signOut" />
+        <function name="signOutAccount" />
+        <function name="useElsewhere" />
+        <function name="clearError" />
+        <function name="switchProfile" />
+        <!-- Settings › Switch server: the sign-in screens over a sign-in that stays until another replaces it. -->
+        <function name="switchServer" />
+        <function name="cancelSwitch" />
+        <field id="switching" type="boolean" value="false" />
+    </interface>
+</component>

@@ -1,0 +1,3147 @@
+{
+ "cases": [
+  {
+   "name": "as served",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [],
+    "selection": {
+     "revision": 0,
+     "resource": null
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": true,
+   "expected": {
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60
+    },
+    "selectionRevision": 0,
+    "resources": [],
+    "selected": null
+   }
+  },
+  {
+   "name": "with synced lyrics chosen",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": true,
+   "expected": {
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60
+    },
+    "selectionRevision": 4,
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "deleted": false,
+      "label": "From the album folder"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "deleted": true,
+      "label": ""
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "deleted": false,
+      "label": "Typed in"
+     }
+    ],
+    "selected": {
+     "id": "lyr_1",
+     "revision": 2,
+     "language": "en",
+     "offsetMs": 250,
+     "format": "lrc",
+     "deleted": false,
+     "label": "From the album folder",
+     "document": {
+      "format": "lrc",
+      "lines": [
+       {
+        "atMs": 1000,
+        "text": "One"
+       },
+       {
+        "atMs": 5500,
+        "text": "Two"
+       },
+       {
+        "atMs": 5500,
+        "text": ""
+       },
+       {
+        "atMs": 20000,
+        "text": "Three"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "name": "with plain lyrics chosen",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "text",
+       "text": "One\nTwo",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": null,
+         "text": "One"
+        },
+        {
+         "atMs": null,
+         "text": "Two"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": true,
+   "expected": {
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60
+    },
+    "selectionRevision": 4,
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "deleted": false,
+      "label": "From the album folder"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "deleted": true,
+      "label": ""
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "deleted": false,
+      "label": "Typed in"
+     }
+    ],
+    "selected": {
+     "id": "lyr_3",
+     "revision": 2,
+     "language": "en",
+     "offsetMs": 0,
+     "format": "text",
+     "deleted": false,
+     "label": "From the album folder",
+     "document": {
+      "format": "text",
+      "lines": [
+       {
+        "text": "One"
+       },
+       {
+        "text": "Two"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "name": "another song",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "other",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "another session",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_other",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "another generation",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 9
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "another server",
+   "document": {
+    "scope": {
+     "serverId": "srv_other",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a chosen source that is not listed",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "elsewhere",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a source listed twice",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     },
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "lyrics without a source",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": null,
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "lyrics listed twice",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "chosen lyrics without their words",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "lines out of order",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a line after the song ends",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 999000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "plain words with times",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "text",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a language that is not one",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "e",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an offset of an hour",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 3600000,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a provider that is not one",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "guessed",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "no lines",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+     "sessionGeneration": 1
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": []
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "ps_VuBqdeZMIiNLjieY-coJ",
+    "sessionGeneration": 1
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "for a song without a session",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "",
+     "sessionGeneration": 0
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [],
+    "selection": {
+     "revision": 0,
+     "resource": null
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "",
+    "sessionGeneration": 0
+   },
+   "ok": true,
+   "expected": {
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60
+    },
+    "selectionRevision": 0,
+    "resources": [],
+    "selected": null
+   }
+  },
+  {
+   "name": "lyrics chosen without a session",
+   "document": {
+    "scope": {
+     "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+     "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e",
+     "sessionId": "",
+     "sessionGeneration": 0
+    },
+    "sources": [
+     {
+      "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+      "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+      "startSeconds": 0,
+      "duration": 60,
+      "sourceDuration": 60,
+      "local": true
+     }
+    ],
+    "source": {
+     "id": "sMxXLmOrNwlR-11cwrnGdU1kWKJOGTv-sQTBhtP1qMg",
+     "version": "179aae24fcab1d3fb4b1cdbfd3d02f1c5ca553e0b46d1d1774328cbfe995583e",
+     "startSeconds": 0,
+     "duration": 60,
+     "sourceDuration": 60,
+     "local": true
+    },
+    "resources": [
+     {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_2",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": true,
+      "language": "ja",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     },
+     {
+      "id": "lyr_3",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 0,
+      "format": "text",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "upload",
+       "providerId": "",
+       "label": "Typed in",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z"
+     }
+    ],
+    "selection": {
+     "revision": 4,
+     "resource": {
+      "id": "lyr_1",
+      "revision": 2,
+      "scope": "library",
+      "canManage": true,
+      "deleted": false,
+      "language": "en",
+      "offsetMs": 250,
+      "format": "lrc",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance": {
+       "origin": "sidecar",
+       "providerId": "",
+       "label": "From the album folder",
+       "rights": ""
+      },
+      "createdAt": "2026-10-01T10:00:00Z",
+      "document": {
+       "format": "lrc",
+       "text": "[00:01.00]One\n[00:05.50]Two\n[00:05.50]\n[00:20.00]Three",
+       "embeddedOffsetMs": 0,
+       "lines": [
+        {
+         "atMs": 1000,
+         "text": "One"
+        },
+        {
+         "atMs": 5500,
+         "text": "Two"
+        },
+        {
+         "atMs": 5500,
+         "text": ""
+        },
+        {
+         "atMs": 20000,
+         "text": "Three"
+        }
+       ]
+      }
+     }
+    },
+    "canShare": true,
+    "providers": {
+     "lrclib": false,
+     "configured": true,
+     "revision": 1
+    }
+   },
+   "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+   "target": {
+    "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+    "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+    "sessionId": "",
+    "sessionGeneration": 0
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "active": [
+  {
+   "position": 0,
+   "offset": 0,
+   "start": 0,
+   "index": -1
+  },
+  {
+   "position": 0.99,
+   "offset": 0,
+   "start": 0,
+   "index": -1
+  },
+  {
+   "position": 1,
+   "offset": 0,
+   "start": 0,
+   "index": 0
+  },
+  {
+   "position": 5.5,
+   "offset": 0,
+   "start": 0,
+   "index": 2
+  },
+  {
+   "position": 5.49,
+   "offset": 0,
+   "start": 0,
+   "index": 0
+  },
+  {
+   "position": 19.9,
+   "offset": 0,
+   "start": 0,
+   "index": 2
+  },
+  {
+   "position": 30,
+   "offset": 0,
+   "start": 0,
+   "index": 3
+  },
+  {
+   "position": 1.2,
+   "offset": 250,
+   "start": 0,
+   "index": -1
+  },
+  {
+   "position": 1.25,
+   "offset": 250,
+   "start": 0,
+   "index": 0
+  },
+  {
+   "position": 0.5,
+   "offset": -600,
+   "start": 0,
+   "index": 0
+  },
+  {
+   "position": 0,
+   "offset": 0,
+   "start": 5.5,
+   "index": 2
+  },
+  {
+   "position": -3,
+   "offset": 0,
+   "start": 0,
+   "index": -1
+  }
+ ],
+ "seeks": [
+  {
+   "line": {
+    "atMs": 1000,
+    "text": "One"
+   },
+   "offset": 0,
+   "source": {
+    "startSeconds": 0,
+    "duration": 25
+   },
+   "seconds": 1
+  },
+  {
+   "line": {
+    "atMs": 20000,
+    "text": "Three"
+   },
+   "offset": 250,
+   "source": {
+    "startSeconds": 0,
+    "duration": 25
+   },
+   "seconds": 20.25
+  },
+  {
+   "line": {
+    "atMs": 1000,
+    "text": "One"
+   },
+   "offset": -2000,
+   "source": {
+    "startSeconds": 0,
+    "duration": 25
+   },
+   "seconds": null
+  },
+  {
+   "line": {
+    "atMs": 20000,
+    "text": "Three"
+   },
+   "offset": 0,
+   "source": {
+    "startSeconds": 0,
+    "duration": 25
+   },
+   "seconds": 20
+  },
+  {
+   "line": {
+    "atMs": 5500,
+    "text": "Two"
+   },
+   "offset": 0,
+   "source": {
+    "startSeconds": 4,
+    "duration": 25
+   },
+   "seconds": 1.5
+  },
+  {
+   "line": {
+    "atMs": 5500,
+    "text": "Two"
+   },
+   "offset": 0,
+   "source": {
+    "startSeconds": 6,
+    "duration": 25
+   },
+   "seconds": null
+  }
+ ]
+}

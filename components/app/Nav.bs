@@ -1,0 +1,106 @@
+import "pkg:/source/core/Open.bs"
+
+' Navigation and requests from a screen. The shell (components/shell/Shell) is published on the
+' global node; a screen pushes a page, goes back, or asks for focus through it, as an Apple screen
+' uses its navigation prop.
+
+' Pushes a page onto the showing section's stack: `screen` is the component name, `params` its route.
+sub NavPush(screen as string, params = invalid as dynamic)
+    shell = m.global.shell
+    if shell <> invalid then shell.callFunc("push", { screen: screen, params: params })
+end sub
+
+sub NavReplace(screen as string, params = invalid as dynamic)
+    shell = m.global.shell
+    if shell <> invalid then shell.callFunc("replace", { screen: screen, params: params })
+end sub
+
+sub NavBack()
+    shell = m.global.shell
+    if shell <> invalid then shell.callFunc("pop")
+end sub
+
+' A screen's one claim on focus, once what should hold focus is ready (apps/native/src/ui/theme.ts
+' `useEntryFocus`): refused while the viewer is moving through the rail, so a screen that finishes
+' loading never takes focus from them.
+sub NavClaimFocus()
+    shell = m.global.shell
+    if shell <> invalid then shell.callFunc("claimFocus", m.top)
+end sub
+
+' Starts a viewer request; `handler` is called with the event when the result arrives. Returns the
+' task (keep it while it runs).
+function ApiStart(request as object, handler as string) as object
+    task = CreateObject("roSGNode", "ApiTask")
+    task.request = request
+    task.observeField("result", handler)
+    task.control = "RUN"
+    return task
+end function
+
+sub Toast(message as string, icon = "" as string)
+    scene = m.top.getScene()
+    if scene <> invalid then scene.callFunc("toast", { message: message, icon: icon })
+end sub
+
+' apps/native/src/app/open.ts `useOpenEntry`: what pressing an entry means. "open" goes to the
+' entry's destination (or plays an entry that has none), "play" plays it from where it was left,
+' "more" opens its menu.
+sub OpenEntry(entry as object, intent = "open" as string, libraryId = "" as string, origin = "" as string)
+    if intent = "play" and entry.playback <> invalid then
+        start = 0
+        if entry.playback.startSeconds <> invalid then
+            start = entry.playback.startSeconds
+        else if entry.progressSeconds <> invalid then
+            start = entry.progressSeconds
+        end if
+        PlayItem(entry.playback.itemId, start, entry)
+        return
+    end if
+    if intent = "more" then
+        scene = m.top.getScene()
+        if scene <> invalid then scene.callFunc("entryMenu", { entry: entry, origin: origin, libraryId: libraryId })
+        return
+    end if
+    route = RouteForEntry(entry, libraryId)
+    if route = invalid then
+        if entry.playback <> invalid then
+            start = 0
+            if entry.playback.startSeconds <> invalid then start = entry.playback.startSeconds
+            PlayItem(entry.playback.itemId, start, entry)
+        end if
+        return
+    end if
+    NavPush(route.screen, route.params)
+end sub
+
+sub PlayItem(itemId as string, startSeconds as dynamic, entry = invalid as dynamic)
+    scene = m.top.getScene()
+    if scene <> invalid then scene.callFunc("play", { itemId: itemId, startSeconds: startSeconds, entry: entry })
+end sub
+
+' The selected server's origin, for artwork paths.
+function ViewerOrigin() as string
+    session = m.global.session
+    if session = invalid or session.viewer = invalid then return ""
+    return session.viewer.origin
+end function
+
+' Something of the viewer's own changed (My List, watched, a card turned down): the page on show
+' reads it again, and pages kept under it notice when they are returned to.
+sub NotePersonalChange()
+    count = 1
+    if m.global.hasField("personalChanges") then
+        count = m.global.personalChanges + 1
+        m.global.personalChanges = count
+    else
+        m.global.addFields({ personalChanges: count })
+    end if
+    shell = m.global.shell
+    if shell <> invalid then shell.callFunc("refreshTop")
+end sub
+
+function PersonalChanges() as integer
+    if not m.global.hasField("personalChanges") then return 0
+    return m.global.personalChanges
+end function

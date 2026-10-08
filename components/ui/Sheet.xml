@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Sheet.tsx: the single overlay container. Television: a centred panel, or a side panel. -->
+<component name="UiSheet" extends="Group">
+    <interface>
+        <field id="title" type="string" value="" onChange="onSheetFooter" />
+        <field id="subtitle" type="string" value="" onChange="onSheetFooter" />
+        <!-- picker (choose and go, no footer) | form (Cancel and one primary) | acknowledge (must be read; Back does not dismiss). -->
+        <field id="kind" type="string" value="" />
+        <!-- center | side (a full-height panel on the trailing edge). -->
+        <field id="placement" type="string" value="center" onChange="onSheetWidth" />
+        <field id="sheetWidth" type="float" value="0" onChange="onSheetWidth" />
+        <field id="primaryLabel" type="string" value="" onChange="onSheetFooter" />
+        <!-- default | destructive -->
+        <field id="primaryTone" type="string" value="default" onChange="onSheetFooter" />
+        <field id="primaryLoading" type="boolean" value="false" onChange="onSheetFooter" />
+        <field id="primaryDisabled" type="boolean" value="false" onChange="onSheetFooter" />
+        <!-- form only; "-" for no Cancel. Empty is "Cancel". -->
+        <field id="cancelLabel" type="string" value="" />
+        <!-- A ghost action after Cancel ("Reset to default", "Clear all"). -->
+        <field id="leadingLabel" type="string" value="" onChange="onSheetFooter" />
+        <field id="leadingDisabled" type="boolean" value="false" onChange="onSheetFooter" />
+        <field id="isOpen" type="boolean" value="false" />
+        <field id="primaryPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="leadingPressed" type="boolean" value="false" alwaysNotify="true" />
+        <!-- Set once the sheet has closed and focus is back on the control that opened it. -->
+        <field id="closed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="shown" type="boolean" value="false" alwaysNotify="true" />
+        <!-- The width a body may use (rows align with the title). -->
+        <field id="bodyWidth" type="float" value="0" />
+        <function name="setBody" />
+        <function name="open" />
+        <function name="close" />
+        <function name="focusBody" />
+        <function name="relayout" />
+    </interface>
+</component>

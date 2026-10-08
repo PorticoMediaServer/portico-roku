@@ -1,0 +1,31 @@
+' Runs one viewer request in a Task thread (source/core/Content.bs `ViewerRequest`) and passes
+' the answer through a reader: the bounded parser for that document (source/core/*). Parsing
+' happens here, off the render thread, and the screen receives only what it draws.
+import "pkg:/source/core/Content.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Readers.bs"
+
+sub init()
+    m.top.functionName = "work"
+end sub
+
+sub work()
+    ' The readers say things in the profile's language: read once, not at every word.
+    RegionKeep()
+    request = m.top.request
+    ctx = SessionContextNew()
+    method = "GET"
+    if request.method <> invalid then method = request.method
+    answer = ViewerRequest(ctx, request.path, method, request.body, request.headers)
+    ' A request may have renewed the session: the scene's image requests follow the new token.
+    record = SessionRecord(ctx)
+    session = m.global.session
+    if record <> invalid and session <> invalid and session.token <> record["session"].accessToken then session.token = record["session"].accessToken
+    if not answer.ok then
+        m.top.result = { ok: false, status: answer.status, error: answer.error, reader: request.reader }
+        return
+    end if
+    read = ReadAnswer(request.reader, answer, request.context)
+    if read.content <> invalid then m.top.content = read.content
+    m.top.result = { ok: true, status: answer.status, value: read.value, reader: request.reader }
+end sub

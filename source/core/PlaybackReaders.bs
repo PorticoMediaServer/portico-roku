@@ -1,0 +1,69 @@
+' The readers behind the player (core/Readers.bs dispatches to them).
+import "pkg:/source/core/Playback.bs"
+import "pkg:/source/core/TitleFiles.bs"
+
+' A track's name in a player option: its language and what its title adds, else "Track N"; an
+' audio track then says its codec and channels, a subtitle track what marks it.
+function PlaybackTrackLabel(track as object, audio as boolean, number as integer) as string
+    name = TrackName(track)
+    if name = "" then name = T("mediaInfo.track", { number: number })
+    parts = [name]
+    if audio then
+        if track.codec <> "" then parts.push(CodecLabel(track.codec))
+        channels = ChannelsLabel({ channels: track.channels, channelLayout: track.layout })
+        if channels <> "" then parts.push(channels)
+        if track.atmos then parts.push("Atmos")
+    else
+        if track.forced then parts.push(T("player.opt.forced"))
+        if track.sdh then parts.push("SDH")
+    end if
+    return parts.join(" · ")
+end function
+
+' GET /v1/items/{id}/playback-options: {ok, markers, chapters, audio: [{id, label}], subtitles:
+' [{id, label}], height, versionId, preferredAudio, preferredSubtitle}.
+function ReadPlaybackOptions(data as dynamic) as object
+    parsed = ParsePlaybackOptions(data)
+    if not parsed.ok then return { value: { ok: false, code: parsed.code } }
+    options = parsed.options
+    version = invalid
+    wanted = ""
+    if options.plan <> invalid then wanted = options.plan.versionId
+    if wanted = "" and options.preferred <> invalid then wanted = options.preferred.versionId
+    for each candidate in options.versions
+        if version = invalid or candidate.id = wanted then version = candidate
+    end for
+    value = { ok: true, markers: options.markers, chapters: options.chapters, audio: [], subtitles: [], height: 0, versionId: "", preferredAudio: "", preferredSubtitle: "" }
+    if version <> invalid then
+        value.versionId = version.id
+        for index = 0 to version.audio.count() - 1
+            track = version.audio[index]
+            value.audio.push({ id: track.id, label: PlaybackTrackLabel(track, true, index + 1), language: track.language, isDefault: track.isDefault })
+        end for
+        for index = 0 to version.subtitles.count() - 1
+            track = version.subtitles[index]
+            value.subtitles.push({ id: track.id, label: PlaybackTrackLabel(track, false, index + 1), language: track.language, isDefault: track.isDefault })
+        end for
+        if version.video.count() > 0 and version.video[0].height <> invalid then value.height = version.video[0].height
+    end if
+    if options.preferred <> invalid then
+        if options.preferred.audioId <> invalid then value.preferredAudio = options.preferred.audioId
+        if options.preferred.subtitleId <> invalid then value.preferredSubtitle = options.preferred.subtitleId
+    end if
+    return { value: value }
+end function
+
+function ReadPlaybackSession(data as dynamic) as object
+    value = ParsePlaybackSession(data)
+    ' A 202's body is not a session: it names the wait before the same request is sent again.
+    value.waitMs = SessionPrepareWaitMs(data)
+    return { value: value }
+end function
+
+function ReadPlaybackQueue(data as dynamic) as object
+    return { value: ParseQueueResult(data) }
+end function
+
+function ReadPlaybackWindow(data as dynamic) as object
+    return { value: ParseQueueWindow(data) }
+end function

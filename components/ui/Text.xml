@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Text.tsx: the only text primitive. A role from the type scale and a tone. -->
+<component name="UiText" extends="Label">
+    <interface>
+        <field id="value" type="string" onChange="onTextValue" />
+        <field id="role" type="string" value="body" onChange="onTextStyle" />
+        <field id="tone" type="string" value="primary" onChange="onTextStyle" />
+        <!-- A palette colour that replaces the tone (a button's foreground). -->
+        <field id="tint" type="string" value="" onChange="onTextStyle" />
+        <!-- Clamp to N lines with a tail ellipsis; 0 wraps freely when a width is set. -->
+        <field id="lines" type="integer" value="1" onChange="onTextStyle" />
+        <field id="align" type="string" value="left" onChange="onTextStyle" />
+        <field id="maxWidth" type="float" value="0" onChange="onTextStyle" />
+        <!-- A size and line height that replace the role's (the activation code is larger than any role). -->
+        <field id="sizeOverride" type="float" value="0" onChange="onTextStyle" />
+        <field id="lineHeightOverride" type="float" value="0" onChange="onTextStyle" />
+    </interface>
+</component>

@@ -1,0 +1,28 @@
+{
+ "protocolVersion": "1.0",
+ "serverTime": "2026-10-05T20:06:32.925Z",
+ "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+ "idempotencyKey": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+ "disposition": "accepted",
+ "command": "play",
+ "revision": "4",
+ "queueRevision": "2",
+ "recordedAt": "2026-10-05T20:06:32.924Z",
+ "timeline": {
+  "itemId": "FnVfQzincjaryvRl0TA1jw",
+  "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+  "state": "playing",
+  "anchorPositionUs": "0",
+  "anchorAt": "2026-10-05T20:06:32.923Z",
+  "rate": {
+   "numerator": "1",
+   "denominator": "1"
+  },
+  "queuePosition": 0
+ },
+ "settings": {
+  "shuffleEnabled": false,
+  "repeatMode": "none"
+ },
+ "override": null
+}

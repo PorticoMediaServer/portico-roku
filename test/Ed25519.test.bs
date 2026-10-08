@@ -1,0 +1,32 @@
+' core/Ed25519.bs and core/Bytes.bs. The signatures are made by Node's own Ed25519
+' (scripts/golden.mjs), from the RFC 8032 test keys, and each is also offered with one bit of the
+' message, the signature or the key changed.
+
+sub Test_Bytes_base64url()
+    AssertEqual(Base64UrlEncode(BytesFromHex("00")), "AA")
+    AssertEqual(Base64UrlEncode(BytesFromHex("fbff")), "-_8")
+    AssertEqual(Base64UrlEncode(BytesFromText("portico")), "cG9ydGljbw")
+    AssertEqual(BytesToHex(Base64UrlDecode("-_8")), "fbff")
+    AssertEqual(BytesToText(Base64UrlDecode("cG9ydGljbw")), "portico")
+    AssertTrue(Base64UrlDecode("cG9ydGljbw=") = invalid, "padding is not accepted")
+    AssertTrue(Base64UrlDecode("cG9y+GljbA") = invalid, "the standard alphabet is not accepted")
+    AssertTrue(Base64UrlDecode("AB") = invalid, "a non-canonical tail is not accepted")
+    AssertTrue(Base64UrlDecode("A") = invalid, "an impossible length is not accepted")
+    AssertTrue(Base64UrlDecode("AA", 2) = invalid, "the exact length is checked")
+    AssertTrue(Base64UrlDecode(invalid) = invalid)
+end sub
+
+sub Test_Ed25519_golden()
+    cases = TestFixture("golden/ed25519.json")
+    if cases = invalid then return
+    AssertTrue(cases.count() >= 5, "there are signature cases")
+    for each item in cases
+        actual = Ed25519VerifyDigest(BytesFromHex(item.publicKey), BytesFromHex(item.signature), BytesFromHex(item.digest))
+        AssertEqual(actual, item.valid, item.name)
+    end for
+end sub
+
+sub Test_Ed25519_refusesMalformedInput()
+    AssertEqual(Ed25519VerifyDigest(BytesFromHex("00"), BytesFromHex("00"), BytesFromHex("00")), false)
+    AssertEqual(Ed25519VerifyDigest(invalid, invalid, invalid), false)
+end sub

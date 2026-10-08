@@ -1,0 +1,103 @@
+' core/RouteIdentity.bs against packages/client-core/src/route-identity.ts and portico-servers.ts.
+' scripts/golden.mjs runs the TypeScript (with Node's SHA-256 and Ed25519) over each case and
+' records what it decided; the BrightScript must decide the same. The digests the cases need are
+' Node's, registered here because the interpreter has no roEVPDigest.
+
+function RouteFixture() as dynamic
+    globals = GetGlobalAA()
+    if globals.routeFixture = invalid then
+        globals.routeFixture = TestFixture("golden/route-identity.json")
+        if globals.routeFixture <> invalid then
+            for each item in globals.routeFixture.digests
+                CryptoRegisterDigest(item.algorithm, item.input, item.digest)
+            end for
+            for each item in globals.routeFixture.verdicts
+                CryptoRegisterVerdict(item.publicKey, item.signature, item.digest, item.valid)
+            end for
+        end if
+    end if
+    return globals.routeFixture
+end function
+
+sub Test_RouteIdentity_serverAddress()
+    ' apps/native/src/app/direct-connect.ts `serverAddress`.
+    AssertEqual(ServerAddress("192.168.1.20:32500"), "http://192.168.1.20:32500")
+    AssertEqual(ServerAddress(" 192.168.1.20:32500/ "), "http://192.168.1.20:32500")
+    AssertEqual(ServerAddress("localhost:32500"), "http://localhost:32500")
+    AssertEqual(ServerAddress("nas"), "http://nas")
+    AssertEqual(ServerAddress("nas.local:32500"), "http://nas.local:32500")
+    AssertEqual(ServerAddress("media.lan"), "http://media.lan")
+    AssertEqual(ServerAddress("box.home"), "http://box.home")
+    AssertEqual(ServerAddress("portico.example.com"), "https://portico.example.com")
+    AssertEqual(ServerAddress("portico.example.com:8443"), "https://portico.example.com:8443")
+    AssertEqual(ServerAddress("https://portico.example.com/"), "https://portico.example.com")
+    AssertEqual(ServerAddress("HTTP://192.168.1.20"), "HTTP://192.168.1.20")
+    AssertEqual(ServerAddress("[::1]:32500"), "http://[::1]:32500")
+end sub
+
+sub Test_RouteIdentity_origins()
+    fixture = RouteFixture()
+    if fixture = invalid then return
+    for each item in fixture.origins
+        result = RouteOrigin(item.raw)
+        AssertEqual(result.ok, item.ok, "origin " + item.raw)
+        if item.ok and result.ok then AssertEqual(result.origin, item.origin, "origin " + item.raw)
+    end for
+end sub
+
+sub Test_RouteIdentity_privateHosts()
+    fixture = RouteFixture()
+    if fixture = invalid then return
+    for each item in fixture.hosts
+        AssertEqual(PrivateRouteHost(item.host), item.private, "host " + item.host)
+    end for
+end sub
+
+sub Test_RouteIdentity_pins()
+    fixture = RouteFixture()
+    if fixture = invalid then return
+    for each item in fixture.pins
+        result = ServerPin(item.serverId, item.publicKey, item.fingerprint)
+        AssertEqual(result.ok, item.ok, "pin: " + item.name)
+        if not item.ok and not result.ok then AssertEqual(result.code, item.code, "pin: " + item.name)
+    end for
+end sub
+
+sub Test_RouteIdentity_proofs()
+    fixture = RouteFixture()
+    if fixture = invalid then return
+    for each item in fixture.proofs
+        result = RouteProofCheck(item.answer, item.baseUrl, item.nonce, item.pin, item.now)
+        AssertEqual(result.ok, item.ok, "proof: " + item.name)
+        if item.ok and result.ok then AssertEqual(result.pin.serverId, item.serverId, "proof: " + item.name)
+        if not item.ok and not result.ok then AssertEqual(result.code, item.code, "proof: " + item.name)
+    end for
+end sub
+
+sub Test_RouteIdentity_signedRoutes()
+    fixture = RouteFixture()
+    if fixture = invalid then return
+    for each item in fixture.routes
+        result = VerifyRoutes(item.value, item.key, item.expected, item.now)
+        AssertEqual(result.ok, item.ok, "routes: " + item.name)
+        if item.ok and result.ok then
+            AssertEqual(result.document.candidates.count(), item.candidates.count(), "routes: " + item.name)
+            AssertEqual(result.document.name, item.name_, "routes: " + item.name)
+            for index = 0 to item.candidates.count() - 1
+                AssertEqual(result.document.candidates[index].baseUrl, item.candidates[index].baseUrl, "routes: " + item.name)
+            end for
+        end if
+        if not item.ok and not result.ok then AssertEqual(result.code, item.code, "routes: " + item.name)
+    end for
+end sub
+
+sub Test_RouteIdentity_challenges()
+    fixture = RouteFixture()
+    if fixture = invalid then return
+    for each item in fixture.challenges
+        result = ChallengeProofCheck(item.answer, item.serverId, item.nonce)
+        AssertEqual(result.ok, item.ok, "challenge: " + item.name)
+        if item.ok and result.ok then AssertEqual(result.challenge, item.challenge, "challenge: " + item.name)
+        if not item.ok and not result.ok then AssertEqual(result.code, item.code, "challenge: " + item.name)
+    end for
+end sub

@@ -1,0 +1,47 @@
+' core/Qr.bs against the `qrcode` package the Apple TV app's QR component is built on
+' (react-native-qrcode-svg): for each link and each of the eight masks the module grid must be
+' identical, and the mask the channel chooses must be the one the package chooses.
+
+function QrRowsText(code as object) as object
+    rows = []
+    for each row in code.rows
+        line = ""
+        for each module in row
+            if module then
+                line = line + "1"
+            else
+                line = line + "0"
+            end if
+        end for
+        rows.push(line)
+    end for
+    return rows
+end function
+
+sub Test_Qr_golden()
+    cases = TestFixture("golden/qr.json")
+    if cases = invalid then return
+    AssertTrue(cases.count() >= 16, "there are QR cases")
+    for each item in cases
+        code = QrEncode(item.text, item.mask)
+        AssertTrue(code <> invalid, "encodes " + item.text)
+        if code <> invalid then
+            AssertEqual(code.size, item.size, "size of " + item.text)
+            AssertEqual(QrRowsText(code).join("/"), item.rows.join("/"), item.text + " mask " + item.mask.toStr())
+        end if
+    end for
+end sub
+
+sub Test_Qr_choosesTheStandardMask()
+    cases = TestFixture("golden/qr-auto.json")
+    if cases = invalid then return
+    for each item in cases
+        code = QrEncode(item.text)
+        AssertEqual(code.mask, item.mask, "mask for " + item.text)
+        AssertEqual(QrRowsText(code).join("/"), item.rows.join("/"), item.text)
+    end for
+end sub
+
+sub Test_Qr_refusesWhatDoesNotFit()
+    AssertTrue(QrEncode(String(700, "x")) = invalid)
+end sub

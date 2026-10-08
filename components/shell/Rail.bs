@@ -1,0 +1,272 @@
+' apps/native/src/shell/Rail.tsx and rail-expansion.ts. Icons at rest (Theme.metrics.railWidth),
+' icons and labels while focused (railWidthExpanded): the panel grows over
+' Theme.motion.standard and its background crossfades from the canvas colour at
+' Theme.apple.railCollapsedAlpha to opaque; it collapses Theme.apple.railCollapseDelayMs after focus
+' leaves, so stepping between items does not flap it. The head is the Play-P mark at rest and the
+' wordmark when open. Destinations: Home, Search, Saved, Channels (when the server has a source), a
+' hairline, the libraries with their family icons, and Settings at the bottom under the profile's
+' name with the server's beneath. The selected destination carries an accent tint and bar; focus
+' is a raised plate with the same ring as content. Entering the rail lands on the destination on
+' screen, not on whatever was focused last (NAV-8).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/Scroll.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Content.bs"
+
+sub init()
+    m.panel = m.top.createChild("Rectangle")
+    m.edge = m.top.createChild("Rectangle")
+    m.mark = m.top.createChild("Poster")
+    m.mark.uri = "pkg:/images/brand/mark-" + RailMarkHeight() + ".png"
+    m.mark.blendColor = Theme.colors.text
+    m.wordmark = m.top.createChild("Poster")
+    m.wordmark.uri = "pkg:/images/brand/wordmark.png"
+    m.wordmark.blendColor = Theme.colors.text
+    m.clip = m.top.createChild("Group")
+    m.list = m.clip.createChild("Group")
+    m.footer = m.top.createChild("Group")
+    m.driver = m.top.createChild("Group")
+    m.driver.id = "railDriver"
+    m.driver.opacity = 0
+    m.motion = MakeFloatAnimation(m.top, "railDriver.opacity", Theme.motion.standard)
+    m.driver.observeField("opacity", "onRailProgress")
+    m.collapse = m.top.createChild("Timer")
+    m.collapse.duration = Theme.apple.railCollapseDelayMs / 1000
+    m.collapse.observeField("fire", "onRailCollapse")
+    m.entries = []
+    m.scroll = 0
+    m.top.observeField("focusedChild", "onRailFocusChain")
+    onRailItems()
+end sub
+
+function RailMarkHeight() as string
+    height = Theme.apple.railMarkHeight
+    return height.toStr()
+end function
+
+function RailItem(parent as object, key as string, label as string, icon as string, sub_ = "" as string) as object
+    node = parent.createChild("UiFocusable")
+    node.addFields({ railKey: key })
+    node.focusScale = 1
+    node.radius = Theme.metrics.radius.control
+    item = {
+        node: node
+        key: key
+        plate: node.createChild("Poster")
+        bar: node.createChild("Poster")
+        icon: node.createChild("Poster")
+        dot: node.createChild("Poster")
+        label: MakeText(node, "bodyStrong")
+        sub_: MakeText(node, "micro", "tertiary")
+        iconName: icon
+        hasSub: sub_ <> ""
+    }
+    item.label.value = label
+    item.sub_.value = sub_
+    item.sub_.visible = sub_ <> ""
+    item.dot.visible = false
+    node.observeField("isFocused", "onRailStyle")
+    node.observeField("pressed", "onRailPressed")
+    return item
+end function
+
+sub onRailItems()
+    m.list.removeChildrenIndex(m.list.getChildCount(), 0)
+    m.footer.removeChildrenIndex(m.footer.getChildCount(), 0)
+    m.entries = []
+    m.entries.push(RailItem(m.list, "Home", T("web.shell.home"), "home"))
+    m.entries.push(RailItem(m.list, "Search", T("web.shell.search"), "search"))
+    m.entries.push(RailItem(m.list, "Saved", T("web.shell.saved"), "saved"))
+    ' Channels: Live TV, Library Channels and Recordings in one destination (shown when a source exists).
+    if m.top.showChannels then m.entries.push(RailItem(m.list, "Channels", T("channels.title"), "channels"))
+    m.dividerAfter = m.entries.count()
+    libraries = m.top.libraries
+    if libraries = invalid then libraries = []
+    m.divider = invalid
+    if libraries.count() > 0 then m.divider = MakeRect(m.list, 1, 1, ColorAlpha(Theme.colors.lineSoft, Theme.apple.railDividerAlpha))
+    for each library in libraries
+        icon = MediaFamilyIcon(library.kind)
+        if icon = invalid then icon = "film"
+        m.entries.push(RailItem(m.list, "library:" + library.id, library.name, icon))
+    end for
+    label = m.top.profileName
+    if label = "" then label = T("web.shell.settings")
+    m.settings = RailItem(m.footer, "Settings", label, "account", m.top.serverName)
+    m.entries.push(m.settings)
+    onRailProgress()
+end sub
+
+' Lays the rail out for the driver's progress: 0 collapsed, 1 expanded.
+sub onRailProgress()
+    progress = m.driver.opacity
+    m.top.expansion = progress
+    open = progress > 0.5
+    collapsed = Theme.metrics.railWidth
+    expanded = Theme.metrics.railWidthExpanded
+    width = collapsed + (expanded - collapsed) * progress
+    height = Theme.screen.height
+    m.panel.width = width
+    m.panel.height = height
+    m.panel.color = ColorAlpha(Theme.colors.ink, Theme.apple.railCollapsedAlpha + (1 - Theme.apple.railCollapsedAlpha) * progress)
+    m.edge.width = 1
+    m.edge.height = height
+    m.edge.color = ColorAlpha(Theme.colors.lineSoft, Theme.apple.railBorderAlpha)
+    Place(m.edge, width - 1, 0)
+
+    padX = Theme.space.md
+    top = Theme.apple.railTopInset + Theme.space.md
+    bottom = Theme.apple.railBottomInset
+    head = Theme.apple.railHeadHeight
+    ' The head: the mark at rest, centred in the strip; the wordmark when open, at the leading edge.
+    markHeight = Theme.apple.railMarkHeight
+    m.mark.height = markHeight
+    m.mark.width = Int(markHeight * Theme.brand.markAspect + 0.5)
+    m.mark.opacity = 1 - progress
+    m.mark.visible = not open
+    Place(m.mark, (collapsed - m.mark.width) / 2, top + (head - markHeight) / 2)
+    wordHeight = Theme.apple.railWordmarkHeight
+    m.wordmark.height = wordHeight
+    m.wordmark.width = wordHeight * Theme.apple.wordmarkAspect
+    m.wordmark.opacity = progress
+    m.wordmark.visible = open
+    Place(m.wordmark, padX + Theme.space.sm, top + (head - wordHeight) / 2)
+
+    itemWidth = width - padX * 2
+    size = Theme.metrics.control
+    gap = Theme.apple.railItemGap
+    listTop = top + head + Theme.space.lg
+    footerTop = height - bottom - size
+    listHeight = footerTop - listTop
+    Place(m.clip, 0, listTop)
+    m.clip.clippingRect = [0, 0, width, listHeight]
+    y = Theme.apple.railListPad
+    for index = 0 to m.entries.count() - 1
+        item = m.entries[index]
+        if item.key = "Settings" then exit for
+        if index = m.dividerAfter and m.divider <> invalid then
+            y = y + Theme.space.sm - gap
+            m.divider.width = itemWidth - Theme.space.xs * 2
+            Place(m.divider, padX + Theme.space.xs, y)
+            y = y + 1 + Theme.space.sm
+        end if
+        Place(item.node, padX, y)
+        RailLayoutItem(item, itemWidth, size, open)
+        y = y + size + gap
+    end for
+    m.listContentHeight = y - gap + Theme.apple.railListPad
+    m.listViewport = listHeight
+    Place(m.footer, padX, footerTop)
+    RailLayoutItem(m.settings, itemWidth, size, open)
+    onRailStyle()
+end sub
+
+sub RailLayoutItem(item as object, width as dynamic, size as dynamic, open as boolean)
+    icon = Theme.metrics.icon
+    item.node.controlWidth = width
+    item.node.controlHeight = size
+    item.size = { width: width, height: size }
+    if open then
+        Place(item.icon, Theme.space.md, (size - icon) / 2)
+    else
+        Place(item.icon, (width - icon) / 2, (size - icon) / 2)
+    end if
+    badge = Theme.apple.railBadgeSize
+    Place(item.dot, item.icon.translation[0] + icon - badge - Theme.apple.railBadgeRight, item.icon.translation[1] + Theme.apple.railBadgeTop)
+    item.label.visible = open
+    item.sub_.visible = open and item.hasSub
+    if open then
+        textLeft = Theme.space.md + icon + Theme.space.md
+        item.label.maxWidth = width - textLeft - Theme.space.md
+        item.sub_.maxWidth = width - textLeft - Theme.space.md
+        copyHeight = item.label.height
+        if item.hasSub then copyHeight = copyHeight + item.sub_.height
+        Place(item.label, textLeft, (size - copyHeight) / 2)
+        Place(item.sub_, textLeft, (size - copyHeight) / 2 + item.label.height)
+        item.label.opacity = m.driver.opacity
+        item.sub_.opacity = m.driver.opacity
+    end if
+end sub
+
+sub onRailStyle()
+    for each item in m.entries
+        if item.size <> invalid then
+            focused = item.node.isFocused
+            active = item.key = m.top.selected
+            size = item.size
+            item.plate.visible = focused or active
+            if focused then
+                StyleShape(item.plate, size.width, size.height, Theme.metrics.radius.control, Theme.colors.raisedHigh)
+            else if active then
+                StyleShape(item.plate, size.width, size.height, Theme.metrics.radius.control, ColorAlpha(Theme.colors.accent, Theme.apple.railActiveAlpha))
+            end if
+            item.bar.visible = active
+            if active then
+                inset = size.height * Theme.apple.railActiveBarInset
+                StyleShape(item.bar, Theme.apple.railActiveBarWidth, size.height - inset * 2, Theme.apple.tabUnderlineRadius, Theme.colors.accent)
+                Place(item.bar, 0, inset)
+            end if
+            color = Theme.colors.textSecondary
+            if active or focused then color = Theme.colors.text
+            StyleIcon(item.icon, item.iconName, Theme.metrics.icon, color)
+            item.label.tint = color
+            if item.key = "Settings" then
+                item.dot.visible = m.top.badge
+                if m.top.badge then StyleShape(item.dot, Theme.apple.railBadgeSize, Theme.apple.railBadgeSize, Theme.apple.railBadgeSize / 2, Theme.colors.accent)
+            end if
+        end if
+    end for
+end sub
+
+sub onRailFocusChain()
+    focused = m.top.isInFocusChain()
+    if focused = m.top.railFocused then return
+    m.top.railFocused = focused
+    if focused then
+        m.collapse.control = "stop"
+        RunFloatAnimation(m.motion, m.driver.opacity, 1, Theme.motion.standard)
+    else
+        m.collapse.control = "stop"
+        m.collapse.control = "start"
+    end if
+end sub
+
+sub onRailCollapse()
+    if m.top.railFocused then return
+    RunFloatAnimation(m.motion, m.driver.opacity, 0, Theme.motion.standard)
+end sub
+
+sub onRailPressed(event as object)
+    node = event.getRoSGNode()
+    if node <> invalid then m.top.chosen = node.railKey
+end sub
+
+' Entering the rail from the content lands on the destination on screen.
+sub focusRail()
+    target = m.entries[0].node
+    for each item in m.entries
+        if item.key = m.top.selected then target = item.node
+    end for
+    target.setFocus(true)
+    RailFollow()
+end sub
+
+sub RailFollow()
+    current = FocusCurrent(m.list)
+    if current = invalid then return
+    offset = OffsetWithin(current, m.list)
+    m.scroll = ScrollTarget(m.scroll, m.listViewport, m.listContentHeight, offset.y, Theme.metrics.control, invalid, 0, Theme.apple.railListPad)
+    Place(m.list, 0, -m.scroll)
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if key <> "up" and key <> "down" then return false
+    if press then
+        FocusMove(m.top, key)
+        RailFollow()
+    end if
+    return true
+end function

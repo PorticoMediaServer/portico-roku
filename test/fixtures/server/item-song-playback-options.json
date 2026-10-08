@@ -1,0 +1,58 @@
+{
+ "itemId": "oZtkia7wmduFxr6RPmEJxg",
+ "kind": "track",
+ "versions": [
+  {
+   "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+   "label": "",
+   "container": "m4a",
+   "sizeBytes": 466809,
+   "durationMs": 60000,
+   "bitrateKbps": 62,
+   "parts": [
+    {
+     "id": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+     "index": 0,
+     "durationMs": 60000,
+     "sizeBytes": 466809
+    }
+   ],
+   "video": [],
+   "audio": [
+    {
+     "id": "a0",
+     "codec": "aac",
+     "channels": 1,
+     "layout": "mono",
+     "atmos": false,
+     "language": "und",
+     "default": true,
+     "commentary": false,
+     "visualImpaired": false
+    }
+   ],
+   "subtitles": []
+  }
+ ],
+ "chapters": [],
+ "markers": [],
+ "preferred": {
+  "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+  "audioId": "a0",
+  "reason": "default"
+ },
+ "plan": {
+  "versionId": "-2c0hEQqygF51uTNixUKqQ_Xp2nuixa6mnS8Z1L0eAQ",
+  "mode": "direct",
+  "streams": [
+   {
+    "id": "a0",
+    "action": "direct",
+    "reasons": []
+   }
+  ],
+  "quality": {
+   "mode": "original"
+  }
+ }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/Library.tsx: one library. Discover's rows, then the kind's own tabs on the browse engine. -->
+<component name="ScreenLibrary" extends="Group">
+    <interface>
+        <field id="route" type="assocarray" />
+        <function name="enter" />
+        <function name="resume" />
+        <function name="leave" />
+        <function name="focusEntry" />
+    </interface>
+</component>

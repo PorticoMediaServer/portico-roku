@@ -1,0 +1,264 @@
+' apps/native/src/player/Lyrics.tsx: synced lyrics for the song playing. The current line is
+' bright and rests a third of the way down the panel as the song plays; a line can be pressed to
+' jump to it. Part of PlayerHost (it shares its `m`).
+'
+' Only the lines near the one the panel rests on are drawn (core/Lyrics.bs `LyricWindow`). The
+' panel is one focus stop: Up and Down move along the lines, OK jumps to the line, Back returns
+' to Pause/Play.
+import "pkg:/source/core/Lyrics.bs"
+
+sub LyricsInit()
+    m.lyricsGroup = m.top.createChild("Group")
+    m.lyricsGroup.visible = false
+    m.lyricsPanel = m.lyricsGroup.createChild("UiFocusable")
+    m.lyricsPanel.addFields({ playerId: "lyricsPanel" })
+    m.lyricsPanel.ring = false
+    m.lyricsPanel.focusScale = 1
+    m.lyricsPanel.observeField("pressed", "onLyricsPressed")
+    m.lyricsPanel.observeField("isFocused", "onLyricsFocus")
+    m.lyricsClip = m.lyricsPanel.createChild("Group")
+    m.lyricsBody = m.lyricsClip.createChild("Group")
+    m.lyricsExtras = m.lyricsGroup.createChild("Group")
+    m.lyricsTimer = m.top.createChild("Timer")
+    m.lyricsTimer.duration = Theme.apple.lyricsRefreshMs / 1000
+    m.lyricsTimer.repeat = true
+    m.lyricsTimer.observeField("fire", "onLyricsRefresh")
+    m.lyricsOn = true
+    m.lyricsBox = invalid
+    LyricsReset()
+end sub
+
+sub LyricsReset()
+    m.lyrics = invalid
+    m.lyricsFailure = invalid
+    m.lyricsFor = ""
+    m.lyricCursor = -1
+    m.lyricDrawn = ""
+end sub
+
+' VideoPlayer.tsx `lyricsAllowed`: a song, and the viewer has not turned synced lyrics off.
+function LyricsAllowed() as boolean
+    if m.audio <> true or m.session = invalid or m.channel <> invalid then return false
+    if not PlayerIsSong() then return false
+    wanted = PreferenceValueOf(m.prefs, "playback.showSyncedLyrics")
+    return not (IsBoolean(wanted) and wanted = false)
+end function
+
+function LyricsShown() as boolean
+    return m.lyricsOn and LyricsAllowed()
+end function
+
+' The lyrics belong to one session of one song: asked for again when either changes, and every
+' Theme.apple.lyricsRefreshMs while it plays (someone may have just added them).
+sub LyricsLoad()
+    if not LyricsAllowed() or m.playingItem = "" then
+        m.lyricsTimer.control = "stop"
+        return
+    end if
+    key = m.session.id + ":" + m.playingItem
+    if key <> m.lyricsFor then
+        LyricsReset()
+        m.lyricsFor = key
+    end if
+    libraryId = ""
+    if m.entry <> invalid and m.entry.libraryId <> invalid and m.entry.playback <> invalid and m.entry.playback.itemId = m.playingItem then libraryId = m.entry.libraryId
+    target = { itemId: m.playingItem, libraryId: libraryId, sessionId: m.session.id, sessionGeneration: m.session.presentation.generation }
+    viewer = m.global.session.viewer
+    if viewer = invalid then return
+    PlayerSend("lyrics", { path: LyricsPath(m.playingItem, m.session.id), reader: "lyrics", context: { serverId: viewer.serverId, target: target } }, "onLyricsLoaded")
+    m.tasks["lyrics"].addFields({ lyricsFor: key })
+    m.lyricsTimer.control = "start"
+end sub
+
+sub onLyricsRefresh()
+    if m.session = invalid or m.phase = "ended" or m.phase = "error" or m.phase = "idle" then return
+    LyricsLoad()
+end sub
+
+sub onLyricsLoaded(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or task.lyricsFor <> m.lyricsFor then return
+    result = event.getData()
+    if result.ok and result.value.ok = true then
+        m.lyrics = result.value
+        m.lyricsFailure = invalid
+    else if not result.ok and result.status <> invalid and LyricsMissing(result.status) then
+        m.lyrics = EmptyLyricsView()
+        m.lyricsFailure = invalid
+    else if m.lyrics = invalid then
+        ' A refresh that fails keeps the lyrics already shown.
+        m.lyricsFailure = result.error
+        if m.lyricsFailure = invalid then m.lyricsFailure = { code: "invalid_response", status: 0 }
+    end if
+    m.lyricDrawn = ""
+    LyricsDraw()
+end sub
+
+' Lays the panel out in the room the audio layout gives it, and draws it.
+sub LyricsLayout(x as dynamic, y as dynamic, width as dynamic, height as dynamic)
+    m.lyricsBox = { x: x, y: y, width: width, height: height }
+    Place(m.lyricsGroup, x, y)
+    m.lyricsPanel.controlWidth = width
+    m.lyricsPanel.controlHeight = height
+    m.lyricsClip.clippingRect = [0, 0, width, height]
+    m.lyricDrawn = ""
+    LyricsDraw()
+end sub
+
+function LyricsDocument() as dynamic
+    if m.lyrics = invalid or m.lyrics.selected = invalid then return invalid
+    return m.lyrics.selected.document
+end function
+
+function LyricsActive() as integer
+    document = LyricsDocument()
+    if document = invalid then return -1
+    start = 0
+    if m.lyrics.source <> invalid then start = m.lyrics.source.startSeconds
+    return ActiveLyricLine(document, PlayerPosition(), m.lyrics.selected.offsetMs, start)
+end function
+
+' The song moved on: the panel is drawn again only when the line being sung changed.
+sub LyricsFollow()
+    if not m.lyricsGroup.visible or LyricsDocument() = invalid then return
+    LyricsDraw()
+end sub
+
+sub LyricsDraw()
+    shown = LyricsShown() and m.top.expanded and m.lyricsBox <> invalid and m.phase <> "error"
+    m.lyricsGroup.visible = shown
+    if not shown then return
+    document = LyricsDocument()
+    focused = m.lyricsPanel.isInFocusChain()
+    active = LyricsActive()
+    anchor = active
+    if focused and m.lyricCursor >= 0 then anchor = m.lyricCursor
+    signature = "none"
+    if document <> invalid then signature = anchor.toStr() + ":" + active.toStr() + ":" + focused.toStr()
+    if signature = m.lyricDrawn then return
+    m.lyricDrawn = signature
+    width = m.lyricsBox.width
+    height = m.lyricsBox.height
+    body = m.lyricsBody
+    body.removeChildrenIndex(body.getChildCount(), 0)
+    extras = m.lyricsExtras
+    held = FocusCurrent(extras)
+    extras.removeChildrenIndex(extras.getChildCount(), 0)
+    Place(body, 0, 0)
+    m.lyricsPanel.focusable = document <> invalid
+    if document = invalid then
+        ' No lyrics chosen: say so, or offer the ones there are; a failure offers another try.
+        words = T("player.noLyrics")
+        buttons = []
+        if m.lyricsFailure <> invalid then
+            words = PresentError(m.lyricsFailure, "playback").body
+            buttons.push({ id: "lyricsRetry", label: T("action.tryAgain") })
+        else if m.lyrics = invalid then
+            words = ""
+        else
+            for each choice in LyricChoices(m.lyrics)
+                buttons.push({ id: "lyricsChoose", label: choice.label, resourceId: choice.id })
+            end for
+            if buttons.count() > 0 then words = T("player.chooseLyrics")
+        end if
+        line = MakeText(body, "body", "secondary", words)
+        line.align = "center"
+        line.lines = 0
+        line.maxWidth = width
+        y = TextHeight(line) + Theme.space.sm
+        for each item in buttons
+            button = extras.createChild("UiButton")
+            button.addFields({ playerId: item.id, resourceId: "" })
+            if item.resourceId <> invalid then button.resourceId = item.resourceId
+            button.variant = "ghost"
+            button.label = item.label
+            button.observeField("pressed", "onLyricsButton")
+            Place(button, (width - button.controlWidth) / 2, y)
+            y = y + button.controlHeight + Theme.space.xs
+        end for
+        if held <> invalid and extras.getChildCount() > 0 then FocusOn(extras.getChild(0))
+        return
+    end if
+    window = LyricWindow(document.lines.count(), anchor)
+    y = 0
+    anchorY = 0
+    pad = Theme.space.xs
+    for index = window.first to window.last
+        text = MakeText(body, "heading", "primary", LyricLineText(document.lines[index]))
+        text.align = "center"
+        text.lines = 0
+        text.maxWidth = width
+        rowHeight = TextHeight(text) + pad * 2
+        if focused and index = m.lyricCursor then
+            ' The line the remote rests on.
+            plate = MakeShape(body, width, rowHeight, Theme.metrics.radius.small, Theme.colors.raisedHigh)
+            Place(plate, 0, y)
+            body.removeChild(text)
+            body.appendChild(text)
+        end if
+        Place(text, 0, y + pad)
+        if index <> active then text.opacity = Theme.apple.lyricsDimOpacity
+        if index = anchor then anchorY = y
+        y = y + rowHeight + pad
+    end for
+    ' The line rests a third of the way down; near the start the lyrics begin at the top.
+    offset = Max(0, anchorY - height / Theme.apple.lyricsAnchorDivisor)
+    Place(body, 0, -offset)
+end sub
+
+sub onLyricsFocus()
+    if m.lyricsPanel.isFocused then
+        ' Focus arrives on the line being sung.
+        m.lyricCursor = LyricsActive()
+        if m.lyricCursor < 0 then m.lyricCursor = 0
+    end if
+    m.lyricDrawn = ""
+    LyricsDraw()
+end sub
+
+' Up and Down along the lines while the panel holds focus. False at either end: focus leaves.
+function LyricsMove(direction as string) as boolean
+    document = LyricsDocument()
+    if document = invalid or not m.lyricsPanel.isInFocusChain() then return false
+    target = m.lyricCursor + 1
+    if direction = "up" then target = m.lyricCursor - 1
+    if target < 0 or target > document.lines.count() - 1 then return false
+    m.lyricCursor = target
+    LyricsDraw()
+    return true
+end function
+
+sub onLyricsPressed()
+    document = LyricsDocument()
+    if document = invalid or m.lyricCursor < 0 or m.lyricCursor > document.lines.count() - 1 then return
+    seconds = LyricSeekPosition(document.lines[m.lyricCursor], m.lyrics.selected.offsetMs, m.lyrics.source)
+    if seconds = invalid then return
+    if PlayerGroupTook({ kind: "seek", seconds: seconds }) then return
+    m.seekTo = seconds
+    m.video.seek = seconds
+    PlayerTimeline()
+    PlayerTouch()
+end sub
+
+sub onLyricsButton(event as object)
+    button = event.getRoSGNode()
+    PlayerTouch()
+    if button.playerId = "lyricsRetry" then
+        m.lyricsFailure = invalid
+        LyricsLoad()
+        return
+    end if
+    if m.lyrics = invalid or m.session = invalid then return
+    for each resource in m.lyrics.resources
+        if resource.id = button.resourceId then
+            body = LyricsSelectionBody(m.lyrics, m.session.id, resource)
+            if body <> invalid then PlayerSend("lyricsChoose", { path: LyricsPath(m.playingItem, m.session.id, "/selection"), method: "PUT", body: body }, "onLyricsChosen")
+        end if
+    end for
+end sub
+
+sub onLyricsChosen(event as object)
+    result = event.getData()
+    if not result.ok then Toast(PresentError(result.error, "playback", { operation: "save" }).body, "warning")
+    LyricsLoad()
+end sub

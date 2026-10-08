@@ -1,0 +1,637 @@
+{
+ "cases": [
+  {
+   "name": "as served",
+   "document": {
+    "items": []
+   },
+   "ok": true,
+   "expected": []
+  },
+  {
+   "name": "two pictures",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p2",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/webp",
+      "url": "/v1/profiles/p2/avatar"
+     }
+    ]
+   },
+   "ok": true,
+   "expected": [
+    {
+     "profileId": "p_1-A",
+     "url": "/v1/profiles/p_1-A/avatar?v=3"
+    },
+    {
+     "profileId": "p2",
+     "url": "/v1/profiles/p2/avatar"
+    }
+   ]
+  },
+  {
+   "name": "none",
+   "document": {
+    "items": []
+   },
+   "ok": true,
+   "expected": []
+  },
+  {
+   "name": "no list",
+   "document": {
+    "avatars": []
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a picture at another origin",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "https://example.com/a.png"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a path that is not a profile",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/items/x/art/poster"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a type that is not an image",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "text/html",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a version of nothing",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 0,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an id with a slash",
+   "document": {
+    "items": [
+     {
+      "profileId": "a/b",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a date that is not one",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 3,
+      "updatedAt": "yesterday",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a field nobody asked for",
+   "document": {
+    "items": [
+     {
+      "profileId": "p_1-A",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3",
+      "owner": true
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "sixty-five pictures",
+   "document": {
+    "items": [
+     {
+      "profileId": "p0",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p1",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p2",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p3",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p4",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p5",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p6",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p7",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p8",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p9",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p10",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p11",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p12",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p13",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p14",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p15",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p16",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p17",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p18",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p19",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p20",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p21",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p22",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p23",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p24",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p25",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p26",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p27",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p28",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p29",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p30",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p31",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p32",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p33",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p34",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p35",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p36",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p37",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p38",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p39",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p40",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p41",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p42",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p43",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p44",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p45",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p46",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p47",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p48",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p49",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p50",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p51",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p52",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p53",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p54",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p55",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p56",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p57",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p58",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p59",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p60",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p61",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p62",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p63",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     },
+     {
+      "profileId": "p64",
+      "version": 3,
+      "updatedAt": "2026-10-01T10:00:00Z",
+      "sourceMime": "image/jpeg",
+      "url": "/v1/profiles/p_1-A/avatar?v=3"
+     }
+    ]
+   },
+   "ok": false,
+   "expected": null
+  }
+ ]
+}

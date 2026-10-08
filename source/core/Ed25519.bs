@@ -1,0 +1,360 @@
+' Ed25519 signature verification. A Portico server proves its identity by signing with its
+' Ed25519 key (packages/client-core/src/route-identity.ts `probeRoute`, `verifyRoutes`); the web
+' and Apple apps verify with the platform's crypto. Roku has none for this curve, so this is the
+' verification itself: the TweetNaCl algorithm (public domain; D. J. Bernstein, T. Lange,
+' P. Schwabe and others), with field elements as sixteen 16-bit limbs held in doubles. Only
+' verification is here: the channel never holds a private key. Everything it reads is public, so
+' the constant-time selects of the original are plain swaps.
+'
+' The curve constants are generated (core/Ed25519Constants.bs).
+import "pkg:/source/core/Ed25519Constants.bs"
+
+function GfNew() as object
+    return [0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#]
+end function
+
+function GfOne() as object
+    one = GfNew()
+    one[0] = 1#
+    return one
+end function
+
+sub GfSet(target as object, source as object)
+    for i = 0 to 15
+        target[i] = source[i]
+    end for
+end sub
+
+sub GfCarry(o as object)
+    c = 1
+    for i = 0 to 15
+        v = o[i] + c + 65535#
+        c = Int(v / 65536#)
+        o[i] = v - c * 65536#
+    end for
+    o[0] = o[0] + (c - 1) + 37# * (c - 1)
+end sub
+
+sub GfSwap(p as object, q as object, bit as integer)
+    if bit = 0 then return
+    for i = 0 to 15
+        held = p[i]
+        p[i] = q[i]
+        q[i] = held
+    end for
+end sub
+
+' The canonical 32 bytes of a field element.
+function GfPack(n as object) as object
+    w = GfNew()
+    GfSet(w, n)
+    GfCarry(w)
+    GfCarry(w)
+    GfCarry(w)
+    reduced = GfNew()
+    for round = 0 to 1
+        reduced[0] = w[0] - 65517#
+        for i = 1 to 14
+            borrow = 0
+            if reduced[i - 1] < 0 then
+                borrow = 1
+                reduced[i - 1] = reduced[i - 1] + 65536#
+            end if
+            reduced[i] = w[i] - 65535# - borrow
+        end for
+        borrow = 0
+        if reduced[14] < 0 then
+            borrow = 1
+            reduced[14] = reduced[14] + 65536#
+        end if
+        reduced[15] = w[15] - 32767# - borrow
+        ' Keep the reduced value unless the subtraction went negative.
+        if reduced[15] >= 0 then
+            GfSet(w, reduced)
+        end if
+    end for
+    out = CreateObject("roByteArray")
+    for i = 0 to 15
+        limb = Int(w[i])
+        out.push(limb and 255)
+        out.push((limb >> 8) and 255)
+    end for
+    return out
+end function
+
+function GfNotEqual(a as object, b as object) as boolean
+    x = GfPack(a)
+    y = GfPack(b)
+    for i = 0 to 31
+        if x[i] <> y[i] then return true
+    end for
+    return false
+end function
+
+function GfParity(a as object) as integer
+    return GfPack(a)[0] and 1
+end function
+
+sub GfUnpack(o as object, bytes as object)
+    for i = 0 to 15
+        o[i] = bytes[2 * i] + bytes[2 * i + 1] * 256#
+    end for
+    if o[15] >= 32768# then o[15] = o[15] - 32768#
+end sub
+
+sub GfAdd(o as object, a as object, b as object)
+    for i = 0 to 15
+        o[i] = a[i] + b[i]
+    end for
+end sub
+
+sub GfSub(o as object, a as object, b as object)
+    for i = 0 to 15
+        o[i] = a[i] - b[i]
+    end for
+end sub
+
+sub GfMul(o as object, a as object, b as object)
+    w = [0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#, 0#]
+    b0 = b[0]
+    b1 = b[1]
+    b2 = b[2]
+    b3 = b[3]
+    b4 = b[4]
+    b5 = b[5]
+    b6 = b[6]
+    b7 = b[7]
+    b8 = b[8]
+    b9 = b[9]
+    b10 = b[10]
+    b11 = b[11]
+    b12 = b[12]
+    b13 = b[13]
+    b14 = b[14]
+    b15 = b[15]
+    for i = 0 to 15
+        v = a[i]
+        w[i] = w[i] + v * b0
+        w[i + 1] = w[i + 1] + v * b1
+        w[i + 2] = w[i + 2] + v * b2
+        w[i + 3] = w[i + 3] + v * b3
+        w[i + 4] = w[i + 4] + v * b4
+        w[i + 5] = w[i + 5] + v * b5
+        w[i + 6] = w[i + 6] + v * b6
+        w[i + 7] = w[i + 7] + v * b7
+        w[i + 8] = w[i + 8] + v * b8
+        w[i + 9] = w[i + 9] + v * b9
+        w[i + 10] = w[i + 10] + v * b10
+        w[i + 11] = w[i + 11] + v * b11
+        w[i + 12] = w[i + 12] + v * b12
+        w[i + 13] = w[i + 13] + v * b13
+        w[i + 14] = w[i + 14] + v * b14
+        w[i + 15] = w[i + 15] + v * b15
+    end for
+    for i = 0 to 14
+        w[i] = w[i] + 38# * w[i + 16]
+    end for
+    for i = 0 to 15
+        o[i] = w[i]
+    end for
+    GfCarry(o)
+    GfCarry(o)
+end sub
+
+sub GfInvert(o as object, value as object)
+    c = GfNew()
+    GfSet(c, value)
+    for a = 253 to 0 step -1
+        GfMul(c, c, c)
+        if a <> 2 and a <> 4 then GfMul(c, c, value)
+    end for
+    GfSet(o, c)
+end sub
+
+sub GfPow2523(o as object, value as object)
+    c = GfNew()
+    GfSet(c, value)
+    for a = 250 to 0 step -1
+        GfMul(c, c, c)
+        if a <> 1 then GfMul(c, c, value)
+    end for
+    GfSet(o, c)
+end sub
+
+' Points are [x, y, z, t] in extended coordinates.
+function PointNew() as object
+    return [GfNew(), GfNew(), GfNew(), GfNew()]
+end function
+
+sub PointAdd(p as object, q as object, d2 as object)
+    a = GfNew()
+    b = GfNew()
+    c = GfNew()
+    d = GfNew()
+    e = GfNew()
+    f = GfNew()
+    g = GfNew()
+    h = GfNew()
+    w = GfNew()
+    GfSub(a, p[1], p[0])
+    GfSub(w, q[1], q[0])
+    GfMul(a, a, w)
+    GfAdd(b, p[0], p[1])
+    GfAdd(w, q[0], q[1])
+    GfMul(b, b, w)
+    GfMul(c, p[3], q[3])
+    GfMul(c, c, d2)
+    GfMul(d, p[2], q[2])
+    GfAdd(d, d, d)
+    GfSub(e, b, a)
+    GfSub(f, d, c)
+    GfAdd(g, d, c)
+    GfAdd(h, b, a)
+    GfMul(p[0], e, f)
+    GfMul(p[1], h, g)
+    GfMul(p[2], g, f)
+    GfMul(p[3], e, h)
+end sub
+
+sub PointSwap(p as object, q as object, bit as integer)
+    for i = 0 to 3
+        GfSwap(p[i], q[i], bit)
+    end for
+end sub
+
+function PointPack(p as object) as object
+    tx = GfNew()
+    ty = GfNew()
+    zi = GfNew()
+    GfInvert(zi, p[2])
+    GfMul(tx, p[0], zi)
+    GfMul(ty, p[1], zi)
+    out = GfPack(ty)
+    if GfParity(tx) = 1 then out[31] = out[31] or 128
+    return out
+end function
+
+' p = s·q, for a 32-byte little-endian scalar. q is used up.
+sub PointScalarMult(p as object, q as object, scalar as object, d2 as object)
+    GfSet(p[0], GfNew())
+    GfSet(p[1], GfOne())
+    GfSet(p[2], GfOne())
+    GfSet(p[3], GfNew())
+    for i = 255 to 0 step -1
+        bit = (scalar[i \ 8] >> (i mod 8)) and 1
+        PointSwap(p, q, bit)
+        PointAdd(q, p, d2)
+        PointAdd(p, p, d2)
+        PointSwap(p, q, bit)
+    end for
+end sub
+
+sub PointScalarBase(p as object, scalar as object, d2 as object)
+    q = PointNew()
+    GfSet(q[0], Ed25519X())
+    GfSet(q[1], Ed25519Y())
+    GfSet(q[2], GfOne())
+    GfMul(q[3], q[0], q[1])
+    PointScalarMult(p, q, scalar, d2)
+end sub
+
+' The negated point a public key encodes, or false when the key is not on the curve.
+function PointUnpackNegated(r as object, key as object) as boolean
+    w = GfNew()
+    chk = GfNew()
+    num = GfNew()
+    den = GfNew()
+    den2 = GfNew()
+    den4 = GfNew()
+    den6 = GfNew()
+    GfSet(r[2], GfOne())
+    GfUnpack(r[1], key)
+    GfMul(num, r[1], r[1])
+    GfMul(den, num, Ed25519D())
+    GfSub(num, num, r[2])
+    GfAdd(den, r[2], den)
+    GfMul(den2, den, den)
+    GfMul(den4, den2, den2)
+    GfMul(den6, den4, den2)
+    GfMul(w, den6, num)
+    GfMul(w, w, den)
+    GfPow2523(w, w)
+    GfMul(w, w, num)
+    GfMul(w, w, den)
+    GfMul(w, w, den)
+    GfMul(r[0], w, den)
+    GfMul(chk, r[0], r[0])
+    GfMul(chk, chk, den)
+    if GfNotEqual(chk, num) then GfMul(r[0], r[0], Ed25519I())
+    GfMul(chk, r[0], r[0])
+    GfMul(chk, chk, den)
+    if GfNotEqual(chk, num) then return false
+    if GfParity(r[0]) = ((key[31] >> 7) and 1) then GfSub(r[0], GfNew(), r[0])
+    GfMul(r[3], r[0], r[1])
+    return true
+end function
+
+function EdFloor(value as double, divisor as double) as integer
+    return Int(value / divisor)
+end function
+
+' A 64-byte digest reduced modulo the group order, as 32 bytes.
+function ScalarReduce(digest as object) as object
+    order = Ed25519L()
+    x = []
+    for i = 0 to 63
+        x.push(digest[i] * 1#)
+    end for
+    for i = 63 to 32 step -1
+        carry = 0#
+        j = i - 32
+        k = i - 12
+        while j < k
+            x[j] = x[j] + carry - 16# * x[i] * order[j - (i - 32)]
+            carry = EdFloor(x[j] + 128#, 256#) * 1#
+            x[j] = x[j] - carry * 256#
+            j = j + 1
+        end while
+        x[j] = x[j] + carry
+        x[i] = 0#
+    end for
+    carry = 0#
+    for j = 0 to 31
+        x[j] = x[j] + carry - EdFloor(x[31], 16#) * order[j]
+        carry = EdFloor(x[j], 256#) * 1#
+        x[j] = x[j] - carry * 256#
+    end for
+    for j = 0 to 31
+        x[j] = x[j] - carry * order[j]
+    end for
+    out = CreateObject("roByteArray")
+    for i = 0 to 31
+        x[i + 1] = x[i + 1] + EdFloor(x[i], 256#)
+        out.push(Int(x[i] - EdFloor(x[i], 256#) * 256#))
+    end for
+    return out
+end function
+
+' True when `signature` (64 bytes) is `publicKey`'s (32 bytes) signature and `digest` is
+' SHA-512(R ‖ publicKey ‖ message), R being the signature's first 32 bytes.
+function Ed25519VerifyDigest(publicKey as object, signature as object, digest as object) as boolean
+    if publicKey = invalid or signature = invalid or digest = invalid then return false
+    if publicKey.count() <> 32 or signature.count() <> 64 or digest.count() <> 64 then return false
+    d2 = Ed25519D2()
+    q = PointNew()
+    if not PointUnpackNegated(q, publicKey) then return false
+    p = PointNew()
+    PointScalarMult(p, q, ScalarReduce(digest), d2)
+    scalar = CreateObject("roByteArray")
+    for i = 32 to 63
+        scalar.push(signature[i])
+    end for
+    base = PointNew()
+    PointScalarBase(base, scalar, d2)
+    PointAdd(p, base, d2)
+    packed = PointPack(p)
+    for i = 0 to 31
+        if packed[i] <> signature[i] then return false
+    end for
+    return true
+end function

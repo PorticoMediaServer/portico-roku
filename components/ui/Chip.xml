@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Chip.tsx: a quick filter, or a removable filter token (componentSpec.chip). -->
+<component name="UiChip" extends="UiFocusable">
+    <interface>
+        <field id="label" type="string" value="" onChange="onChipLayout" />
+        <field id="icon" type="string" value="" onChange="onChipLayout" />
+        <field id="selected" type="boolean" value="false" onChange="onChipStyle" />
+        <field id="removable" type="boolean" value="false" onChange="onChipLayout" />
+    </interface>
+</component>

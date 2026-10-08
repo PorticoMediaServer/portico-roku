@@ -1,0 +1,224 @@
+' packages/client-core/src/presentation/errors.ts: the one error-presentation layer (X-04).
+' Errors are mapped by stable code and HTTP status, never by their message: server and transport
+' text is diagnostic and is never shown. Every result says what failed (title), what happens next
+' (body) and which recovery is truthful (action). Also apps/native/src/app/errors.ts
+' (`signInMessage`) and app/portico-failure.ts (`classifyPorticoFailure`).
+'
+' An error is {code, status, retryable, retryAfterSeconds, message} (core/Api.bs). A dropped
+' connection has the code "network", a timeout "timeout".
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Validate.bs"
+
+function ErrorExactCategories() as object
+    return {
+        "cancelled": "cancelled", "canceled": "cancelled", "aborted": "cancelled"
+        "network": "unreachable", "request_failed": "unreachable", "server_unavailable": "unreachable", "route_unavailable": "unreachable", "console_unavailable": "unreachable", "delivery_http_failure": "unreachable", "remote_unavailable": "unreachable"
+        "timeout": "timeout", "remote_stalled": "timeout"
+        "unauthorized": "authentication", "authentication_required": "authentication", "session_expired": "authentication", "invalid_token": "authentication", "unauthenticated": "authentication"
+        "forbidden": "permission", "permission_changed": "permission", "access_revoked": "permission", "owner_required": "permission", "remote_denied": "permission", "remote_sign_in_not_allowed": "permission"
+        "not_found": "not-found", "gone": "not-found"
+        "rate_limited": "rate-limited", "too_many_requests": "rate-limited"
+        "unsupported_version": "unsupported-version", "client_too_old": "unsupported-version"
+        "storage_full": "storage-full", "insufficient_storage": "storage-full"
+        "invalid_request": "invalid-input", "validation_failed": "invalid-input", "method_not_allowed": "invalid-input"
+        "response_too_large": "invalid-response", "invalid_response": "invalid-response", "unreadable_response": "invalid-response"
+        "artwork_pending": "unavailable", "artwork_gone": "changed"
+        "revision_required": "changed"
+        "route_stale": "changed", "refresh_required": "changed", "refresh-required": "changed", "stale": "changed", "identity_mismatch": "changed", "session_identity_mismatch": "changed", "stale_continuation": "changed", "wrong_server": "changed"
+        "internal_error": "unknown", "unexpected": "unknown", "persistence_error": "unknown"
+    }
+end function
+
+function ErrorCategory(code as string, status as dynamic) as string
+    if code = "abort" then return "cancelled"
+    if code <> "" then
+        byCode = ErrorExactCategories()[code]
+        if byCode <> invalid then return byCode
+        if MatchesPattern(code, "(^|_)(conflict|stale|scope_changed|changed|mismatch|revision)(_|$)") then return "changed"
+        if MatchesPattern(code, "(^|_)busy$|_capacity(_|$)|^server_busy$|_occupied$") then return "busy"
+        if MatchesPattern(code, "_not_found$") then return "not-found"
+        if MatchesPattern(code, "_invalid_input$|^invalid_(address|administration_input|request_id|selection)$") then return "invalid-input"
+        if MatchesPattern(code, "^invalid_|_invalid$|_manifest_invalid$") then return "invalid-response"
+        if MatchesPattern(code, "_unavailable$|^unavailable$|_unsupported$|^unsupported_") then return "unavailable"
+        if MatchesPattern(code, "_timeout$|_timed_out$") then return "timeout"
+    end if
+    if status = invalid then return "unknown"
+    if status = 401 then return "authentication"
+    if status = 403 then return "permission"
+    if status = 404 or status = 410 then return "not-found"
+    if status = 409 or status = 412 or status = 428 then return "changed"
+    if status = 426 then return "unsupported-version"
+    if status = 429 then return "rate-limited"
+    if status = 507 then return "storage-full"
+    if status = 408 or status = 504 then return "timeout"
+    if status = 503 then return "busy"
+    if status = 400 or status = 422 then return "invalid-input"
+    return "unknown"
+end function
+
+' Returns {category, titleId, titleValues, messageId, values, action, actionLabelId, silent,
+' retryAfterSeconds, code}. `options`: {operation: load|save|action, retrying, service}.
+function PresentErrorFacts(failure as dynamic, context = "generic" as string, options = invalid as dynamic) as object
+    if options = invalid then options = {}
+    code = ""
+    status = invalid
+    retryAfter = invalid
+    if IsString(failure) then
+        code = failure
+    else if IsObject(failure) then
+        if IsString(failure.code) then code = failure.code
+        if IsNatural(failure.status) and failure.status > 0 then status = failure.status
+        if failure.retryAfterSeconds <> invalid and failure.retryAfterSeconds > 0 then retryAfter = failure.retryAfterSeconds
+    end if
+    operation = "load"
+    if options.operation <> invalid then operation = options.operation
+    titles = { "load": "error.title.load", "save": "error.title.save", "action": "error.title.action" }
+    titleId = titles[operation]
+    category = ErrorCategory(code, status)
+    out = { category: category, titleId: titleId, titleValues: { subject: context }, messageId: "error.cancelled", values: invalid, action: "none", actionLabelId: invalid, silent: false, retryAfterSeconds: retryAfter, code: code }
+    if category = "cancelled" then
+        out.silent = true
+        return out
+    end if
+    bodies = {
+        "offline": ["error.offline", "try-again"]
+        "unreachable": ["error.unreachable", "try-again"]
+        "timeout": ["error.timeout", "try-again"]
+        "busy": ["error.busy", "try-again"]
+        "unavailable": ["error.unavailable", "try-again"]
+        "authentication": ["error.authentication", "sign-in"]
+        "permission": ["error.permission", "none"]
+        "not-found": ["error.notFound", "none"]
+        "changed": ["error.changed", "refresh"]
+        "rate-limited": ["error.rateLimited", "try-again"]
+        "unsupported-version": ["error.unsupportedVersion", "update"]
+        "invalid-response": ["error.invalidResponse", "try-again"]
+        "invalid-input": ["error.invalidInput", "none"]
+        "storage-full": ["error.storageFull", "try-again"]
+    }
+    base = bodies[category]
+    if base = invalid then base = ["error.unknown", "try-again"]
+    codeBodies = {
+        "queue_too_large": "error.queueTooLarge"
+        "local_metadata_only": "error.localMetadataOnly"
+        "metadata_unavailable": "error.metadataUnavailable"
+        "artwork_pending": "error.artworkPending"
+        "artwork_gone": "error.artworkGone"
+        "web_unavailable": "error.webUnavailable"
+        "method_not_allowed": "error.methodNotAllowed"
+        "invalid_metadata_language": "web.libraries.error.metadataLanguage"
+    }
+    messageId = base[0]
+    if code <> "" and codeBodies[code] <> invalid then messageId = codeBodies[code]
+    action = base[1]
+    account = options.service = "portico-account" or (options.service = invalid and (context = "portico-account" or context = "claim" or context = "link"))
+    accountBodies = { "unreachable": "error.account.unreachable", "timeout": "error.account.timeout", "busy": "error.account.busy", "unavailable": "error.account.unavailable" }
+    if account and accountBodies[category] <> invalid then messageId = accountBodies[category]
+    values = invalid
+    if category = "rate-limited" and retryAfter <> invalid then
+        messageId = "error.rateLimitedSeconds"
+        values = { seconds: retryAfter }
+    end if
+    if options.retrying = true and (category = "unreachable" or category = "offline" or category = "timeout" or category = "busy") then
+        messageId = "error.unreachableRetrying"
+        if category = "offline" then
+            messageId = "error.offlineRetrying"
+        else if account then
+            messageId = "error.account.unreachableRetrying"
+        end if
+        action = "automatic"
+    end if
+    if operation <> "load" and category = "invalid-response" then
+        messageId = "error.unconfirmedChange"
+        action = "refresh"
+    end if
+    if code = "local_metadata_only" then action = "none"
+    labels = { "try-again": "action.tryAgain", "refresh": "action.refresh", "sign-in": "action.signIn", "update": "action.update" }
+    out.messageId = messageId
+    out.values = values
+    out.action = action
+    out.actionLabelId = labels[action]
+    if code = "" and status <> invalid then out.code = "http_" + status.toStr()
+    return out
+end function
+
+' The words for an error: {category, title, body, action, actionLabel, silent}.
+function PresentError(failure as dynamic, context = "generic" as string, options = invalid as dynamic) as object
+    facts = PresentErrorFacts(failure, context, options)
+    out = { category: facts.category, title: T(facts.titleId, facts.titleValues), body: "", action: facts.action, actionLabel: "", silent: facts.silent }
+    if facts.silent then return out
+    out.body = T(facts.messageId, facts.values)
+    if facts.actionLabelId <> invalid then out.actionLabel = T(facts.actionLabelId)
+    return out
+end function
+
+' app/portico-failure.ts `classifyPorticoFailure`: why signing in to a Portico Account's server
+' failed. `stage` is "route" or "signIn"; `category` is ErrorCategory for the same error.
+function ClassifyPorticoFailure(failure as dynamic, stage as string, category as string) as string
+    code = ""
+    status = invalid
+    if IsObject(failure) then
+        if IsString(failure.code) then code = failure.code
+        if IsNatural(failure.status) and failure.status > 0 then status = failure.status
+    end if
+    if code = "access_refused" or (stage = "route" and status = 403) then return "noAccess"
+    if code = "clock_skew" then return "clockSkew"
+    if code = "session_migrated" then return "migrated"
+    if code = "device_approval_pending" then return "devicePending"
+    if code = "device_denied" then return "deviceDenied"
+    if code = "challenge_not_proven" or code = "identity_mismatch" or code = "server_mismatch" then return "identity"
+    if category = "offline" or category = "unreachable" or category = "timeout" or category = "unavailable" or category = "busy" then return "unreachable"
+    if stage = "route" and (code = "server_unavailable" or code = "route_unavailable") then return "unreachable"
+    if stage = "signIn" and (status = 400 or status = 404 or status = 405 or status = 501 or code = "invalid_request" or code = "invalid_response" or category = "unsupported-version") then return "incompatible"
+    return "other"
+end function
+
+' app/errors.ts `signInMessage`: sign-in keeps a few specific answers the generic mapping cannot
+' give (a wrong password is not "sign in again"). Returns {messageId, values}; an empty messageId
+' says nothing (a migrated sign-in is re-admitted silently).
+function SignInMessageFacts(failure as dynamic, service = "server" as string, operation = "action" as string) as object
+    code = ""
+    status = invalid
+    if IsObject(failure) then
+        if IsString(failure.shown) then return { messageId: failure.shown, values: failure.shownValues }
+        if IsString(failure.code) then code = failure.code
+        if IsNatural(failure.status) and failure.status > 0 then status = failure.status
+    end if
+    signInCodes = {
+        "invalid_credentials": "signIn.error.notAccepted"
+        "invalid_grant": "signIn.error.notAccepted"
+        "ambiguous_credentials": "signIn.error.notAccepted"
+        "credentials_required": "signIn.error.detailsRequired"
+        "challenge_invalid": "signIn.error.codeInvalid"
+        "invalid_code": "signIn.error.codeInvalid"
+        "mfa_invalid": "signIn.error.codeInvalid"
+        "profile_pin_locked": "signIn.error.tooManyTries"
+        "invalid_pin": "signIn.error.pinInvalid"
+        "expired_token": "signIn.error.expired"
+        "challenge_expired": "signIn.error.expired"
+    }
+    if code <> "" and signInCodes[code] <> invalid then return { messageId: signInCodes[code], values: invalid }
+    facts = PresentErrorFacts(failure, "sign-in", { operation: operation, service: service })
+    kind = ClassifyPorticoFailure(failure, "signIn", facts.category)
+    server = { server: T("invitation.thisServer") }
+    causes = {
+        "noAccess": "portico.failure.noAccess.title"
+        "clockSkew": "portico.failure.clockSkew.title"
+        "identity": "portico.failure.identity.title"
+        "incompatible": "portico.failure.incompatible.title"
+        "unreachable": "portico.failure.unreachable.title"
+        "deviceDenied": "portico.failure.deviceDenied.title"
+    }
+    if kind = "migrated" then return { messageId: "", values: invalid }
+    if kind = "devicePending" then return { messageId: "device.approval.titleThisDevice", values: invalid }
+    if causes[kind] <> invalid then return { messageId: causes[kind], values: server }
+    if status <> invalid and status = 401 then return { messageId: "signIn.error.notAccepted", values: invalid }
+    if facts.silent then return { messageId: "", values: invalid }
+    return { messageId: facts.messageId, values: facts.values }
+end function
+
+function SignInMessage(failure as dynamic, service = "server" as string) as string
+    facts = SignInMessageFacts(failure, service)
+    if facts.messageId = "" then return ""
+    return T(facts.messageId, facts.values)
+end function

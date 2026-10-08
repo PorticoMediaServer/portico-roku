@@ -1,0 +1,26 @@
+' apps/native/src/app/open.ts `routeForEntry`: the screen an entry's server-given destination
+' opens. The server tells the destination (`navigation`) and whether the entry plays directly
+' (`playback`); the channel only translates that to a route.
+
+' Returns {screen, params}, or invalid when the entry only plays.
+function RouteForEntry(entry as object, libraryId = "" as string) as dynamic
+    library = libraryId
+    if entry.libraryId <> invalid then library = entry.libraryId
+    target = entry.navigation
+    if target = invalid then return invalid
+    id = entry.id
+    if target.entityId <> invalid then id = target.entityId
+    view = target.view
+    ' An episode opens on its show's page, with that episode's panel open (Spec — Title Pages §3).
+    if view = "item" and entry.kind = "episode" then return { screen: "ScreenShow", params: { libraryId: library, episodeId: id, title: entry.title } }
+    if view = "item" then return { screen: "ScreenDetail", params: { libraryId: library, itemId: id } }
+    if view = "show" then return { screen: "ScreenShow", params: { libraryId: library, showId: id, title: entry.title } }
+    if view = "season" then return { screen: "ScreenShow", params: { libraryId: library, seasonId: id, title: entry.title } }
+    if target.category <> invalid or view = "browse" or view = "discover" or view = "collections" or view = "categories" then
+        params = { libraryId: library, tab: "browse" }
+        if view = "discover" or view = "collections" then params.tab = view
+        if target.category <> invalid then params.category = target.category
+        return { screen: "ScreenLibrary", params: params }
+    end if
+    return { screen: "ScreenEntity", params: { libraryId: library, view: view, entityId: id, title: entry.title } }
+end function

@@ -1,0 +1,133 @@
+{
+ "entity": {
+  "watchedCount": 0,
+  "unwatchedCount": 1,
+  "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+  "id": "cyBJij0xgREMl-Z166Tn4w",
+  "kind": "book",
+  "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)",
+  "subtitle": "James Clear",
+  "posterUrl": "/v1/metadata/book/cyBJij0xgREMl-Z166Tn4w/art/cover?v=23ac486f73a00f322e37fe745f1425d9e0475fd3a1150a8d0267f415abb9ecce&w=400",
+  "addedAt": null,
+  "count": 1
+ },
+ "listening": {
+  "target": {
+   "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "kind": "book",
+   "id": "cyBJij0xgREMl-Z166Tn4w"
+  },
+  "actions": [
+   "play",
+   "enqueue"
+  ],
+  "resumeUnavailable": false
+ },
+ "heading": {
+  "key": "entity.title",
+  "fallback": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+  "libraryKind": "audiobook",
+  "view": "book",
+  "entityId": "cyBJij0xgREMl-Z166Tn4w",
+  "viewerFence": "19953f596b475a2b42d9c110e0b5c892beed9f42a0aa6a95987e3edd6411595b"
+ },
+ "revision": {
+  "catalog": 233,
+  "viewer": 99
+ },
+ "navigation": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "view": "discover"
+  },
+  {
+   "id": "browse",
+   "labelKey": "library.books",
+   "view": "browse"
+  },
+  {
+   "id": "authors",
+   "labelKey": "library.authors",
+   "view": "authors"
+  },
+  {
+   "id": "series",
+   "labelKey": "library.series",
+   "view": "series"
+  }
+ ],
+ "query": {
+  "sort": "part",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [],
+ "filters": [],
+ "sections": [
+  {
+   "id": "files",
+   "type": "list",
+   "heading": {
+    "key": "section.files",
+    "fallback": "Book parts"
+   },
+   "entries": [
+    {
+     "watched": false,
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "Q51trqcvYBpUngLcnBe_YA",
+     "kind": "audiobook_file",
+     "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)",
+     "subtitle": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones (Unabridged)",
+     "posterUrl": "/v1/items/Q51trqcvYBpUngLcnBe_YA/art/poster",
+     "available": true,
+     "duration": 60,
+     "progressSeconds": 0,
+     "addedAt": "2026-10-02T04:03:45.063Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "Q51trqcvYBpUngLcnBe_YA"
+     },
+     "playback": {
+      "itemId": "Q51trqcvYBpUngLcnBe_YA"
+     }
+    }
+   ],
+   "totalCount": 1,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "context",
+   "type": "list",
+   "heading": {
+    "key": "section.context",
+    "fallback": "Author & series"
+   },
+   "entries": [
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "90d52c39f9f32b415dc9ac9ff4363c78",
+     "kind": "author",
+     "title": "James Clear",
+     "addedAt": null,
+     "navigation": {
+      "view": "author",
+      "entityId": "90d52c39f9f32b415dc9ac9ff4363c78"
+     }
+    }
+   ],
+   "totalCount": 1,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

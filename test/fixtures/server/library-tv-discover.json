@@ -1,0 +1,639 @@
+{
+ "heading": {
+  "key": "library.discover",
+  "fallback": "TV Shows"
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+  "libraryKind": "tv",
+  "view": "discover",
+  "entityId": "",
+  "viewerFence": "19953f596b475a2b42d9c110e0b5c892beed9f42a0aa6a95987e3edd6411595b"
+ },
+ "revision": {
+  "catalog": 27798,
+  "viewer": 199
+ },
+ "navigation": [
+  {
+   "id": "discover",
+   "labelKey": "library.discover",
+   "view": "discover"
+  },
+  {
+   "id": "browse",
+   "labelKey": "library.shows",
+   "view": "browse"
+  }
+ ],
+ "query": {
+  "sort": "server",
+  "direction": "asc",
+  "category": "",
+  "q": "",
+  "limit": 40,
+  "searchMode": "none"
+ },
+ "sorts": [],
+ "filters": [],
+ "sections": [
+  {
+   "id": "continue_watching",
+   "type": "rail",
+   "heading": {
+    "key": "section.continue_watching",
+    "fallback": "Continue Watching"
+   },
+   "entries": [
+    {
+     "watched": false,
+     "episodeNumber": 3,
+     "seasonNumber": 1,
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Walter fights with Jesse over his drug use, causing him to leave Walter alone with their captive, Krazy-8. Meanwhile, Hank has a scared straight moment with Walter Jr..",
+     "backdropUrl": "/v1/metadata/show/22ySzw_01oM0BPistFLM7g/art/backdrop?v=990018d88761df76ccac99888737fed16b0c6795b3a26077c914ca0edbbe6540&w=1920",
+     "stillUrl": "/v1/metadata/item/QHzkN_TrCC6IRWs-i_Sd2A/art/still?v=8d18ea200e7816f0fb3e60875c51fdb9544946d15117b6b58eb082d8b17e9d42&w=800",
+     "id": "QHzkN_TrCC6IRWs-i_Sd2A",
+     "kind": "episode",
+     "title": "...And the Bag's in the River",
+     "subtitle": "Breaking Bad",
+     "posterUrl": "/v1/metadata/season/TlMhk7AigLkmnJATWhgx7w/art/poster?v=fda1f5c84be88521c3651197db30fe453abaddb31909d5090ac6cee014597128&w=400",
+     "available": true,
+     "duration": 45,
+     "progressSeconds": 36.603,
+     "addedAt": "2026-10-02T04:03:14.611Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "QHzkN_TrCC6IRWs-i_Sd2A"
+     },
+     "playback": {
+      "itemId": "QHzkN_TrCC6IRWs-i_Sd2A"
+     }
+    }
+   ],
+   "totalCount": 1,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "recommended",
+   "type": "rail",
+   "heading": {
+    "key": "section.recommended",
+    "fallback": "Recommended for you"
+   },
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5P1xrYyeYVN_jcV6JFN72A",
+     "kind": "show",
+     "title": "The Walking Dead",
+     "subtitle": "2010",
+     "posterUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/poster?v=7be825ad6bfc9f8dc5449b548655c5b589afef6f86d121386cef9997afab9cdb&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5P1xrYyeYVN_jcV6JFN72A"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "xL6_yOFNIiwgLXJoiyIbBg",
+     "kind": "show",
+     "title": "The Simpsons",
+     "subtitle": "1989",
+     "posterUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/poster?v=d809cfb22c0cfd46b7ad50c903b2f33bedc7aedaeb47c0ddeafe5d8eb3af2c76&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xL6_yOFNIiwgLXJoiyIbBg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5WRgrpGzIzHsNIsVgIcAEw",
+     "kind": "show",
+     "title": "MobLand",
+     "subtitle": "2025",
+     "posterUrl": "/v1/metadata/show/5WRgrpGzIzHsNIsVgIcAEw/art/poster?v=601cf74dfd785cf42cdf5868b54cfd5d293bdd95bf727fb6d22ed76efb77b9b1&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5WRgrpGzIzHsNIsVgIcAEw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "qrtRe2eYjfm7SU1zyPU7Rg",
+     "kind": "show",
+     "title": "Outlander: Blood of My Blood",
+     "subtitle": "2025",
+     "posterUrl": "/v1/metadata/show/qrtRe2eYjfm7SU1zyPU7Rg/art/poster?v=0009b319574bb4288ab3e6ab09d40b6e7a360f0b54c04458e276a2738d460f2e&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "qrtRe2eYjfm7SU1zyPU7Rg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "M1eyUgPn3-IxSuHAx8Ontw",
+     "kind": "show",
+     "title": "Reacher",
+     "subtitle": "2022",
+     "posterUrl": "/v1/metadata/show/M1eyUgPn3-IxSuHAx8Ontw/art/poster?v=04731b09c54d298a766f36d1fe98706ef9ddd421f2d213c183be698ca2863ac1&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "M1eyUgPn3-IxSuHAx8Ontw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "7K8NB4iF_3xBKUsg0z5Teg",
+     "kind": "show",
+     "title": "The Mandalorian",
+     "subtitle": "2019",
+     "posterUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/poster?v=577d34feb2de9917b91fe789c378bb7a83c0d7b734afb62ed4cba5f103091bc8&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "7K8NB4iF_3xBKUsg0z5Teg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "y2TW7qBSaHpDhnNYCHW3vQ",
+     "kind": "show",
+     "title": "Severance",
+     "subtitle": "2022",
+     "posterUrl": "/v1/metadata/show/y2TW7qBSaHpDhnNYCHW3vQ/art/poster?v=23037f61bf7b6ad80fe8f7c5a988ea272cba013389d32612b679dd9e2537235d&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "y2TW7qBSaHpDhnNYCHW3vQ"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "4sDm9_Nt7oW5oVLen4eopw",
+     "kind": "show",
+     "title": "Ted Lasso",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/show/4sDm9_Nt7oW5oVLen4eopw/art/poster?v=da6bc794afd349a3d0bd49d76e0018005bb80a6def9cb9ded88ccabfcdd5ebcf&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "4sDm9_Nt7oW5oVLen4eopw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "e3gS8v6SROn_5BodzsuIPw",
+     "kind": "show",
+     "title": "Monster: The Lizzie Borden Story",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/e3gS8v6SROn_5BodzsuIPw/art/poster?v=b7eb3f7c9c7434ade1cd24ea5e1537af058233625eb5b1c245cf1fde92f6680c&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "e3gS8v6SROn_5BodzsuIPw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "MsZj7D4_0CJ6mWmfTTBUmw",
+     "kind": "show",
+     "title": "Stranger Things: Tales from '85",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/MsZj7D4_0CJ6mWmfTTBUmw/art/poster?v=c46f0ede35bcb2a03cd74324a3d6b13956f3b13cd3a263e75001b71b7b35bb18&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "MsZj7D4_0CJ6mWmfTTBUmw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_OR9V3RRg5Bgz5wuirRzGg",
+     "kind": "show",
+     "title": "The Last of Us",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/poster?v=047ee98b0ea2c2b2b8a9bc29b97408826794595a579b2ff6858a28924944474d&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_OR9V3RRg5Bgz5wuirRzGg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_xl9Q3BOa0-NFAbZa8-Cvw",
+     "kind": "show",
+     "title": "South Park",
+     "subtitle": "1997",
+     "posterUrl": "/v1/metadata/show/_xl9Q3BOa0-NFAbZa8-Cvw/art/poster?v=05da5ee203dc89db98975593bf8b7298159de733c731b3671dd5bd8fe6b81ebc&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_xl9Q3BOa0-NFAbZa8-Cvw"
+     }
+    }
+   ],
+   "totalCount": 22,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "for_you:genre:drama",
+   "type": "rail",
+   "heading": {
+    "key": "home.row.genreForYou",
+    "fallback": "Drama for you",
+    "params": {
+     "genre": "Drama"
+    }
+   },
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "l6c_UOaem12vpQoauST9Pw",
+     "kind": "show",
+     "title": "The Gentlemen",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/poster?v=7521124a4b0539c7f16e24c3b5f12991b5a0a236c9bb99c294947a604168a239&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "l6c_UOaem12vpQoauST9Pw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "xo0WVHybY-IROwn12xDl5w",
+     "kind": "show",
+     "title": "Lioness",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/poster?v=ebaee69c2691653437ac4daee35040be09706edd01913a504c013f22e221d195&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xo0WVHybY-IROwn12xDl5w"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "fGKo8Xp7R22b6pkcwEAYiQ",
+     "kind": "show",
+     "title": "Neagley",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/fGKo8Xp7R22b6pkcwEAYiQ/art/poster?v=8a4efcf52603770763f70ae0e9a0edbb088a5939a800e4fd3949715a081b930f&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "fGKo8Xp7R22b6pkcwEAYiQ"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "BTcEg5gSAoocBdKmhwafyg",
+     "kind": "show",
+     "title": "Lanterns",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/poster?v=cc158ba080b7bc238d292fd18a860c4ecbbe8bcc7f1c324b6bfdf4c092daaf17&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "BTcEg5gSAoocBdKmhwafyg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "vtKe105MiqnkTGnwIBQ-_A",
+     "kind": "show",
+     "title": "Slow Horses",
+     "subtitle": "2022",
+     "posterUrl": "/v1/metadata/show/vtKe105MiqnkTGnwIBQ-_A/art/poster?v=193e04c63b7126a0f5847cbf582210ed9e3a7f3c82509be5f84238c0ac800025&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "vtKe105MiqnkTGnwIBQ-_A"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "CYY-RyWJwXzoFnFG6G_1Ag",
+     "kind": "show",
+     "title": "Silo",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/CYY-RyWJwXzoFnFG6G_1Ag/art/poster?v=fcb1ba8ba9af5989a630b17e855cdc9133155972d58a9fc60234737963ec2cc0&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "CYY-RyWJwXzoFnFG6G_1Ag"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "ukxpwSMlI14124dX_lf20g",
+     "kind": "show",
+     "title": "Game of Thrones",
+     "subtitle": "2011",
+     "posterUrl": "/v1/metadata/show/ukxpwSMlI14124dX_lf20g/art/poster?v=adc51c0cafde6fab95206eec1581072b2645339ea9a436c1fe4f9b3bf776e7b5&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "ukxpwSMlI14124dX_lf20g"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "ekd1duh-YEZT6I8mSCRV7A",
+     "kind": "show",
+     "title": "Dark Matter",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/ekd1duh-YEZT6I8mSCRV7A/art/poster?v=962cd77e0e6719cdbc4cb4c0621a5e286d8a9fd79b5ceb8428bacfa0e3a258df&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "ekd1duh-YEZT6I8mSCRV7A"
+     }
+    }
+   ],
+   "totalCount": 8,
+   "nextCursor": "",
+   "start": 0,
+   "seeAll": {
+    "pivot": "shows",
+    "query": {
+     "field": "genre",
+     "operator": "contains",
+     "value": "Drama"
+    },
+    "sort": [
+     {
+      "field": "forYou",
+      "direction": "desc"
+     }
+    ]
+   }
+  },
+  {
+   "id": "trending_now",
+   "type": "rail",
+   "heading": {
+    "key": "section.trending_now",
+    "fallback": "Trending now"
+   },
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "BTcEg5gSAoocBdKmhwafyg",
+     "kind": "show",
+     "title": "Lanterns",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/poster?v=cc158ba080b7bc238d292fd18a860c4ecbbe8bcc7f1c324b6bfdf4c092daaf17&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "BTcEg5gSAoocBdKmhwafyg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5WRgrpGzIzHsNIsVgIcAEw",
+     "kind": "show",
+     "title": "MobLand",
+     "subtitle": "2025",
+     "posterUrl": "/v1/metadata/show/5WRgrpGzIzHsNIsVgIcAEw/art/poster?v=601cf74dfd785cf42cdf5868b54cfd5d293bdd95bf727fb6d22ed76efb77b9b1&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5WRgrpGzIzHsNIsVgIcAEw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "xo0WVHybY-IROwn12xDl5w",
+     "kind": "show",
+     "title": "Lioness",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/poster?v=ebaee69c2691653437ac4daee35040be09706edd01913a504c013f22e221d195&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xo0WVHybY-IROwn12xDl5w"
+     }
+    }
+   ],
+   "totalCount": 3,
+   "nextCursor": "",
+   "start": 0
+  },
+  {
+   "id": "recently_added",
+   "type": "rail",
+   "heading": {
+    "key": "section.recently_added",
+    "fallback": "Recently added"
+   },
+   "entries": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "5P1xrYyeYVN_jcV6JFN72A",
+     "kind": "show",
+     "title": "The Walking Dead",
+     "subtitle": "2010",
+     "posterUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/poster?v=7be825ad6bfc9f8dc5449b548655c5b589afef6f86d121386cef9997afab9cdb&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5P1xrYyeYVN_jcV6JFN72A"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "xL6_yOFNIiwgLXJoiyIbBg",
+     "kind": "show",
+     "title": "The Simpsons",
+     "subtitle": "1989",
+     "posterUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/poster?v=d809cfb22c0cfd46b7ad50c903b2f33bedc7aedaeb47c0ddeafe5d8eb3af2c76&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xL6_yOFNIiwgLXJoiyIbBg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "d51EOEdH4vPkMHs0bb1pIQ",
+     "kind": "show",
+     "title": "The Office",
+     "subtitle": "2005",
+     "posterUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/poster?v=8b396a90862eb195067cf46f70104693422a954923865473387805d559a6a6c9&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "d51EOEdH4vPkMHs0bb1pIQ"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "7K8NB4iF_3xBKUsg0z5Teg",
+     "kind": "show",
+     "title": "The Mandalorian",
+     "subtitle": "2019",
+     "posterUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/poster?v=577d34feb2de9917b91fe789c378bb7a83c0d7b734afb62ed4cba5f103091bc8&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "7K8NB4iF_3xBKUsg0z5Teg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_OR9V3RRg5Bgz5wuirRzGg",
+     "kind": "show",
+     "title": "The Last of Us",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/poster?v=047ee98b0ea2c2b2b8a9bc29b97408826794595a579b2ff6858a28924944474d&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_OR9V3RRg5Bgz5wuirRzGg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "l6c_UOaem12vpQoauST9Pw",
+     "kind": "show",
+     "title": "The Gentlemen",
+     "subtitle": "2024",
+     "posterUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/poster?v=7521124a4b0539c7f16e24c3b5f12991b5a0a236c9bb99c294947a604168a239&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "l6c_UOaem12vpQoauST9Pw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "4sDm9_Nt7oW5oVLen4eopw",
+     "kind": "show",
+     "title": "Ted Lasso",
+     "subtitle": "2020",
+     "posterUrl": "/v1/metadata/show/4sDm9_Nt7oW5oVLen4eopw/art/poster?v=da6bc794afd349a3d0bd49d76e0018005bb80a6def9cb9ded88ccabfcdd5ebcf&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "4sDm9_Nt7oW5oVLen4eopw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "MsZj7D4_0CJ6mWmfTTBUmw",
+     "kind": "show",
+     "title": "Stranger Things: Tales from '85",
+     "subtitle": "2026",
+     "posterUrl": "/v1/metadata/show/MsZj7D4_0CJ6mWmfTTBUmw/art/poster?v=c46f0ede35bcb2a03cd74324a3d6b13956f3b13cd3a263e75001b71b7b35bb18&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "MsZj7D4_0CJ6mWmfTTBUmw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "rZnNBYCjd2oB3nbKZ_SKpA",
+     "kind": "show",
+     "title": "Stranger Things",
+     "subtitle": "2016",
+     "posterUrl": "/v1/metadata/show/rZnNBYCjd2oB3nbKZ_SKpA/art/poster?v=2bdde430234fb8da10279c44cbece20048f509d84e86a5b770a31c923dbcfbee&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "rZnNBYCjd2oB3nbKZ_SKpA"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "_xl9Q3BOa0-NFAbZa8-Cvw",
+     "kind": "show",
+     "title": "South Park",
+     "subtitle": "1997",
+     "posterUrl": "/v1/metadata/show/_xl9Q3BOa0-NFAbZa8-Cvw/art/poster?v=05da5ee203dc89db98975593bf8b7298159de733c731b3671dd5bd8fe6b81ebc&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_xl9Q3BOa0-NFAbZa8-Cvw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "vtKe105MiqnkTGnwIBQ-_A",
+     "kind": "show",
+     "title": "Slow Horses",
+     "subtitle": "2022",
+     "posterUrl": "/v1/metadata/show/vtKe105MiqnkTGnwIBQ-_A/art/poster?v=193e04c63b7126a0f5847cbf582210ed9e3a7f3c82509be5f84238c0ac800025&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "vtKe105MiqnkTGnwIBQ-_A"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "id": "CYY-RyWJwXzoFnFG6G_1Ag",
+     "kind": "show",
+     "title": "Silo",
+     "subtitle": "2023",
+     "posterUrl": "/v1/metadata/show/CYY-RyWJwXzoFnFG6G_1Ag/art/poster?v=fcb1ba8ba9af5989a630b17e855cdc9133155972d58a9fc60234737963ec2cc0&w=400",
+     "available": true,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "CYY-RyWJwXzoFnFG6G_1Ag"
+     }
+    }
+   ],
+   "totalCount": 24,
+   "nextCursor": "",
+   "start": 0
+  }
+ ]
+}

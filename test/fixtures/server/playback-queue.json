@@ -1,0 +1,116 @@
+{
+ "queue": {
+  "id": "q_6fy1PEkSiwBimQiCnwKy",
+  "revision": "1",
+  "total": 4,
+  "current": {
+   "entryId": "sbjwtbvsvzm3q4owa-0",
+   "position": 0
+  },
+  "repeat": "off",
+  "segments": [
+   {
+    "id": "gazuq565i4r3hof2v",
+    "kind": "selector",
+    "label": "1989 (Taylor's Version) [Deluxe]",
+    "count": 4,
+    "state": "ready"
+   }
+  ],
+  "segmentCount": 1,
+  "next": {
+   "entryId": "sbjwtbvsvzm3q4owa-1",
+   "available": true,
+   "reason": "ready"
+  },
+  "postPlay": {
+   "autoplay": false,
+   "countdownSeconds": 10,
+   "passoutCheckDue": false,
+   "automaticAdvances": 0
+  }
+ },
+ "window": [
+  {
+   "entryId": "sbjwtbvsvzm3q4owa-0",
+   "position": 0,
+   "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+   "kind": "track",
+   "title": "Welcome To New York (Taylor's Version)",
+   "durationMs": 60000,
+   "available": true,
+   "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+   "track": 1
+  },
+  {
+   "entryId": "sbjwtbvsvzm3q4owa-1",
+   "position": 1,
+   "itemId": "C5ajHsuSSwC-MyXNNa0MqQ",
+   "kind": "track",
+   "title": "Blank Space (Taylor's Version)",
+   "durationMs": 60000,
+   "available": true,
+   "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+   "track": 2
+  },
+  {
+   "entryId": "sbjwtbvsvzm3q4owa-2",
+   "position": 2,
+   "itemId": "a_JekIv9ttB2ASgddvwYww",
+   "kind": "track",
+   "title": "Style (Taylor's Version)",
+   "durationMs": 60000,
+   "available": true,
+   "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+   "track": 3
+  },
+  {
+   "entryId": "sbjwtbvsvzm3q4owa-3",
+   "position": 3,
+   "itemId": "8705f7H5xMvho37Mj1bb-g",
+   "kind": "track",
+   "title": "Out Of The Woods (Taylor's Version)",
+   "durationMs": 60000,
+   "available": true,
+   "albumId": "xgnrY1d3Ziiq5-11vjCV9w",
+   "track": 4
+  }
+ ],
+ "session": {
+  "id": "ps_7Oxi766TtdMyj1b4Gzn5",
+  "revision": "1",
+  "kind": "audio",
+  "role": "local",
+  "state": "paused",
+  "itemId": "OgaVXcGSWc-JV-iA51i2Gw",
+  "versionId": "PfXuuBetzniMlm4Gz5Cyr6wJTleF5kFR52zWYxS7WOI",
+  "queue": {
+   "queueId": "q_6fy1PEkSiwBimQiCnwKy",
+   "entryId": "sbjwtbvsvzm3q4owa-0"
+  },
+  "lease": {
+   "expiresAt": "2026-10-05T20:08:33.038Z",
+   "reportEveryMs": 30000
+  },
+  "presentation": {
+   "generation": 1,
+   "mode": "direct",
+   "url": "/v1/media/MyOYmaWCjb8C08ZV03HlsimzkxvhUUkV8LzsxDC8F1M",
+   "startPositionMs": 0,
+   "subtitles": [],
+   "decision": {
+    "audio": {
+     "action": "direct",
+     "reasons": []
+    }
+   },
+   "container": "m4a",
+   "audioRender": {
+    "version": 2,
+    "mode": "unavailable",
+    "id": "o-RAl_SJBxeh0zt6j4o8ojKiT0HUo7V95j5E0yyixIc.3",
+    "reason": "This device can't decode this track's format or the converted formats (FLAC, Opus). It plays without gapless or crossfade."
+   }
+  }
+ }
+}

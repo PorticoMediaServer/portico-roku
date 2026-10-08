@@ -1,0 +1,167 @@
+' apps/native/src/ui/Card.tsx. Artwork and a two-line caption: the caption sits outside the
+' artwork so focus scaling never clips the title, and the focus halo (ui/FocusHalo.tsx: a pale ring
+' hugging the image plus a soft blue glow behind it) is drawn around the artwork only. Marks: a
+' watched check in the corner, a progress line along the bottom edge, an optional badge. There is no
+' mark for "not watched yet".
+'
+' The list that holds the card (Shelf, Grid) holds focus and reports it as `focusPercent`; the card
+' scales to Theme.metrics.focusScale and shows the halo by it. The item is taller than the card by
+' Theme.space.md above and below (ui/Shelf.tsx: "space for the television focus scale"), so a
+' scaled card is not clipped by its row.
+'
+' Content fields (set by core/Cards.bs): title, caption, artUri, shape, progress, watched, badge,
+' icon, titleLines, captionless, placeholder, person.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.body = m.top.createChild("Group")
+    m.glow = m.body.createChild("Poster")
+    m.glow.opacity = 0
+    m.art = m.body.createChild("UiArtwork")
+    m.badgePlate = m.body.createChild("Poster")
+    m.badgeText = MakeText(m.body, "micro")
+    m.checkPlate = m.body.createChild("Poster")
+    m.checkIcon = m.body.createChild("Poster")
+    m.ring = m.body.createChild("Poster")
+    m.ring.opacity = 0
+    m.titleNode = MakeText(m.body, "captionStrong")
+    m.captionNode = MakeText(m.body, "micro", "tertiary")
+    m.badgePlate.visible = false
+    m.badgeText.visible = false
+    m.checkPlate.visible = false
+    m.checkIcon.visible = false
+    m.artSize = invalid
+end sub
+
+sub onCardContent()
+    item = m.top.itemContent
+    width = m.top.width
+    if item = invalid or width <= 0 then return
+    shape = "poster"
+    if item.hasField("shape") and item.shape <> "" then shape = item.shape
+    person = item.hasField("person") and item.person = true
+    artWidth = width
+    radius = Theme.metrics.radius.card
+    if person then
+        ' ui/Card.tsx PersonCard: the portrait is Theme.apple.personCardSize, the card a little wider.
+        artWidth = width - Theme.space.sm
+        radius = artWidth / 2
+        shape = "circle"
+    end if
+    artHeight = Int(artWidth / ArtworkRatio(shape) + 0.5)
+    m.artSize = { width: artWidth, height: artHeight, radius: radius }
+    captionless = item.hasField("placeholder") and item.placeholder = true
+    if item.hasField("captionless") and item.captionless = true then captionless = true
+    lines = 1
+    if item.hasField("titleLines") and item.titleLines > 1 then lines = item.titleLines
+    bodyHeight = artHeight + Theme.space.sm + Theme.typeScale.captionStrong.lineHeight + Theme.typeScale.micro.lineHeight
+    if not person then bodyHeight = CardBodyHeight(shape, artWidth, lines, captionless)
+    ' The list makes the item taller than the card so a scaled card is not clipped: centre it.
+    inset = 0
+    if m.top.height > bodyHeight then inset = (m.top.height - bodyHeight) / 2
+    Place(m.body, 0, inset)
+    artX = (width - artWidth) / 2
+    Place(m.art, artX, 0)
+    m.art.shape = shape
+    m.art.radius = radius
+    m.art.artHeight = artHeight
+    m.art.artWidth = artWidth
+
+    placeholder = item.hasField("placeholder") and item.placeholder = true
+    title = ""
+    if item.title <> invalid then title = item.title
+    m.art.icon = CardField(item, "icon")
+    if person then
+        m.art.initials = Initials(title)
+    else
+        m.art.initials = ""
+        m.art.title = title
+    end if
+    m.art.uri = CardField(item, "artUri")
+    progress = 0
+    if item.hasField("progress") then progress = item.progress
+    m.art.progress = progress
+
+    ' The halo: the glow behind the artwork and the ring around it (ui/FocusHalo.tsx).
+    margin = Theme.glow.margin
+    m.glow.uri = GlowUri(radius)
+    m.glow.width = artWidth + margin * 2
+    m.glow.height = artHeight + margin * 2
+    Place(m.glow, artX - margin, Theme.glow.offsetY - margin)
+    inset = Theme.metrics.ringInset
+    StyleRing(m.ring, artWidth + inset * 2, artHeight + inset * 2, radius + inset, Theme.metrics.focusRing, Theme.colors.focus)
+    Place(m.ring, artX - inset, -inset)
+
+    badge = CardField(item, "badge")
+    m.badgePlate.visible = badge <> ""
+    m.badgeText.visible = badge <> ""
+    if badge <> "" then
+        m.badgeText.value = badge
+        badgeWidth = TextWidth(m.badgeText) + Theme.space.sm * 2
+        badgeHeight = m.badgeText.height + Theme.apple.cardBadgePadY * 2
+        StyleShape(m.badgePlate, badgeWidth, badgeHeight, Theme.metrics.radius.small, ColorAlpha(Theme.colors.ink, Theme.apple.cardMarkAlpha))
+        Place(m.badgePlate, artX + Theme.space.sm, Theme.space.sm)
+        Place(m.badgeText, artX + Theme.space.sm * 2, Theme.space.sm + Theme.apple.cardBadgePadY)
+    end if
+
+    watched = item.hasField("watched") and item.watched = true
+    m.checkPlate.visible = watched
+    m.checkIcon.visible = watched
+    if watched then
+        plate = Theme.apple.cardWatchedBadge
+        glyph = Theme.apple.cardWatchedIcon
+        StyleShape(m.checkPlate, plate, plate, plate / 2, ColorAlpha(Theme.colors.ink, Theme.apple.cardMarkAlpha))
+        Place(m.checkPlate, artX + artWidth - Theme.space.sm - plate, Theme.space.sm)
+        StyleIcon(m.checkIcon, "check", glyph, Theme.colors.white)
+        Place(m.checkIcon, artX + artWidth - Theme.space.sm - plate + (plate - glyph) / 2, Theme.space.sm + (plate - glyph) / 2)
+    end if
+
+    caption = CardField(item, "caption")
+    m.titleNode.visible = not captionless
+    m.captionNode.visible = not captionless and caption <> ""
+    if not captionless then
+        padX = Theme.apple.cardCaptionPadX
+        m.titleNode.lines = lines
+        m.titleNode.maxWidth = width - padX * 2
+        m.titleNode.value = title
+        m.captionNode.maxWidth = width - padX * 2
+        m.captionNode.value = caption
+        if person then
+            m.titleNode.align = "center"
+            m.captionNode.align = "center"
+        else
+            m.titleNode.align = "left"
+            m.captionNode.align = "left"
+        end if
+        top = artHeight + Theme.space.sm
+        Place(m.titleNode, padX, top)
+        Place(m.captionNode, padX, top + TextHeight(m.titleNode) + Theme.apple.cardSubtitleGap)
+    end if
+    m.body.scaleRotateCenter = [width / 2, bodyHeight / 2]
+    onCardFocus()
+end sub
+
+function CardField(item as object, name as string) as string
+    if item.hasField(name) and item[name] <> invalid then return item[name]
+    return ""
+end function
+
+sub onCardFocus()
+    if m.artSize = invalid then return
+    progress = m.top.focusPercent * m.top.rowFocusPercent
+    if not (m.top.rowListHasFocus or m.top.gridHasFocus) then progress = 0
+    item = m.top.itemContent
+    if item <> invalid and item.hasField("placeholder") and item.placeholder = true then progress = 0
+    size = 1 + (Theme.metrics.focusScale - 1) * progress
+    m.body.scale = [size, size]
+    m.ring.opacity = progress
+    m.glow.opacity = progress
+    if progress > 0.5 then
+        m.titleNode.tint = Theme.colors.white
+    else
+        m.titleNode.tint = ""
+    end if
+end sub

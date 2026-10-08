@@ -1,0 +1,55 @@
+' apps/native/src/ui/Text.tsx. Roles map to the television type scale (Theme.typeScale, scaled by
+' the "Text size" preference as theme.ts `scaled()` does), tones to semantic colours. A screen never
+' chooses a font size.
+'
+' Differences SceneGraph forces: a Label has no letter spacing, so `tracking` is not applied; line
+' height is the font's own height plus `lineSpacing` (generated to make one line `lineHeight` tall).
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+
+sub init()
+    m.uppercase = false
+    onTextStyle()
+end sub
+
+sub onTextStyle()
+    style = ApplyFont(m.top, m.top.role)
+    m.uppercase = style.uppercase
+    if m.top.sizeOverride > 0 then
+        font = CreateObject("roSGNode", "Font")
+        font.uri = style.font
+        font.size = m.top.sizeOverride
+        m.top.font = font
+        style = { lineHeight: style.lineHeight }
+        if m.top.lineHeightOverride > 0 then style.lineHeight = m.top.lineHeightOverride
+    end if
+    if m.top.tint <> "" then
+        m.top.color = m.top.tint
+    else
+        m.top.color = ToneColor(m.top.tone)
+    end if
+    m.top.horizAlign = m.top.align
+    lines = m.top.lines
+    if m.top.maxWidth > 0 then m.top.width = m.top.maxWidth
+    if lines = 1 then
+        m.top.wrap = false
+        m.top.maxLines = 1
+        m.top.height = style.lineHeight
+        m.top.vertAlign = "center"
+    else
+        m.top.wrap = true
+        m.top.maxLines = lines
+        m.top.height = 0
+        m.top.vertAlign = "top"
+    end if
+    onTextValue()
+end sub
+
+sub onTextValue()
+    if m.uppercase then
+        m.top.text = UCase(m.top.value)
+    else
+        m.top.text = m.top.value
+    end if
+end sub

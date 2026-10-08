@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Grid.tsx (WindowedGrid): a grid over a windowed collection. -->
+<component name="UiGrid" extends="Group">
+    <interface>
+        <field id="shape" type="string" value="poster" onChange="onGridLayout" />
+        <!-- "cards" (a grid of media cards) or "rows" (one column of media rows: a library's songs). -->
+        <field id="mode" type="string" value="cards" onChange="onGridLayout" />
+        <!-- Rows mode: another item component and its row height (an episode list); and how many rows show
+             (the focus then moves inside the list rather than the list under the focus). -->
+        <field id="cell" type="string" value="" onChange="onGridLayout" />
+        <field id="cellHeight" type="float" value="0" onChange="onGridLayout" />
+        <field id="cellWidth" type="float" value="0" onChange="onGridLayout" />
+        <field id="floating" type="boolean" value="false" onChange="onGridLayout" />
+        <field id="titleLines" type="integer" value="1" onChange="onGridLayout" />
+        <!-- The viewport: the width the grid may use and the height it shows. -->
+        <field id="gridWidth" type="float" value="0" onChange="onGridLayout" />
+        <field id="gridHeight" type="float" value="0" onChange="onGridLayout" />
+        <!-- A ContentNode whose children are the window's cells: items, and placeholders for cells not loaded yet. -->
+        <field id="items" type="node" onChange="onGridItems" />
+        <field id="columns" type="integer" value="0" />
+        <field id="rowStride" type="float" value="0" />
+        <field id="focusedIndex" type="integer" value="0" />
+        <field id="itemFocused" type="integer" value="-1" alwaysNotify="true" />
+        <field id="itemSelected" type="integer" value="-1" alwaysNotify="true" />
+        <field id="itemMenu" type="integer" value="-1" alwaysNotify="true" />
+        <!-- [first, last] cell on screen, for the store that fetches, prefetches and evicts pages. -->
+        <field id="visibleRange" type="intarray" alwaysNotify="true" />
+        <field id="hasGridFocus" type="boolean" value="false" />
+        <function name="focusGrid" />
+        <function name="jumpTo" />
+    </interface>
+</component>

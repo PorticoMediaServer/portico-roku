@@ -1,0 +1,685 @@
+' packages/client-core/src/presentation/settings-structure.ts, preferences.ts and
+' preferences-reader.ts; apps/native/src/screens/settings/SettingsPage.tsx (`RowView`) and
+' language-list.ts. The pages and rows are authored once (SettingsTables.bs, generated); the
+' registry of preferences, every default and every limit are the server's. This file resolves
+' the structure for a viewer, reads and writes values, and says what each row shows.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/LanguageTables.bs"
+import "pkg:/source/core/TitleFiles.bs"
+import "pkg:/source/core/SettingsTables.bs"
+
+' ---- The structure -------------------------------------------------------------------------------
+
+' Whether an authored node is present for these flags ({owner, localAccount, ...}).
+function SettingsAllowed(needs as dynamic, flags as object) as boolean
+    if needs = invalid then return true
+    combo = 0
+    bit = 1
+    for each name in needs.flags
+        if flags[name] = true then combo = combo + bit
+        bit = bit * 2
+    end for
+    for each present in needs.on
+        if present = combo then return true
+    end for
+    return false
+end function
+
+function SettingsCopy(node as object, without as object) as object
+    out = {}
+    for each key in node.keys()
+        if not ArrayIncludes(without, LCase(key)) then out[key] = node[key]
+    end for
+    return out
+end function
+
+' settingsStructure({owner, platform: 'tv', capabilities}): {headings: [{id, title, pages: [{id,
+' title, icon, sections: [{id, title, advanced, rows}]}]}]}. `context` is {owner, capabilities:
+' {localAccount, porticoMember, hostedAccount, downloads, deviceName, manageSignIn, liveTV,
+' preferenceKeys}}; preferenceKeys is the registry's keys ({key: true}) once it is known.
+function SettingsStructureFor(context as object) as object
+    ' A device says what its player cannot do; saying nothing means it can.
+    flags = { owner: context.owner = true, playbackSpeed: true, audioEffects: true }
+    keys = invalid
+    if context.capabilities <> invalid then
+        for each name in context.capabilities.keys()
+            flags[name] = IsBoolean(context.capabilities[name]) and context.capabilities[name]
+        end for
+        keys = context.capabilities.preferenceKeys
+    end if
+    headings = []
+    for each heading in SettingsAuthored()
+        if SettingsAllowed(heading.needs, flags) then
+            pages = []
+            for each page in heading.pages
+                if SettingsAllowed(page.needs, flags) then
+                    sections = []
+                    for each section in page.sections
+                        if SettingsAllowed(section.needs, flags) then
+                            rows = []
+                            for each row in section.rows
+                                if SettingsAllowed(row.needs, flags) and (row.kind <> "preference" or keys = invalid or keys.doesExist(row.key)) then rows.push(SettingsCopy(row, ["needs"]))
+                            end for
+                            if rows.count() > 0 then
+                                kept = SettingsCopy(section, ["needs", "rows"])
+                                kept.rows = rows
+                                sections.push(kept)
+                            end if
+                        end if
+                    end for
+                    if sections.count() > 0 then
+                        kept = SettingsCopy(page, ["needs", "sections"])
+                        kept.sections = sections
+                        pages.push(kept)
+                    end if
+                end if
+            end for
+            ' Account is always a heading; Server only with a page to show.
+            if heading.id = "account" or pages.count() > 0 then headings.push({ id: heading.id, title: heading.title, pages: pages })
+        end if
+    end for
+    return { headings: headings }
+end function
+
+function SettingsPageId(headingId as string, pageId as string) as string
+    if headingId = "server" then return "server-" + pageId
+    return pageId
+end function
+
+' The page an address names, or the first page: {heading, page}, or invalid without any.
+function FindSettingsPage(structure as object, address as dynamic) as dynamic
+    for each heading in structure.headings
+        for each page in heading.pages
+            if address <> invalid and SettingsPageId(heading.id, page.id) = address then return { heading: heading, page: page }
+        end for
+    end for
+    if structure.headings.count() = 0 or structure.headings[0].pages.count() = 0 then return invalid
+    return { heading: structure.headings[0], page: structure.headings[0].pages[0] }
+end function
+
+function SettingsRowId(row as object) as string
+    if row.kind = "preference" then return row.key
+    if row.kind = "server-setting" then return row.form + "." + row.key
+    return row.id
+end function
+
+' ---- The registry and its values (preferences.ts) -------------------------------------------------
+
+function PreferenceTypes() as object
+    return ["boolean", "integer", "number", "string", "string-list", "locale", "timeZone", "languageList"]
+end function
+
+' One value read as its field's type, or invalid when it is not one.
+function ParsePreferenceValue(field as object, value as dynamic) as dynamic
+    kind = field.type
+    if kind = "boolean" then
+        if IsBoolean(value) then return value
+        return invalid
+    end if
+    if kind = "integer" then
+        if IsNumber(value) and Int(value) = value then return value
+        return invalid
+    end if
+    if kind = "number" then
+        if IsNumber(value) then return value
+        return invalid
+    end if
+    if kind = "string" or kind = "locale" or kind = "timeZone" then
+        if IsString(value) and Len(value) <= 4096 then return value
+        return invalid
+    end if
+    if not IsArray(value) or value.count() > 200 then return invalid
+    seen = {}
+    out = []
+    for each entry in value
+        if not IsString(entry) or entry = "" or Len(entry) > 512 or seen.doesExist(entry) then return invalid
+        seen[entry] = true
+        out.push(entry)
+    end for
+    return out
+end function
+
+' The values of one document or of `effective`: {key: value}, or invalid when one is unreadable.
+' A value for a field this client does not know is ignored.
+function ParsePreferenceValues(fields as object, raw as dynamic, unknown as object) as dynamic
+    if not IsObject(raw) then return invalid
+    out = {}
+    for each key in raw.keys()
+        field = fields[key]
+        if field = invalid then
+            if not unknown.doesExist(key) then return invalid
+        else
+            value = ParsePreferenceValue(field, raw[key])
+            if value = invalid then return invalid
+            out[key] = value
+        end if
+    end for
+    return out
+end function
+
+' GET and PATCH /v1/preferences (`{scope, data}`; a bare snapshot is read too): {ok, deviceClass,
+' fields: {key: {key, type, default, allowedValues, scopes}}, order: [keys], documents: [{scope,
+' revision}], effective: {key: value}}. A field of a type this client does not know is left out.
+function ParsePreferences(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) then return bad
+    doc = raw
+    if IsObject(raw.data) and raw.registry = invalid then doc = raw.data
+    if not ArrayIncludes(["web", "mobile", "television"], doc.deviceClass) then return bad
+    registry = doc.registry
+    if not IsObject(registry) or not IsText(registry.revision, 64) or registry.revision <> doc.registryRevision then return bad
+    list = FieldOf(registry, "fields")
+    if not IsArray(list) or list.count() < 1 or list.count() > 500 then return bad
+    fields = {}
+    fields.setModeCaseSensitive()
+    unknown = {}
+    unknown.setModeCaseSensitive()
+    order = []
+    for each entry in list
+        if not IsObject(entry) or not IsString(entry.key) or entry.key = "" or Len(entry.key) > 160 or not IsString(entry.type) then return bad
+        if not ArrayIncludes(PreferenceTypes(), entry.type) then
+            unknown[entry.key] = true
+        else
+            if fields.doesExist(entry.key) or not IsArray(entry.scopes) or entry.scopes.count() < 1 or entry.scopes.count() > 2 then return bad
+            scopes = []
+            for each scope in entry.scopes
+                if (scope <> "profile-server" and scope <> "profile-device-class") or ArrayIncludes(scopes, scope) then return bad
+                scopes.push(scope)
+            end for
+            field = { key: entry.key, type: entry.type, scopes: scopes }
+            field.default = ParsePreferenceValue(field, entry.default)
+            if field.default = invalid then return bad
+            if entry.allowedValues <> invalid then
+                if not IsArray(entry.allowedValues) or entry.allowedValues.count() > 200 then return bad
+                field.allowedValues = entry.allowedValues
+            end if
+            fields[entry.key] = field
+            order.push(entry.key)
+        end if
+    end for
+    if not IsArray(doc.documents) or doc.documents.count() <> 2 then return bad
+    documents = []
+    for each entry in doc.documents
+        if not IsObject(entry) or (entry.scope <> "profile-server" and entry.scope <> "profile-device-class") then return bad
+        if not IsNatural(entry.revision) or entry.revision < 1 or entry.activeRevision <> entry.revision then return bad
+        for each seen in documents
+            if seen.scope = entry.scope then return bad
+        end for
+        if ParsePreferenceValues(fields, entry.values, unknown) = invalid then return bad
+        documents.push({ scope: entry.scope, revision: entry.revision })
+    end for
+    effective = ParsePreferenceValues(fields, doc.effective, unknown)
+    if effective = invalid or effective.count() <> order.count() then return bad
+    return { ok: true, deviceClass: doc.deviceClass, fields: fields, order: order, documents: documents, effective: effective }
+end function
+
+' The registry's keys, as SettingsStructureFor wants them.
+function PreferenceKeys(snapshot as dynamic) as dynamic
+    if snapshot = invalid or snapshot.ok <> true then return invalid
+    keys = {}
+    keys.setModeCaseSensitive()
+    for each key in snapshot.order
+        keys[key] = true
+    end for
+    return keys
+end function
+
+' One effective value, the registry's default behind it; invalid for a key the server does not publish.
+function PreferenceValueOf(snapshot as dynamic, key as string) as dynamic
+    if snapshot = invalid or snapshot.ok <> true then return invalid
+    field = snapshot.fields[key]
+    if field = invalid then return invalid
+    value = snapshot.effective[key]
+    if value = invalid then return field.default
+    return value
+end function
+
+' app/server-preferences.tsx `set`: a patch is written one scope at a time (a field's first
+' scope), each against that document's revision: [{scope, deviceClass, expectedRevision, values}].
+' A key the registry does not publish is left out.
+function PreferencePatchRequests(snapshot as object, patch as object) as object
+    out = []
+    for each key in patch.keys()
+        field = snapshot.fields[key]
+        if field <> invalid then
+            scope = field.scopes[0]
+            found = invalid
+            for each request in out
+                if request["scope"] = scope then found = request
+            end for
+            if found = invalid then
+                revision = 1
+                for each document in snapshot.documents
+                    if document.scope = scope then revision = document.revision
+                end for
+                found = { "scope": scope, "deviceClass": snapshot.deviceClass, "expectedRevision": revision, "values": {} }
+                found["values"].setModeCaseSensitive()
+                out.push(found)
+            end if
+            found["values"][key] = patch[key]
+        end if
+    end for
+    return out
+end function
+
+' ---- Composites (one decision that reads and writes several keys) ----------------------------------
+
+function QualityNetworks() as object
+    return ["local", "wifi", "cellular", "unknown"]
+end function
+
+function LimitNetworks(id as string) as dynamic
+    table = { "quality.home": ["local"], "quality.away": ["wifi", "unknown"], "quality.cellular": ["cellular"] }
+    return table[id]
+end function
+
+' The tallest picture one network lane allows, as the server reads it; SettingsNoLimit() for
+' original files.
+function SettingsNoLimit() as integer
+    return 1000000
+end function
+
+function PreferenceLaneLimit(snapshot as dynamic, network as string) as integer
+    mode = PreferenceValueOf(snapshot, "quality." + network + ".mode")
+    if IsString(mode) and mode = "original" then return SettingsNoLimit()
+    mbps = PreferenceValueOf(snapshot, "quality." + network + ".maxVideoBitrateMbps")
+    if not IsNumber(mbps) then mbps = 0
+    preset = 4320
+    if mbps >= 20 then
+        preset = 2160
+    else if mbps >= 8 then
+        preset = 1080
+    else if mbps >= 2 then
+        preset = 720
+    else if mbps >= 1 then
+        preset = 480
+    end if
+    byMode = 4320
+    if IsString(mode) then
+        if mode = "standard" then byMode = 1080
+        if mode = "data-saver" or mode = "off" then byMode = 480
+    end if
+    height = PreferenceValueOf(snapshot, "quality." + network + ".maxVideoHeight")
+    if not IsNumber(height) or height = 0 then height = 4320
+    limit = height
+    if preset < limit then limit = preset
+    if byMode < limit then limit = byMode
+    return limit
+end function
+
+' The choice a registry composite shows for the stored keys.
+function ReadComposite(id as string, snapshot as dynamic) as dynamic
+    networks = LimitNetworks(id)
+    if networks <> invalid then
+        limit = SettingsNoLimit()
+        for each network in networks
+            lane = PreferenceLaneLimit(snapshot, network)
+            if lane < limit then limit = lane
+        end for
+        if limit = SettingsNoLimit() then return "original"
+        if limit >= 4320 then return "automatic"
+        if limit >= 2160 then return "2160"
+        if limit >= 1080 then return "1080"
+        if limit >= 720 then return "720"
+        return "480"
+    end if
+    if id = "playbackMethod" then
+        direct = PreferenceValueOf(snapshot, "delivery.directPlay")
+        if IsString(direct) and direct = "never" then return "convert"
+        convert = PreferenceValueOf(snapshot, "delivery.transcode")
+        if IsString(convert) and convert = "never" then return "original"
+        return "automatic"
+    end if
+    if id = "hdr" then
+        for each network in QualityNetworks()
+            allowed = PreferenceValueOf(snapshot, "quality." + network + ".allowHDR")
+            if not IsBoolean(allowed) or allowed then return "automatic"
+        end for
+        return "off"
+    end if
+    if id = "cardSize" then
+        percent = PreferenceValueOf(snapshot, "appearance.cardSizePercent")
+        if not IsNumber(percent) then percent = 100
+        if percent < 90 then return "small"
+        if percent > 115 then return "large"
+        return "medium"
+    end if
+    return ""
+end function
+
+' The keys a choice writes: one consistent combination.
+function CompositePatch(id as string, choice as dynamic) as object
+    patch = {}
+    patch.setModeCaseSensitive()
+    networks = LimitNetworks(id)
+    if networks <> invalid then
+        for each network in networks
+            mode = "automatic"
+            height = 4320
+            if choice = "original" then
+                mode = "original"
+            else if choice <> "automatic" then
+                height = choice.toInt()
+            end if
+            patch["quality." + network + ".mode"] = mode
+            patch["quality." + network + ".maxVideoHeight"] = height
+            patch["quality." + network + ".maxVideoBitrateMbps"] = 0
+            patch["quality." + network + ".maxAudioBitrateKbps"] = 0
+        end for
+        return patch
+    end if
+    if id = "playbackMethod" then
+        methods = {
+            "automatic": ["prefer", "allow", "allow"]
+            "original": ["require", "never", "never"]
+            "convert": ["never", "never", "require"]
+        }
+        method = methods["automatic"]
+        if IsString(choice) and methods[choice] <> invalid then method = methods[choice]
+        patch["delivery.directPlay"] = method[0]
+        patch["delivery.directStream"] = method[1]
+        patch["delivery.transcode"] = method[2]
+        return patch
+    end if
+    if id = "hdr" then
+        for each network in QualityNetworks()
+            patch["quality." + network + ".allowHDR"] = not (IsString(choice) and choice = "off")
+        end for
+        return patch
+    end if
+    if id = "cardSize" then
+        sizes = { "small": 85, "medium": 100, "large": 125 }
+        percent = 100
+        if IsString(choice) and sizes[choice] <> invalid then percent = sizes[choice]
+        patch["appearance.cardSizePercent"] = percent
+    end if
+    return patch
+end function
+
+' ---- Words ---------------------------------------------------------------------------------------
+
+' A message id the catalogue keeps under a prefix ("locale.en-GB").
+function SettingsMessageId(prefix as string, key as string) as string
+    return prefix + "." + key
+end function
+
+' preference-copy.ts `sentenceFromKey`: "dataSaver" and "data-saver" read "Data saver".
+function SentenceFromKey(key as string) as string
+    out = ""
+    previous = ""
+    for index = 1 to Len(key)
+        ch = Mid(key, index, 1)
+        if ch = "_" or ch = "-" then
+            ch = " "
+        else if previous <> "" and LCase(previous) = previous and UCase(previous) <> previous and UCase(ch) = ch and LCase(ch) <> ch then
+            out = out + " "
+        end if
+        if not (ch = " " and Right(out, 1) = " ") then out = out + ch
+        previous = Mid(key, index, 1)
+    end for
+    out = LCase(out.trim())
+    return UCase(Left(out, 1)) + Mid(out, 2)
+end function
+
+function SettingsNumberText(value as dynamic) as string
+    if Int(value) = value then return Int(value).toStr()
+    return Str(value).trim()
+end function
+
+function SettingsValueId(value as dynamic) as string
+    if IsString(value) then return value
+    if IsBoolean(value) then
+        if value then return "true"
+        return "false"
+    end if
+    return SettingsNumberText(value)
+end function
+
+' preference-copy.ts `preferenceValueLabel`: a stored value no choice names, as words.
+function PreferenceValueLabel(key as string, value as dynamic) as string
+    known = "pref.value." + key + "." + SettingsValueId(value)
+    if HasMessage(known) then return T(known)
+    parts = key.tokenize(".")
+    last = parts[parts.count() - 1]
+    if parts.count() = 3 and parts[0] = "quality" and last = "mode" and HasMessage("pref.qualityMode." + SettingsValueId(value)) then return T(SettingsMessageId("pref.qualityMode", SettingsValueId(value)))
+    if not IsNumber(value) then return SentenceFromKey(SettingsValueId(value))
+    if parts.count() = 3 and parts[0] = "quality" and last = "maxVideoHeight" then
+        if value >= 4320 then return T("pref.unit.8k")
+        if value >= 2160 then return T("pref.unit.4k")
+        return T("pref.unit.height", { value: SettingsNumberText(value) })
+    end if
+    if Right(key, 7) = "Seconds" then return T("pref.unit.seconds", { count: value })
+    if Right(key, 8) = "Episodes" then return T("pref.unit.episodes", { count: value })
+    if Right(key, 7) = "Percent" then return T("pref.unit.percent", { value: value })
+    if Right(key, 5) = "Speed" then
+        if value = 1 then return T("pref.unit.speedNormal")
+        return T("pref.unit.speed", { value: value })
+    end if
+    if Right(key, 6) = "Height" then return T("pref.unit.height", { value: SettingsNumberText(value) })
+    if Right(key, 4) = "Mbps" then return T("pref.unit.mbps", { value: value })
+    if Right(key, 4) = "Kbps" then return T("pref.unit.kbps", { value: value })
+    return SettingsNumberText(value)
+end function
+
+' region-choices.ts: the languages the app is written in, with "Follow this device" first and a
+' stored value no choice names last.
+function LocaleChoices(current as string) as object
+    out = [{ id: "auto", label: T("preferences.followDevice") }]
+    found = current = "auto"
+    for each locale in SettingsLocales()
+        out.push({ id: locale, label: T(SettingsMessageId("locale", locale)) })
+        if locale = current then found = true
+    end for
+    if not found and current <> "" then out.push({ id: current, label: current })
+    return out
+end function
+
+' language-list.ts: the ordered list of preferred languages.
+function AddLanguage(list as object, code as string) as object
+    out = []
+    out.append(list)
+    if code = "" or ArrayIncludes(list, code) or list.count() >= SettingsMaxLanguages() then return out
+    out.push(code)
+    return out
+end function
+
+function RemoveLanguage(list as object, index as integer) as object
+    out = []
+    for at = 0 to list.count() - 1
+        if at <> index then out.push(list[at])
+    end for
+    return out
+end function
+
+function MoveLanguage(list as object, index as integer, direction as string) as object
+    out = []
+    out.append(list)
+    target = index + 1
+    if direction = "up" then target = index - 1
+    if index < 0 or index >= list.count() or target < 0 or target >= list.count() then return out
+    moved = out[index]
+    out[index] = out[target]
+    out[target] = moved
+    return out
+end function
+
+function AvailableLanguages(chosen as object) as object
+    out = []
+    for each code in SettingsCommonLanguages()
+        if not ArrayIncludes(chosen, code) then out.push(code)
+    end for
+    return out
+end function
+
+function LanguageListLabel(codes as object) as string
+    if codes.count() = 0 then return T("preferences.language.empty")
+    names = []
+    for each code in codes
+        names.push(LanguageName(code))
+    end for
+    return names.join(", ")
+end function
+
+' ---- A row, as the page draws it (SettingsPage.tsx `SectionView` and `RowView`) ---------------------
+
+' Whether a row is shown now: a row that depends on another setting is absent while that setting
+' is off; a registry row waits for the registry.
+function SettingsRowShown(row as object, snapshot as dynamic) as boolean
+    if row.kind = "custom" then return true
+    if row.kind = "server-setting" then return false
+    if row.when <> invalid then
+        value = PreferenceValueOf(snapshot, row.when.key)
+        if value = invalid then value = row.when.equals
+        if Type(value) <> Type(row.when.equals) or value <> row.when.equals then return false
+    end if
+    if row.kind = "preference" then return snapshot <> invalid and snapshot.ok = true and snapshot.fields[row.key] <> invalid
+    if row.kind = "composite" and row.storage = "registry" then return snapshot <> invalid and snapshot.ok = true
+    return true
+end function
+
+' What a preference or composite row shows: {id, title, subtitle, control: "switch" | "choice" |
+' "languages", value, label (the value in words), options: [{id, label, selected}]}. `device` is
+' this installation's own values ({reduceMotion, textSize, receiveFromDevices}).
+function SettingsRowModel(row as object, snapshot as dynamic, device as object) as dynamic
+    help = ""
+    if row.help <> invalid then help = T(row.help)
+    subtitle = help
+    if row.scope <> invalid and row.scope = "device" then
+        subtitle = T("settings.thisDevice")
+        if help <> "" then subtitle = help + " · " + subtitle
+    end if
+    model = { id: SettingsRowId(row), title: T(row.label), subtitle: subtitle, control: row.control.type, options: [], label: "" }
+    value = invalid
+    if row.kind = "preference" then
+        value = PreferenceValueOf(snapshot, row.key)
+    else if row.storage = "registry" then
+        value = ReadComposite(row.id, snapshot)
+    else
+        value = device[row.id]
+    end if
+    if value = invalid then return invalid
+    model.value = value
+    kind = row.control.type
+    if kind = "switch" then
+        model.value = IsBoolean(value) and value
+    else if kind = "choice" then
+        current = SettingsValueId(value)
+        known = false
+        for each choice in row.control.choices
+            id = SettingsValueId(choice.value)
+            if id = current then known = true
+            model.options.push({ id: id, label: T(choice.label, choice.labelValues), selected: id = current })
+        end for
+        ' A value only an API client could have stored is shown as what it is.
+        if not known and row.kind = "preference" then model.options.unshift({ id: current, label: PreferenceValueLabel(row.key, value), selected: true })
+        model.label = current
+        for each option in model.options
+            if option.selected then model.label = option.label
+        end for
+    else if kind = "languages" then
+        codes = []
+        if IsArray(value) then codes = value
+        model.value = codes
+        model.label = LanguageListLabel(codes)
+    else
+        current = "auto"
+        if IsString(value) and value <> "" then current = value
+        ' The app's language: a choice, never free text.
+        model.control = "choice"
+        model.options = LocaleChoices(current)
+        model.label = current
+        for each option in model.options
+            option.selected = option.id = current
+            if option.selected then model.label = option.label
+        end for
+    end if
+    return model
+end function
+
+' The value a chosen option writes: the authored choice's own value (a number stays a number).
+function SettingsChoiceValue(row as object, id as string) as dynamic
+    if row.control.type = "choice" then
+        for each choice in row.control.choices
+            if SettingsValueId(choice.value) = id then return choice.value
+        end for
+        return invalid
+    end if
+    return id
+end function
+
+' The patch a row's new value writes to the registry; invalid for a value the device keeps.
+function SettingsRowPatch(row as object, value as dynamic) as dynamic
+    if row.kind = "preference" then
+        patch = {}
+        patch.setModeCaseSensitive()
+        patch[row.key] = value
+        return patch
+    end if
+    if row.kind = "composite" and row.storage = "registry" then return CompositePatch(row.id, value)
+    return invalid
+end function
+
+' A `custom` row the owner's pages draw ("server.nowPlaying").
+function IsServerPanel(id as string) as boolean
+    return Left(id, 7) = "server."
+end function
+
+' SettingsPages.tsx `WebHandoff`: an address as it is printed, without its scheme.
+function WebAddressShown(url as string) as string
+    if Left(url, 8) = "https://" then return Mid(url, 9)
+    if Left(url, 7) = "http://" then return Mid(url, 8)
+    return url
+end function
+
+' What a Roku's player cannot do, as the shared structure asks it (settings-structure.ts
+' `SettingsCapabilities`): it plays at one speed, and it renders no audio itself (gapless,
+' crossfade, volume leveling). The structure leaves those rows out for this device.
+function RokuSettingsCapabilities() as object
+    return { playbackSpeed: false, audioEffects: false, downloads: false, deviceName: true, manageSignIn: false, porticoMember: false }
+end function
+
+' The addresses of a structure's pages, in order: what the column of pages shows.
+function SettingsAddresses(structure as object) as object
+    out = []
+    for each heading in structure.headings
+        for each page in heading.pages
+            out.push(SettingsPageId(heading.id, page.id))
+        end for
+    end for
+    return out
+end function
+
+' The player's skip amounts ("back" or "forward"): the viewer's, else the Apple app's own.
+function SkipSeconds(snapshot as dynamic, direction as string, fallback as dynamic) as dynamic
+    key = "playback.skipForwardSeconds"
+    if direction = "back" then key = "playback.skipBackSeconds"
+    value = PreferenceValueOf(snapshot, key)
+    if IsNumber(value) and value > 0 then return value
+    return fallback
+end function
+
+' What happens when playback reaches a marker: "ask" (a prompt), "auto" (skipped) or "off".
+function MarkerSkipMode(snapshot as dynamic, markerType as string) as string
+    keys = { "intro": "playback.introSkip", "recap": "playback.recapSkip", "credits": "playback.creditsSkip" }
+    key = keys[markerType]
+    if key = invalid then return "ask"
+    value = PreferenceValueOf(snapshot, key)
+    if IsString(value) and (value = "auto" or value = "off") then return value
+    return "ask"
+end function
+
+' What the profile chose under Language & region, as Messages.bs `RegionChoice` reads it:
+' "locale|hourCycle", each part empty where the profile follows the device. There is no time
+' zone: times are always the device's own (Justin, 5 Oct 2026).
+function RegionChoiceFor(snapshot as dynamic) as string
+    parts = []
+    for each key in ["region.locale", "region.hourCycle"]
+        value = PreferenceValueOf(snapshot, key)
+        if not IsString(value) or value = "auto" or Instr(1, value, "|") > 0 then value = ""
+        parts.push(value)
+    end for
+    if parts[0] = "" and parts[1] = "" then return ""
+    return parts.join("|")
+end function

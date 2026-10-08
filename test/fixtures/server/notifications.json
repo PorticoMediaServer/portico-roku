@@ -1,0 +1,20 @@
+{
+ "data": {
+  "items": [
+   {
+    "id": "GM0gCWyN-lJdL8g1kQB65SZZiVK0pnnFN32LKBRBeig",
+    "createdAt": 1791012951517,
+    "readAt": null,
+    "code": "owner-alert",
+    "targetId": "d1AU-Smc90paf_45WIxNkjpUQ6aeKmT5Lv1Oj7YVoec",
+    "message": "A server operation needs owner attention."
+   }
+  ],
+  "nextCursor": "",
+  "unread": 1
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "viewerFence": "3d14f8d12849c68d53c8e3a99bdc8388b71c8a402e007e950dbc1e1244169599"
+ }
+}

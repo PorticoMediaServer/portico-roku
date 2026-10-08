@@ -1,0 +1,47 @@
+' ui/Style.bs: theme.ts `alpha`, the scaled type roles, and the generated lookups.
+
+sub Test_Style_alpha()
+    ' theme.ts: alpha('#rrggbb', 0.4) → '#rrggbb66'; an existing alpha is replaced.
+    AssertEqual(ColorAlpha("0x071018FF", 0.4), "0x07101866")
+    AssertEqual(ColorAlpha("0x071018E8", 1), "0x071018FF")
+    AssertEqual(ColorAlpha("0x409FD4FF", 0), "0x409FD400")
+    AssertEqual(ColorAlpha("0x409FD4FF", 0.16), "0x409FD429")
+    AssertEqual(ColorAlpha("0x409FD4FF", 2), "0x409FD4FF")
+    AssertEqual(ColorAlpha("0x409FD4FF", -1), "0x409FD400")
+end sub
+
+sub Test_Style_tokens()
+    AssertEqual(ThemeColor("ink"), Theme.colors.ink)
+    AssertEqual(ThemeColor("accent", 0.28), ColorAlpha(Theme.colors.accent, 0.28))
+    AssertEqual(ThemeColor("transparent", 0.5), Theme.colors.transparent)
+    AssertEqual(ToneColor("tertiary"), Theme.colors.textTertiary)
+    AssertEqual(ToneColor("inverse"), Theme.colors.actionInk)
+end sub
+
+sub Test_Style_typeRoles()
+    body = TypeRole("body")
+    AssertEqual(body.size, Theme.typeScale.body.size)
+    AssertEqual(body.lineHeight, Theme.typeScale.body.lineHeight)
+    ' theme.ts scaled(): Math.round(size × factor), Math.round(lineHeight × factor).
+    large = TypeRole("body", Theme.apple.textScaleLarge)
+    AssertEqual(large.size, 29)
+    AssertEqual(large.lineHeight, 40)
+    AssertEqual(TypeRole("label").uppercase, true)
+end sub
+
+sub Test_Style_shapesAndIcons()
+    AssertEqual(ShapeUri(14), "pkg:/images/shapes/round-14.9.png")
+    large = ThemeLargeRadii()
+    AssertEqual(ShapeUri(999), "pkg:/images/shapes/round-" + large[large.count() - 1].toStr() + ".9.png")
+    AssertEqual(ShapeUri(50), "pkg:/images/shapes/round-48.9.png")
+    AssertEqual(ShapeUri(75), "pkg:/images/shapes/round-75.9.png")
+    AssertEqual(RingUri(20, 4), "pkg:/images/shapes/ring-20-4.9.png")
+    AssertEqual(IconUri("home", 30), "pkg:/images/icons/home-30.png")
+    AssertEqual(IconUri("home", 29), "pkg:/images/icons/home-30.png")
+    AssertEqual(IconUri("home", 400), "pkg:/images/icons/home-48.png")
+    AssertEqual(IconUri("back10", 40, true), "pkg:/images/icons/back10-bare-40.png")
+    AssertEqual(IconUri("notAnIcon", 30), "")
+    AssertEqual(Initials("Greta Lee"), "GL")
+    AssertEqual(Initials("cher"), "C")
+    AssertEqual(Initials("Mary Jane Watson"), "MJ")
+end sub

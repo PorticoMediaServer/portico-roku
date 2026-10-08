@@ -1,0 +1,64 @@
+' apps/native/src/ui/Chip.tsx (componentSpec.chip, television column): pill-shaped, the chip
+' height, a caption-strong label; rest, focus and selected fills with a one-pixel border. A
+' removable chip ends with a close glyph at Theme.apple.chipCloseFactor of the icon size.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.spec = ThemeSpecTable().chip
+    m.fill = m.top.createChild("Poster")
+    m.border = m.top.createChild("Poster")
+    m.iconNode = m.top.createChild("Poster")
+    m.labelNode = MakeText(m.top, Theme.spec.chip.label)
+    m.closeNode = m.top.createChild("Poster")
+    m.top.focusScale = Theme.spec.focus.scale.chip
+    m.top.observeField("isFocused", "onChipStyle")
+    onChipLayout()
+end sub
+
+sub onChipLayout()
+    height = Theme.spec.chip.height
+    padX = Theme.spec.chip.paddingX
+    gap = Theme.spec.chip.gap
+    iconSize = Theme.spec.chip.icon
+    closeSize = Int(iconSize * Theme.apple.chipCloseFactor + 0.5)
+    m.labelNode.value = m.top.label
+    x = padX
+    m.iconNode.visible = m.top.icon <> ""
+    if m.top.icon <> "" then
+        Place(m.iconNode, x, (height - iconSize) / 2)
+        x = x + iconSize + gap
+    end if
+    Place(m.labelNode, x, (height - m.labelNode.height) / 2)
+    x = x + TextWidth(m.labelNode)
+    m.closeNode.visible = m.top.removable
+    if m.top.removable then
+        x = x + gap
+        Place(m.closeNode, x, (height - closeSize) / 2)
+        x = x + closeSize
+    end if
+    m.chipSize = { width: x + padX, height: height, icon: iconSize, close: closeSize }
+    m.top.radius = height / 2
+    m.top.controlWidth = x + padX
+    m.top.controlHeight = height
+    onChipStyle()
+end sub
+
+sub onChipStyle()
+    if m.chipSize = invalid then return
+    fill = m.spec.rest
+    if m.top.selected then
+        fill = m.spec.selected
+    else if m.top.isFocused then
+        fill = m.spec.hover
+    end if
+    size = m.chipSize
+    foreground = ThemeColor(fill.foreground)
+    StyleShape(m.fill, size.width, size.height, size.height / 2, ThemeColor(fill.background, fill.backgroundAlpha))
+    StyleRing(m.border, size.width, size.height, size.height / 2, Theme.spec.overlay.border.width, ThemeColor(fill.border, fill.borderAlpha))
+    if m.top.icon <> "" then StyleIcon(m.iconNode, m.top.icon, size.icon, foreground)
+    if m.top.removable then StyleIcon(m.closeNode, Theme.spec.chip.removableIcon, size.close, foreground)
+    m.labelNode.tint = foreground
+end sub

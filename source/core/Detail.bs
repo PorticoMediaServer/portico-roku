@@ -1,0 +1,511 @@
+' packages/client-core/src/detail.ts (with related-movies.ts, recommendations.ts,
+' container-state.ts and listening.ts): a title's server-authored page and its personal-state
+' commands, read with bounds and checked against the server, library and item asked for before
+' any of it is shown. The channel owns no playback decision and no ranking here.
+import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Home.bs"
+
+function IsDetailString(value as dynamic, limit = 512 as integer) as boolean
+    return IsContentString(value, limit)
+end function
+
+function IsDetailId(value as dynamic) as boolean
+    return IsContentString(value, 256) and Len(value) > 0
+end function
+
+' A finite number ≥ 0.
+function IsDetailAmount(value as dynamic) as boolean
+    return IsNumber(value) and value >= 0
+end function
+
+' A star rating: none, or 0.5 to 5 in half stars.
+function IsDetailRating(value as dynamic) as boolean
+    if value = invalid then return true
+    if not IsNumber(value) or value < 0.5 or value > 5 then return false
+    return value * 2 = Int(value * 2)
+end function
+
+' An https URL with no user or password in it.
+function IsPlainHttpsUrl(value as string) as boolean
+    if Left(value, 8) <> "https://" then return false
+    rest = Mid(value, 9)
+    authority = rest
+    for each mark in ["/", "?", "#"]
+        at = Instr(1, authority, mark)
+        if at > 0 then authority = Left(authority, at - 1)
+    end for
+    return authority <> "" and Instr(1, authority, "@") = 0 and Instr(1, authority, " ") = 0
+end function
+
+' detail.ts `personal`: the viewer's own state for a title, or invalid.
+function ParsePersonalState(value as dynamic) as dynamic
+    if not IsObject(value) or not IsBoolean(value.watchlisted) or not IsBoolean(value.favorite) or not IsDetailRating(value.rating) or not IsNatural(value.revision) then return invalid
+    watched = false
+    if value.watched <> invalid then watched = value.watched
+    progress = 0
+    if value.progressSeconds <> invalid then progress = value.progressSeconds
+    lastPlayed = ""
+    if value.lastPlayedAt <> invalid then lastPlayed = value.lastPlayedAt
+    status = "current"
+    if value.status <> invalid then status = value.status
+    if not IsBoolean(watched) or not IsDetailAmount(progress) or not IsDetailString(lastPlayed, 128) or not IsString(status) or (status <> "current" and status <> "needs-resolution") then return invalid
+    conflicts = 0
+    if value.conflicts <> invalid then
+        if not IsArray(value.conflicts) or value.conflicts.count() > 8 then return invalid
+        for each c in value.conflicts
+            if not IsObject(c) or not IsDetailId(c.id) or not IsDetailId(c.field) or not IsNatural(c.baseRevision) or not IsArray(c.choices) or c.choices.count() > 100 then return invalid
+            for each choice in c.choices
+                if not IsObject(choice) or not IsDetailId(choice.operationId) or not IsDetailId(choice.deviceId) or not IsDetailString(choice.authoredAt, 128) then return invalid
+            end for
+        end for
+        conflicts = value.conflicts.count()
+    end if
+    return { watchlisted: value.watchlisted, favorite: value.favorite, rating: value.rating, revision: value.revision, watched: watched, progressSeconds: progress, lastPlayedAt: lastPlayed, status: status, conflicts: conflicts }
+end function
+
+' detail.ts `creditRow`: one credit as the page and the credits pages carry it, or invalid.
+function ParseDetailCredit(row as dynamic, itemId as string) as dynamic
+    if not IsObject(row) or not IsDetailId(row.id) or not IsDetailString(row.name) or not IsDetailString(row.role) or not IsDetailString(row.department) or not IsDetailId(row.provider) then return invalid
+    if row.doesExist("personId") and not IsDetailId(row.personId) then return invalid
+    credit = { id: row.id, name: row.name, role: row.role, department: row.department, provider: row.provider }
+    if row.doesExist("portraitUrl") then
+        prefix = "/v1/metadata/item/" + itemId.encodeUriComponent() + "/art/portrait?"
+        if not IsDetailString(row.portraitUrl) or Left(row.portraitUrl, Len(prefix)) <> prefix or Instr(1, row.portraitUrl, "\") > 0 then return invalid
+        if row.portraitUrl <> "" then credit.portraitUrl = row.portraitUrl
+    end if
+    if row.personId <> invalid then credit.personId = row.personId
+    return credit
+end function
+
+function ParseTitleFileTrack(value as dynamic) as dynamic
+    if not IsObject(value) or not IsDetailString(value.codec, 64) then return invalid
+    track = { codec: value.codec }
+    for each rule in [["language", 64], ["title", 256], ["channelLayout", 64], ["objectAudio", 32]]
+        v = value[rule[0]]
+        if IsDetailString(v, rule[1]) and v <> "" then track[rule[0]] = v
+    end for
+    for each field in ["channels", "bitRate"]
+        if IsNatural(value[field]) and value[field] > 0 then track[field] = value[field]
+    end for
+    for each flag in ["default", "forced", "external"]
+        if IsBoolean(value[flag]) and value[flag] then track[flag] = true
+    end for
+    return track
+end function
+
+' detail.ts `titleFile`: one file of a title with every track in it, or invalid.
+function ParseTitleFile(value as dynamic) as dynamic
+    if not IsObject(value) or not IsDetailId(value.id) or not IsNatural(value.size) or not IsDetailString(value.container, 64) or not IsDetailAmount(value.duration) or not IsBoolean(value.available) then return invalid
+    if value.doesExist("path") and not IsDetailString(value.path, 4096) then return invalid
+    file = { id: value.id, size: value.size, container: value.container, duration: value.duration, available: value.available, audio: [], subtitles: [] }
+    if IsString(value.path) and value.path <> "" then file.path = value.path
+    if IsNatural(value.bitRate) and value.bitRate > 0 then file.bitRate = value.bitRate
+    if value.doesExist("video") then
+        v = value.video
+        if not IsObject(v) or not IsDetailString(v.codec, 64) or not IsNatural(v.width) or not IsNatural(v.height) then return invalid
+        video = { codec: v.codec, width: v.width, height: v.height }
+        if IsDetailString(v.dynamicRange, 32) and v.dynamicRange <> "" then video.dynamicRange = v.dynamicRange
+        if IsBoolean(v.hdr10Plus) and v.hdr10Plus then video.hdr10Plus = true
+        if IsDetailAmount(v.frameRate) and v.frameRate > 0 then video.frameRate = v.frameRate
+        if IsNatural(v.bitDepth) and v.bitDepth > 0 then video.bitDepth = v.bitDepth
+        if IsNatural(v.bitRate) and v.bitRate > 0 then video.bitRate = v.bitRate
+        file.video = video
+    end if
+    for each rule in [["audio", 128], ["subtitles", 256]]
+        tracks = value[rule[0]]
+        if tracks <> invalid then
+            if not IsArray(tracks) or tracks.count() > rule[1] then return invalid
+            for each raw in tracks
+                track = ParseTitleFileTrack(raw)
+                if track = invalid then return invalid
+                file[rule[0]].push(track)
+            end for
+        end if
+    end for
+    return file
+end function
+
+' detail.ts `hierarchy`: the named strings and numbers of an episode, song or book file block.
+function ParseDetailHierarchy(value as dynamic, required as object, optional as object, numbers as object) as dynamic
+    if not IsObject(value) then return invalid
+    out = {}
+    for each key in required
+        if not IsDetailString(value[key], 2048) then return invalid
+        out[key] = value[key]
+    end for
+    for each key in optional
+        if value.doesExist(key) then
+            if not IsDetailString(value[key], 2048) then return invalid
+            out[key] = value[key]
+        end if
+    end for
+    for each key in numbers
+        if value.doesExist(key) then
+            if value[key] <> invalid and not IsNatural(value[key]) then return invalid
+            out[key] = value[key]
+        end if
+    end for
+    return out
+end function
+
+function DetailExtraTypes() as object
+    return ["trailer", "featurette", "deleted_scene", "behind_the_scenes", "interview", "scene", "short", "other"]
+end function
+
+' related-movies.ts `validateRelatedMovies`: the page's own related rows, {ok, rows}.
+function ParseRelatedRows(value as dynamic, source as object) as object
+    bad = { ok: false }
+    if not IsObject(value) or not ArrayIncludes(["movie", "song", "audiobook_file", "episode"], source.kind) or not IsNumber(value.version) or value.version <> 1 or not IsString(value.libraryId) or value.libraryId <> source.libraryId or not IsDetailString(value.libraryName) or value.libraryName = "" or not IsArray(value.rows) or value.rows.count() > 3 then return bad
+    relations = ["genre", "person"]
+    expected = "movie"
+    view = "item"
+    if source.kind = "episode" then
+        relations = ["genre", "person", "show"]
+        expected = "show"
+        view = "show"
+    else if source.kind = "song" then
+        relations = ["album", "artist", "genre"]
+        expected = "album"
+        view = "album"
+    else if source.kind = "audiobook_file" then
+        relations = ["book", "author", "genre"]
+        expected = "book"
+        view = "book"
+    end if
+    rows = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    genres = 0
+    people = 0
+    for each raw in value.rows
+        if not IsObject(raw) or not IsString(raw.relation) or not ArrayIncludes(relations, raw.relation) or not IsDetailString(raw.provider, 256) or raw.provider = "" or not IsDetailString(raw.evidenceId, 256) or raw.evidenceId = "" then return bad
+        if not IsString(raw.id) or raw.id <> raw.relation + ":" + raw.provider + ":" + raw.evidenceId or not IsDetailString(raw.heading) or raw.heading = "" or not IsArray(raw.entries) or raw.entries.count() < 1 or raw.entries.count() > 12 then return bad
+        entries = []
+        ids = {}
+        ids.setModeCaseSensitive()
+        for each v in raw.entries
+            entry = ParseContentEntry(v)
+            if entry = invalid or entry.kind <> expected or entry.libraryId = invalid or entry.libraryId <> source.libraryId or entry.id = source.itemId or entry.available <> true or entry.navigation = invalid or entry.navigation.view <> view or entry.navigation.entityId = invalid or entry.navigation.entityId <> entry.id or entry.playback <> invalid or ids.doesExist(entry.id) then return bad
+            ids[entry.id] = true
+            entries.push(entry)
+        end for
+        if seen.doesExist(raw.id) then return bad
+        seen[raw.id] = true
+        if raw.relation = "genre" then genres = genres + 1
+        if raw.relation = "person" then people = people + 1
+        rows.push({ id: raw.id, relation: raw.relation, heading: raw.heading, entries: entries })
+    end for
+    if genres > 2 or people > 1 then return bad
+    return { ok: true, rows: rows }
+end function
+
+' detail.ts `projection`: {ok, detail: {scope, revision, item, personal, actions, metadata, facts,
+' files, related, extras}}. `target` is {libraryId, itemId}.
+function ParseDetailProjection(raw as dynamic, serverId as string, target as object) as object
+    bad = { ok: false, code: "invalid_detail" }
+    if not IsObject(raw) or not IsObject(raw.scope) or not IsObject(raw.revision) or not IsObject(raw.item) or not IsObject(raw.metadata) then return bad
+    s = raw.scope
+    r = raw.revision
+    item = raw.item
+    meta = raw.metadata
+    if not IsString(s.serverId) or s.serverId <> serverId or not IsString(s.libraryId) or s.libraryId <> target.libraryId or not IsString(s.itemId) or s.itemId <> target.itemId or not IsDetailId(s.viewerFence) or not IsNatural(r.catalog) or not IsNatural(r.viewer) then return bad
+    if not IsString(item.id) or item.id <> target.itemId or not IsString(item.libraryId) or item.libraryId <> target.libraryId or not IsDetailString(item.title, 2048) or not IsDetailId(item.kind) or not IsDetailAmount(item.duration) or not IsDetailAmount(item.progressSeconds) or not IsBoolean(item.available) then return bad
+    media = { id: target.itemId, libraryId: target.libraryId, title: item.title, kind: item.kind, duration: item.duration, progressSeconds: item.progressSeconds, available: item.available }
+    if item.doesExist("overview") then
+        if not IsString(item.overview) or Len(item.overview) > 65536 or not IsSynopsisText(item.overview) then return bad
+        media.overview = item.overview
+    end if
+    for each key in ["posterUrl", "backdropUrl", "stillUrl"]
+        if item.doesExist(key) then
+            if not IsDetailString(item[key], 4096) then return bad
+            media[key] = item[key]
+        end if
+    end for
+    if item.doesExist("year") then
+        if not IsNatural(item.year) then return bad
+        media.year = item.year
+    end if
+    if item.doesExist("addedAt") then
+        if item.addedAt <> invalid and not IsDetailString(item.addedAt, 128) then return bad
+        media.addedAt = item.addedAt
+    end if
+    if item.doesExist("sources") then
+        if not IsArray(item.sources) or item.sources.count() > 64 then return bad
+        for each source in item.sources
+            if not IsObject(source) or not IsDetailId(source.id) or not IsDetailString(source.container) or not IsDetailString(source.videoCodec) or not IsDetailString(source.audioCodec) or not IsNatural(source.width) or not IsNatural(source.height) then return bad
+            if source.doesExist("duration") and not IsDetailAmount(source.duration) then return bad
+        end for
+    end if
+    if item.doesExist("episode") then
+        fields = ParseDetailHierarchy(item.episode, ["showId", "showTitle", "numbering", "localIdentityStatus", "providerMatchStatus", "orderingBasis", "sourceBoundary"], ["seasonId"], ["seasonNumber", "number"])
+        if fields = invalid or not IsNatural(fields.number) or not IsDetailId(fields.showId) or (fields.doesExist("seasonId") and not IsDetailId(fields.seasonId)) then return bad
+        media.episode = fields
+    end if
+    if item.doesExist("song") then
+        fields = ParseDetailHierarchy(item.song, ["albumId", "albumTitle", "albumArtist", "artist", "providerMatchStatus"], ["localMetadataIssue", "providerTitle", "providerArtist", "providerRecordingId", "providerReleaseId", "providerReleaseGroupId", "providerTrackId", "providerReleaseStatus", "providerObservedAt"], ["discNumber", "trackNumber"])
+        if fields = invalid or not IsDetailId(fields.albumId) then return bad
+        media.song = fields
+    end if
+    if item.doesExist("bookFile") then
+        fields = ParseDetailHierarchy(item.bookFile, ["bookId", "bookTitle", "sourceBoundary"], ["localMetadataIssue"], ["discNumber", "partNumber"])
+        if fields = invalid or not IsDetailId(fields.bookId) then return bad
+        media.bookFile = fields
+    end if
+
+    if not IsArray(raw.actions) or raw.actions.count() > 32 then return bad
+    actions = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each action in raw.actions
+        if not IsObject(action) or not IsDetailId(action.id) or not IsDetailId(action.labelKey) or not IsBoolean(action.enabled) or seen.doesExist(action.id) then return bad
+        seen[action.id] = true
+        result = { id: action.id, labelKey: action.labelKey, enabled: action.enabled }
+        for each field in ["min", "max", "step"]
+            if action.doesExist(field) then
+                if not IsDetailAmount(action[field]) then return bad
+                result[field] = action[field]
+            end if
+        end for
+        if action.doesExist("playback") then
+            p = action.playback
+            if not IsObject(p) or not IsString(p.itemId) or p.itemId <> target.itemId or not IsDetailAmount(p.startSeconds) or p.startSeconds > media.duration then return bad
+            result.playback = { itemId: target.itemId, startSeconds: p.startSeconds }
+        end if
+        actions.push(result)
+    end for
+    if not IsString(meta.status) or (meta.status <> "available" and meta.status <> "unavailable") then return bad
+    if meta.sources <> invalid then
+        if not IsArray(meta.sources) or meta.sources.count() > 16 then return bad
+        for each row in meta.sources
+            if not IsObject(row) or not IsDetailId(row.provider) or not IsDetailString(row.sourceUrl, 4096) or not IsDetailString(row.observedAt, 128) then return bad
+            if row.sourceUrl <> "" and not IsPlainHttpsUrl(row.sourceUrl) then return bad
+        end for
+    end if
+    if not IsArray(meta.ratings) or meta.ratings.count() > 16 then return bad
+    ratings = []
+    for each row in meta.ratings
+        if not IsObject(row) or not IsDetailId(row.provider) or not IsDetailAmount(row.value) or not IsDetailAmount(row.max) or row.max <= 0 or row.value > row.max or not IsDetailString(row.sourceUrl, 4096) or not IsDetailString(row.observedAt, 128) then return bad
+        if row.doesExist("votes") and not IsNatural(row.votes) then return bad
+        ratings.push({ provider: row.provider, value: row.value, max: row.max })
+    end for
+    if not IsArray(meta.genres) or meta.genres.count() > 10000 then return bad
+    genres = []
+    for each row in meta.genres
+        if not IsObject(row) or not IsDetailId(row.id) or not IsDetailString(row.name) or not IsDetailId(row.provider) then return bad
+        genres.push({ id: row.id, name: row.name, provider: row.provider })
+    end for
+    if meta.doesExist("attributions") then
+        if not IsArray(meta.attributions) or meta.attributions.count() > 12 then return bad
+        for each v in meta.attributions
+            if not IsDetailString(v) then return bad
+        end for
+    end if
+    if not IsArray(meta.credits) or meta.credits.count() > 10000 then return bad
+    credits = []
+    for each row in meta.credits
+        credit = ParseDetailCredit(row, target.itemId)
+        if credit = invalid then return bad
+        credits.push(credit)
+    end for
+    metadata = { status: meta.status, ratings: ratings, genres: genres, credits: credits }
+    if meta.doesExist("creditTotals") then
+        if not IsObject(meta.creditTotals) or not IsNatural(meta.creditTotals.cast) or not IsNatural(meta.creditTotals.crew) then return bad
+        metadata.creditTotals = { cast: meta.creditTotals.cast, crew: meta.creditTotals.crew }
+    end if
+    personal = ParsePersonalState(raw.personal)
+    if personal = invalid then return bad
+    detail = { scope: { serverId: serverId, libraryId: target.libraryId, itemId: target.itemId, viewerFence: s.viewerFence }, revision: { catalog: r.catalog, viewer: r.viewer }, item: media, personal: personal, actions: actions, metadata: metadata }
+    if IsObject(raw.facts) then
+        facts = {}
+        for each key in ["contentRating", "studio", "network", "tagline", "releaseDate", "originalTitle", "country", "edition"]
+            v = raw.facts[key]
+            if IsDetailString(v, 2048) and v <> "" then facts[key] = v
+        end for
+        if facts.count() > 0 then detail.facts = facts
+    end if
+    if raw.doesExist("files") then
+        if not IsArray(raw.files) or raw.files.count() > 64 then return bad
+        files = []
+        for each v in raw.files
+            file = ParseTitleFile(v)
+            if file = invalid then return bad
+            files.push(file)
+        end for
+        if files.count() > 0 then detail.files = files
+    end if
+    if raw.doesExist("related") then
+        related = ParseRelatedRows(raw.related, { libraryId: target.libraryId, itemId: target.itemId, kind: media.kind })
+        if not related.ok then return bad
+        detail.related = related.rows
+    end if
+    if raw.doesExist("extras") then
+        if not IsArray(raw.extras) or raw.extras.count() > DetailExtraTypes().count() then return bad
+        extras = []
+        kinds = {}
+        for each group in raw.extras
+            if not IsObject(group) or not IsString(group.type) or not ArrayIncludes(DetailExtraTypes(), group.type) or not IsDetailString(group.label, 256) or group.label = "" or not IsArray(FieldOf(group, "items")) or FieldOf(group, "items").count() > 100 or FieldOf(group, "items").count() = 0 or kinds.doesExist(group.type) then return bad
+            kinds[group.type] = true
+            entries = []
+            ids = {}
+            ids.setModeCaseSensitive()
+            for each v in FieldOf(group, "items")
+                entry = ParseContentEntry(v)
+                if entry = invalid or entry.kind <> "extra" or entry.id = target.itemId or entry.playback = invalid or entry.playback.itemId <> entry.id or ids.doesExist(entry.id) then return bad
+                ids[entry.id] = true
+                entries.push(entry)
+            end for
+            extras.push({ type: group.type, label: group.label, entries: entries })
+        end for
+        detail.extras = extras
+    end if
+    if raw.markers <> invalid then detail.markers = raw.markers
+    return { ok: true, detail: detail }
+end function
+
+' A synopsis-like text: tabs and line breaks allowed, other control characters not.
+function IsSynopsisText(value as string) as boolean
+    if m.detailControl = invalid then m.detailControl = CreateObject("roRegex", "[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "")
+    return not m.detailControl.isMatch(value)
+end function
+
+' detail.ts `parseCreditPage`: one page of GET /v1/items/{id}/credits, {ok, credits, total, nextCursor}.
+function ParseCreditPage(raw as dynamic, itemId as string, group as string) as object
+    bad = { ok: false, code: "invalid_detail" }
+    if not IsObject(raw) or not IsString(raw.group) or raw.group <> group or not IsNatural(raw.total) then return bad
+    if raw.doesExist("nextCursor") and (not IsDetailString(raw.nextCursor, 4096) or raw.nextCursor = "") then return bad
+    if not IsArray(raw.credits) or raw.credits.count() > 10000 then return bad
+    credits = []
+    for each row in raw.credits
+        credit = ParseDetailCredit(row, itemId)
+        if credit = invalid then return bad
+        credits.push(credit)
+    end for
+    cursor = ""
+    if raw.nextCursor <> invalid then cursor = raw.nextCursor
+    return { ok: true, credits: credits, total: raw.total, nextCursor: cursor }
+end function
+
+' PUT /v1/items/{id}/personal-state: one explicit command against the revision the page was read at.
+' `action` is "watchlist", "favorite", "watched" or "rating".
+function PersonalStateBody(operationId as string, expectedRevision as dynamic, action as string, value as dynamic) as object
+    body = { "operationId": operationId, "expectedRevision": expectedRevision }
+    field = action
+    if action = "watchlist" then field = "watchlisted"
+    body[field] = value
+    return body
+end function
+
+' detail.ts `receipt`: the answer to a personal-state command, for the page it was sent from.
+function ParsePersonalReceipt(raw as dynamic, operationId as string, scope as object) as object
+    bad = { ok: false, code: "invalid_detail" }
+    if not IsObject(raw) or not IsString(raw.operationId) or raw.operationId <> operationId or not IsString(raw.serverId) or raw.serverId <> scope.serverId or not IsString(raw.libraryId) or raw.libraryId <> scope.libraryId or not IsString(raw.itemId) or raw.itemId <> scope.itemId or not IsString(raw.viewerFence) or raw.viewerFence <> scope.viewerFence then return bad
+    current = raw.current
+    if current = invalid then current = raw.personal
+    personal = ParsePersonalState(current)
+    if personal = invalid then return bad
+    return { ok: true, personal: personal }
+end function
+
+' container-state.ts `parse`: a show's, season's, album's, book's or artist's own state.
+' {ok, state: {revision, watched, watchlisted, favorite, watchedCount, unwatchedCount, libraryId}}.
+function ParseContainerState(raw as dynamic, withCounts as boolean) as object
+    bad = { ok: false, code: "invalid_container" }
+    if not IsObject(raw) or not IsNatural(raw.revision) or not IsBoolean(raw.watched) or not IsString(raw.watermark) or Len(raw.watermark) > 128 then return bad
+    for each key in raw.keys()
+        if not ArrayIncludes(["revision", "watched", "watermark", "watchlisted", "favorite", "watchedCount", "unwatchedCount", "libraryId"], key) then return bad
+    end for
+    if raw.doesExist("libraryId") and not IsDetailId(raw.libraryId) then return bad
+    if (raw.doesExist("watchlisted") and not IsBoolean(raw.watchlisted)) or (raw.doesExist("favorite") and not IsBoolean(raw.favorite)) then return bad
+    state = { revision: raw.revision, watched: raw.watched, watchlisted: raw.watchlisted = true, favorite: raw.favorite = true }
+    if withCounts then
+        if not IsNatural(raw.watchedCount) or not IsNatural(raw.unwatchedCount) then return bad
+        if raw.libraryId <> invalid then state.libraryId = raw.libraryId
+    end if
+    if raw.watchedCount <> invalid then state.watchedCount = raw.watchedCount
+    if raw.unwatchedCount <> invalid then state.unwatchedCount = raw.unwatchedCount
+    return { ok: true, state: state }
+end function
+
+' container-state.ts: a stale revision is HTTP 409 (`revision_mismatch`): reread, then author the
+' intent once more.
+function ContainerWriteIsStale(failure as dynamic) as boolean
+    if not IsObject(failure) then return false
+    if IsString(failure.code) and failure.code = "revision_mismatch" then return true
+    return IsNumber(failure.status) and failure.status = 409
+end function
+
+function ContainerStatePath(kind as string, id as string) as string
+    return "/v1/containers/" + kind + "/" + id.encodeUriComponent() + "/personal-state"
+end function
+
+' recommendations.ts `validateItemRecommendations` / `validateShowRecommendations`: a title page's
+' recommendation rows, in the server's order. `field` is "itemId" or "showId". {ok, rows}.
+function ParseTitleRecommendations(value as dynamic, field as string, id as string) as object
+    bad = { ok: false, code: "invalid_recommendations" }
+    if not IsObject(value) or not IsString(value[field]) or value[field] <> id or not IsArray(value.rows) or value.rows.count() > 12 or ParseHomeRevision(value.revision) = invalid then return bad
+    rows = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each raw in value.rows
+        parsed = ParseHomeRow(raw)
+        if not parsed.ok then return bad
+        row = parsed.row
+        ' Related rows are always explained by a relation and never echo their own title.
+        if seen.doesExist(row.id) or row.relation = invalid or row.relation = "" or row.entries.count() = 0 then return bad
+        for each entry in row.entries
+            if entry.id = id then return bad
+        end for
+        seen[row.id] = true
+        rows.push(row)
+    end for
+    return { ok: true, rows: rows }
+end function
+
+' listening.ts `parseListeningJourney`: a book's (or album's) listening state, or invalid.
+function ParseListeningJourney(v as dynamic, libraryId as string) as dynamic
+    if not IsObject(v) or not IsObject(v.target) or not IsString(v.target.libraryId) or v.target.libraryId <> libraryId or not IsString(v.target.kind) or not ArrayIncludes(["library", "song", "artist", "album", "disc", "book"], v.target.kind) or not MatchesPattern(v.target.id, "^[A-Za-z0-9_-]{1,128}(?::disc:\d{1,4})?$") or not IsArray(v.actions) or not IsBoolean(v.resumeUnavailable) then return invalid
+    for each action in v.actions
+        if not IsString(action) or not ArrayIncludes(["play", "shuffle", "mix", "enqueue"], action) then return invalid
+    end for
+    journey = { target: { libraryId: libraryId, kind: v.target.kind, id: v.target.id }, actions: v.actions, resumeUnavailable: v.resumeUnavailable }
+    if v.doesExist("resume") then
+        if not IsObject(v.resume) or not MatchesPattern(v.resume.itemId, "^[A-Za-z0-9_-]{1,128}$") or not IsDetailAmount(v.resume.positionSeconds) then return invalid
+        journey.resume = { itemId: v.resume.itemId, positionSeconds: v.resume.positionSeconds }
+    end if
+    return journey
+end function
+
+' continue-watching.ts `setContinueDismissed`: takes a title off Continue Watching (its resume
+' point stays). One command against the title's current revision.
+function ContinueDismissBody(operationId as string, revision as dynamic) as object
+    return { "operationId": operationId, "expectedRevision": revision, "continueDismissed": true }
+end function
+
+' recommendation-feedback.ts `notInterestedTarget`: a show, album or book is turned down as a whole.
+function NotInterestedTarget(entry as object) as string
+    if entry.kind = "show" or entry.kind = "album" or entry.kind = "book" then
+        if entry.navigation <> invalid and IsString(entry.navigation.entityId) and entry.navigation.entityId <> "" then return entry.navigation.entityId
+    end if
+    return entry.id
+end function
+
+' PUT /v1/items/personal-state:batch {operationId, items: [{itemId, notInterested}]}.
+function NotInterestedBody(operationId as string, itemId as string) as object
+    return { "operationId": operationId, "items": [{ "itemId": itemId, "notInterested": true }] }
+end function
+
+' personal-saved.ts `parsePersonalBatchReceipt`, for the one title asked about: true when the
+' signed-in server accepted it.
+function NotInterestedAccepted(raw as dynamic, serverId as string, itemId as string) as boolean
+    if not IsObject(raw) or not IsString(raw.serverId) or raw.serverId <> serverId or not IsDetailId(raw.viewerFence) or not IsDetailId(raw.operationId) or not IsNatural(raw.updated) or not IsNatural(raw.failed) or not IsArray(raw.results) or raw.results.count() <> 1 then return false
+    row = raw.results[0]
+    if not IsObject(row) or not IsString(row.itemId) or row.itemId <> itemId or not IsBoolean(row.ok) then return false
+    return row.ok
+end function
+
+' The revision a document carries for the viewer's state of a title (continue-watching.ts
+' `personalRevision`), or invalid.
+function PersonalRevisionOf(raw as dynamic) as dynamic
+    if not IsObject(raw) or not IsObject(raw.personal) or not IsNatural(raw.personal.revision) then return invalid
+    return raw.personal.revision
+end function

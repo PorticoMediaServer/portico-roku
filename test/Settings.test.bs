@@ -1,0 +1,299 @@
+' Settings and the Dashboard against the real TypeScript (scripts/golden.mjs `settings`):
+' settings-structure.ts, preferences.ts, preference-copy.ts, server-admin/*.
+import "pkg:/source/core/Settings.bs"
+import "pkg:/source/core/ServerAdmin.bs"
+
+sub Test_Settings_structure()
+    fixture = TestFixture("golden/settings.json")
+    if fixture = invalid then return
+    for each item in fixture.structures
+        context = { owner: item.context.owner, capabilities: {} }
+        context.capabilities.append(item.context.capabilities)
+        name = "the structure for " + FormatJson(item.context.capabilities).left(120)
+        if item.context.capabilities.preferenceKeys <> invalid then
+            keys = {}
+            keys.setModeCaseSensitive()
+            for each key in item.context.capabilities.preferenceKeys
+                keys[key] = true
+            end for
+            context.capabilities.preferenceKeys = keys
+            name = "the structure with " + keys.count().toStr() + " published keys"
+        end if
+        if item.context.owner then name = name + " (owner)"
+        AssertSame(SettingsStructureFor(context), item.expected, name)
+    end for
+    full = SettingsStructureFor({ owner: true, capabilities: { localAccount: true, deviceName: true } })
+    for each item in fixture.addresses
+        found = FindSettingsPage(full, item.address)
+        AssertEqual(found.heading.id, item.heading, "the heading of the address '" + item.address + "'")
+        AssertEqual(found.page.id, item.page, "the page of the address '" + item.address + "'")
+    end for
+    AssertEqual(FindSettingsPage({ headings: [] }, "profile"), invalid, "no page without a structure")
+    AssertEqual(SettingsPageId("server", "dashboard"), "server-dashboard", "a server page's address")
+    AssertEqual(SettingsRowId({ kind: "preference", key: "playback.autoplayNext" }), "playback.autoplayNext", "a preference row's id")
+    AssertEqual(SettingsRowId({ kind: "action", id: "signOut" }), "signOut", "an action row's id")
+end sub
+
+sub Test_Settings_preferences()
+    fixture = TestFixture("golden/settings.json")
+    if fixture = invalid then return
+    GetGlobalAA().messageCatalogue = fixture.catalogue
+    served = invalid
+    for each item in fixture.preferences
+        parsed = ParsePreferences(item.document)
+        AssertEqual(parsed.ok, item.ok, "the registry, " + item.name)
+        if parsed.ok and item.ok then
+            defaults = {}
+            scopes = {}
+            for each key in parsed.order
+                defaults[key] = parsed.fields[key].default
+                scopes[key] = parsed.fields[key].scopes
+            end for
+            AssertSame({ deviceClass: parsed.deviceClass, order: parsed.order, documents: parsed.documents, effective: parsed.effective, defaults: defaults, scopes: scopes }, item.expected, "what the registry holds, " + item.name)
+            if item.name = "as served" then served = parsed
+        end if
+    end for
+    AssertTrue(not ParsePreferences(invalid).ok, "no document")
+    for each item in fixture.labels
+        AssertEqual(PreferenceValueLabel(item.key, item.value), item.label, "the words for " + item.key + " = " + SettingsValueId(item.value))
+    end for
+    if served = invalid then return
+    AssertEqual(PreferenceValueOf(served, "made.up"), invalid, "a key the server does not publish")
+    AssertEqual(PreferenceKeys(served).count(), served.order.count(), "the keys the registry publishes")
+    for each item in fixture.composites
+        snapshot = { ok: true, fields: served.fields, effective: {} }
+        snapshot.effective.setModeCaseSensitive()
+        for each key in served.order
+            snapshot.effective[key] = served.effective[key]
+        end for
+        for each key in item.change.keys()
+            snapshot.effective[key] = item.change[key]
+        end for
+        for each id in item.read.keys()
+            AssertEqual(ReadComposite(id, snapshot), item.read[id], id + " reads its choice after " + FormatJson(item.change))
+        end for
+    end for
+    for each item in fixture.patches
+        AssertSame(CompositePatch(item.id, item.choice), item.patch, "what " + item.id + " writes for " + item.choice)
+    end for
+    ' One request per scope, each against that document's revision.
+    first = served.order[0]
+    other = ""
+    for each key in served.order
+        if other = "" and served.fields[key].scopes[0] <> served.fields[first].scopes[0] then other = key
+    end for
+    patch = {}
+    patch.setModeCaseSensitive()
+    patch[first] = served.effective[first]
+    patch["made.up"] = true
+    requests = PreferencePatchRequests(served, patch)
+    AssertEqual(requests.count(), 1, "one request for one scope; an unpublished key is left out")
+    AssertEqual(requests[0]["deviceClass"], "television", "the device class is the snapshot's")
+    AssertEqual(requests[0]["values"].count(), 1, "only what changes is sent")
+    if other <> "" then
+        patch[other] = served.effective[other]
+        AssertEqual(PreferencePatchRequests(served, patch).count(), 2, "two scopes are two requests")
+    end if
+    GetGlobalAA().messageCatalogue = invalid
+end sub
+
+sub Test_Settings_rows()
+    fixture = TestFixture("golden/settings.json")
+    if fixture = invalid then return
+    GetGlobalAA().messageCatalogue = fixture.catalogue
+    AssertEqual(SentenceFromKey("dataSaver"), "Data saver", "a camel-case key in words")
+    AssertEqual(SentenceFromKey("data-saver_mode"), "Data saver mode", "dashes and underscores are spaces")
+    AssertSame(AddLanguage(["en"], "ja"), ["en", "ja"], "a language is added last")
+    AssertSame(AddLanguage(["en"], "en"), ["en"], "a language is listed once")
+    AssertSame(AddLanguage(["a", "b", "c", "d", "e", "f", "g", "h"], "ja"), ["a", "b", "c", "d", "e", "f", "g", "h"], "eight at most")
+    AssertSame(RemoveLanguage(["en", "ja", "fr"], 1), ["en", "fr"], "a language is removed")
+    AssertSame(MoveLanguage(["en", "ja", "fr"], 2, "up"), ["en", "fr", "ja"], "a language moves up")
+    AssertSame(MoveLanguage(["en", "ja", "fr"], 0, "down"), ["ja", "en", "fr"], "a language moves down")
+    AssertSame(MoveLanguage(["en", "ja"], 0, "up"), ["en", "ja"], "the first cannot move up")
+    AssertTrue(not ArrayIncludes(AvailableLanguages(["en", "ja"]), "ja"), "a chosen language is not offered again")
+    AssertEqual(AvailableLanguages([])[0], "en", "the common languages keep their order")
+    locales = LocaleChoices("fr-FR")
+    AssertEqual(locales[0].id, "auto", "Follow this device comes first")
+    AssertEqual(locales[locales.count() - 1].id, "fr-FR", "a stored language no choice names is shown as it is")
+    ' A row as the page draws it.
+    snapshot = { ok: true, deviceClass: "television", order: ["playback.autoplayNext", "playback.upNextCountdownSeconds"], documents: [], fields: {}, effective: {} }
+    snapshot.fields.setModeCaseSensitive()
+    snapshot.effective.setModeCaseSensitive()
+    snapshot.fields["playback.autoplayNext"] = { key: "playback.autoplayNext", type: "boolean", default: true, scopes: ["profile-server"] }
+    snapshot.fields["playback.upNextCountdownSeconds"] = { key: "playback.upNextCountdownSeconds", type: "integer", default: 10, scopes: ["profile-server"] }
+    snapshot.effective["playback.autoplayNext"] = false
+    snapshot.effective["playback.upNextCountdownSeconds"] = 7
+    structure = SettingsStructureFor({ owner: false, capabilities: {} })
+    playback = FindSettingsPage(structure, "playback").page
+    autoplay = playback.sections[0].rows[0]
+    countdown = playback.sections[0].rows[1]
+    AssertTrue(SettingsRowShown(autoplay, snapshot), "a published preference is shown")
+    AssertTrue(not SettingsRowShown(countdown, snapshot), "the countdown is absent while auto-play is off")
+    AssertTrue(not SettingsRowShown(autoplay, invalid), "a registry row waits for the registry")
+    snapshot.effective["playback.autoplayNext"] = true
+    AssertTrue(SettingsRowShown(countdown, snapshot), "and present while it is on")
+    model = SettingsRowModel(autoplay, snapshot, {})
+    AssertEqual(model.control, "switch", "auto-play is a switch")
+    AssertEqual(model.value, true, "and it is on")
+    model = SettingsRowModel(countdown, snapshot, {})
+    AssertEqual(model.options[0].id, "7", "a stored value no choice names is shown as what it is")
+    AssertEqual(model.label, "7 seconds", "in words")
+    AssertEqual(SettingsChoiceValue(countdown, "10"), 10, "a chosen option writes the authored value")
+    AssertEqual(SettingsChoiceValue(countdown, "11"), invalid, "an option that is not one writes nothing")
+    AssertSame(SettingsRowPatch(countdown, 10), { "playback.upNextCountdownSeconds": 10 }, "a preference writes its own key")
+    appearance = FindSettingsPage(structure, "appearance").page
+    text = invalid
+    for each row in appearance.sections[0].rows
+        if row.id = "textSize" then text = row
+    end for
+    model = SettingsRowModel(text, invalid, { textSize: "large", reduceMotion: false })
+    AssertEqual(model.label, T("settings.textSize.large"), "a device value reads from the device")
+    AssertTrue(Instr(1, model.subtitle, T("settings.thisDevice")) > 0, "and says it is this device's")
+    AssertEqual(SettingsRowPatch(text, "large"), invalid, "and writes nothing to the registry")
+    AssertEqual(SettingsRowModel(text, invalid, {}), invalid, "a row without a value is not drawn")
+    AssertEqual(SkipSeconds(snapshot, "back", 10), 10, "the Apple app's skip without the preference")
+    snapshot.fields["playback.skipBackSeconds"] = { key: "playback.skipBackSeconds", type: "integer", default: 10, scopes: ["profile-server"] }
+    snapshot.effective["playback.skipBackSeconds"] = 15
+    AssertEqual(SkipSeconds(snapshot, "back", 10), 15, "the viewer's skip amount")
+    AssertEqual(SkipSeconds(invalid, "forward", 30), 30, "no registry, no change")
+    AssertEqual(MarkerSkipMode(snapshot, "intro"), "ask", "an intro is asked about by default")
+    snapshot.fields["playback.introSkip"] = { key: "playback.introSkip", type: "string", default: "ask", scopes: ["profile-server"] }
+    snapshot.effective["playback.introSkip"] = "auto"
+    AssertEqual(MarkerSkipMode(snapshot, "intro"), "auto", "an intro the viewer skips automatically")
+    snapshot.effective["playback.introSkip"] = "off"
+    AssertEqual(MarkerSkipMode(snapshot, "intro"), "off", "an intro the viewer never skips")
+    AssertEqual(MarkerSkipMode(snapshot, "preview"), "ask", "a preview has no preference")
+    roku = SettingsStructureFor({ owner: false, capabilities: RokuSettingsCapabilities() })
+    keys = {}
+    for each heading in roku.headings
+        for each page in heading.pages
+            for each section in page.sections
+                for each row in section.rows
+                    keys[SettingsRowId(row)] = true
+                end for
+            end for
+        end for
+    end for
+    for each gone in ["playback.defaultSpeed", "audiobooks.defaultSpeed", "music.crossfadeSeconds", "music.gapless", "music.audioNormalization"]
+        AssertTrue(not keys.doesExist(gone), "a Roku's player cannot do " + gone + ": the row is not in its structure")
+    end for
+    for each kept in ["playback.showSyncedLyrics", "receiveFromDevices", "playback.autoplayNext", "textSize"]
+        AssertTrue(keys.doesExist(kept), kept + " is in a Roku's structure")
+    end for
+    AssertSame(SettingsAddresses(structure)[0], "profile", "the first page's address")
+    AssertTrue(IsServerPanel("server.health") and not IsServerPanel("about"), "an owner's panel")
+    AssertEqual(WebAddressShown("https://web.getportico.tv/account"), "web.getportico.tv/account", "an address is printed without its scheme")
+    AssertEqual(WebAddressShown("http://192.168.1.20:32500/settings/profile"), "192.168.1.20:32500/settings/profile", "also a plain one")
+    AssertTrue(TerminateSucceeded({ ok: false, status: 404 }) and not TerminateSucceeded({ ok: false, status: 500 }), "a session already gone was stopped")
+    GetGlobalAA().messageCatalogue = invalid
+end sub
+
+sub Test_Settings_dashboard()
+    fixture = TestFixture("golden/settings.json")
+    if fixture = invalid then return
+    GetGlobalAA().messageCatalogue = fixture.catalogue
+    for each item in fixture.sessions
+        parsed = ParseAdminSessions(item.document)
+        AssertEqual(parsed.ok, item.ok, "who is watching, " + item.name)
+        if parsed.ok and item.ok then
+            out = []
+            for each x in parsed.sessions
+                viewer = SessionViewer(x)
+                out.push({ id: x.id, user: x.user, profile: x.profile, device: x.device, itemId: x.itemId, title: x.title, kind: x.kind, state: x.state, location: x.location, startedAt: x.startedAt, delivery: SessionDeliveryId(x.decision), stateId: SessionStateId(x.state), locationId: SessionLocationId(x.location), rate: SessionRateMbps(x) })
+            end for
+            expected = []
+            for each x in item.expected
+                copy = {}
+                copy.append(x)
+                copy.delete("viewer")
+                expected.push(copy)
+            end for
+            AssertSame(out, expected, "each session's facts, " + item.name)
+        end if
+    end for
+    AssertEqual(SessionViewer({ profile: "Kids", user: "ana" }), T("web.nowPlaying.viewerWithAccount", { profile: "Kids", account: "ana" }), "a profile with its account")
+    AssertEqual(SessionViewer({ profile: "ana", user: "ana" }), "ana", "a profile that is the account")
+    AssertEqual(SessionViewer({ profile: "", user: "" }), T("web.nowPlaying.viewer"), "nobody named")
+    for each item in fixture.health
+        health = ParseMeasurement(item.health, "health")
+        storage = invalid
+        if item.storage <> invalid then storage = ParseMeasurement(item.storage, "storage")
+        AssertSame(HealthFacts(health, storage), item.expected, "the health facts, " + item.name)
+    end for
+    AssertTrue(not ParseMeasurement({ data: { name: "storage", facts: {} }, scope: {} }, "health").ok, "a measurement of another name")
+    for each item in fixture.load
+        AssertSame(LoadRows(ParseTelemetry(item.document)), item.expected, "the load figures, " + item.name)
+    end for
+    for each item in fixture.alertWords
+        AssertEqual(AlertLabel({ code: item.code }), item.label, "the words for the alert " + item.code)
+    end for
+    for each item in fixture.jobWords
+        AssertEqual(JobLabel(item.kind), item.label, "the words for the task " + item.kind)
+    end for
+    for each item in fixture.jobStates
+        AssertEqual(JobStateLabel(item.state), item.label, "the words for a task that is " + item.state)
+    end for
+    for each item in fixture.durations
+        AssertEqual(AdminDuration(item.seconds), item.text, "a duration of " + Str(item.seconds).trim() + " seconds")
+    end for
+    if fixture.alerts <> invalid then
+        alerts = ParseAdminAlerts(fixture.alerts)
+        AssertTrue(alerts.ok, "the server's alerts")
+        AssertEqual(alerts.alerts.count(), fixture.alerts.data.count(), "every alert is kept")
+        AssertEqual(OpenAlerts([{ status: "open" }, { status: "resolved" }, { status: "acknowledged" }]).count(), 2, "a resolved alert is not shown")
+    end if
+    AssertTrue(not ParseAdminAlerts({ data: [{ id: "a" }], scope: {} }).ok, "an alert without a code")
+    if fixture.jobs <> invalid then AssertTrue(ParseAdminJobs(fixture.jobs).ok, "the server's tasks")
+    jobs = ParseAdminJobs({ scope: {}, data: { items: [{ id: "j1", kind: "library_scan", state: "running", revision: 3, actions: ["pause", "cancel"], resource: "Movies", processed: 1200, createdAt: 1791012951517 }], nextCursor: "c" } })
+    AssertTrue(jobs.ok and jobs.more, "a page of tasks with more behind it")
+    AssertEqual(jobs.jobs[0].actions.count(), 2, "what can be done about a task")
+    AssertTrue(not ParseAdminJobs({ scope: {}, data: { items: [{ id: "j1", kind: "scan", state: "sleeping", revision: 1, actions: [] }] } }).ok, "a task in a state that is not one")
+    AssertTrue(not ParseAdminJobs({ scope: {}, data: { items: [{ id: "j1", kind: "scan", state: "queued", revision: 1, actions: ["explode"] }] } }).ok, "a task with an action that is not one")
+    AssertEqual(JobCommandPath({ id: "j 1" }, "pause"), "/v1/admin/console/jobs/j%201/pause", "a task command's path")
+    AssertEqual(AlertAcknowledgePath({ id: "a1" }), "/v1/admin/console/alerts/a1/acknowledge", "an acknowledgement's path")
+    AssertEqual(SessionTerminatePath({ id: "s1" }), "/v1/admin/sessions/s1:terminate", "a stop's path")
+    AssertEqual(AdminWhen(0), "—", "no time is a dash")
+    AssertEqual(AdminWhen(1791012951517, 1791012951 + 60), FormatTime(1791012951), "today is a time")
+    AssertTrue(Len(AdminWhen(1791012951517, 1791012951 + 172800)) > Len(FormatTime(1791012951)), "another day says the day")
+    GetGlobalAA().messageCatalogue = invalid
+end sub
+
+sub Test_Settings_region()
+    AssertSame(RegionFor("", "en_US", "12h"), { locale: "en-US", hour12: true, utc: false }, "a device in the United States")
+    AssertSame(RegionFor("", "en_AU", "24h"), { locale: "en-GB", hour12: false, utc: false }, "a device in Australia reads as Britain does")
+    AssertSame(RegionFor("en-GB|h23", "en_US", "12h"), { locale: "en-GB", hour12: false, utc: false }, "the profile's language and clock come before the device's")
+    AssertSame(RegionFor("en-GB|h23|UTC", "en_US", "12h"), { locale: "en-GB", hour12: false, utc: false }, "a time zone is never the profile's: times are the device's own")
+    AssertSame(RegionFor("|h12", "en_GB", "24h"), { locale: "en-GB", hour12: true, utc: false }, "one choice, the rest from the device")
+    AssertSame(RegionFor("fr-FR|", "en_CA", "12h"), { locale: "en-CA", hour12: true, utc: false }, "a language the catalogue lacks follows the device")
+    snapshot = { ok: true, fields: {}, effective: {} }
+    snapshot.fields.setModeCaseSensitive()
+    snapshot.effective.setModeCaseSensitive()
+    for each pair in [["region.locale", "auto"], ["region.hourCycle", "auto"], ["region.timeZone", "Europe/Paris"]]
+        snapshot.fields[pair[0]] = { key: pair[0], type: "string", default: "auto", scopes: ["profile-server"] }
+        snapshot.effective[pair[0]] = pair[1]
+    end for
+    AssertEqual(RegionChoiceFor(snapshot), "", "a profile that follows the device chooses nothing")
+    AssertEqual(RegionChoiceFor(invalid), "", "no registry, no choice")
+    snapshot.effective["region.locale"] = "en-GB"
+    snapshot.effective["region.hourCycle"] = "h23"
+    AssertEqual(RegionChoiceFor(snapshot), "en-GB|h23", "a language and a clock; a stored time zone is not read")
+    snapshot.effective["region.locale"] = "a|b"
+    AssertEqual(RegionChoiceFor(snapshot), "|h23", "a value that would break the form is left out")
+    ' The profile's language is looked up before the device's words.
+    globals = GetGlobalAA()
+    globals.messageCatalogue = { "saved.tab.favorites": "Favorites", "action.play": "Play" }
+    AssertEqual(T("saved.tab.favorites"), "Favorites", "the device's words without a choice")
+    globals.regionFixed = "en-GB|"
+    AssertEqual(T("saved.tab.favorites"), "Favourites", "British spelling for a profile that chose it")
+    AssertEqual(T("action.play"), "Play", "a word that is the same everywhere comes from the device")
+    globals.regionFixed = "en-US|"
+    AssertEqual(T("saved.tab.favorites"), "Favorites", "American spelling for a profile that chose it")
+    globals.regionFixed = "|h23"
+    AssertEqual(T("saved.tab.favorites"), "Favorites", "a clock choice changes no words")
+    AssertTrue(not FormatRegion().hour12, "but the clock is the profile's")
+    globals.regionFixed = invalid
+    globals.formatRegion = invalid
+    globals.formatRegionFor = invalid
+    globals.messageCatalogue = invalid
+    AssertEqual(LocaleWords("fr-FR"), invalid, "a locale the catalogue does not have")
+end sub

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/screens/HomeRow.tsx: a Home row's See all, the whole row as a paged grid. -->
+<component name="ScreenHomeRow" extends="Group">
+    <interface>
+        <!-- {rowId, title} -->
+        <field id="route" type="assocarray" />
+        <function name="enter" />
+        <function name="resume" />
+        <function name="leave" />
+        <function name="focusEntry" />
+    </interface>
+</component>

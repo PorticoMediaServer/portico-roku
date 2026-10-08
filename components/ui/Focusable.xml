@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Focusable.tsx: the one interaction primitive (focus, press, ring, scale). -->
+<component name="UiFocusable" extends="Group">
+    <interface>
+        <!-- Takes part in focus by geometry (source/ui/Focus.bs). -->
+        <field id="focusable" type="boolean" value="true" />
+        <field id="disabled" type="boolean" value="false" onChange="onFocusableState" />
+        <!-- Working: stays focusable, ignores presses, looks unavailable. -->
+        <field id="busy" type="boolean" value="false" onChange="onFocusableState" />
+        <field id="controlWidth" type="float" value="0" onChange="onFocusableSize" />
+        <field id="controlHeight" type="float" value="0" onChange="onFocusableSize" />
+        <!-- Corner radius used for the focus ring so it hugs the child's shape. -->
+        <field id="radius" type="float" value="0" onChange="onFocusableSize" />
+        <!-- Overrides the platform focus scale (1 disables). -->
+        <field id="focusScale" type="float" value="0" />
+        <field id="ring" type="boolean" value="true" />
+        <field id="isFocused" type="boolean" value="false" />
+        <field id="isPressed" type="boolean" value="false" />
+        <field id="pressed" type="boolean" value="false" alwaysNotify="true" />
+        <!-- The remote's * key on this control (Apple: a long press). -->
+        <field id="menuRequested" type="boolean" value="false" alwaysNotify="true" />
+        <field id="focusWidth" type="float" value="0" />
+        <!-- Inside a list that holds focus itself (a grid of rows): the list's focus, 0 to 1. -->
+        <field id="focusProgress" type="float" value="-1" onChange="onFocusableDriven" />
+        <field id="focusHeight" type="float" value="0" />
+    </interface>
+</component>

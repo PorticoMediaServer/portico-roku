@@ -1,0 +1,474 @@
+' apps/native/src/screens/Entity.tsx. An entity page on the shared hero (Spec — Title Pages §1),
+' filled per type:
+' - Album / disc: square art; the artist above the title as a link; "type · year · N songs ·
+'   length"; Play · Shuffle · Favorite · ⋯; the tracks as a numbered list that plays from the
+'   track pressed; other discs as chips. Music has no "watched".
+' - Artist: a circular hero; counts, country and active years; Play · Shuffle · Favorite · ⋯; the
+'   five most played, its songs as a list, its releases by type as square cards.
+' - Audiobook: "Author · Series · N chapters · length · Finished / Not started"; Resume {chapter}
+'   from the server's resume point, else Play; My List · Favorite · Finished · ⋯; the chapters
+'   (or, without chapters, the book's parts).
+' - Author, book series, collection, category: the hero and the server's sections.
+'
+' On Playback v1 an album, artist, disc, collection or book plays as one server request from the
+' pressed entry; the entries on the page are what a failed request falls back to.
+'
+' Difference from the Apple TV app: a list longer than its first page grows by "Show more" (the
+' Apple list is windowed); its cost follows what the viewer asked for.
+import "pkg:/source/core/TitleReaders.bs"
+import "pkg:/components/screens/title/Common.bs"
+import "pkg:/components/screens/title/Container.bs"
+
+sub init()
+    m.width = Theme.screen.width - Theme.metrics.railWidth
+    m.page = m.top.createChild("UiPage")
+    m.page.pageWidth = m.width
+    m.hero = m.page.body.createChild("TitleHero")
+    m.hero.heroWidth = m.width
+    m.hero.observeField("pressed", "onEntityHero")
+    m.below = m.page.body.createChild("Group")
+    m.data = invalid
+    m.content = invalid
+    m.task = invalid
+    m.moreTasks = {}
+    m.shelves = []
+    m.claimed = false
+    m.generation = 0
+end sub
+
+sub enter()
+    hero = { loading: true }
+    if m.top.route.title <> invalid then hero.title = m.top.route.title
+    m.hero.content = hero
+    m.page.contentHeight = Theme.screen.height
+    EntityLoad()
+end sub
+
+sub resume()
+    if m.task = invalid and m.data <> invalid then
+        EntityLoad()
+        ContainerRead()
+    end if
+end sub
+
+sub leave()
+    m.task = invalid
+    m.moreTasks = {}
+end sub
+
+sub focusEntry()
+    if m.hero.callFunc("focusPrimary") then
+        m.page.callFunc("follow")
+    else if not m.page.callFunc("focusEntry") then
+        m.top.setFocus(true)
+    end if
+end sub
+
+function EntityServerId() as string
+    viewer = m.global.session.viewer
+    if viewer = invalid or viewer.serverId = invalid then return ""
+    return viewer.serverId
+end function
+
+function EntityRoute() as object
+    route = m.top.route
+    return { libraryId: route.libraryId, view: route.view, entityId: route.entityId }
+end function
+
+sub EntityLoad()
+    m.generation = m.generation + 1
+    m.moreTasks = {}
+    asked = EntityRoute()
+    title = ""
+    if m.top.route.title <> invalid then title = m.top.route.title
+    m.task = ApiStart({ path: ContentPath(asked), reader: "entity", context: { origin: ViewerOrigin(), serverId: EntityServerId(), route: asked, title: title } }, "onEntityLoaded")
+end sub
+
+sub onEntityLoaded(event as object)
+    task = event.getRoSGNode()
+    if m.task = invalid or not task.isSameNode(m.task) then return
+    m.task = invalid
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        if m.data <> invalid then return
+        m.hero.visible = false
+        m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+        TitleFailure(m.below, result.error, "library", Theme.apple.pageTopInset)
+        m.page.contentHeight = Theme.screen.height
+        EntityClaim()
+        return
+    end if
+    first = m.data = invalid
+    m.data = result.value
+    m.content = task.content
+    m.hero.visible = true
+    if first and m.data.containerKind <> "" then ContainerLoad(m.data.containerKind, m.data.entity.id)
+    EntityHero()
+    EntityBelow()
+    EntityClaim()
+end sub
+
+sub EntityClaim()
+    if m.claimed then return
+    m.claimed = true
+    NavClaimFocus()
+end sub
+
+sub onTitleRetry()
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    m.hero.visible = true
+    EntityLoad()
+end sub
+
+sub onContainerChanged()
+    if m.data <> invalid then EntityHero()
+end sub
+
+' A book marked finished (or not): the page is read again.
+sub onContainerSaved(watched as boolean)
+    ContainerRead()
+    EntityLoad()
+end sub
+
+sub EntityHero()
+    data = m.data
+    hero = {}
+    hero.append(data.hero)
+    state = m.containerState
+    kind = data.kind
+    parts = []
+    parts.append(data.hero.factParts)
+    ' "Finished", "Not started" or "2 finished, 5 remaining" closes a book's facts.
+    if data.isBook and state <> invalid and state.watchedCount <> invalid and state.unwatchedCount <> invalid then
+        if state.watchedCount + state.unwatchedCount <= 1 then
+            if state.watchedCount > 0 then
+                parts.push(T("title.finished"))
+            else if not data.hasResume then
+                parts.push(T("title.notStarted"))
+            end if
+        else
+            parts.push(T("title.finishedCount", { finished: state.watchedCount, remaining: state.unwatchedCount }))
+        end if
+    end if
+    hero.facts = FactsLine(parts)
+    if data.plan.mode <> "" then hero.primary = { label: data.plan.label, icon: "play" }
+    actions = []
+    if data.plan.shuffle then actions.push({ id: "shuffle", icon: "shuffle", label: T("title.shuffle"), selected: false })
+    if state <> invalid then
+        if ContainerCarries(kind, "watchlisted") then
+            if state.watchlisted then
+                actions.push({ id: "watchlist", icon: "bookmarkFilled", label: T("entry.removeFromWatchlist"), selected: true })
+            else
+                actions.push({ id: "watchlist", icon: "bookmark", label: T("entry.addToWatchlist"), selected: false })
+            end if
+        end if
+        if ContainerCarries(kind, "favorite") then
+            if state.favorite then
+                actions.push({ id: "favorite", icon: "heartFilled", label: T("entry.removeFromFavorites"), selected: true })
+            else
+                actions.push({ id: "favorite", icon: "heart", label: T("entry.addToFavorites"), selected: false })
+            end if
+        end if
+        if data.isBook then
+            if state.watched then
+                actions.push({ id: "finished", icon: "watched", label: T("title.markNotFinished"), selected: true })
+            else
+                actions.push({ id: "finished", icon: "check", label: T("title.markFinished"), selected: false })
+            end if
+        end if
+    end if
+    if data.containerKind <> "" then actions.push({ id: "more", icon: "more", label: T("title.moreActions"), selected: false })
+    hero.actions = actions
+    m.hero.content = hero
+end sub
+
+function EntityContainer(shuffle as boolean) as dynamic
+    if m.data.entity = invalid then return invalid
+    container = { kind: m.data.kind, id: m.data.entity.id }
+    if shuffle then container.shuffle = true
+    return container
+end function
+
+sub EntityPlay(queue as object, index as integer, container as dynamic)
+    playable = []
+    for at = index to queue.count() - 1
+        if queue[at].playback <> invalid then playable.push(queue[at])
+    end for
+    if playable.count() = 0 then return
+    request = { itemId: playable[0].playback.itemId, startSeconds: 0, entry: playable[0], queue: playable, index: 0 }
+    if container <> invalid then request.container = container
+    scene = m.top.getScene()
+    if scene <> invalid then scene.callFunc("play", request)
+end sub
+
+sub onEntityHero()
+    id = m.hero.pressed
+    data = m.data
+    if data = invalid then return
+    plan = data.plan
+    state = m.containerState
+    if id = "primary" then
+        if plan.mode = "queue" then
+            EntityPlay(plan.queue, 0, EntityContainer(false))
+        else if plan.mode <> "" then
+            PlayItem(plan.itemId, plan.startSeconds, plan.entry)
+        end if
+    else if id = "shuffle" then
+        EntityPlay(plan.queue, 0, EntityContainer(true))
+    else if id = "watchlist" then
+        if state <> invalid then ContainerSetFlag("watchlisted", not state.watchlisted)
+    else if id = "favorite" then
+        if state <> invalid then ContainerSetFlag("favorite", not state.favorite)
+    else if id = "finished" then
+        if state <> invalid then ContainerSetWatched(not state.watched)
+    else if id = "eyebrow" then
+        artist = data.entity.artist
+        if artist <> invalid then NavPush("ScreenEntity", { libraryId: m.top.route.libraryId, view: "artist", entityId: artist.id, title: artist.name })
+    else if id = "more" then
+        entry = {}
+        entry.append(data.entity)
+        if entry.libraryId = invalid then entry.libraryId = m.top.route.libraryId
+        if entry.navigation = invalid then entry.navigation = { view: m.top.route.view, entityId: m.top.route.entityId }
+        OpenEntry(entry, "more", m.top.route.libraryId, "page")
+    end if
+end sub
+
+' Everything under the hero, in the page's order.
+sub EntityBelow()
+    m.below.removeChildrenIndex(m.below.getChildCount(), 0)
+    m.shelves = []
+    data = m.data
+    y = m.hero.heroHeight
+    page = Theme.space.page
+    blocks = data.blocks
+    for index = 0 to blocks.count() - 1
+        block = blocks[index]
+        items = m.content.getChild(index)
+        if block.type = "chips" then
+            x = page
+            rowHeight = 0
+            for each entry in block.entries
+                chip = m.below.createChild("UiChip")
+                chip.addFields({ entry: entry })
+                if entry.kind = "author" then chip.icon = "person"
+                if entry.kind = "book_series" then chip.icon = "book"
+                chip.label = entry.title
+                chip.observeField("pressed", "onEntityChip")
+                if x > page and x + chip.controlWidth > m.width - page then
+                    x = page
+                    y = y + rowHeight + Theme.spec.chip.barGap
+                end if
+                Place(chip, x, y)
+                x = x + chip.controlWidth + Theme.spec.chip.barGap
+                rowHeight = chip.controlHeight
+            end for
+            y = y + rowHeight + Theme.space.lg
+        else if block.type = "tracks" then
+            y = y + EntityTracks(block, items, index, y)
+        else if block.type = "shelf" then
+            shelf = TitleShelf(m.below, { kind: "section", title: block.title, shape: block.shape, titleLines: block.titleLines }, items, index)
+            shelf.observeField("endReached", "onEntityShelfEnd")
+            Place(shelf, 0, y)
+            y = y + shelf.shelfHeight
+            m.shelves.push(shelf)
+        end if
+    end for
+    y = y + TitleDetails(m.below, data.details, [], [], y)
+    if data.sectionCount = 0 then
+        state = m.below.createChild("UiStateView")
+        state.icon = IconFor(data.kind)
+        state.title = T("title.nothingHere")
+        state.stateWidth = m.width
+        Place(state, 0, y)
+        y = y + state.boundingRect().height
+    end if
+    m.page.contentHeight = y + Theme.space.xxxl
+    m.page.callFunc("refresh")
+end sub
+
+' A numbered list of playable rows (screens/title/TrackList.tsx). Returns its height.
+function EntityTracks(block as object, items as object, index as integer, top as dynamic) as float
+    page = Theme.space.page
+    y = top
+    if block.title <> "" then
+        heading = MakeText(m.below, "heading", "primary", block.title)
+        Place(heading, page, y)
+        y = y + heading.height + Theme.space.sm
+    end if
+    inset = page - Theme.space.sm
+    for at = 0 to items.getChildCount() - 1
+        item = items.getChild(at)
+        if at > 0 then
+            line = MakeRect(m.below, m.width - inset * 2 - Theme.space.sm * 2, 1, Theme.colors.line)
+            Place(line, inset + Theme.space.sm, y)
+            y = y + 1
+        end if
+        row = m.below.createChild("UiListRow")
+        row.addFields({ blockIndex: index, rowIndex: at })
+        row.media = item.artUri <> "" or item.icon <> ""
+        row.shape = item.shape
+        row.ordinal = item.ordinal
+        row.title = item.title
+        row.subtitle = item.caption
+        row.meta = item.meta
+        row.artUri = item.artUri
+        if item.icon <> "" then row.icon = item.icon
+        row.selected = block.highlightId <> invalid and item.entryId = block.highlightId
+        row.watched = item.watched
+        row.disabled = item.disabled
+        row.rowWidth = m.width - inset * 2
+        row.observeField("pressed", "onEntityRow")
+        row.observeField("menuRequested", "onEntityRowMenu")
+        Place(row, inset, y)
+        y = y + row.rowHeight
+    end for
+    if block.nextCursor <> invalid and block.nextCursor <> "" then
+        more = m.below.createChild("UiButton")
+        more.addFields({ blockIndex: index })
+        more.variant = "secondary"
+        more.label = T("action.showMore")
+        more.loading = m.moreTasks.doesExist(index.toStr())
+        more.observeField("pressed", "onEntityMore")
+        Place(more, (m.width - more.controlWidth) / 2, y + Theme.space.md)
+        y = y + Theme.space.md + more.controlHeight
+    end if
+    return y - top + Theme.space.xl
+end function
+
+function EntityBlockEntries(index as integer) as object
+    out = []
+    items = m.content.getChild(index)
+    for each item in items.getChildren(-1, 0)
+        out.push(item.entry)
+    end for
+    return out
+end function
+
+' Pressing a row plays from it: an album or an artist as one request from that track, a chapter
+' from its own start, the five most played as their own short list.
+sub onEntityRow(event as object)
+    row = event.getRoSGNode()
+    block = m.data.blocks[row.blockIndex]
+    entries = EntityBlockEntries(row.blockIndex)
+    entry = entries[row.rowIndex]
+    if block.mode = "chapters" then
+        if entry.playback = invalid then return
+        start = 0
+        if entry.playback.startSeconds <> invalid then start = entry.playback.startSeconds
+        PlayItem(entry.playback.itemId, start, entry)
+    else if block.mode = "popular" then
+        EntityPlay(entries, row.rowIndex, invalid)
+    else if entry.playback <> invalid then
+        EntityPlay(entries, row.rowIndex, EntityContainer(false))
+    else
+        OpenEntry(entry, "open", m.top.route.libraryId)
+    end if
+end sub
+
+sub onEntityRowMenu(event as object)
+    row = event.getRoSGNode()
+    block = m.data.blocks[row.blockIndex]
+    if block.mode = "chapters" then return
+    entries = EntityBlockEntries(row.blockIndex)
+    OpenEntry(entries[row.rowIndex], "more", m.top.route.libraryId)
+end sub
+
+sub onEntityChip(event as object)
+    chip = event.getRoSGNode()
+    OpenEntry(chip.entry, "open", m.top.route.libraryId)
+end sub
+
+' The next page of a list or a row, by the section's own cursor, checked against the page it continues.
+sub EntityPage(index as integer, handler as string)
+    key = index.toStr()
+    block = m.data.blocks[index]
+    if m.moreTasks.doesExist(key) or block.nextCursor = invalid or block.nextCursor = "" then return
+    asked = EntityRoute()
+    context = { origin: ViewerOrigin(), serverId: EntityServerId(), route: asked, fence: { scope: m.data.scope, revision: m.data.revision }, sectionId: block.id, cursor: block.nextCursor, entity: m.data.entity }
+    if block.type = "tracks" then
+        context.mode = block.mode
+        if block.mode = "files" and block.id <> "files" then context.mode = "artist"
+        context.start = m.content.getChild(index).getChildCount()
+    else
+        context.shape = block.shape
+    end if
+    task = ApiStart({ path: ContentPath(asked, block.nextCursor), reader: "entity", context: context }, handler)
+    task.addFields({ generation: m.generation, blockIndex: index, cursor: block.nextCursor })
+    m.moreTasks[key] = task
+end sub
+
+sub onEntityMore(event as object)
+    button = event.getRoSGNode()
+    EntityPage(button.blockIndex, "onEntityPage")
+    button.loading = true
+end sub
+
+sub onEntityShelfEnd(event as object)
+    shelf = event.getRoSGNode()
+    EntityPage(shelf.sectionIndex, "onEntityPage")
+end sub
+
+sub onEntityPage(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation then return
+    key = task.blockIndex.toStr()
+    m.moreTasks.delete(key)
+    result = event.getData()
+    blocks = m.data.blocks
+    block = blocks[task.blockIndex]
+    if not result.ok or result.value.ok <> true then
+        code = ""
+        if result.ok then
+            code = result.value.code
+        else if result.error <> invalid and result.error.code <> invalid then
+            code = result.error.code
+        end if
+        ' The library changed under the viewer: the page is read again.
+        if code = "stale_continuation" or code = "invalid_cursor" then
+            EntityLoad()
+        else if block.type = "tracks" then
+            EntityBelow()
+        end if
+        return
+    end if
+    if block.nextCursor <> task.cursor then return
+    items = m.content.getChild(task.blockIndex)
+    fresh = task.content.getChild(0).getChildren(-1, 0)
+    count = items.getChildCount()
+    items.appendChildren(fresh)
+    block.nextCursor = result.value.nextCursor
+    blocks[task.blockIndex] = block
+    m.data.blocks = blocks
+    if block.type = "tracks" then
+        ' The list is drawn again with the new rows; focus goes to the first of them.
+        EntityBelow()
+        for each child in m.below.getChildren(-1, 0)
+            if child.hasField("blockIndex") and child.hasField("rowIndex") and child.blockIndex = task.blockIndex and child.rowIndex = count then
+                FocusOn(child)
+                m.page.callFunc("follow")
+            end if
+        end for
+    end if
+end sub
+
+sub onTitleShelfSelected(event as object)
+    shelf = event.getRoSGNode()
+    items = shelf.items
+    index = event.getData()
+    if items = invalid or index < 0 or index >= items.getChildCount() then return
+    OpenEntry(items.getChild(index).entry, "open", m.top.route.libraryId)
+end sub
+
+sub onTitleShelfMenu(event as object)
+    shelf = event.getRoSGNode()
+    items = shelf.items
+    index = event.getData()
+    if items = invalid or index < 0 or index >= items.getChildCount() then return
+    OpenEntry(items.getChild(index).entry, "more", m.top.route.libraryId)
+end sub
+
+sub onTitleShelfSeeAll()
+end sub
+
+sub onTitleGenre()
+end sub

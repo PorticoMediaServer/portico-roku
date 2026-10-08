@@ -1,0 +1,712 @@
+{
+ "facts": {
+  "studio": "Orion-Nova Productions",
+  "tagline": "It explodes like 12 sticks of dynamite!",
+  "releaseDate": "1957-04-10",
+  "originalTitle": "12 Angry Men"
+ },
+ "files": [
+  {
+   "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+   "path": "/Users/justin/PorticoDev/media/Movies/12 Angry Men (1957)/12 Angry Men (1957).mp4",
+   "size": 6727618,
+   "container": "mp4",
+   "duration": 45,
+   "bitRate": 1196020,
+   "available": true,
+   "video": {
+    "codec": "h264",
+    "width": 640,
+    "height": 360,
+    "dynamicRange": "sdr",
+    "frameRate": 24,
+    "bitDepth": 8,
+    "bitRate": 1127414
+   },
+   "audio": [
+    {
+     "language": "und",
+     "codec": "aac",
+     "channels": 1,
+     "channelLayout": "mono",
+     "bitRate": 64275,
+     "default": true
+    }
+   ],
+   "subtitles": []
+  }
+ ],
+ "related": {
+  "version": 1,
+  "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+  "libraryName": "Movies",
+  "rows": [
+   {
+    "id": "genre:nfo:baaca138e58e5148093fbf6aa38c925ca9824c6e80e330db7acbefb666b3667c",
+    "relation": "genre",
+    "provider": "nfo",
+    "evidenceId": "baaca138e58e5148093fbf6aa38c925ca9824c6e80e330db7acbefb666b3667c",
+    "heading": "More Drama movies",
+    "headingText": {
+     "code": "",
+     "fallback": "More Drama movies"
+    },
+    "entries": [
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "jYY0bqzSZAYSmDdF3rEWmA",
+      "kind": "movie",
+      "title": "The Godfather",
+      "subtitle": "1972",
+      "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:49.083Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+      }
+     }
+    ]
+   },
+   {
+    "id": "genre:tmdb:18",
+    "relation": "genre",
+    "provider": "tmdb",
+    "evidenceId": "18",
+    "heading": "More Drama movies",
+    "headingText": {
+     "code": "",
+     "fallback": "More Drama movies"
+    },
+    "entries": [
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "jYY0bqzSZAYSmDdF3rEWmA",
+      "kind": "movie",
+      "title": "The Godfather",
+      "subtitle": "1972",
+      "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:49.083Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "DZs2il2jVWj_ZdSIruE0nA",
+      "kind": "movie",
+      "title": "The Godfather Part II",
+      "subtitle": "1974",
+      "posterUrl": "/v1/metadata/item/DZs2il2jVWj_ZdSIruE0nA/art/poster?v=5b9396d9c07576d5c0f87516e3fc1989394fd2cd932fa5d8b3636e60ad71bb88&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:49.659Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "DZs2il2jVWj_ZdSIruE0nA"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "A-lx0HQACuybqDB5Cqr7ug",
+      "kind": "movie",
+      "title": "One Flew Over the Cuckoo's Nest",
+      "subtitle": "1975",
+      "posterUrl": "/v1/metadata/item/A-lx0HQACuybqDB5Cqr7ug/art/poster?v=ee1bf05e3b1acf2910a355ff600c084603bd1da8c5aa07439aa3c39bf6ebf8ce&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:34.012Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "A-lx0HQACuybqDB5Cqr7ug"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "ymnkJz8MBT73UVWYrkaXvg",
+      "kind": "movie",
+      "title": "Blade Runner",
+      "subtitle": "1982",
+      "posterUrl": "/v1/metadata/item/ymnkJz8MBT73UVWYrkaXvg/art/poster?v=b1f49507009159fb8dfb56e16775da54454ba9b8ddfcd3bb74c166739a27ceed&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:20.753Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "ymnkJz8MBT73UVWYrkaXvg"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "0Xu1HSbD_cjluhIbgoVBZQ",
+      "kind": "movie",
+      "title": "Grave of the Fireflies",
+      "subtitle": "1988",
+      "posterUrl": "/v1/metadata/item/0Xu1HSbD_cjluhIbgoVBZQ/art/poster?v=2a336d27fbbbd9ed6228fea2c8e16e2f316069c8c1d43a99cb9fe58dfce2856f&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:26.198Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "0Xu1HSbD_cjluhIbgoVBZQ"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "l_PaPfXC4nd4UMXjeuabsw",
+      "kind": "movie",
+      "title": "Parenthood",
+      "subtitle": "1989",
+      "posterUrl": "/v1/metadata/item/l_PaPfXC4nd4UMXjeuabsw/art/poster?v=0240e2b184383a87558dd48fdd001074a5173cea296b7220023fa414ef460f45&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:35.808Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "l_PaPfXC4nd4UMXjeuabsw"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "E98BeAQtDVbhDJFe9TQWCg",
+      "kind": "movie",
+      "title": "GoodFellas",
+      "subtitle": "1990",
+      "posterUrl": "/v1/metadata/item/E98BeAQtDVbhDJFe9TQWCg/art/poster?v=9a2d3d449519c4b93b28373f3ed263a99a00cde039334b2b8bcbca2c5edbbd09&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:25.569Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "E98BeAQtDVbhDJFe9TQWCg"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "dWQDKXgSQuZwdYI-NoZW4g",
+      "kind": "movie",
+      "title": "Schindler's List",
+      "subtitle": "1993",
+      "posterUrl": "/v1/metadata/item/dWQDKXgSQuZwdYI-NoZW4g/art/poster?v=338fafbdfa136d7998ab53f40a88edc8f745c9ab09996ea4da74dc315657664f&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:40.623Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "dWQDKXgSQuZwdYI-NoZW4g"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "iEY5eCPZtFWdz18iLP-UDg",
+      "kind": "movie",
+      "title": "Forrest Gump",
+      "subtitle": "1994",
+      "posterUrl": "/v1/metadata/item/iEY5eCPZtFWdz18iLP-UDg/art/poster?v=9228ebc4fc4e10adedf2f8e09cae0bfc3f53637cedd5af19c9687a3adef03b95&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:24.377Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "iEY5eCPZtFWdz18iLP-UDg"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "PLlWxmC9cTPbHRErW3agEQ",
+      "kind": "movie",
+      "title": "The Shawshank Redemption",
+      "subtitle": "1994",
+      "posterUrl": "/v1/metadata/item/PLlWxmC9cTPbHRErW3agEQ/art/poster?v=6483cdcf6c49f36a3e6c025a0b8c8ba1b1bf4192d5301087bee5a378867dbee2&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:55.060Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "PLlWxmC9cTPbHRErW3agEQ"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "2E4gInreHdz4hMk_d3Uybg",
+      "kind": "movie",
+      "title": "Three Colors: Red",
+      "subtitle": "1994",
+      "posterUrl": "/v1/metadata/item/2E4gInreHdz4hMk_d3Uybg/art/poster?v=2399f1b1a342d5f1e026bce97fb4765709f7746579846e4e5f37a72a4dd72c34&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:57.510Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "2E4gInreHdz4hMk_d3Uybg"
+      }
+     },
+     {
+      "watched": false,
+      "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+      "id": "6rqyygqysYESf3aTIXzSWQ",
+      "kind": "movie",
+      "title": "Titanic",
+      "subtitle": "1997",
+      "posterUrl": "/v1/metadata/item/6rqyygqysYESf3aTIXzSWQ/art/poster?v=78e3d69fce36891d24bcc6b2c57a3d4df434a02b75f37e5061859ef9985dffe9&w=400",
+      "available": true,
+      "duration": 45,
+      "progressSeconds": 0,
+      "addedAt": "2026-10-02T04:02:58.061Z",
+      "navigation": {
+       "view": "item",
+       "entityId": "6rqyygqysYESf3aTIXzSWQ"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+  "itemId": "FnVfQzincjaryvRl0TA1jw",
+  "viewerFence": "cf6d506c871f79f31e78d1a292ad64c3551f117e417c0f2fccd526b8ab93233e"
+ },
+ "revision": {
+  "catalog": 15383,
+  "viewer": 799
+ },
+ "item": {
+  "watched": true,
+  "addedAt": "2026-10-02T04:02:14.777Z",
+  "id": "FnVfQzincjaryvRl0TA1jw",
+  "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+  "title": "12 Angry Men",
+  "kind": "movie",
+  "year": 1957,
+  "duration": 45,
+  "overview": "The defense and the prosecution have rested and the jury is filing into the jury room to decide if a young Spanish-American is guilty or innocent of murdering his father. What begins as an open and shut case soon becomes a mini-drama of each of the jurors' prejudices and preconceptions about the trial, the accused, and each other.",
+  "posterUrl": "/v1/items/FnVfQzincjaryvRl0TA1jw/art/poster",
+  "backdropUrl": "/v1/items/FnVfQzincjaryvRl0TA1jw/art/backdrop",
+  "progressSeconds": 0,
+  "available": true,
+  "sources": [
+   {
+    "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "width": 640,
+    "height": 360,
+    "duration": 45
+   }
+  ]
+ },
+ "personal": {
+  "watched": true,
+  "progressSeconds": 0,
+  "lastPlayedAt": "2026-10-05T19:32:04.392Z",
+  "status": "current",
+  "conflicts": [],
+  "watchlisted": false,
+  "favorite": false,
+  "rating": null,
+  "revision": 20
+ },
+ "actions": [
+  {
+   "id": "watchlist",
+   "labelKey": "action.watchlist",
+   "enabled": true
+  },
+  {
+   "id": "favorite",
+   "labelKey": "action.favorite",
+   "enabled": true
+  },
+  {
+   "id": "rating",
+   "labelKey": "action.rating",
+   "enabled": true,
+   "min": 0.5,
+   "max": 5,
+   "step": 0.5
+  },
+  {
+   "id": "watched",
+   "labelKey": "action.watched",
+   "enabled": true
+  },
+  {
+   "id": "play",
+   "labelKey": "action.play",
+   "enabled": true,
+   "playback": {
+    "itemId": "FnVfQzincjaryvRl0TA1jw",
+    "startSeconds": 0
+   }
+  },
+  {
+   "id": "metadata_edit",
+   "labelKey": "action.metadata_edit",
+   "enabled": true
+  },
+  {
+   "id": "delete",
+   "labelKey": "action.unlink_item",
+   "enabled": true
+  },
+  {
+   "id": "add_to_playlist",
+   "labelKey": "action.add_to_playlist",
+   "enabled": true
+  },
+  {
+   "id": "add_to_collection",
+   "labelKey": "action.add_to_collection",
+   "enabled": true
+  },
+  {
+   "id": "metadata_refresh",
+   "labelKey": "action.metadata_refresh",
+   "enabled": true
+  }
+ ],
+ "metadata": {
+  "sources": [
+   {
+    "provider": "nfo",
+    "sourceUrl": "",
+    "observedAt": "2026-10-02T04:06:20Z"
+   },
+   {
+    "provider": "tmdb",
+    "sourceUrl": "https://www.themoviedb.org/movie/389",
+    "observedAt": "2026-10-02T04:06:21Z"
+   }
+  ],
+  "status": "available",
+  "ratings": [
+   {
+    "provider": "tmdb",
+    "value": 8.574,
+    "max": 10,
+    "votes": 10420,
+    "sourceUrl": "https://www.themoviedb.org/movie/389",
+    "observedAt": "2026-10-02T04:06:21Z"
+   }
+  ],
+  "genres": [
+   {
+    "id": "baaca138e58e5148093fbf6aa38c925ca9824c6e80e330db7acbefb666b3667c",
+    "name": "Drama",
+    "provider": "nfo"
+   },
+   {
+    "id": "18",
+    "name": "Drama",
+    "provider": "tmdb"
+   }
+  ],
+  "credits": [
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A1936&v=5363a9b421c2580c18329b8e4790073f61d2ec7368b56bcfec65ce5315ed6429",
+    "id": "1936:0",
+    "personId": "5d29d9d5d112cecb1996f10d7dc5e603",
+    "name": "Martin Balsam",
+    "role": "Juror 1",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5247&v=bfd94043521148ce57916312afbad2f377c166e13e3308b24d75071b6602c66d",
+    "id": "5247:1",
+    "personId": "9fe3b50588d66421b4a9e6487227f298",
+    "name": "John Fiedler",
+    "role": "Juror 2",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5248&v=0e7fd4de20e9130a4a5483165d5838936df5cc3031ad1cb9e712a07fd9abcaa7",
+    "id": "5248:2",
+    "personId": "32643a1fd74370ff1a2cc2be467fa9bc",
+    "name": "Lee J. Cobb",
+    "role": "Juror 3",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5249&v=3dc740c70686961d138317ccad15ce8d33b2dcf3fe08843046251cf55eb465f1",
+    "id": "5249:3",
+    "personId": "20e35fc7c755a2b25314dd470ee21c29",
+    "name": "E.G. Marshall",
+    "role": "Juror 4",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5250&v=1880c25723351a7410c6871e2507dad6c66e63c2201ee1b4d1ff55f95e5eb75a",
+    "id": "5250:4",
+    "personId": "20dc532d04059f79e2440e7fdbe04f27",
+    "name": "Jack Klugman",
+    "role": "Juror 5",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A2651&v=b3573f3ea6831df767b5eb6a5ced4465354ff502138cd04c11c14b5c0b8b182e",
+    "id": "2651:5",
+    "personId": "8ef877dc6a78abe2b27669f69f2adcbd",
+    "name": "Edward Binns",
+    "role": "Juror 6",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5251&v=df899c35ba617b81ca604114feb02206f89f1a051499c560865c2f9991c517be",
+    "id": "5251:6",
+    "personId": "460dec273300f26bcfcc92230f24cdc5",
+    "name": "Jack Warden",
+    "role": "Juror 7",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A4958&v=a73c93c53d06f59156ef6202878737fb6782de3d06ecb8f118e18d256cb61770",
+    "id": "4958:7",
+    "personId": "96e13f1498b355b5a6b111fbd2d8bb8a",
+    "name": "Henry Fonda",
+    "role": "Juror 8",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5252&v=380b2fb3e427d9f77fa3c903c416814c03292e48b0336eaf80d1d458988d2943",
+    "id": "5252:8",
+    "personId": "51c896f3399098d22ef4aae46ea897b9",
+    "name": "Joseph Sweeney",
+    "role": "Juror 9",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A39816&v=fb7aebe2263cf79ed64319309427860e5b2afc8c417b79d4c8cd00d6cd736e7e",
+    "id": "39816:9",
+    "personId": "a81e3267b71e100ad9dc5e8527384098",
+    "name": "Ed Begley",
+    "role": "Juror 10",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5254&v=59d0fee86bd70b289cfdf11f36ca4586309e2110f719937a75520b9426c1593a",
+    "id": "5254:10",
+    "personId": "f79231d5660eb6dc9db2cc7e150bd0f6",
+    "name": "George Voskovec",
+    "role": "Juror 11",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A5255&v=84ef4a6e69e6b889e76c0b7b87ab581c0f8fc1651eca9903c4f80e657fe7c9e6",
+    "id": "5255:11",
+    "personId": "cfc80ef384762a7e2446904f913a969f",
+    "name": "Robert Webber",
+    "role": "Juror 12",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A3143&v=6ecbad8638e7246b0c32ab7689262f0b6b4a6dcc431f1c1d8985abe5c1564898",
+    "id": "3143:12",
+    "personId": "842ad9ab28083ebb30b92f53b5d71fe5",
+    "name": "Rudy Bond",
+    "role": "Judge (uncredited)",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "2498394:13",
+    "personId": "43261f3897cb2c69f94097e180909630",
+    "name": "Tom Gorman",
+    "role": "Stenographer (uncredited)",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "1437464:14",
+    "personId": "3ffd4bbf0b61922e5634806dc58e09c7",
+    "name": "James Kelly",
+    "role": "Guard (uncredited)",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "5257:15",
+    "personId": "b44a32dd33c2f803ab737a380883f96c",
+    "name": "Billy Nelson",
+    "role": "Court Clerk (uncredited)",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "153394:16",
+    "personId": "a3b9b75a864263eab6caf6a79563a872",
+    "name": "Walter Stocker",
+    "role": "Man Waiting for Elevator (uncredited)",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "5892050:17",
+    "personId": "9ad4aed3557771777467f69dd4c3b41e",
+    "name": "John Savoca",
+    "role": "Defendant (uncredited)",
+    "department": "Acting",
+    "provider": "tmdb"
+   },
+   {
+    "id": "13cea1d084ed26c58d65fa3ad8302a0f43969daa18d130cdcb43db2dfbd86e26:0",
+    "name": "Martin Balsam",
+    "role": "Juror 1",
+    "department": "Acting",
+    "provider": "nfo"
+   },
+   {
+    "id": "a3e6ec6c58f259404bcbe502b2a33ace4cbb8a1de559984e225e3e6a731c0753:1",
+    "name": "John Fiedler",
+    "role": "Juror 2",
+    "department": "Acting",
+    "provider": "nfo"
+   },
+   {
+    "id": "a1773e5b1da44b573e479978f99add43e7ecd2cb4cc6dea6338b381f8bae9f08:2",
+    "name": "Lee J. Cobb",
+    "role": "Juror 3",
+    "department": "Acting",
+    "provider": "nfo"
+   },
+   {
+    "id": "406271657f0f171906e1506bc2814e85606525bd03646e5daf0f25f6b74c1b68:3",
+    "name": "E.G. Marshall",
+    "role": "Juror 4",
+    "department": "Acting",
+    "provider": "nfo"
+   },
+   {
+    "id": "b7b1a126aee7347bfc4fe19e212bea205656153025b5d2a8ab523c99c7b517e1:4",
+    "name": "Jack Klugman",
+    "role": "Juror 5",
+    "department": "Acting",
+    "provider": "nfo"
+   },
+   {
+    "id": "9c88e1d1ded64581574f2a79398d03ce6aefe0c6091623037c883c95b18a9020:5",
+    "name": "Edward Binns",
+    "role": "Juror 6",
+    "department": "Acting",
+    "provider": "nfo"
+   },
+   {
+    "id": "5261:22",
+    "personId": "ef3dff4f83aedf9fcc5c1e9aa1ff53f8",
+    "name": "Boris Kaufman",
+    "role": "Director of Photography",
+    "department": "Camera",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A39996&v=fbba7727c1fee25d30022496fb640026055998b47e2a40201dd9439e13af319e",
+    "id": "39996:31",
+    "personId": "31cf00725602ff88307ee10a59f2af5d",
+    "name": "Sidney Lumet",
+    "role": "Director",
+    "department": "Directing",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A1076666&v=4d3a1a93498e0a76eed7de7242dc0824c0ddff629670348223eab25260992657",
+    "id": "1076666:32",
+    "personId": "669a4a6cc5ad04235822452877c3bf01",
+    "name": "Faith Hubley",
+    "role": "Script Supervisor",
+    "department": "Directing",
+    "provider": "tmdb"
+   },
+   {
+    "id": "1437471:33",
+    "personId": "a489ada7e304be761956e9f4bf649f61",
+    "name": "Don Kranze",
+    "role": "Assistant Director",
+    "department": "Directing",
+    "provider": "tmdb"
+   },
+   {
+    "id": "5246:18",
+    "personId": "5f35720b6fb535f538bc107f2aa3e8e5",
+    "name": "Reginald Rose",
+    "role": "Screenplay",
+    "department": "Writing",
+    "provider": "tmdb"
+   },
+   {
+    "id": "5260:21",
+    "personId": "0ec5b3973ea8ba3d98cce21389b87341",
+    "name": "Kenyon Hopkins",
+    "role": "Original Music Composer",
+    "department": "Sound",
+    "provider": "tmdb"
+   },
+   {
+    "portraitUrl": "/v1/metadata/item/FnVfQzincjaryvRl0TA1jw/art/portrait?size=thumbnail&subject=tmdb%3A4958&v=a73c93c53d06f59156ef6202878737fb6782de3d06ecb8f118e18d256cb61770",
+    "id": "4958:19",
+    "personId": "96e13f1498b355b5a6b111fbd2d8bb8a",
+    "name": "Henry Fonda",
+    "role": "Producer",
+    "department": "Production",
+    "provider": "tmdb"
+   },
+   {
+    "id": "5259:27",
+    "personId": "56dc452013aebc73f25758154473e3af",
+    "name": "George Justin",
+    "role": "Associate Producer",
+    "department": "Production",
+    "provider": "tmdb"
+   }
+  ],
+  "creditTotals": {
+   "cast": 28,
+   "crew": 16
+  },
+  "attributions": [
+   "This product uses the TMDB API but is not endorsed or certified by TMDB."
+  ]
+ },
+ "markers": []
+}

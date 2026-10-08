@@ -1,0 +1,80 @@
+' The guide against the real TypeScript (scripts/golden.mjs `guide`): channel-guide.ts over made
+' guides (the development server has no sources) and what it serves for none.
+import "pkg:/source/core/Guide.bs"
+
+sub Test_Guide_parse()
+    fixture = TestFixture("golden/guide.json")
+    if fixture = invalid then return
+    for each item in fixture.cases
+        parsed = ParseChannelGuide(item.document, item.serverId, item.route)
+        AssertEqual(parsed.ok, item.ok, "the guide, " + item.name)
+        if parsed.ok and item.ok then
+            parsed.delete("ok")
+            AssertSame(parsed, item.expected, "what the guide holds, " + item.name)
+        end if
+    end for
+    AssertTrue(not ParseChannelGuide(invalid, "s", { kind: "live-source", start: "", "end": "", timezone: "UTC" }).ok, "no document")
+    for each item in fixture.windows
+        AssertSame(GuideWindow(item.seconds), item.window, "the window around " + GuideIso(item.seconds))
+    end for
+    route = GuideRouteNow("live-source", fixture.now)
+    AssertEqual(GuidePath(route, ""), "/v1/guide?kind=live-source&start=2026-10-03T08%3A00%3A00Z&end=2026-10-03T11%3A00%3A00Z&timezone=UTC&search=&sourceId=&limit=30&cursor=", "the first page of what is on now")
+    route.group = "News"
+    AssertEqual(GuidePath(route, "c 2", 1), "/v1/guide?kind=live-source&start=2026-10-03T08%3A00%3A00Z&end=2026-10-03T11%3A00%3A00Z&timezone=UTC&search=&sourceId=&limit=1&cursor=c%202&group=News", "a group, from a cursor")
+    for each item in fixture.ids
+        AssertEqual(ChannelSessionBody({ id: item.ref.channelId, sourceId: item.ref.sourceId, provenance: item.ref.kind, generation: item.ref.generation })["channelId"], item.id, "the id a " + item.ref.kind + " channel is tuned by")
+    end for
+    for each item in fixture.sessions
+        parsed = ParseChannelSession(item.document)
+        AssertEqual(parsed.ok, item.ok, "a tuned channel's session, " + item.name)
+        if parsed.ok and item.ok then
+            s = parsed.session
+            out = { id: s.id, revision: s.revision, state: s.state, generation: s.presentation.generation, url: s.presentation.url, ready: ChannelStreamReady(s), ended: s.ended, linear: s.linear }
+            AssertSame(out, item.expected, "what the channel's session holds, " + item.name)
+        end if
+    end for
+    AssertSame(ChannelJoinBody("playing", "k1"), { state: "playing", seek: { id: "k1", positionMs: 0, live: true } }, "joining is a go-live seek")
+    AssertEqual(ChannelIfMatch({ revision: "3" }), Chr(34) + "3" + Chr(34), "a change is made against the quoted revision")
+    AssertEqual(ChannelEndFailure({ endReason: "terminated", endMessage: "Bedtime." }).said, "Bedtime.", "an owner's message is what is said")
+    AssertTrue(ChannelPollIsFinal(404) and ChannelPollIsFinal(410) and not ChannelPollIsFinal(503) and not ChannelPollIsFinal(invalid), "a session that is gone ends the channel; a server that is busy does not")
+    AssertEqual(ChannelEndFailure({ endReason: "feature_restricted" }).code, "feature_restricted", "a profile without Live TV")
+    AssertEqual(ChannelEndFailure({}).code, "session_ended", "any other end")
+    AssertEqual(ChannelNowTitle({ linear: { programme: { title: "Dune" } } }), "Dune", "what is on")
+    AssertEqual(ChannelNowTitle({}), "", "nothing known to be on")
+    AssertEqual(GuideInstant("2026-10-03T08:00:00.5Z"), GuideInstant("2026-10-03T08:00:00Z"), "an instant with a fraction")
+    AssertEqual(GuideInstant("2026-13-03T08:00:00Z"), invalid, "a month that does not exist")
+end sub
+
+sub Test_Guide_rows()
+    fixture = TestFixture("golden/guide.json")
+    if fixture = invalid then return
+    GetGlobalAA().messageCatalogue = { "guide.range": "{start} – {end}", "guide.minutesLeft": "{count, plural, one {# min left} other {# min left}}", "guide.timeLeft": "{time} left", "guide.next": "Next: {title} at {time}", "guide.noInformation": "No information", "duration.hoursMinutes": "{hours}h {minutes}m", "duration.hours": "{hours}h", "duration.minutes": "{minutes}m" }
+    live = fixture.cases[0]
+    guide = ParseChannelGuide(live.document, live.serverId, live.route)
+    AssertTrue(guide.ok, "the made guide is read")
+    if not guide.ok then return
+    one = guide.channels[0]
+    on = ChannelNow(one, fixture.now)
+    AssertEqual(on.current.title, "Morning News", "what is on now")
+    AssertEqual(on.upcoming.title, "Weather", "what is next")
+    row = ChannelRow(one, fixture.now)
+    AssertEqual(row.title, "One", "a channel's name")
+    AssertEqual(row.meta, "1.1", "and its number")
+    AssertTrue(Instr(1, row.subtitle, "Morning News · 10 min left") = 1, "what is on, and how long is left")
+    AssertTrue(Instr(1, row.subtitle, "Next: Weather at ") > 0, "and what follows")
+    AssertTrue(row.progress > 0.83 and row.progress < 0.84, "how far through it is")
+    AssertEqual(ChannelRow(guide.channels[1], fixture.now).subtitle, "No information", "a channel without a schedule says so")
+    late = ChannelNow(one, fixture.now + 5400)
+    AssertEqual(late.current, invalid, "nothing is on in a gap")
+    AssertEqual(late.upcoming.title, "Late", "but something follows")
+    AssertEqual(GuideTimeLeft(30), "1 min left", "never less than a minute")
+    AssertEqual(GuideTimeLeft(7620), "2h 7m left", "past an hour")
+    AssertEqual(GuideHasChannels({ ok: true, value: { guide: { state: "no-sources", sources: [], channels: [] } } }), false, "a server that says it has no sources")
+    AssertEqual(GuideHasChannels({ ok: true, value: { guide: { state: "ready", sources: [{}], channels: [] } } }), true, "a server with a source")
+    AssertEqual(GuideHasChannels({ ok: false, status: 404 }), false, "a server without the feature")
+    AssertEqual(GuideHasChannels({ ok: false, status: 503 }), invalid, "a server that did not answer is not known")
+    entries = GuideSourceEntries([{ id: "s1", name: "Antenna" }, { id: "", name: "Nameless" }, { name: "No id" }, "text"])
+    AssertSame(entries, [{ id: "live:s1", label: "Antenna", kind: "live-source", sourceId: "s1" }], "the sources a viewer can pick")
+    AssertEqual(GuideSourceEntries(invalid).count(), 0, "no sources")
+    GetGlobalAA().messageCatalogue = invalid
+end sub

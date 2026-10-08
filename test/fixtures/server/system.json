@@ -1,0 +1,11 @@
+{
+ "buildId": "development",
+ "builtAt": "",
+ "hostedAttached": false,
+ "hostedConfigured": false,
+ "id": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+ "name": "Dev server",
+ "setupRequired": false,
+ "sourceDigest": "unsealed",
+ "version": "0.1.0-dev"
+}

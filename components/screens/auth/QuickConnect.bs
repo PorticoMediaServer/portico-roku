@@ -1,0 +1,150 @@
+' apps/native/src/screens/auth/QuickConnect.tsx (TV-AUTH-01). The TV shows a code; someone already
+' signed in to that server approves it from Portico on their phone (Settings › Link a TV) or on
+' the web. The code is approved on this server, never on the account service: the QR link is the
+' server's own /device page (source/core/SetupCode.bs `ApprovalLink`). A password stays one press away.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/source/core/SetupCode.bs"
+
+sub init()
+    m.session = m.global.session
+    m.frame = m.top.createChild("AuthFrame")
+    m.frame.wide = true
+    m.frame.centered = true
+    m.frame.observeField("errorDismissed", "onQuickDismiss")
+    m.content = CreateObject("roSGNode", "Group")
+    m.panel = m.content.createChild("AuthCodePanel")
+    m.panel.qrSize = Theme.apple.quickConnectQr
+    m.panel.observeField("actionPressed", "onQuickRestart")
+    m.buttons = m.content.createChild("Group")
+    m.buttons.addFields({ boxWidth: 0, boxHeight: 0 })
+    m.retry = m.buttons.createChild("UiButton")
+    m.retry.variant = "primary"
+    m.retry.size = "lg"
+    m.retry.label = T("action.tryAgain")
+    m.retry.observeField("pressed", "onQuickRestart")
+    m.password = m.buttons.createChild("UiButton")
+    m.password.size = "lg"
+    m.password.label = T("quickConnect.usePassword")
+    m.password.observeField("pressed", "onQuickPassword")
+    m.state = { phase: "creating" }
+    m.failure = ""
+    m.task = invalid
+end sub
+
+sub enter()
+    QuickStart()
+    onQuickLayout()
+    m.frame.callFunc("focusContent", m.password)
+end sub
+
+sub QuickStart()
+    leave()
+    m.task = CreateObject("roSGNode", "SetupCodeTask")
+    m.task.mode = "server"
+    m.task.connection = m.session.connection
+    m.task.observeField("state", "onQuickState")
+    m.task.observeField("outcome", "onQuickOutcome")
+    m.task.control = "RUN"
+end sub
+
+sub leave()
+    if m.task <> invalid then
+        m.task.unobserveField("state")
+        m.task.unobserveField("outcome")
+        m.task.command = "stop"
+        m.task = invalid
+    end if
+end sub
+
+function back() as boolean
+    return false
+end function
+
+sub onQuickState()
+    if m.task = invalid then return
+    m.state = m.task.state
+    onQuickLayout()
+end sub
+
+sub onQuickOutcome()
+    if m.task = invalid then return
+    outcome = m.task.outcome
+    m.task = invalid
+    if outcome.ok then
+        m.session.callFunc("acceptOutcome", outcome)
+    else
+        ' A failed accept starts over with a new code instead of staying on "Approved, connecting".
+        m.session.callFunc("acceptOutcome", outcome)
+        m.failure = m.session.error
+        QuickStart()
+        onQuickLayout()
+    end if
+end sub
+
+sub onQuickRestart()
+    if m.task <> invalid then m.task.command = "restart"
+end sub
+
+sub onQuickLayout()
+    width = m.frame.contentWidth
+    state = m.state
+    connection = m.session.connection
+    origin = ""
+    if connection <> invalid then origin = connection.origin
+    host = FriendlyHost(origin)
+    if host = "" then host = T("quickConnect.yourServer")
+    code = ""
+    if state.userCode <> invalid then code = state.userCode
+    given = state.verificationUriComplete
+    if given = invalid then given = state.verificationUri
+    link = ""
+    if origin <> "" then link = ApprovalLink(origin, given, code)
+    m.frame.title = T("quickConnect.title", { host: host })
+    m.frame.lead = T("quickConnect.lede", { host: host })
+    problem = m.failure
+    failed = state.phase = "error"
+    if problem = "" and failed then problem = T("quickConnect.failed")
+    m.frame.error = problem
+
+    m.panel.panelWidth = width
+    m.panel.host = ""
+    m.panel.userCode = code
+    m.panel.link = link
+    if state.phase = "denied" then
+        m.panel.message = T("activation.declined")
+        m.panel.action = T("activation.getNewCode")
+    else if failed then
+        m.panel.message = T("quickConnect.noCode")
+        m.panel.action = ""
+    else
+        m.panel.message = T("quickConnect.gettingCode") + "…"
+        m.panel.action = ""
+    end if
+    m.panel.phase = state.phase
+
+    m.retry.visible = failed
+    m.retry.focusable = failed
+    m.password.variant = "primary"
+    if failed then m.password.variant = "secondary"
+    rowHeight = StackRow([m.retry, m.password], 0, Theme.space.md, width)
+    m.buttons.boxWidth = width
+    m.buttons.boxHeight = rowHeight
+    height = StackColumn([m.panel, m.buttons], 0, Theme.space.lg, width)
+    m.frame.callFunc("setContent", m.content, height)
+end sub
+
+sub onQuickDismiss()
+    m.failure = ""
+    onQuickLayout()
+end sub
+
+sub onQuickPassword()
+    leave()
+    m.top.passwordPressed = true
+end sub

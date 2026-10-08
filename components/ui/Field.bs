@@ -1,0 +1,142 @@
+' apps/native/src/ui/Field.tsx (componentSpec.field, television column). A label, then the box:
+' raised fill, a control border at rest, accent while focused, danger when invalid; the value (or
+' the placeholder in the placeholder colour; a secret as bullets, at most Theme.apple.fieldSecureMax),
+' then the error with its glyph, or the hint. On television a text field is a button: the remote
+' focuses it like any other control and pressing it brings up the system keyboard, Roku's
+' StandardKeyboardDialog (never a custom keyboard), tinted with the palette.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.labelNode = MakeText(m.top, Theme.spec.field.label.role, "secondary")
+    m.control = m.top.createChild("UiFocusable")
+    m.control.focusScale = Theme.apple.fieldFocusScale
+    m.fill = m.control.createChild("Poster")
+    m.border = m.control.createChild("Poster")
+    m.valueNode = MakeText(m.control, Theme.spec.field.text)
+    m.errorIcon = m.top.createChild("Poster")
+    m.noteNode = MakeText(m.top, Theme.spec.field.help.role, "tertiary")
+    m.noteNode.lines = 0
+    m.control.observeField("isFocused", "onFieldLayout")
+    m.control.observeField("pressed", "edit")
+    m.dialog = invalid
+end sub
+
+sub onFieldLayout()
+    width = m.top.fieldWidth
+    if width <= 0 then return
+    y = 0
+    label = m.top.label
+    m.labelNode.visible = label <> ""
+    if label <> "" then
+        m.labelNode.value = label
+        y = m.labelNode.height + Theme.spec.field.label.gap
+    end if
+    height = Theme.spec.field.height
+    radius = Theme.spec.field.radius
+    focused = m.control.isFocused
+    Place(m.control, 0, y)
+    m.control.radius = radius
+    m.control.controlWidth = width
+    m.control.controlHeight = height
+    m.control.disabled = not m.top.editable
+    fill = ThemeColor(Theme.spec.field.fill.rest)
+    border = ThemeColor(Theme.spec.field.border.rest)
+    if focused then
+        fill = ThemeColor(Theme.spec.field.fill.focus)
+        border = ThemeColor(Theme.spec.field.border.focus)
+    end if
+    if m.top.error <> "" then border = ThemeColor(Theme.spec.field.border.invalid_)
+    StyleShape(m.fill, width, height, radius, fill)
+    StyleRing(m.border, width, height, radius, Theme.spec.field.borderWidth, border)
+
+    ' A placeholder gives an example, never the field's identity again (PC-VISUAL §11.3).
+    placeholder = m.top.placeholder
+    if LCase(placeholder.trim()) = LCase(label.trim()) then placeholder = ""
+    value = m.top.value
+    shown = placeholder
+    m.valueNode.tint = ThemeColor(Theme.spec.field.placeholder)
+    if value <> "" then
+        shown = value
+        if m.top.secure then shown = String(Min(Len(value), Theme.apple.fieldSecureMax), "•")
+        m.valueNode.tint = Theme.colors.text
+    end if
+    m.valueNode.maxWidth = width - Theme.spec.field.paddingX * 2
+    m.valueNode.value = shown
+    Place(m.valueNode, Theme.spec.field.paddingX, (height - m.valueNode.height) / 2)
+    y = y + height
+
+    note = m.top.hint
+    isError = m.top.error <> ""
+    if isError then note = m.top.error
+    m.noteNode.visible = note <> ""
+    m.errorIcon.visible = isError
+    if note <> "" then
+        y = y + Theme.spec.field.label.gap
+        x = 0
+        if isError then
+            StyleIcon(m.errorIcon, Theme.spec.field.error.icon, Theme.metrics.iconSmall, Theme.colors.danger)
+            Place(m.errorIcon, 0, y)
+            x = Theme.metrics.iconSmall + Theme.space.xs
+            m.noteNode.tone = "danger"
+        else
+            m.noteNode.tone = "tertiary"
+        end if
+        m.noteNode.maxWidth = width - x
+        m.noteNode.value = note
+        Place(m.noteNode, x, y)
+        y = y + TextHeight(m.noteNode)
+    end if
+    m.top.fieldHeight = y
+end sub
+
+' Opens Roku's keyboard for this field.
+sub edit()
+    if not m.top.editable or m.dialog <> invalid then return
+    dialog = CreateObject("roSGNode", "StandardKeyboardDialog")
+    title = m.top.label
+    if title = "" then title = m.top.placeholder
+    dialog.title = title
+    dialog.text = m.top.value
+    dialog.buttons = [T("action.done"), T("action.cancel")]
+    domain = m.top.keyboard
+    if m.top.secure then domain = "password"
+    dialog.keyboardDomain = domain
+    if dialog.textEditBox <> invalid then dialog.textEditBox.secureMode = m.top.secure
+    palette = CreateObject("roSGNode", "RSGPalette")
+    palette.colors = {
+        DialogBackgroundColor: Theme.colors.overlaySurface
+        DialogTextColor: Theme.colors.text
+        DialogFocusColor: Theme.colors.focus
+        DialogFocusItemColor: Theme.colors.ink
+        DialogSecondaryTextColor: Theme.colors.textSecondary
+        DialogSecondaryItemColor: Theme.colors.textTertiary
+        DialogInputFieldColor: Theme.colors.raised
+        DialogKeyboardColor: Theme.colors.raised
+        DialogFootprintColor: Theme.colors.lineStrong
+    }
+    dialog.palette = palette
+    dialog.observeField("buttonSelected", "onFieldDialogButton")
+    dialog.observeField("wasClosed", "onFieldDialogClosed")
+    m.dialog = dialog
+    m.top.getScene().dialog = dialog
+end sub
+
+sub onFieldDialogButton()
+    if m.dialog = invalid then return
+    confirmed = m.dialog.buttonSelected = 0
+    text = m.dialog.text
+    m.dialog.close = true
+    if confirmed then
+        m.top.value = text
+        m.top.submitted = true
+    end if
+end sub
+
+sub onFieldDialogClosed()
+    m.dialog = invalid
+    m.control.setFocus(true)
+end sub

@@ -1,0 +1,80 @@
+{
+ "field": "genre",
+ "values": [
+  {
+   "value": "Adventure",
+   "label": "Adventure",
+   "count": 36
+  },
+  {
+   "value": "Science Fiction",
+   "label": "Science Fiction",
+   "count": 30
+  },
+  {
+   "value": "Action",
+   "label": "Action",
+   "count": 28
+  },
+  {
+   "value": "Drama",
+   "label": "Drama",
+   "count": 25
+  },
+  {
+   "value": "Comedy",
+   "label": "Comedy",
+   "count": 18
+  },
+  {
+   "value": "Thriller",
+   "label": "Thriller",
+   "count": 17
+  },
+  {
+   "value": "Animation",
+   "label": "Animation",
+   "count": 16
+  },
+  {
+   "value": "Family",
+   "label": "Family",
+   "count": 14
+  },
+  {
+   "value": "Fantasy",
+   "label": "Fantasy",
+   "count": 11
+  },
+  {
+   "value": "Crime",
+   "label": "Crime",
+   "count": 9
+  },
+  {
+   "value": "Romance",
+   "label": "Romance",
+   "count": 9
+  },
+  {
+   "value": "Horror",
+   "label": "Horror",
+   "count": 7
+  },
+  {
+   "value": "Mystery",
+   "label": "Mystery",
+   "count": 6
+  },
+  {
+   "value": "History",
+   "label": "History",
+   "count": 3
+  },
+  {
+   "value": "War",
+   "label": "War",
+   "count": 3
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Canvas.tsx `Backdrop`: an artwork backdrop under a consistent scrim. -->
+<component name="UiBackdrop" extends="Group">
+    <interface>
+        <field id="uri" type="string" value="" onChange="onBackdropSource" />
+        <field id="backdropWidth" type="float" value="0" onChange="onBackdropLayout" />
+        <field id="backdropHeight" type="float" value="0" onChange="onBackdropLayout" />
+        <field id="imageOpacity" type="float" value="1" />
+    </interface>
+</component>

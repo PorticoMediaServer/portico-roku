@@ -1,0 +1,1121 @@
+{
+ "scope": {
+  "serverId": "srv_sYPTLLc4JrdgxGT7qa-hruCRgrsLI5wkdDgUKZs2a5s",
+  "libraryId": "",
+  "libraryKind": "mixed",
+  "view": "search",
+  "entityId": "",
+  "viewerFence": "311a937957d33a6c97f5d2e554afe0923b9bc271036df1da0723fc31842faaed"
+ },
+ "revision": {
+  "catalog": 50170,
+  "viewer": 1525
+ },
+ "heading": {
+  "key": "search.title",
+  "fallback": "Search"
+ },
+ "query": {
+  "q": "the",
+  "sort": "relevance",
+  "direction": "desc",
+  "group": "",
+  "groups": [
+   "movies",
+   "shows",
+   "episodes",
+   "artists",
+   "albums",
+   "songs",
+   "books",
+   "people",
+   "live-tv"
+  ],
+  "libraryIds": [
+   "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+   "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec"
+  ],
+  "limit": 40,
+  "searchMode": "token_prefix",
+  "recorded": false
+ },
+ "groups": [
+  {
+   "id": "movies",
+   "title": "Movies",
+   "entityKind": "movie",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/oQUcYTbpK5t02B9iGwI_1w/art/backdrop?v=577cb66563b650cb0352a1195a92ba09e690406b4a509eabd43aac2690f82914&w=1920",
+     "id": "oQUcYTbpK5t02B9iGwI_1w",
+     "kind": "movie",
+     "title": "The Incredibles",
+     "posterUrl": "/v1/metadata/item/oQUcYTbpK5t02B9iGwI_1w/art/poster?v=b6f237f7a92bf326cb70b571a0e098958a35e7c5ab34156a998eaee2371d6b6e&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2004,
+     "addedAt": "2026-10-02T04:02:50.860Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "oQUcYTbpK5t02B9iGwI_1w"
+     },
+     "playback": {
+      "itemId": "oQUcYTbpK5t02B9iGwI_1w"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/kCxZzhYCNyBWfdpJn34zAA/art/backdrop?v=2e5b38aa113c771b2170a3c9bdf2f112b107639038f38616889efcef5dcc638a&w=1920",
+     "id": "kCxZzhYCNyBWfdpJn34zAA",
+     "kind": "movie",
+     "title": "The Matrix",
+     "posterUrl": "/v1/metadata/item/kCxZzhYCNyBWfdpJn34zAA/art/poster?v=b5be6208351cdb33adf9ffb02c1f8676143dc86c15da3f6fecaca2d4e7fcdf09&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1999,
+     "addedAt": "2026-10-02T04:02:53.237Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "kCxZzhYCNyBWfdpJn34zAA"
+     },
+     "playback": {
+      "itemId": "kCxZzhYCNyBWfdpJn34zAA"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/backdrop?v=01713ca725b58fd74807acf00d43c340d90bde9a58304af49ea9119d43b143f4&w=1920",
+     "id": "jYY0bqzSZAYSmDdF3rEWmA",
+     "kind": "movie",
+     "title": "The Godfather",
+     "posterUrl": "/v1/metadata/item/jYY0bqzSZAYSmDdF3rEWmA/art/poster?v=8f8bb7717b4bcd8788487c2acdda9b19d180995a3a375d8a7eb2b9ad1e27ead3&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1972,
+     "addedAt": "2026-10-02T04:02:49.083Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jYY0bqzSZAYSmDdF3rEWmA"
+     },
+     "playback": {
+      "itemId": "jYY0bqzSZAYSmDdF3rEWmA"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/iLqxit9xW6O-v9-cnshjbg/art/backdrop?v=26517e37e08f9af5b970c115787d009a3535e55aa20f68d5a12d0050668ae2ab&w=1920",
+     "id": "iLqxit9xW6O-v9-cnshjbg",
+     "kind": "movie",
+     "title": "The Odyssey",
+     "posterUrl": "/v1/metadata/item/iLqxit9xW6O-v9-cnshjbg/art/poster?v=e25fbc6e79bca041e27ddc65dfa562f6d7278dfdd01b098ef2c52a658a4d6ce8&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "addedAt": "2026-10-02T04:02:53.854Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "iLqxit9xW6O-v9-cnshjbg"
+     },
+     "playback": {
+      "itemId": "iLqxit9xW6O-v9-cnshjbg"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/cV7RBrFN52KA1vXPyvT3VQ/art/backdrop?v=75879060b342c384dce2dfb8b1f094748e31b595dc8a7661aa75b598daeb278e&w=1920",
+     "id": "cV7RBrFN52KA1vXPyvT3VQ",
+     "kind": "movie",
+     "title": "The Fix",
+     "posterUrl": "/v1/metadata/item/cV7RBrFN52KA1vXPyvT3VQ/art/poster?v=62add5e94e27b9ef6469ca6fffb1e223faa4e6b8dff308170204af173d4706fd&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2026,
+     "addedAt": "2026-10-02T04:02:48.443Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "cV7RBrFN52KA1vXPyvT3VQ"
+     },
+     "playback": {
+      "itemId": "cV7RBrFN52KA1vXPyvT3VQ"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/_pJnqdRK04iw157pZmvg-w/art/backdrop?v=b352271c5c2dafc14fd557cb591b159c4c303ba065d98914f9237eb416c7e230&w=1920",
+     "id": "_pJnqdRK04iw157pZmvg-w",
+     "kind": "movie",
+     "title": "The Avengers",
+     "posterUrl": "/v1/metadata/item/_pJnqdRK04iw157pZmvg-w/art/poster?v=aa8fd567151e7562608ed396ed35e452a96d9957230b3492eb79eeae18a53e77&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2012,
+     "addedAt": "2026-10-02T04:02:46.052Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "_pJnqdRK04iw157pZmvg-w"
+     },
+     "playback": {
+      "itemId": "_pJnqdRK04iw157pZmvg-w"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/U40ywtp8X5jXM6fcX8eLKA/art/backdrop?v=6ed3d6fa41ea6006623178e897cf55dea615213c3c31c3b9bcc1464b2fc5f52b&w=1920",
+     "id": "U40ywtp8X5jXM6fcX8eLKA",
+     "kind": "movie",
+     "title": "The Shining",
+     "posterUrl": "/v1/metadata/item/U40ywtp8X5jXM6fcX8eLKA/art/poster?v=c5bf79b05ef88579709fd1ecc33f6b5ac9c005517dfef3a031a38a700c3eb7f0&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1980,
+     "addedAt": "2026-10-02T04:02:55.655Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "U40ywtp8X5jXM6fcX8eLKA"
+     },
+     "playback": {
+      "itemId": "U40ywtp8X5jXM6fcX8eLKA"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/TUsUscjsXwualdoYQgCc1w/art/backdrop?v=9d817bbbcc070f608ae5bafb66fcbf447c223db12cbb6fa41bb1bc4f251cda21&w=1920",
+     "id": "TUsUscjsXwualdoYQgCc1w",
+     "kind": "movie",
+     "title": "The Terminator",
+     "posterUrl": "/v1/metadata/item/TUsUscjsXwualdoYQgCc1w/art/poster?v=5075d86750b1bf842d6ad4a9df7869df6e567b1f41b68683201c4316d122f03d&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1984,
+     "addedAt": "2026-10-02T04:02:56.853Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "TUsUscjsXwualdoYQgCc1w"
+     },
+     "playback": {
+      "itemId": "TUsUscjsXwualdoYQgCc1w"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/ts6hDDGBfJOO1xm106cwBA/art/backdrop?v=a3d17a070b0e2796ca972c4e7913e0f86a6a17da05a1cab6564b9a1e4b0f2c5f&w=1920",
+     "id": "ts6hDDGBfJOO1xm106cwBA",
+     "kind": "movie",
+     "title": "The Dark Knight",
+     "posterUrl": "/v1/metadata/item/ts6hDDGBfJOO1xm106cwBA/art/poster?v=1e8c9af3d5d8747396057b10f58227ba43d89bd83d11361b4aa4b57ff21f217b&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 2008,
+     "addedAt": "2026-10-02T04:02:46.643Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ts6hDDGBfJOO1xm106cwBA"
+     },
+     "playback": {
+      "itemId": "ts6hDDGBfJOO1xm106cwBA"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/g22QoS9eFN3UbByf1Kssgg/art/backdrop?v=a30b4c3b082cc4f35603e85f88ce62bbd863e606fc8af2c8c46b8ba5b3f458f2&w=1920",
+     "id": "g22QoS9eFN3UbByf1Kssgg",
+     "kind": "movie",
+     "title": "The Sixth Sense",
+     "posterUrl": "/v1/metadata/item/g22QoS9eFN3UbByf1Kssgg/art/poster?v=42baa394c655779f5f0f02e02b102f7e1ef997d5a4b49d1a13853d0054251afb&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1999,
+     "addedAt": "2026-10-02T04:02:56.268Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "g22QoS9eFN3UbByf1Kssgg"
+     },
+     "playback": {
+      "itemId": "g22QoS9eFN3UbByf1Kssgg"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/PLlWxmC9cTPbHRErW3agEQ/art/backdrop?v=f1d4130cb8917ef64629b21e1269088d6324a26bcbaf7a1ca64d6716120ba318&w=1920",
+     "id": "PLlWxmC9cTPbHRErW3agEQ",
+     "kind": "movie",
+     "title": "The Shawshank Redemption",
+     "posterUrl": "/v1/metadata/item/PLlWxmC9cTPbHRErW3agEQ/art/poster?v=6483cdcf6c49f36a3e6c025a0b8c8ba1b1bf4192d5301087bee5a378867dbee2&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1994,
+     "addedAt": "2026-10-02T04:02:55.060Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "PLlWxmC9cTPbHRErW3agEQ"
+     },
+     "playback": {
+      "itemId": "PLlWxmC9cTPbHRErW3agEQ"
+     }
+    },
+    {
+     "libraryId": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+     "backdropUrl": "/v1/metadata/item/MbvgJV0I6OP_2PiDdG57HA/art/backdrop?v=8978c683db9e4182c553cd96323651f9ea73eaf2969b230dc3887f7c4a9dfff3&w=1920",
+     "id": "MbvgJV0I6OP_2PiDdG57HA",
+     "kind": "movie",
+     "title": "The Green Mile",
+     "posterUrl": "/v1/metadata/item/MbvgJV0I6OP_2PiDdG57HA/art/poster?v=f0bb1573e03dc239e8f432a058bdc24aeaa8747f6a7dced307408a82bbb31f9c&w=400",
+     "available": true,
+     "duration": 45,
+     "year": 1999,
+     "addedAt": "2026-10-02T04:02:50.236Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "MbvgJV0I6OP_2PiDdG57HA"
+     },
+     "playback": {
+      "itemId": "MbvgJV0I6OP_2PiDdG57HA"
+     }
+    }
+   ],
+   "totalCount": 27,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor"
+  },
+  {
+   "id": "shows",
+   "title": "Shows",
+   "entityKind": "show",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/backdrop?v=9dc88511b8ff1f0b083a185dc7c4156bb00895b3232f94be8d141a3050aa32c4&w=1920",
+     "id": "xL6_yOFNIiwgLXJoiyIbBg",
+     "kind": "show",
+     "title": "The Simpsons",
+     "posterUrl": "/v1/metadata/show/xL6_yOFNIiwgLXJoiyIbBg/art/poster?v=d809cfb22c0cfd46b7ad50c903b2f33bedc7aedaeb47c0ddeafe5d8eb3af2c76&w=400",
+     "year": 1989,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "xL6_yOFNIiwgLXJoiyIbBg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/backdrop?v=88e1c1882538927772cfacfe931be96d81c7b7a5193438ceba0f0d2ffcf264e3&w=1920",
+     "id": "l6c_UOaem12vpQoauST9Pw",
+     "kind": "show",
+     "title": "The Gentlemen",
+     "posterUrl": "/v1/metadata/show/l6c_UOaem12vpQoauST9Pw/art/poster?v=7521124a4b0539c7f16e24c3b5f12991b5a0a236c9bb99c294947a604168a239&w=400",
+     "year": 2024,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "l6c_UOaem12vpQoauST9Pw"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/backdrop?v=9c68a5d72f9bb4f25b335f7092673a0b674de10509f606f2571ca501edb03213&w=1920",
+     "id": "d51EOEdH4vPkMHs0bb1pIQ",
+     "kind": "show",
+     "title": "The Office",
+     "posterUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/poster?v=8b396a90862eb195067cf46f70104693422a954923865473387805d559a6a6c9&w=400",
+     "year": 2005,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "d51EOEdH4vPkMHs0bb1pIQ"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/backdrop?v=fe2a6d761ecb4711ea3c83a988c7e244fd2abe4e4284798da52912870e5c0d8a&w=1920",
+     "id": "7K8NB4iF_3xBKUsg0z5Teg",
+     "kind": "show",
+     "title": "The Mandalorian",
+     "posterUrl": "/v1/metadata/show/7K8NB4iF_3xBKUsg0z5Teg/art/poster?v=577d34feb2de9917b91fe789c378bb7a83c0d7b734afb62ed4cba5f103091bc8&w=400",
+     "year": 2019,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "7K8NB4iF_3xBKUsg0z5Teg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/backdrop?v=442ad3bdc6eabc673dee686446c30e33bb2c3bb9ae94e6ba67fce57ba6c9c5e0&w=1920",
+     "id": "5P1xrYyeYVN_jcV6JFN72A",
+     "kind": "show",
+     "title": "The Walking Dead",
+     "posterUrl": "/v1/metadata/show/5P1xrYyeYVN_jcV6JFN72A/art/poster?v=7be825ad6bfc9f8dc5449b548655c5b589afef6f86d121386cef9997afab9cdb&w=400",
+     "year": 2010,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "5P1xrYyeYVN_jcV6JFN72A"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/backdrop?v=157560791c9418163c4f294b9646e492465d54a7205e9b0bfbcecc4fcf082dae&w=1920",
+     "id": "_OR9V3RRg5Bgz5wuirRzGg",
+     "kind": "show",
+     "title": "The Last of Us",
+     "posterUrl": "/v1/metadata/show/_OR9V3RRg5Bgz5wuirRzGg/art/poster?v=047ee98b0ea2c2b2b8a9bc29b97408826794595a579b2ff6858a28924944474d&w=400",
+     "year": 2023,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "_OR9V3RRg5Bgz5wuirRzGg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "backdropUrl": "/v1/metadata/show/e3gS8v6SROn_5BodzsuIPw/art/backdrop?v=70d571d0c6c4153e6dc661c005a48b1f0cb5b186bd3d12ed8b69f0cf4e19a4d1&w=1920",
+     "id": "e3gS8v6SROn_5BodzsuIPw",
+     "kind": "show",
+     "title": "Monster: The Lizzie Borden Story",
+     "posterUrl": "/v1/metadata/show/e3gS8v6SROn_5BodzsuIPw/art/poster?v=b7eb3f7c9c7434ade1cd24ea5e1537af058233625eb5b1c245cf1fde92f6680c&w=400",
+     "year": 2026,
+     "addedAt": null,
+     "navigation": {
+      "view": "show",
+      "entityId": "e3gS8v6SROn_5BodzsuIPw"
+     }
+    }
+   ],
+   "totalCount": 7,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "episodes",
+   "title": "Episodes",
+   "entityKind": "episode",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "overview": "Gaara is quick to detect Deidara’s presence, and an aerial battle ensues with Deidara on his giant bird and Gaara atop sand.",
+     "backdropUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/backdrop?v=99b1071296d5e09d5c508f3ef72956a0007ca18ddd06ca5ef756a1f237689a6c&w=1920",
+     "id": "WTZ8B201DZJrbkG58ndBnw",
+     "kind": "episode",
+     "title": "The Jinchuriki of the Sand",
+     "subtitle": "Naruto Shippūden · Season 1 · Episode 4",
+     "posterUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/poster?v=3336d0bcf49d2b50f37c1b4dc8c590d3caf2cd24c967b00bf1a7962fe4b7e4e1&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:27.066Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "WTZ8B201DZJrbkG58ndBnw"
+     },
+     "playback": {
+      "itemId": "WTZ8B201DZJrbkG58ndBnw"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "overview": "Naruto’s and Sakura’s combined skills force Kakashi to use his Sharingan right off the bat. Naruto masterfully unleashes his jutsu one after another.",
+     "backdropUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/backdrop?v=99b1071296d5e09d5c508f3ef72956a0007ca18ddd06ca5ef756a1f237689a6c&w=1920",
+     "id": "7MZSRWP3-s2t9GeSNyVW8w",
+     "kind": "episode",
+     "title": "The Results of Training",
+     "subtitle": "Naruto Shippūden · Season 1 · Episode 3",
+     "posterUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/poster?v=3336d0bcf49d2b50f37c1b4dc8c590d3caf2cd24c967b00bf1a7962fe4b7e4e1&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:27.062Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "7MZSRWP3-s2t9GeSNyVW8w"
+     },
+     "playback": {
+      "itemId": "7MZSRWP3-s2t9GeSNyVW8w"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "overview": "Naruto and Sakura team up and challenge Kakashi to a survival challenge to show off their progress.",
+     "backdropUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/backdrop?v=99b1071296d5e09d5c508f3ef72956a0007ca18ddd06ca5ef756a1f237689a6c&w=1920",
+     "id": "zf3v3ZvhiEolWrO_mH4JtQ",
+     "kind": "episode",
+     "title": "The Akatsuki Makes Its Move",
+     "subtitle": "Naruto Shippūden · Season 1 · Episode 2",
+     "posterUrl": "/v1/metadata/show/hHKWlNLYCOb-NiTO8r7KhA/art/poster?v=3336d0bcf49d2b50f37c1b4dc8c590d3caf2cd24c967b00bf1a7962fe4b7e4e1&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:27.064Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "zf3v3ZvhiEolWrO_mH4JtQ"
+     },
+     "playback": {
+      "itemId": "zf3v3ZvhiEolWrO_mH4JtQ"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "overview": "Two years pass and the time for the recruits' graduation approaches. Annie proves her skill in a sparring session, Jean dreams of serving alongside the King, and graduation day brings shocking revelations — along with the sudden appearance of an old foe.",
+     "backdropUrl": "/v1/metadata/show/N3tK6PcOu3ZQBzDbG963tA/art/backdrop?v=2282f6f35e4c6fb7d641a433504deb722d03c94c30ab8afd78145b927a817102&w=1920",
+     "id": "Lo9slXL8h8LHFQVafMqBPw",
+     "kind": "episode",
+     "title": "The Night of the Closing Ceremony: Humanity's Comeback (2)",
+     "subtitle": "Attack on Titan · Season 1 · Episode 4",
+     "posterUrl": "/v1/metadata/show/N3tK6PcOu3ZQBzDbG963tA/art/poster?v=59e1a9258664b67c4e8523e4f0a2662bc975bbfdcf447fd10c50004e41c0df3b&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:21.008Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "Lo9slXL8h8LHFQVafMqBPw"
+     },
+     "playback": {
+      "itemId": "Lo9slXL8h8LHFQVafMqBPw"
+     }
+    },
+    {
+     "libraryId": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+     "overview": "Luffy and Coby arrive at Shell Island, a Marine base. They meet the bounty hunter Roronoa Zoro, held under arrest by the infamous marine, Captain Morgan, and his son Helmeppo.",
+     "backdropUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/backdrop?v=f3dd9b98bff77ce5c1791accca4582af66701a6a7b466b95e19dfc7c2ecae33d&w=1920",
+     "id": "KiLa8QTChuXp4euuQiYEZQ",
+     "kind": "episode",
+     "title": "The Great Swordsman Appears! Pirate Hunter, Roronoa Zoro",
+     "subtitle": "One Piece · Season 1 · Episode 2",
+     "posterUrl": "/v1/metadata/show/apcMS4fou_ExuEc6TKp4sA/art/poster?v=d216451408e36dfc01fa7e094d95c407653a2a534e4e0dce16cfe63b859e769d&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:28.500Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "KiLa8QTChuXp4euuQiYEZQ"
+     },
+     "playback": {
+      "itemId": "KiLa8QTChuXp4euuQiYEZQ"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Leighton and Amanda show Jason his groundbreaking invention. Daniela and Jason2 throw a dinner party.",
+     "backdropUrl": "/v1/metadata/show/ekd1duh-YEZT6I8mSCRV7A/art/backdrop?v=bb0be8b53cb6d4d7f178578518a6c0cee17dbce82ed5ad7f4ac4424303a0100c&w=1920",
+     "id": "tPhiPYd_3Gg9W7OkvqFLFA",
+     "kind": "episode",
+     "title": "The Box",
+     "subtitle": "Dark Matter · Season 1 · Episode 3",
+     "posterUrl": "/v1/metadata/season/nyE2M05ria-FLbdrzgnrvg/art/poster?v=b89f3e04b67b4247afa5a3f2af98ba6d4f25c403845f78db1d3820538792505b&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:15.826Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "tPhiPYd_3Gg9W7OkvqFLFA"
+     },
+     "playback": {
+      "itemId": "tPhiPYd_3Gg9W7OkvqFLFA"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "The Lannisters plot to ensure Bran's silence; Jon and Tyrion head to the Wall; Ned faces a family crisis en route to King's Landing.",
+     "backdropUrl": "/v1/metadata/show/ukxpwSMlI14124dX_lf20g/art/backdrop?v=5abaffc58d442a024082ecb98b381f776d562fe4d2814a84914221d8922b003c&w=1920",
+     "id": "jZw0ffwT9kyaJ1mZzEAj5g",
+     "kind": "episode",
+     "title": "The Kingsroad",
+     "subtitle": "Game of Thrones · Season 1 · Episode 2",
+     "posterUrl": "/v1/metadata/season/tLobBtyQoIifvwrm-w1IKA/art/poster?v=0bc78e546ebe6ae1efe567c138a46cff2eac967d4cae99cb4fa4169da4424fc8&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:17.076Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "jZw0ffwT9kyaJ1mZzEAj5g"
+     },
+     "playback": {
+      "itemId": "jZw0ffwT9kyaJ1mZzEAj5g"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Joe continues her training with Cruz; her methods are questionable. Cruz starts to build a relationship with Aaliyah. Kate gets into a fight during her soccer game. Neal has to deliver difficult news to a patient.",
+     "backdropUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/backdrop?v=102f64a4a79dee2fe821c3250a253c560319ce6331716c73fe9f97a35007f7c4&w=1920",
+     "id": "ZI2pdpPdstlcRMO74OAnLQ",
+     "kind": "episode",
+     "title": "The Beating",
+     "subtitle": "Lioness · Season 1 · Episode 2",
+     "posterUrl": "/v1/metadata/season/kdVGTqacv49uqT-zErkY1g/art/poster?v=1637d570892ab54d6da887b6e899f2950a927db353d58d9f1968b57cc20b43c5&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:19.440Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "ZI2pdpPdstlcRMO74OAnLQ"
+     },
+     "playback": {
+      "itemId": "ZI2pdpPdstlcRMO74OAnLQ"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Michael arranges a morale-boosting birthday party for Meredith and is determined to come up with the funniest message in her card. Dwight wants a pact with Jim to fight the downsizing, and Michael regrets showing off when Oscar asks for sponsorship for a charity walk being undertaken by his nephew, who has cerebral palsy.",
+     "backdropUrl": "/v1/metadata/show/d51EOEdH4vPkMHs0bb1pIQ/art/backdrop?v=9c68a5d72f9bb4f25b335f7092673a0b674de10509f606f2571ca501edb03213&w=1920",
+     "id": "PTzg0lHCbx2ghaqFmh95Eg",
+     "kind": "episode",
+     "title": "The Alliance",
+     "subtitle": "The Office · Season 1 · Episode 4",
+     "posterUrl": "/v1/metadata/season/25gPeXE49pSVhjHmTlHqsQ/art/poster?v=304925dbb18f4b3a5d1bb2a812c1a079ce4e03a237521912871ed76aba2b3024&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:41.809Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "PTzg0lHCbx2ghaqFmh95Eg"
+     },
+     "playback": {
+      "itemId": "PTzg0lHCbx2ghaqFmh95Eg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "John and Hal run their new plan to uncover the Manhunter past Sheriff Kane, as Hal's visit to Sinestro begins to have consequences.",
+     "backdropUrl": "/v1/metadata/show/BTcEg5gSAoocBdKmhwafyg/art/backdrop?v=18cb05ef6231d4191378641bcf18612c60fa97d6623ea8bc05093895410ee827&w=1920",
+     "id": "CJszhg3ecRedjgRc1i62mg",
+     "kind": "episode",
+     "title": "The Weenie",
+     "subtitle": "Lanterns · Season 1 · Episode 4",
+     "posterUrl": "/v1/metadata/season/r3imovg_gHjYsizZyUFksQ/art/poster?v=aee711460c1c9aa8754ee96b79d6166709dc360fa7736d197d35b57b55119a5b&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:18.248Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "CJszhg3ecRedjgRc1i62mg"
+     },
+     "playback": {
+      "itemId": "CJszhg3ecRedjgRc1i62mg"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Jason and Amanda fight to stay alive in the dangerous Corridor. Jason2 makes some life changes and visits an old friend.",
+     "backdropUrl": "/v1/metadata/show/ekd1duh-YEZT6I8mSCRV7A/art/backdrop?v=bb0be8b53cb6d4d7f178578518a6c0cee17dbce82ed5ad7f4ac4424303a0100c&w=1920",
+     "id": "-RXBO36lKDZauhf7WZzx9Q",
+     "kind": "episode",
+     "title": "The Corridor",
+     "subtitle": "Dark Matter · Season 1 · Episode 4",
+     "posterUrl": "/v1/metadata/season/nyE2M05ria-FLbdrzgnrvg/art/poster?v=b89f3e04b67b4247afa5a3f2af98ba6d4f25c403845f78db1d3820538792505b&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:15.814Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "-RXBO36lKDZauhf7WZzx9Q"
+     },
+     "playback": {
+      "itemId": "-RXBO36lKDZauhf7WZzx9Q"
+     }
+    },
+    {
+     "libraryId": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+     "overview": "Cruz is put in a compromising position while out with Aaliyah and friends in the Hamptons, causing Joe and Kaitlyn to doubt her. Kaitlyn and Westfield confront Kyle over what happened at the border, complicating things further for Joe and her team.",
+     "backdropUrl": "/v1/metadata/show/xo0WVHybY-IROwn12xDl5w/art/backdrop?v=102f64a4a79dee2fe821c3250a253c560319ce6331716c73fe9f97a35007f7c4&w=1920",
+     "id": "N8f7d3eu35Sr0wHNcERdaA",
+     "kind": "episode",
+     "title": "The Choice of Failure",
+     "subtitle": "Lioness · Season 1 · Episode 4",
+     "posterUrl": "/v1/metadata/season/kdVGTqacv49uqT-zErkY1g/art/poster?v=1637d570892ab54d6da887b6e899f2950a927db353d58d9f1968b57cc20b43c5&w=400",
+     "available": true,
+     "duration": 45,
+     "addedAt": "2026-10-02T04:03:19.448Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "N8f7d3eu35Sr0wHNcERdaA"
+     },
+     "playback": {
+      "itemId": "N8f7d3eu35Sr0wHNcERdaA"
+     }
+    }
+   ],
+   "totalCount": 33,
+   "hasMore": true,
+   "nextCursor": "stripped-cursor"
+  },
+  {
+   "id": "artists",
+   "title": "Artists",
+   "entityKind": "artist",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "XhjscUfNvNI_-fidvhPD6A",
+     "kind": "artist",
+     "title": "The Beatles",
+     "addedAt": null,
+     "navigation": {
+      "view": "artist",
+      "entityId": "XhjscUfNvNI_-fidvhPD6A"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "JFgGylZOT9OyvbVUG66TQQ",
+     "kind": "artist",
+     "title": "The Weeknd",
+     "addedAt": null,
+     "navigation": {
+      "view": "artist",
+      "entityId": "JFgGylZOT9OyvbVUG66TQQ"
+     }
+    }
+   ],
+   "totalCount": 2,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "albums",
+   "title": "Albums",
+   "entityKind": "album",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "nmI8wllIvQQkhKIRHgNJqg",
+     "kind": "album",
+     "title": "The Wall",
+     "subtitle": "Pink Floyd",
+     "posterUrl": "/v1/metadata/album/nmI8wllIvQQkhKIRHgNJqg/art/cover?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "artist": {
+      "id": "ibXC64pLFjIJL32VoTz9eQ",
+      "name": "Pink Floyd"
+     },
+     "addedAt": null,
+     "navigation": {
+      "view": "album",
+      "entityId": "nmI8wllIvQQkhKIRHgNJqg"
+     }
+    }
+   ],
+   "totalCount": 1,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "songs",
+   "title": "Songs",
+   "entityKind": "song",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "twMG9hVD0Lssm-sQO-ailw",
+     "kind": "song",
+     "title": "The Thin Ice",
+     "subtitle": "The Wall · Pink Floyd",
+     "posterUrl": "/v1/metadata/item/twMG9hVD0Lssm-sQO-ailw/art/poster?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:35.506Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "twMG9hVD0Lssm-sQO-ailw"
+     },
+     "playback": {
+      "itemId": "twMG9hVD0Lssm-sQO-ailw"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "O5N3CJjIpJcYA8tjzpzCgA",
+     "kind": "song",
+     "title": "The Game of Love",
+     "subtitle": "Random Access Memories · Daft Punk",
+     "posterUrl": "/v1/metadata/item/O5N3CJjIpJcYA8tjzpzCgA/art/poster?v=5cec0c02f2ec12ce6ac92bbf68531a4882d028e572dc35ce1579c93cb084ee7e&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:30.258Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "O5N3CJjIpJcYA8tjzpzCgA"
+     },
+     "playback": {
+      "itemId": "O5N3CJjIpJcYA8tjzpzCgA"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "j7nnDGQmAxJXrkP89I7u3Q",
+     "kind": "song",
+     "title": "The Happiest Days of Our Lives",
+     "subtitle": "The Wall · Pink Floyd",
+     "posterUrl": "/v1/metadata/item/j7nnDGQmAxJXrkP89I7u3Q/art/poster?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:35.510Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "j7nnDGQmAxJXrkP89I7u3Q"
+     },
+     "playback": {
+      "itemId": "j7nnDGQmAxJXrkP89I7u3Q"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "p-6igwI2i4Oaz_bzssV4bg",
+     "kind": "song",
+     "title": "The Girl Is Mine (with Paul McCartney)",
+     "subtitle": "Thriller · Michael Jackson",
+     "posterUrl": "/v1/metadata/item/p-6igwI2i4Oaz_bzssV4bg/art/poster?v=000e2ec1882ed28c178c368fe35a4d953ac1fba31ebad1b2979715608bc3c0e3&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:34.250Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "p-6igwI2i4Oaz_bzssV4bg"
+     },
+     "playback": {
+      "itemId": "p-6igwI2i4Oaz_bzssV4bg"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "OkEFn-DCUObN_muZERs2Ew",
+     "kind": "song",
+     "title": "In the Flesh?",
+     "subtitle": "The Wall · Pink Floyd",
+     "posterUrl": "/v1/metadata/item/OkEFn-DCUObN_muZERs2Ew/art/poster?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:35.512Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "OkEFn-DCUObN_muZERs2Ew"
+     },
+     "playback": {
+      "itemId": "OkEFn-DCUObN_muZERs2Ew"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "kTDlzyrNZ9dN_7TGsqdCvA",
+     "kind": "song",
+     "title": "Rolling in the Deep",
+     "subtitle": "21 · Adele",
+     "posterUrl": "/v1/metadata/item/kTDlzyrNZ9dN_7TGsqdCvA/art/poster?v=679587f6e73572ba0316cd6db9a758ec44b656a67ed43742900af228b698d086&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:27.424Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "kTDlzyrNZ9dN_7TGsqdCvA"
+     },
+     "playback": {
+      "itemId": "kTDlzyrNZ9dN_7TGsqdCvA"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "xYOFIUodV7h70xNJMf-U_g",
+     "kind": "song",
+     "title": "Another Brick In the Wall, Pt. 1",
+     "subtitle": "The Wall · Pink Floyd",
+     "posterUrl": "/v1/metadata/item/xYOFIUodV7h70xNJMf-U_g/art/poster?v=169b9a4c9975ea974d1a0529f494f6c7226adb46bcc647378b9ee5f8da340583&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:35.515Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "xYOFIUodV7h70xNJMf-U_g"
+     },
+     "playback": {
+      "itemId": "xYOFIUodV7h70xNJMf-U_g"
+     }
+    },
+    {
+     "libraryId": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+     "id": "8705f7H5xMvho37Mj1bb-g",
+     "kind": "song",
+     "title": "Out Of The Woods (Taylor's Version)",
+     "subtitle": "1989 (Taylor's Version) [Deluxe] · Taylor Swift",
+     "posterUrl": "/v1/metadata/item/8705f7H5xMvho37Mj1bb-g/art/poster?v=8075913e1b6b92d1de5ae21db46a0b4930866fa5794f9b358cd66c39cf55439a&w=400",
+     "available": true,
+     "duration": 60,
+     "addedAt": "2026-10-02T04:03:36.738Z",
+     "navigation": {
+      "view": "item",
+      "entityId": "8705f7H5xMvho37Mj1bb-g"
+     },
+     "playback": {
+      "itemId": "8705f7H5xMvho37Mj1bb-g"
+     }
+    }
+   ],
+   "totalCount": 8,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "books",
+   "title": "Books",
+   "entityKind": "book",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "kdKDTU83KKaUtgy4eC141Q",
+     "kind": "book",
+     "title": "The Hobbit",
+     "posterUrl": "/v1/metadata/book/kdKDTU83KKaUtgy4eC141Q/art/cover?v=bfbe0597cbf9eafd8358fc3041a50c0191c2d71e4459d5bead1fbdd8a3a6f1be&w=400",
+     "author": "J. R. R. Tolkien",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "kdKDTU83KKaUtgy4eC141Q"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "uV42wmxpy5OPt48zRrpp1w",
+     "kind": "book",
+     "title": "The Martian (Unabridged)",
+     "posterUrl": "/v1/metadata/book/uV42wmxpy5OPt48zRrpp1w/art/cover?v=0a25b523fe6e047a7087482892a493540a55cdbd231fc9e31dee49bba7d29f5a&w=400",
+     "author": "Andy Weir",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "uV42wmxpy5OPt48zRrpp1w"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "5iHcx__iQyl1r3Lzsbq_zA",
+     "kind": "book",
+     "title": "The Hunger Games: Special Edition",
+     "posterUrl": "/v1/metadata/book/5iHcx__iQyl1r3Lzsbq_zA/art/cover?v=6b263c355eac0edce49f56ae8c45ef0bc52079082f52043cb1be8e93ccf41650&w=400",
+     "author": "Suzanne Collins",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "5iHcx__iQyl1r3Lzsbq_zA"
+     }
+    },
+    {
+     "libraryId": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+     "id": "7W7luGM1f9sx_9BkM9HthQ",
+     "kind": "book",
+     "title": "Harry Potter and the Philosopher's Stone",
+     "posterUrl": "/v1/metadata/book/7W7luGM1f9sx_9BkM9HthQ/art/cover?v=f0e7ff6a6b2980a5cbeec1b7a2171fcacf93ba73ae080262446470501acb3283&w=400",
+     "author": "J.K. Rowling",
+     "addedAt": null,
+     "navigation": {
+      "view": "book",
+      "entityId": "7W7luGM1f9sx_9BkM9HthQ"
+     }
+    }
+   ],
+   "totalCount": 4,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "people",
+   "title": "People",
+   "entityKind": "person",
+   "status": "success",
+   "errorCode": "",
+   "items": [
+    {
+     "id": "2c13a989caab87798a254cfe1259227f",
+     "kind": "person",
+     "title": "Theo James",
+     "subtitle": "Acting",
+     "addedAt": null,
+     "count": 4,
+     "navigation": {
+      "view": "person",
+      "entityId": "2c13a989caab87798a254cfe1259227f"
+     }
+    },
+    {
+     "id": "2ec185e4a674a418acc387c251eb2d08",
+     "kind": "person",
+     "title": "Therese McLaughlin",
+     "subtitle": "Guest",
+     "addedAt": null,
+     "count": 1,
+     "navigation": {
+      "view": "person",
+      "entityId": "2ec185e4a674a418acc387c251eb2d08"
+     }
+    },
+    {
+     "id": "f95145a028c90700050eaf1b9b5569e5",
+     "kind": "person",
+     "title": "Theo Mason Wood",
+     "subtitle": "Writing",
+     "addedAt": null,
+     "count": 2,
+     "navigation": {
+      "view": "person",
+      "entityId": "f95145a028c90700050eaf1b9b5569e5"
+     }
+    },
+    {
+     "id": "9857abfcb336aa698507a41c13d2596b",
+     "kind": "person",
+     "title": "Jack Thetford",
+     "subtitle": "Lighting",
+     "addedAt": null,
+     "count": 1,
+     "navigation": {
+      "view": "person",
+      "entityId": "9857abfcb336aa698507a41c13d2596b"
+     }
+    }
+   ],
+   "totalCount": 4,
+   "hasMore": false,
+   "nextCursor": ""
+  },
+  {
+   "id": "live-tv",
+   "title": "Live TV",
+   "entityKind": "channel",
+   "status": "success",
+   "errorCode": "",
+   "items": [],
+   "totalCount": 0,
+   "hasMore": false,
+   "nextCursor": ""
+  }
+ ],
+ "capabilities": {
+  "groups": [
+   {
+    "id": "movies",
+    "title": "Movies",
+    "entityKind": "movie",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "shows",
+    "title": "Shows",
+    "entityKind": "show",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "episodes",
+    "title": "Episodes",
+    "entityKind": "episode",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "artists",
+    "title": "Artists",
+    "entityKind": "artist",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title"
+    ]
+   },
+   {
+    "id": "albums",
+    "title": "Albums",
+    "entityKind": "album",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "songs",
+    "title": "Songs",
+    "entityKind": "song",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "books",
+    "title": "Books",
+    "entityKind": "book",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title",
+     "releaseYear",
+     "dateAdded"
+    ]
+   },
+   {
+    "id": "people",
+    "title": "People",
+    "entityKind": "person",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title"
+    ]
+   },
+   {
+    "id": "live-tv",
+    "title": "Live TV",
+    "entityKind": "channel",
+    "available": true,
+    "sorts": [
+     "relevance",
+     "title"
+    ]
+   }
+  ],
+  "sorts": [
+   "relevance",
+   "title",
+   "releaseYear",
+   "dateAdded"
+  ],
+  "directions": [
+   "asc",
+   "desc"
+  ],
+  "maxLimit": 40,
+  "groupBudgetMs": 600
+ }
+}

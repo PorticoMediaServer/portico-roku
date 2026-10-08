@@ -1,0 +1,42 @@
+' apps/native/src/ui/Feedback.tsx `Skeleton`: a block in the raised-high colour at
+' Theme.apple.skeletonAlpha, the card radius unless one is given, pulsing between
+' Theme.apple.skeletonRestOpacity and full over Theme.apple.skeletonBeatMs each way. It settles
+' after Theme.apple.skeletonBeats beats: a placeholder still up after that is waiting on something
+' slow, and an endless pulse only burns power. Reduce Motion holds it still.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.block = m.top.createChild("Poster")
+    m.block.id = "skeletonBlock"
+    m.block.opacity = Theme.apple.skeletonRestOpacity
+    m.beats = 0
+    m.pulse = m.top.createChild("Animation")
+    m.pulse.easeFunction = "inOutQuad"
+    m.pulse.duration = Theme.apple.skeletonBeatMs * 2 / 1000
+    interpolator = m.pulse.createChild("FloatFieldInterpolator")
+    interpolator.key = [0, 0.5, 1]
+    interpolator.keyValue = [Theme.apple.skeletonRestOpacity, 1, Theme.apple.skeletonRestOpacity]
+    interpolator.fieldToInterp = "skeletonBlock.opacity"
+    m.pulse.observeField("state", "onSkeletonBeat")
+    if not ReduceMotion() then m.pulse.control = "start"
+end sub
+
+sub onSkeletonBeat()
+    if m.pulse.state <> "stopped" then return
+    m.beats = m.beats + 1
+    if m.beats < Theme.apple.skeletonBeats then m.pulse.control = "start"
+end sub
+
+sub onSkeletonLayout()
+    width = m.top.blockWidth
+    height = m.top.blockHeight
+    if width <= 0 or height <= 0 then return
+    radius = m.top.radius
+    if radius < 0 then radius = Theme.metrics.radius.card
+    StyleShape(m.block, width, height, radius, ColorAlpha(Theme.colors.raisedHigh, Theme.apple.skeletonAlpha))
+    m.top.boxWidth = width
+    m.top.boxHeight = height
+end sub

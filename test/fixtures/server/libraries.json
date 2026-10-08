@@ -1,0 +1,39 @@
+{
+ "items": [
+  {
+   "defaultView": "browse",
+   "id": "8dSMiuP7KROX_rvduQl5pvIQv-Ch5ldO5ABVSPVhoPA",
+   "name": "Anime",
+   "kind": "anime",
+   "pinned": false
+  },
+  {
+   "defaultView": "discover",
+   "id": "ff1tp0a-aiKH8cEk2B3Ij8Ac4aITEZIOhQFUvkaLmec",
+   "name": "Movies",
+   "kind": "movie",
+   "pinned": false
+  },
+  {
+   "defaultView": "browse",
+   "id": "Cvp915bq9ZEciNMAvw71Zxui4eECvI-UZ0bY8LwO_Nc",
+   "name": "Audiobooks",
+   "kind": "audiobook",
+   "pinned": false
+  },
+  {
+   "defaultView": "browse",
+   "id": "YxlxV1qSnUiGUio4T44BQUIi_G_41KQJ-OA1LsbIx18",
+   "name": "Music",
+   "kind": "music",
+   "pinned": false
+  },
+  {
+   "defaultView": "browse",
+   "id": "7_tfMkfc_8Hz7wlENEPcNIEPkCxYqyOOZf54PEEAa0c",
+   "name": "TV Shows",
+   "kind": "tv",
+   "pinned": false
+  }
+ ]
+}

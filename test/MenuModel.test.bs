@@ -1,0 +1,34 @@
+' ui/MenuModel.bs: apps/native/src/ui/Sheet.tsx `orderMenuItems` and the row a menu opens on.
+
+sub Test_MenuModel_destructiveItemsGoLastInTheirOwnGroup()
+    items = [{ id: "delete", label: "Delete", destructive: true }, { id: "play", label: "Play" }, { id: "remove", label: "Remove", destructive: true }, { id: "info", label: "Details" }]
+    ordered = OrderMenuItems(items)
+    AssertEqual(ordered.count(), 4)
+    AssertEqual(ordered[0].id, "play")
+    AssertEqual(ordered[1].id, "info")
+    AssertEqual(ordered[2].id, "delete")
+    AssertEqual(ordered[2].section, "", "the first destructive item starts a group")
+    AssertEqual(ordered[3].id, "remove")
+    AssertTrue(ordered[3].section = invalid, "later destructive items stay in that group")
+end sub
+
+sub Test_MenuModel_keepsAGivenSectionLabel()
+    ordered = OrderMenuItems([{ id: "a", label: "A" }, { id: "b", label: "B", destructive: true, section: "Danger" }])
+    AssertEqual(ordered[1].section, "Danger")
+end sub
+
+sub Test_MenuModel_allSafeOrAllDestructiveIsUnchanged()
+    safe = [{ id: "a", label: "A" }, { id: "b", label: "B" }]
+    AssertEqual(OrderMenuItems(safe)[0].id, "a")
+    AssertEqual(OrderMenuItems(safe)[1].id, "b")
+    risky = [{ id: "x", label: "X", destructive: true }, { id: "y", label: "Y", destructive: true }]
+    AssertEqual(OrderMenuItems(risky)[0].id, "x")
+    AssertTrue(OrderMenuItems(risky)[0].section = invalid)
+end sub
+
+sub Test_MenuModel_opensOnTheCurrentChoice()
+    AssertEqual(MenuEntryIndex([{ id: "a" }, { id: "b", selected: true }, { id: "c" }]), 1)
+    AssertEqual(MenuEntryIndex([{ id: "a", disabled: true }, { id: "b" }]), 1)
+    AssertEqual(MenuEntryIndex([{ id: "a", disabled: true }]), -1)
+    AssertEqual(MenuEntryIndex([]), -1)
+end sub

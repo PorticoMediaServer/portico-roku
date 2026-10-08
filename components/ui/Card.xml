@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- apps/native/src/ui/Card.tsx: the media card, as an item of a RowList (Shelf) or MarkupGrid (Grid). -->
+<component name="UiCard" extends="Group">
+    <interface>
+        <field id="itemContent" type="node" onChange="onCardContent" />
+        <field id="width" type="float" value="0" onChange="onCardContent" />
+        <field id="height" type="float" value="0" onChange="onCardContent" />
+        <field id="focusPercent" type="float" value="0" onChange="onCardFocus" />
+        <field id="rowFocusPercent" type="float" value="1" onChange="onCardFocus" />
+        <field id="itemHasFocus" type="boolean" value="false" onChange="onCardFocus" />
+        <field id="rowListHasFocus" type="boolean" value="false" onChange="onCardFocus" />
+        <field id="gridHasFocus" type="boolean" value="false" onChange="onCardFocus" />
+    </interface>
+</component>

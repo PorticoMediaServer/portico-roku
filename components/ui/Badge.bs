@@ -1,0 +1,38 @@
+' apps/native/src/ui/Feedback.tsx `Badge`: micro text in the tone's colour on a tint of it
+' (Theme.apple.badgeAlpha), at the small radius. `outlined` is the title hero's rating badge
+' (componentSpec.hero.facts.badge): a control-coloured border, caption-strong primary text.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.plate = m.top.createChild("Poster")
+    m.labelNode = MakeText(m.top, "micro")
+end sub
+
+sub onBadgeLayout()
+    if m.top.outlined then
+        m.labelNode.role = Theme.spec.hero.facts.badge.role
+        m.labelNode.tint = ThemeColor(Theme.spec.hero.facts.badge.color)
+        m.labelNode.value = m.top.label
+        width = TextWidth(m.labelNode) + Theme.spec.hero.facts.badge.paddingX * 2
+        height = Theme.spec.hero.facts.badge.height
+        StyleRing(m.plate, width, height, Theme.metrics.radius.small, Theme.spec.overlay.border.width, ThemeColor(Theme.spec.hero.facts.badge.border))
+        Place(m.labelNode, Theme.spec.hero.facts.badge.paddingX, (height - m.labelNode.height) / 2)
+    else
+        color = Theme.colors.textSecondary
+        if m.top.tone = "accent" then color = Theme.colors.accent
+        if m.top.tone = "record" then color = Theme.colors.record
+        if m.top.tone = "amber" then color = Theme.colors.amber
+        m.labelNode.role = "micro"
+        m.labelNode.tint = color
+        m.labelNode.value = m.top.label
+        width = TextWidth(m.labelNode) + Theme.space.sm * 2
+        height = m.labelNode.height + Theme.apple.badgePadY * 2
+        StyleShape(m.plate, width, height, Theme.metrics.radius.small, ColorAlpha(color, Theme.apple.badgeAlpha))
+        Place(m.labelNode, Theme.space.sm, Theme.apple.badgePadY)
+    end if
+    m.top.badgeWidth = width
+    m.top.badgeHeight = height
+end sub

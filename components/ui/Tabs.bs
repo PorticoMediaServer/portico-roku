@@ -1,0 +1,159 @@
+' apps/native/src/ui/Tabs.tsx. Tabs: text in the subheading role; focus gets a plate of its own
+' in the focus colour with ink text (TV-LIB-01), the accent underline marks the selected tab only
+' and slides to it over Theme.motion.standard; a hairline runs under the strip. Segmented
+' (componentSpec.segmented): a sunken track, the selected segment a raised plate.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.track = m.top.createChild("Poster")
+    m.hairline = m.top.createChild("Rectangle")
+    m.holder = m.top.createChild("Group")
+    m.underline = m.top.createChild("Poster")
+    m.driver = m.top.createChild("Group")
+    m.driver.id = "tabsDriver"
+    m.slide = MakeFloatAnimation(m.top, "tabsDriver.opacity", Theme.motion.standard)
+    m.driver.observeField("opacity", "onTabsSlide")
+    m.tabs = []
+    m.from = invalid
+    m.target = invalid
+    m.at = invalid
+end sub
+
+sub onTabsItems()
+    items = m.top.items
+    m.holder.removeChildrenIndex(m.holder.getChildCount(), 0)
+    m.tabs = []
+    m.at = invalid
+    if items = invalid then return
+    segmented = m.top.mode = "segmented"
+    m.track.visible = segmented
+    m.hairline.visible = not segmented
+    m.underline.visible = not segmented
+    x = Theme.space.page - Theme.space.sm
+    height = 0
+    padX = Theme.space.sm + Theme.space.xs
+    padY = Theme.space.md
+    role = "subheading"
+    gap = 0
+    if segmented then
+        x = Theme.spec.segmented.padding
+        gap = Theme.spec.segmented.padding
+        padX = Theme.spec.chip.paddingX
+        role = Theme.spec.segmented.label
+    end if
+    startX = x
+    for each item in items
+        entry = m.holder.createChild("UiFocusable")
+        entry.addFields({ tabId: item.id })
+        plate = entry.createChild("Poster")
+        label = MakeText(entry, role)
+        label.value = item.label
+        width = TextWidth(label) + padX * 2
+        height = label.height + padY * 2
+        if segmented then height = Theme.spec.segmented.height
+        Place(label, padX, (height - label.height) / 2)
+        Place(entry, x, 0)
+        if segmented then
+            Place(entry, x, Theme.spec.segmented.padding)
+            entry.radius = Theme.spec.segmented.segmentRadius
+            entry.focusScale = Theme.spec.focus.scale.button
+        else
+            entry.radius = Theme.metrics.radius.control
+            entry.focusScale = Theme.apple.tabFocusScale
+            entry.ring = false
+        end if
+        entry.controlWidth = width
+        entry.controlHeight = height
+        entry.observeField("isFocused", "onTabsStyle")
+        entry.observeField("pressed", "onTabsPressed")
+        m.tabs.push({ node: entry, plate: plate, label: label, id: item.id, x: x, width: width, height: height })
+        x = x + width + gap
+    end for
+    if segmented then
+        trackWidth = x - gap + Theme.spec.segmented.padding
+        trackHeight = height + Theme.spec.segmented.padding * 2
+        StyleShape(m.track, trackWidth, trackHeight, Theme.spec.segmented.radius, ThemeColor(Theme.spec.segmented.track))
+        m.top.tabsHeight = trackHeight
+    else
+        width = m.top.tabsWidth
+        if width <= 0 then width = x + startX
+        m.hairline.width = width
+        m.hairline.height = 1
+        m.hairline.color = Theme.colors.lineSoft
+        Place(m.hairline, 0, height)
+        m.top.tabsHeight = height + 1
+    end if
+    onTabsStyle()
+    onTabsSelected()
+end sub
+
+sub onTabsStyle()
+    segmented = m.top.mode = "segmented"
+    for each entry in m.tabs
+        focused = entry.node.isFocused
+        active = entry.id = m.top.selected
+        if segmented then
+            entry.plate.visible = active or focused
+            color = Theme.colors.raised
+            if active then color = ThemeColor(Theme.spec.segmented.selected.background)
+            StyleShape(entry.plate, entry.width, entry.height, Theme.spec.segmented.segmentRadius, color)
+            if active or focused then
+                entry.label.tone = "primary"
+            else
+                entry.label.tone = "tertiary"
+            end if
+        else
+            entry.plate.visible = focused
+            StyleShape(entry.plate, entry.width, entry.height, Theme.metrics.radius.control, Theme.colors.focus)
+            if focused then
+                entry.label.tint = Theme.colors.ink
+            else if active then
+                entry.label.tint = Theme.colors.text
+            else
+                entry.label.tint = Theme.colors.textTertiary
+            end if
+        end if
+    end for
+end sub
+
+sub onTabsSelected()
+    onTabsStyle()
+    if m.top.mode = "segmented" then return
+    for each entry in m.tabs
+        if entry.id = m.top.selected then
+            target = { x: entry.x, width: entry.width, y: entry.height - Theme.apple.tabUnderlineHeight + 1 }
+            if m.at = invalid or ReduceMotion() then
+                m.at = target
+                TabsDrawUnderline(target)
+            else
+                m.from = m.at
+                m.target = target
+                RunFloatAnimation(m.slide, 0, 1, Theme.motion.standard)
+            end if
+            m.underline.visible = true
+            return
+        end if
+    end for
+    m.underline.visible = false
+end sub
+
+sub onTabsSlide()
+    if m.target = invalid or m.from = invalid then return
+    progress = m.driver.opacity
+    at = { x: m.from.x + (m.target.x - m.from.x) * progress, width: m.from.width + (m.target.width - m.from.width) * progress, y: m.target.y }
+    m.at = at
+    TabsDrawUnderline(at)
+end sub
+
+sub TabsDrawUnderline(at as object)
+    StyleShape(m.underline, at.width, Theme.apple.tabUnderlineHeight, Theme.apple.tabUnderlineRadius, Theme.colors.accent)
+    Place(m.underline, at.x, at.y)
+end sub
+
+sub onTabsPressed(event as object)
+    entry = event.getRoSGNode()
+    if entry <> invalid then m.top.chosen = entry.tabId
+end sub

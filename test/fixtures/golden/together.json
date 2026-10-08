@@ -1,0 +1,4515 @@
+{
+ "snapshots": [
+  {
+   "name": "as served, group-snapshot.json",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.897Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "lobby",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "1",
+     "playbackRevision": "1",
+     "queueRevision": "1",
+     "reconnectGeneration": "1",
+     "lastCommand": "",
+     "lastCommandId": "",
+     "endedReason": "",
+     "eventOrdinal": "1",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.896Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.896Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "",
+      "currentEntryId": "",
+      "state": "idle",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.896Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "1",
+      "position": 0,
+      "entries": [],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "serverTime": "2026-10-05T20:06:32.897Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "lobby",
+     "revision": "1",
+     "queueRevision": "1",
+     "endedReason": "",
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "host": {
+      "presence": "connected",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "",
+      "currentEntryId": "",
+      "state": "idle",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.896Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "presence": "connected"
+      }
+     ],
+     "queue": {
+      "revision": "1",
+      "position": 0,
+      "entries": [],
+      "blocked": []
+     }
+    }
+   }
+  },
+  {
+   "name": "as served, group-snapshot-loaded.json",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.918Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "preparing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "3",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "load",
+     "lastCommandId": "b3066066-aef2-465a-8486-1f61d21a99f1",
+     "endedReason": "",
+     "eventOrdinal": "4",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.916Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.915Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "paused",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.915Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "serverTime": "2026-10-05T20:06:32.918Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "preparing",
+     "revision": "3",
+     "queueRevision": "2",
+     "endedReason": "",
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "host": {
+      "presence": "connected",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "paused",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.915Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "presence": "connected"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false
+       }
+      ],
+      "blocked": []
+     }
+    }
+   }
+  },
+  {
+   "name": "as served, group-snapshot-playing.json",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "revision": "4",
+     "queueRevision": "2",
+     "endedReason": "",
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "host": {
+      "presence": "connected",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "presence": "connected"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false
+       }
+      ],
+      "blocked": []
+     }
+    }
+   }
+  },
+  {
+   "name": "as served, group-snapshot-ended.json",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.933Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "ended",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "5",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "host-ended",
+     "eventOrdinal": "6",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.93Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "stopped",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": true,
+   "expected": {
+    "serverTime": "2026-10-05T20:06:32.933Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "ended",
+     "revision": "5",
+     "queueRevision": "2",
+     "endedReason": "host-ended",
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "host": {
+      "presence": "connected",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "stopped",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "presence": "connected"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false
+       }
+      ],
+      "blocked": []
+     }
+    }
+   }
+  },
+  {
+   "name": "another protocol",
+   "document": {
+    "protocolVersion": "2.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a state that is not one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "dancing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a state that disagrees with its clock",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "paused",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a host who cannot control",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": false,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "two hosts",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 2,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 2
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      },
+      {
+       "id": "m_two",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "counts that do not add up",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 2,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "ready while someone lags",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 0,
+      "buffering": 0,
+      "lagging": 1,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "bands out of order",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 3001,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a rate of nothing",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "0"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a position that is a number",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": 5,
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a revision with a leading zero",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "01",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a member in a state that is not one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "fresh"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "lurking",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an authority that is not one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.926Z",
+    "group": {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "playing",
+     "hostAuthority": "host-only",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "revision": "4",
+     "playbackRevision": "1",
+     "queueRevision": "2",
+     "reconnectGeneration": "1",
+     "lastCommand": "play",
+     "lastCommandId": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+     "endedReason": "",
+     "eventOrdinal": "5",
+     "createdAt": "2026-10-05T20:06:32.896Z",
+     "updatedAt": "2026-10-05T20:06:32.924Z",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "authority": {
+      "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+      "playbackId": null,
+      "state": "stale"
+     },
+     "host": {
+      "presence": "connected",
+      "lastSeenAt": "2026-10-05T20:06:32.923Z",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "state": "playing",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.923Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "settings": {
+      "shuffleEnabled": false,
+      "repeatMode": "none"
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMinimum": "0.90",
+      "rateCorrectionMaximum": "1.10",
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "positionUs": "0",
+       "reportedAt": "2026-10-05T20:06:32.896Z",
+       "presence": "connected",
+       "joinedAt": "2026-10-05T20:06:32.896Z"
+      }
+     ],
+     "queue": {
+      "revision": "2",
+      "position": 0,
+      "entries": [
+       {
+        "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+        "position": 0,
+        "itemId": "FnVfQzincjaryvRl0TA1jw",
+        "unavailable": false,
+        "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+       }
+      ],
+      "eligibility": {
+       "blockedEntries": 0,
+       "currentEntryBlocked": false,
+       "members": []
+      }
+     },
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+    }
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "lists": [
+  {
+   "name": "as served",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.9Z",
+    "groups": [
+     {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "lobby",
+      "hostAuthority": "host-only",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "revision": "1",
+      "playbackRevision": "1",
+      "queueRevision": "1",
+      "reconnectGeneration": "1",
+      "lastCommand": "",
+      "lastCommandId": "",
+      "endedReason": "",
+      "eventOrdinal": "1",
+      "createdAt": "2026-10-05T20:06:32.896Z",
+      "updatedAt": "2026-10-05T20:06:32.896Z",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "authority": {
+       "deviceId": "A3_xe0HYpQir9E_M1_2vOnva57oQ_elv11MvsN0JoLk",
+       "playbackId": null,
+       "state": "fresh"
+      },
+      "host": {
+       "presence": "connected",
+       "lastSeenAt": "2026-10-05T20:06:32.896Z",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "",
+       "currentEntryId": "",
+       "state": "idle",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.896Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "settings": {
+       "shuffleEnabled": false,
+       "repeatMode": "none"
+      },
+      "sync": {
+       "noCorrectionUnderMs": 750,
+       "rateCorrectionMinimum": "0.90",
+       "rateCorrectionMaximum": "1.10",
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 3000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "positionUs": "0",
+        "reportedAt": "2026-10-05T20:06:32.896Z",
+        "presence": "connected",
+        "joinedAt": "2026-10-05T20:06:32.896Z"
+       }
+      ],
+      "queue": null,
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     }
+    ]
+   },
+   "ok": true,
+   "expected": [
+    {
+     "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "name": "Fixtures",
+     "state": "lobby",
+     "revision": "1",
+     "queueRevision": "1",
+     "endedReason": "",
+     "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+     "permissions": {
+      "isHost": true,
+      "canControl": true,
+      "canManageQueue": true
+     },
+     "host": {
+      "presence": "connected",
+      "pauseAt": null,
+      "endAt": null
+     },
+     "timeline": {
+      "itemId": "",
+      "currentEntryId": "",
+      "state": "idle",
+      "anchorPositionUs": "0",
+      "anchorAt": "2026-10-05T20:06:32.896Z",
+      "rate": {
+       "numerator": "1",
+       "denominator": "1"
+      },
+      "queuePosition": 0
+     },
+     "sync": {
+      "noCorrectionUnderMs": 750,
+      "rateCorrectionMaxMs": 4000,
+      "seekAtOrOverMs": 3000
+     },
+     "readiness": {
+      "aggregate": "ready",
+      "ready": 1,
+      "buffering": 0,
+      "lagging": 0,
+      "stale": 0,
+      "memberCount": 1
+     },
+     "members": [
+      {
+       "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+       "displayName": "Roku",
+       "role": "host",
+       "state": "joined",
+       "readiness": "ready",
+       "presence": "connected"
+      }
+     ],
+     "queue": null
+    }
+   ]
+  },
+  {
+   "name": "no list",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "now"
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "queues": [
+  {
+   "name": "as served",
+   "document": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     }
+    ],
+    "eligibility": {
+     "blockedEntries": 0,
+     "currentEntryBlocked": false,
+     "members": []
+    }
+   },
+   "ok": true,
+   "expected": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false
+     }
+    ],
+    "blocked": []
+   }
+  },
+  {
+   "name": "with an entry this viewer cannot see",
+   "document": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     },
+     {
+      "entryId": "e_hidden",
+      "position": 1,
+      "itemId": null,
+      "unavailable": true,
+      "addedBy": ""
+     }
+    ],
+    "eligibility": {
+     "blockedEntries": 1,
+     "currentEntryBlocked": false,
+     "members": [
+      {
+       "memberId": "m_kid",
+       "displayName": "Kid",
+       "blockedEntryIds": [
+        "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ"
+       ]
+      },
+      {
+       "memberId": "m_ok",
+       "displayName": "Ok",
+       "blockedEntryIds": []
+      }
+     ]
+    }
+   },
+   "ok": true,
+   "expected": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false
+     },
+     {
+      "entryId": "e_hidden",
+      "position": 1,
+      "itemId": "",
+      "unavailable": true
+     }
+    ],
+    "blocked": [
+     "Kid"
+    ]
+   }
+  },
+  {
+   "name": "a hidden entry that names its title",
+   "document": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": true,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     }
+    ],
+    "eligibility": {
+     "blockedEntries": 0,
+     "currentEntryBlocked": false,
+     "members": []
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an entry out of place",
+   "document": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 4,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     }
+    ],
+    "eligibility": {
+     "blockedEntries": 0,
+     "currentEntryBlocked": false,
+     "members": []
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an entry listed twice",
+   "document": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     },
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 1,
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "unavailable": false,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     }
+    ],
+    "eligibility": {
+     "blockedEntries": 0,
+     "currentEntryBlocked": false,
+     "members": []
+    }
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an entry without a title",
+   "document": {
+    "revision": "2",
+    "position": 0,
+    "entries": [
+     {
+      "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+      "position": 0,
+      "itemId": null,
+      "unavailable": false,
+      "addedBy": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo"
+     }
+    ],
+    "eligibility": {
+     "blockedEntries": 0,
+     "currentEntryBlocked": false,
+     "members": []
+    }
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "receipts": [
+  {
+   "name": "as served, group-transport.json",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.916Z",
+    "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+    "idempotencyKey": "b3066066-aef2-465a-8486-1f61d21a99f1",
+    "disposition": "accepted",
+    "command": "load",
+    "revision": "3",
+    "queueRevision": "2",
+    "recordedAt": "2026-10-05T20:06:32.916Z",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "paused",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.915Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    },
+    "settings": {
+     "shuffleEnabled": false,
+     "repeatMode": "none"
+    },
+    "override": null
+   },
+   "ok": true,
+   "expected": {
+    "revision": "3",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "paused",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.915Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    }
+   }
+  },
+  {
+   "name": "as served, group-transport-play.json",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.925Z",
+    "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+    "idempotencyKey": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+    "disposition": "accepted",
+    "command": "play",
+    "revision": "4",
+    "queueRevision": "2",
+    "recordedAt": "2026-10-05T20:06:32.924Z",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "playing",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.923Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    },
+    "settings": {
+     "shuffleEnabled": false,
+     "repeatMode": "none"
+    },
+    "override": null
+   },
+   "ok": true,
+   "expected": {
+    "revision": "4",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "playing",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.923Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    }
+   }
+  },
+  {
+   "name": "a command that is not one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.925Z",
+    "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+    "idempotencyKey": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+    "disposition": "accepted",
+    "command": "rewind",
+    "revision": "4",
+    "queueRevision": "2",
+    "recordedAt": "2026-10-05T20:06:32.924Z",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "playing",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.923Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    },
+    "settings": {
+     "shuffleEnabled": false,
+     "repeatMode": "none"
+    },
+    "override": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "a disposition that is not one",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.925Z",
+    "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+    "idempotencyKey": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+    "disposition": "maybe",
+    "command": "play",
+    "revision": "4",
+    "queueRevision": "2",
+    "recordedAt": "2026-10-05T20:06:32.924Z",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "playing",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.923Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    },
+    "settings": {
+     "shuffleEnabled": false,
+     "repeatMode": "none"
+    },
+    "override": null
+   },
+   "ok": false,
+   "expected": null
+  },
+  {
+   "name": "an override without members",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.925Z",
+    "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+    "idempotencyKey": "d2c5ceae-6a12-4bbe-8ede-6008d69f4997",
+    "disposition": "accepted",
+    "command": "play",
+    "revision": "4",
+    "queueRevision": "2",
+    "recordedAt": "2026-10-05T20:06:32.924Z",
+    "timeline": {
+     "itemId": "FnVfQzincjaryvRl0TA1jw",
+     "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+     "state": "playing",
+     "anchorPositionUs": "0",
+     "anchorAt": "2026-10-05T20:06:32.923Z",
+     "rate": {
+      "numerator": "1",
+      "denominator": "1"
+     },
+     "queuePosition": 0
+    },
+    "settings": {
+     "shuffleEnabled": false,
+     "repeatMode": "none"
+    },
+    "override": {
+     "reason": "host"
+    }
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "invites": [
+  {
+   "name": "as served",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.902Z",
+    "invite": {
+     "id": "inv_kbOwWNH7hI8LLZ9FVqOvdah6zv75z2i5qXnC_efJzro",
+     "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "code": "PNX9TK6A",
+     "expiresAt": "2026-10-05T20:21:32.902Z",
+     "maxUses": 8,
+     "uses": 0,
+     "recipientProfileId": ""
+    }
+   },
+   "ok": true,
+   "expected": {
+    "inviteCode": "PNX9TK6A",
+    "expiresAt": "2026-10-05T20:21:32.902Z",
+    "maxUses": 8
+   }
+  },
+  {
+   "name": "a code in small letters",
+   "document": {
+    "protocolVersion": "1.0",
+    "serverTime": "2026-10-05T20:06:32.902Z",
+    "invite": {
+     "id": "inv_kbOwWNH7hI8LLZ9FVqOvdah6zv75z2i5qXnC_efJzro",
+     "groupId": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+     "code": "abc1",
+     "expiresAt": "2026-10-05T20:21:32.902Z",
+     "maxUses": 8,
+     "uses": 0,
+     "recipientProfileId": ""
+    }
+   },
+   "ok": false,
+   "expected": null
+  }
+ ],
+ "targets": [
+  {
+   "timeline": {
+    "itemId": "i1",
+    "currentEntryId": "e1",
+    "state": "playing",
+    "anchorPositionUs": "754250000",
+    "anchorAt": "2026-10-05T10:00:00.250Z",
+    "rate": {
+     "numerator": "1",
+     "denominator": "1"
+    },
+    "queuePosition": 0
+   },
+   "serverNowMs": 1791194400250,
+   "seconds": 754.25
+  },
+  {
+   "timeline": {
+    "itemId": "i1",
+    "currentEntryId": "e1",
+    "state": "playing",
+    "anchorPositionUs": "754250000",
+    "anchorAt": "2026-10-05T10:00:00.250Z",
+    "rate": {
+     "numerator": "1",
+     "denominator": "1"
+    },
+    "queuePosition": 0
+   },
+   "serverNowMs": 1791194401750,
+   "seconds": 755.75
+  },
+  {
+   "timeline": {
+    "itemId": "i1",
+    "currentEntryId": "e1",
+    "state": "playing",
+    "anchorPositionUs": "754250000",
+    "anchorAt": "2026-10-05T10:00:00.250Z",
+    "rate": {
+     "numerator": "1",
+     "denominator": "1"
+    },
+    "queuePosition": 0
+   },
+   "serverNowMs": 1791194399850,
+   "seconds": 754.25
+  },
+  {
+   "timeline": {
+    "itemId": "i1",
+    "currentEntryId": "e1",
+    "state": "paused",
+    "anchorPositionUs": "754250000",
+    "anchorAt": "2026-10-05T10:00:00.250Z",
+    "rate": {
+     "numerator": "1",
+     "denominator": "1"
+    },
+    "queuePosition": 0
+   },
+   "serverNowMs": 1791194490250,
+   "seconds": 754.25
+  },
+  {
+   "timeline": {
+    "itemId": "i1",
+    "currentEntryId": "e1",
+    "state": "playing",
+    "anchorPositionUs": "754250000",
+    "anchorAt": "2026-10-05T10:00:00.250Z",
+    "rate": {
+     "numerator": "3",
+     "denominator": "2"
+    },
+    "queuePosition": 0
+   },
+   "serverNowMs": 1791194402250,
+   "seconds": 757.25
+  },
+  {
+   "timeline": {
+    "itemId": "i1",
+    "currentEntryId": "e1",
+    "state": "playing",
+    "anchorPositionUs": "0",
+    "anchorAt": "2026-10-05T10:00:00.250Z",
+    "rate": {
+     "numerator": "1",
+     "denominator": "1"
+    },
+    "queuePosition": 0
+   },
+   "serverNowMs": 1791194400260,
+   "seconds": 0.01
+  }
+ ],
+ "sync": {
+  "noCorrectionUnderMs": 250,
+  "rateCorrectionMinimum": "0.97",
+  "rateCorrectionMaximum": "1.03",
+  "rateCorrectionMaxMs": 4000,
+  "seekAtOrOverMs": 2000
+ },
+ "corrections": [
+  {
+   "drift": 0,
+   "action": "none"
+  },
+  {
+   "drift": 0.1,
+   "action": "none"
+  },
+  {
+   "drift": 0.249,
+   "action": "none"
+  },
+  {
+   "drift": 0.25,
+   "action": "rate"
+  },
+  {
+   "drift": -0.25,
+   "action": "rate"
+  },
+  {
+   "drift": 1.9,
+   "action": "rate"
+  },
+  {
+   "drift": 2,
+   "action": "seek"
+  },
+  {
+   "drift": -2,
+   "action": "seek"
+  },
+  {
+   "drift": 30,
+   "action": "seek"
+  }
+ ],
+ "follow": [
+  {
+   "name": "a title is loaded once, then followed",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "",
+      "positionSeconds": 0,
+      "playing": false,
+      "buffering": false,
+      "ready": false
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230792923,
+     "actions": [
+      {
+       "kind": "load",
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "seconds": 0,
+       "playing": true
+      }
+     ],
+     "reported": "buffering"
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "",
+      "positionSeconds": 0,
+      "playing": false,
+      "buffering": false,
+      "ready": false
+     },
+     "nowMs": 1002000,
+     "serverNowMs": 1791230793923,
+     "actions": [],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 0,
+      "playing": false,
+      "buffering": false,
+      "ready": false
+     },
+     "nowMs": 1003000,
+     "serverNowMs": 1791230794923,
+     "actions": [],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 3,
+      "playing": false,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1004000,
+     "serverNowMs": 1791230795923,
+     "actions": [
+      {
+       "kind": "play"
+      }
+     ],
+     "reported": "ready"
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 4,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1005000,
+     "serverNowMs": 1791230796923,
+     "actions": [],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 4.2,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1006000,
+     "serverNowMs": 1791230797923,
+     "actions": [],
+     "reported": ""
+    }
+   ]
+  },
+  {
+   "name": "a small drift is left for the hold, then closed by a seek",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 0.4,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230793923,
+     "actions": [],
+     "reported": "ready"
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 1.4,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1002000,
+     "serverNowMs": 1791230794923,
+     "actions": [],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 4.4,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1005000,
+     "serverNowMs": 1791230797923,
+     "actions": [],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 5.5,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1006100,
+     "serverNowMs": 1791230799023,
+     "actions": [
+      {
+       "kind": "seek",
+       "seconds": 6.1
+      }
+     ],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 7.1,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1007100,
+     "serverNowMs": 1791230800023,
+     "actions": [],
+     "reported": ""
+    }
+   ]
+  },
+  {
+   "name": "a large drift is a seek at once",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 30,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230793923,
+     "actions": [
+      {
+       "kind": "seek",
+       "seconds": 1
+      }
+     ],
+     "reported": "lagging"
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 2,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1002000,
+     "serverNowMs": 1791230794923,
+     "actions": [],
+     "reported": "ready"
+    }
+   ]
+  },
+  {
+   "name": "the group pauses",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 1,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230793923,
+     "actions": [],
+     "reported": "ready"
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "paused",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "paused",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 1,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1002000,
+     "serverNowMs": 1791230792923,
+     "actions": [
+      {
+       "kind": "pause"
+      },
+      {
+       "kind": "seek",
+       "seconds": 0
+      }
+     ],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "paused",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "paused",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 1.3,
+      "playing": false,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1003000,
+     "serverNowMs": 1791230792923,
+     "actions": [
+      {
+       "kind": "seek",
+       "seconds": 0
+      }
+     ],
+     "reported": ""
+    },
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "paused",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "paused",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 0,
+      "playing": false,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1004000,
+     "serverNowMs": 1791230792923,
+     "actions": [],
+     "reported": ""
+    }
+   ]
+  },
+  {
+   "name": "buffering is said, and nothing is asked of a player that is",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 0,
+      "playing": false,
+      "buffering": true,
+      "ready": true
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230793923,
+     "actions": [],
+     "reported": "buffering"
+    }
+   ]
+  },
+  {
+   "name": "a room that is not live asks nothing",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "playing",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "FnVfQzincjaryvRl0TA1jw",
+       "currentEntryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+       "state": "playing",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": false,
+     "local": {
+      "itemId": "FnVfQzincjaryvRl0TA1jw",
+      "positionSeconds": 0,
+      "playing": true,
+      "buffering": false,
+      "ready": true
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230793923,
+     "actions": [],
+     "reported": ""
+    }
+   ]
+  },
+  {
+   "name": "nothing chosen",
+   "steps": [
+    {
+     "group": {
+      "id": "grp_OXIlgyl0AAyms9D3CvBbmNPJMaHc6mSaK6lFNUJHP9M",
+      "name": "Fixtures",
+      "state": "lobby",
+      "revision": "4",
+      "queueRevision": "2",
+      "endedReason": "",
+      "viewerMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "hostMemberId": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+      "permissions": {
+       "isHost": true,
+       "canControl": true,
+       "canManageQueue": true
+      },
+      "host": {
+       "presence": "connected",
+       "pauseAt": null,
+       "endAt": null
+      },
+      "timeline": {
+       "itemId": "",
+       "currentEntryId": "",
+       "state": "idle",
+       "anchorPositionUs": "0",
+       "anchorAt": "2026-10-05T20:06:32.923Z",
+       "rate": {
+        "numerator": "1",
+        "denominator": "1"
+       },
+       "queuePosition": 0
+      },
+      "sync": {
+       "noCorrectionUnderMs": 250,
+       "rateCorrectionMaxMs": 4000,
+       "seekAtOrOverMs": 2000
+      },
+      "readiness": {
+       "aggregate": "ready",
+       "ready": 1,
+       "buffering": 0,
+       "lagging": 0,
+       "stale": 0,
+       "memberCount": 1
+      },
+      "members": [
+       {
+        "id": "mem_dHOL2fiS2Q3s6bpwrDVj8v7gJHXTYq18XhmQ13FXJPo",
+        "displayName": "Roku",
+        "role": "host",
+        "state": "joined",
+        "readiness": "ready",
+        "presence": "connected"
+       }
+      ],
+      "queue": {
+       "revision": "2",
+       "position": 0,
+       "entries": [
+        {
+         "entryId": "ent_ydp1mm6_yMyxqqZ-E_FuUEahmV0h03XXtaNM9BrmzeQ",
+         "position": 0,
+         "itemId": "FnVfQzincjaryvRl0TA1jw",
+         "unavailable": false
+        }
+       ],
+       "blocked": []
+      }
+     },
+     "live": true,
+     "local": {
+      "itemId": "",
+      "positionSeconds": 0,
+      "playing": false,
+      "buffering": false,
+      "ready": false
+     },
+     "nowMs": 1001000,
+     "serverNowMs": 1791230792923,
+     "actions": [],
+     "reported": ""
+    }
+   ]
+  }
+ ]
+}

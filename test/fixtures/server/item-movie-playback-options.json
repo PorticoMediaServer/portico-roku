@@ -1,0 +1,75 @@
+{
+ "itemId": "FnVfQzincjaryvRl0TA1jw",
+ "kind": "movie",
+ "versions": [
+  {
+   "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+   "label": "SD · MP4",
+   "container": "mp4",
+   "sizeBytes": 6727618,
+   "durationMs": 45000,
+   "bitrateKbps": 1196,
+   "parts": [
+    {
+     "id": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+     "index": 0,
+     "durationMs": 45000,
+     "sizeBytes": 6727618
+    }
+   ],
+   "video": [
+    {
+     "id": "v0",
+     "codec": "h264",
+     "profile": "constrained baseline",
+     "level": 30,
+     "bitDepth": 8,
+     "width": 640,
+     "height": 360,
+     "fps": 24,
+     "bitrateKbps": 1127
+    }
+   ],
+   "audio": [
+    {
+     "id": "a1",
+     "codec": "aac",
+     "channels": 1,
+     "layout": "mono",
+     "atmos": false,
+     "language": "und",
+     "default": true,
+     "commentary": false,
+     "visualImpaired": false
+    }
+   ],
+   "subtitles": []
+  }
+ ],
+ "chapters": [],
+ "markers": [],
+ "preferred": {
+  "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+  "audioId": "a1",
+  "reason": "default"
+ },
+ "plan": {
+  "versionId": "XpT_04Ohz9X4EvyEHtewl1PwU3HNNl9lpDLNqeWryS8",
+  "mode": "direct",
+  "streams": [
+   {
+    "id": "v0",
+    "action": "direct",
+    "reasons": []
+   },
+   {
+    "id": "a1",
+    "action": "direct",
+    "reasons": []
+   }
+  ],
+  "quality": {
+   "mode": "original"
+  }
+ }
+}

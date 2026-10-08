@@ -1,0 +1,92 @@
+' What this device can play, as the server is told it: packages/client-core/src/client-profile.ts
+' `rokuDeclaredProfile` (the client profile, `PUT /v1/playback/client-profile`) and
+' playback-v1/capability-profile.ts (the v1 device profile, `PUT
+' /v1/me/devices/current/capabilities`, spec §3). The tables are generated
+' (ClientProfileTables.bs); this picks the 4K or the HD one, names the model and OS, and widens
+' the table by what roDeviceInfo answers (AV1, Dolby Vision, the audio the HDMI sink decodes). The
+' server decides from it: the channel never chooses a format itself.
+import "pkg:/source/core/ClientProfileTables.bs"
+
+' What roDeviceInfo says about this device: {model, osVersion, uhd, av1, dolbyVision, hdr10,
+' hlg, surround}. On a test machine it is what the test registers.
+function DeviceFacts() as object
+    known = GetGlobalAA().deviceFacts
+    if known <> invalid then return known
+    info = CreateObject("roDeviceInfo")
+    facts = { model: info.getModel(), osVersion: "", uhd: false, av1: false, dolbyVision: false, hdr10: false, hlg: false, surround: false }
+    version = info.getOSVersion()
+    if Type(version) = "roAssociativeArray" then facts.osVersion = version.major + "." + version.minor
+    hevc = info.canDecodeVideo({ codec: "hevc", profile: "main 10", level: "5.1" })
+    facts.uhd = Type(hevc) = "roAssociativeArray" and hevc.result = true
+    av1 = info.canDecodeVideo({ codec: "av1" })
+    facts.av1 = Type(av1) = "roAssociativeArray" and av1.result = true
+    display = info.getDisplayProperties()
+    if Type(display) = "roAssociativeArray" then
+        facts.dolbyVision = display.dolbyVision = true
+        facts.hdr10 = display.hdr10 = true
+        facts.hlg = display.hlg = true
+    end if
+    facts.surround = info.getAudioOutputChannel() <> "Stereo"
+    GetGlobalAA().deviceFacts = facts
+    return facts
+end function
+
+' The client profile: the declared table for this model's class, with its model and OS version,
+' AV1 where the device decodes it and the dynamic ranges the display reports.
+function RokuClientProfile(facts as object) as object
+    profile = RokuClientProfileTable(facts.uhd)
+    if facts.osVersion <> "" then profile.client["osVersion"] = facts.osVersion
+    if facts.model <> "" then profile.client["model"] = facts.model
+    if facts.uhd then
+        ranges = ["sdr"]
+        if facts.hdr10 then ranges.push("hdr10")
+        if facts.hlg then ranges.push("hlg")
+        if facts.dolbyVision then ranges.push("dolby_vision")
+        ' A display that reports nothing keeps the declared table.
+        if ranges.count() > 1 then
+            profile.display["dynamicRanges"] = ranges
+            for each codec in profile.video
+                if codec.codec <> "h264" then codec["dynamicRanges"] = ranges
+            end for
+        end if
+        if facts.av1 then
+            av1 = { "codec": "av1", "bitDepths": [8, 10], "maxWidth": profile.display.width, "maxHeight": profile.display.height, "maxFrameRate": 60, "dynamicRanges": profile.display.dynamicRanges }
+            profile.video.push(av1)
+            for each transport in profile.transports
+                if transport.video <> invalid then transport.video.push("av1")
+            end for
+        end if
+    end if
+    if facts.surround then profile["audioOutput"] = { "maxChannels": 8 }
+    return profile
+end function
+
+' The v1 device profile for the same facts (spec §3).
+function RokuCapabilityProfile(facts as object) as object
+    capability = RokuCapabilityTable(facts.uhd)
+    if facts.uhd then
+        hdr = []
+        if facts.hdr10 then hdr.push("hdr10")
+        if facts.hlg then hdr.push("hlg")
+        if facts.dolbyVision then hdr.push("dolbyvision:5")
+        if hdr.count() > 0 then
+            capability.display["hdr"] = hdr
+            for each codec in capability.video
+                if codec.codec <> "h264" then codec["hdr"] = hdr
+            end for
+        end if
+        if facts.av1 then capability.video.push({ "codec": "av1", "maxBitDepth": 10, "maxWidth": capability.display.maxWidth, "maxHeight": capability.display.maxHeight, "maxFps": 60, "hdr": capability.display.hdr })
+    end if
+    return capability
+end function
+
+' client-profile.ts `ClientProfilePublisher`: the receipt of a published profile, or invalid.
+function ParseProfileReceipt(raw as dynamic) as dynamic
+    if Type(raw) <> "roAssociativeArray" then return invalid
+    revision = raw.revision
+    if Type(revision) <> "String" and Type(revision) <> "roString" then return invalid
+    if Type(raw.summary) <> "roAssociativeArray" then return invalid
+    family = raw.summary.family
+    if Type(family) <> "String" and Type(family) <> "roString" then return invalid
+    return { revision: revision, family: family, published: raw.summary.published = true }
+end function
