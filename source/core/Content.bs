@@ -5,14 +5,28 @@
 import "pkg:/source/core/Session.bs"
 
 ' The api for the selected server with the viewer's token, or invalid when there is no sign-in.
-function ViewerApi(ctx as object) as dynamic
+function ViewerRequestBinding(viewer as dynamic) as dynamic
+    if viewer = invalid or viewer.viewer = invalid then return invalid
+    facts = viewer.viewer
+    return { origin: viewer.origin, serverId: facts.serverId, accountId: facts.accountId, profileId: facts.profileId, authority: facts.authority }
+end function
+
+function ViewerMatchesRequestBinding(record as dynamic, expected as dynamic) as boolean
+    if expected = invalid then return true
+    if record = invalid then return false
+    facts = record["session"].viewer
+    return record["logicalOrigin"] = expected.origin and facts.serverId = expected.serverId and facts.accountId = expected.accountId and facts.profileId = expected.profileId and facts.authority = expected.authority
+end function
+
+function ViewerApi(ctx as object, expectedViewer = invalid as dynamic) as dynamic
     record = SessionRecord(ctx)
-    if record = invalid then return invalid
+    if record = invalid or not ViewerMatchesRequestBinding(record, expectedViewer) then return invalid
     api = SessionApi(ctx, record["logicalOrigin"], record["session"].accessToken)
     api.ctx = ctx
+    api.expectedViewer = expectedViewer
     api.renew = function(api as object, rejected as string) as dynamic
         record = SessionRecord(api.ctx)
-        if record = invalid then return invalid
+        if record = invalid or not ViewerMatchesRequestBinding(record, api.expectedViewer) then return invalid
         ' Another request may already have renewed it.
         if record["session"].accessToken <> rejected then return record["session"].accessToken
         renewed = SessionRenew(api.ctx, record, rejected)
@@ -23,8 +37,8 @@ function ViewerApi(ctx as object) as dynamic
 end function
 
 ' One request as the viewer: {ok, status, data, headers} or {ok: false, status, error}.
-function ViewerRequest(ctx as object, path as string, method = "GET" as string, body = invalid as dynamic, extra = invalid as dynamic) as object
-    api = ViewerApi(ctx)
+function ViewerRequest(ctx as object, path as string, method = "GET" as string, body = invalid as dynamic, extra = invalid as dynamic, expectedViewer = invalid as dynamic) as object
+    api = ViewerApi(ctx, expectedViewer)
     if api = invalid then return { ok: false, status: 401, error: { status: 401, code: "session_expired", message: "", retryable: false } }
     return ApiRequest(api, path, method, body, extra)
 end function

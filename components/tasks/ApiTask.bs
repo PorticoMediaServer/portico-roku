@@ -16,11 +16,15 @@ sub work()
     ctx = SessionContextNew()
     method = "GET"
     if request.method <> invalid then method = request.method
-    answer = ViewerRequest(ctx, request.path, method, request.body, request.headers)
+    answer = ViewerRequest(ctx, request.path, method, request.body, request.headers, request.expectedViewer)
     ' A request may have renewed the session: the scene's image requests follow the new token.
     record = SessionRecord(ctx)
     session = m.global.session
-    if record <> invalid and session <> invalid and session.token <> record["session"].accessToken then session.token = record["session"].accessToken
+    if record <> invalid and session <> invalid and session.viewer <> invalid then
+        if ViewerMatchesRequestBinding(record, request.expectedViewer) and ViewerMatchesRequestBinding(record, ViewerRequestBinding(session.viewer)) then
+            if session.token <> record["session"].accessToken then session.token = record["session"].accessToken
+        end if
+    end if
     if not answer.ok then
         m.top.result = { ok: false, status: answer.status, error: answer.error, reader: request.reader }
         return
