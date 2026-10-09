@@ -1,0 +1,84 @@
+' One bounded, ordered outbox. The head stays present until acknowledged, including across
+' retries: a lost acknowledgement MUST repeat the identical sequence and facts.
+function TimelineOutboxNew() as object
+    return { pending: [], busy: false, retrying: false, attempts: 0 }
+end function
+
+function TimelineOutboxPut(outbox as object, item as object) as boolean
+    count = outbox.pending.count()
+    ' Only an unsent steady observation may be replaced. Never cross an urgent fact, a
+    ' presentation generation, or a session; never mutate the body already in flight.
+    if not item.urgent and count > 0 then
+        tail = outbox.pending[count - 1]
+        if count > 1 or (not outbox.busy and not outbox.retrying) then
+            if not tail.urgent and tail.sessionId = item.sessionId and tail.body.generation = item.body.generation and tail.body.state = item.body.state then
+                item.body.seq = tail.body.seq
+                outbox.pending[count - 1] = item
+                return true
+            end if
+        end if
+    end if
+    ' Reserve the last two slots for the terminal observation and its ordered DELETE.
+    terminal = item.method = "DELETE" or item.terminal = true
+    if item.method = "POST" and item.terminal <> true then terminal = item.body.state = "ended" or item.body.state = "error"
+    if count >= 64 or (count >= 62 and not terminal) then return false
+    outbox.pending.push(item)
+    return true
+end function
+
+function TimelineOutboxGestureAllowed(outbox as object) as boolean
+    return outbox.pending.count() < 62
+end function
+
+function TimelineOutboxTake(outbox as object) as dynamic
+    if outbox.busy or outbox.retrying or outbox.pending.count() = 0 then return invalid
+    outbox.busy = true
+    return outbox.pending[0]
+end function
+
+sub TimelineOutboxAck(outbox as object)
+    if outbox.pending.count() > 0 then outbox.pending.shift()
+    outbox.busy = false
+    outbox.retrying = false
+    outbox.attempts = 0
+end sub
+
+function TimelineOutboxRetryable(failure as dynamic) as boolean
+    if failure = invalid then return false
+    if failure.status = 429 or failure.status = 408 then return true
+    return failure.retryable = true
+end function
+
+function TimelineOutboxDeadSession(status as integer) as boolean
+    return status = 401 or status = 403 or status = 404 or status = 410
+end function
+
+function TimelineOutboxFullFailure() as object
+    return { status: 503, code: "server_busy", retryable: true }
+end function
+
+function TimelineOutboxDelay(outbox as object, failure as object, jitter as float) as float
+    outbox.busy = false
+    outbox.retrying = true
+    outbox.attempts = outbox.attempts + 1
+    base = 1.0
+    for i = 2 to Min(outbox.attempts, 6)
+        base = Min(30, base * 2)
+    end for
+    ' Add bounded positive jitter so Retry-After is a floor, never shortened by jitter.
+    if failure.retryAfterSeconds <> invalid and failure.retryAfterSeconds > base then base = failure.retryAfterSeconds
+    return base + Clamp(jitter, 0, 1) * Min(3, base / 10)
+end function
+
+sub TimelineOutboxForget(outbox as object, sessionId as string)
+    kept = []
+    for each item in outbox.pending
+        ' An old playback session may be gone while its queue can still advance. Let that
+        ' idempotent operation deliver its own result instead of stranding the player.
+        if item.sessionId <> sessionId or item.action = "advance" then kept.push(item)
+    end for
+    outbox.pending = kept
+    outbox.busy = false
+    outbox.retrying = false
+    outbox.attempts = 0
+end sub

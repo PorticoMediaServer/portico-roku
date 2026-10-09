@@ -1,0 +1,37 @@
+sub Test_ViewerBinding_immutable_context_and_before_http()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "owner")
+    accepted = SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx) }, session)
+    AssertTrue(accepted.ok, "test session saved")
+    viewer = { origin: ctx.base, viewer: session.viewer }
+    expected = ViewerRequestBinding(viewer)
+    AssertTrue(ViewerMatchesRequestBinding(accepted.record, expected), "binding accepts exact context")
+    viewer.viewer.profileId = "new-profile"
+    AssertEqual(expected.profileId, "prof_1", "binding does not retain mutable viewer reference")
+    viewer.viewer.profileId = "prof_1"
+    for each field in ["origin", "serverId", "accountId", "profileId", "authority"]
+        changed = {}
+        changed.append(expected)
+        changed[field] = "changed"
+        AssertTrue(not ViewerMatchesRequestBinding(accepted.record, changed), "different " + field + " refused")
+        before = ctx.transport.requests.count()
+        result = ViewerRequest(ctx, "/v1/playback/sessions/old/timeline", "POST", TimelineReport(1, 1, "playing", 1), invalid, changed)
+        AssertTrue(not result.ok, "stale binding fails before transport")
+        AssertEqual(ctx.transport.requests.count(), before, "no old mutation sent to changed " + field)
+    end for
+end sub
+
+sub Test_ViewerBinding_refresh_cannot_cross_profile_switch()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "owner")
+    accepted = SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx) }, session)
+    expected = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer })
+    api = ViewerApi(ctx, expected)
+    replacement = TestSessionJson(ctx, "owner", "prof_2")
+    SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx) }, replacement)
+    before = ctx.transport.requests.count()
+    renewed = api.renew(api, session.accessToken)
+    AssertEqual(renewed, invalid, "stale request does not borrow replacement token")
+    AssertEqual(ctx.transport.requests.count(), before, "stale request does not refresh replacement profile")
+    AssertTrue(ViewerApi(ctx) <> invalid, "generic callers remain usable without binding")
+end sub

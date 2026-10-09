@@ -128,7 +128,7 @@ function ParseChannelGuide(raw as dynamic, serverId as string, route as object) 
     if not ArrayIncludes(["ready", "no-sources", "no-channels", "no-guide-data", "filter-empty", "guide-stale", "continuation-required"], g.state) then return bad
     if not IsGuideId(g.viewerFence) or not IsString(g.start) or g.start <> route.start or not IsString(g["end"]) or g["end"] <> route["end"] or not IsString(g.timezone) or g.timezone <> route.timezone then return bad
     sourceList = FieldOf(g, "sources")
-    if GuideInstant(g.observedAt) = invalid or not IsGuideText(g.nextCursor, 2048) or not IsArray(g.channels) or g.channels.count() > 30 or not IsArray(sourceList) or sourceList.count() > 2000 then return bad
+    if GuideInstant(g.observedAt) = invalid or not IsGuideText(g.nextCursor, 2048) or not IsArray(g.channels) or g.channels.count() > 50 or not IsArray(sourceList) or sourceList.count() > 2000 then return bad
     windowStart = GuideInstant(route.start)
     windowEnd = GuideInstant(route["end"])
     generations = {}

@@ -25,6 +25,8 @@ import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Format.bs"
 import "pkg:/source/core/Crypto.bs"
 import "pkg:/source/core/Playback.bs"
+import "pkg:/source/core/TimelineOutbox.bs"
+import "pkg:/source/core/Content.bs"
 import "pkg:/source/core/ClientProfileTables.bs"
 import "pkg:/source/core/Settings.bs"
 import "pkg:/source/core/Guide.bs"
@@ -66,6 +68,11 @@ sub init()
     m.hide.observeField("fire", "onPlayerHide")
     m.report = m.top.createChild("Timer")
     m.report.observeField("fire", "onPlayerReport")
+    m.reportRetry = m.top.createChild("Timer")
+    m.reportRetry.observeField("fire", "onPlayerReportRetry")
+    m.reportOutbox = TimelineOutboxNew()
+    m.reportTask = invalid
+    m.reportOverflow = false
     m.retry = m.top.createChild("Timer")
     m.retry.observeField("fire", "onPlayerRetryStart")
     m.countdown = m.top.createChild("Timer")
@@ -93,12 +100,14 @@ sub PlayerReset()
     m.request = invalid
     m.session = invalid
     m.queue = invalid
+    m.advancePending = false
     m.options = invalid
     m.entry = invalid
     m.identity = { title: "", subtitle: "", artUri: "" }
     m.phase = "idle"
     m.failure = invalid
     m.seq = 0
+    m.reportDisabledId = ""
     m.startKey = ""
     m.pending = invalid
     m.choices = {}
@@ -140,10 +149,13 @@ end function
 ' Ends what is playing (the viewer signed out or is switching server).
 sub stop()
     if m.top.active then PlayerLeave()
+    ' Sign-out/server-switch work cannot enter the next authentication context.
+    PlayerCancelReports()
 end sub
 
 ' Watch Together: the follower keeps this player on the group's clock.
 sub groupDo(action as object)
+    if not PlayerReportGestureAllowed() then return
     if m.session = invalid or m.channel <> invalid then return
     if action.kind = "play" then
         m.video.control = "resume"
@@ -152,6 +164,7 @@ sub groupDo(action as object)
     else if action.kind = "seek" and action.seconds <> invalid then
         m.seekTo = action.seconds
         m.video.seek = action.seconds
+        PlayerSendReport(PlayerReportState(), invalid)
         PlayerTimeline()
     end if
 end sub
@@ -218,6 +231,7 @@ end function
 
 ' Plays a title, or a list from an entry: {itemId, startSeconds, entry, queue, index, container, shuffle}.
 sub play(request as object)
+    if not PlayerReportGestureAllowed() then return
     if m.session <> invalid then PlayerStopSession(false)
     PlayerReset()
     m.generation = m.generation + 1
@@ -480,8 +494,8 @@ end sub
 ' A session to play: the Video node is given what the server prepared.
 sub PlayerAdopt(session as object)
     changed = m.playingItem <> "" and session.itemId <> invalid and session.itemId <> m.playingItem
+    if m.session = invalid or m.session.id <> session.id then m.seq = 0
     m.session = session
-    m.seq = 0
     m.failure = invalid
     m.upNext = invalid
     m.waited = 0
@@ -571,7 +585,7 @@ end function
 
 sub onPlayerVideoState()
     state = m.video.state
-    if m.session = invalid then return
+    if m.session = invalid or m.phase = "ended" or m.phase = "error" then return
     if state = "playing" then
         m.phase = "playing"
         PlayerTouch()
@@ -615,46 +629,144 @@ end sub
 
 sub PlayerReportSoon()
     m.report.control = "stop"
+    if m.session = invalid or m.reportOutbox.pending.count() > 0 or m.phase = "ended" or m.phase = "error" then return
+    if m.reportDisabledId = m.session.id then return
     m.report.duration = TimelineCadenceSeconds(PlayerReportState(), m.session.reportEveryMs)
     m.report.control = "start"
 end sub
 
 sub onPlayerReport()
     if m.session = invalid then return
-    PlayerSendReport(PlayerReportState(), invalid)
+    PlayerSendReport(PlayerReportState(), invalid, false)
 end sub
 
-sub PlayerSendReport(state as string, failure as dynamic)
+sub PlayerSendReport(state as string, failure as dynamic, urgent = true as boolean)
     if m.session = invalid then return
-    m.seq = m.seq + 1
-    body = TimelineReport(m.seq, m.session.presentation.generation, state, PlayerPosition())
+    if m.reportDisabledId = m.session.id then return
+    m.report.control = "stop"
+    body = TimelineReport(m.seq + 1, m.session.presentation.generation, state, PlayerPosition())
+    if m.seekTo >= 0 then body.positionMs = PlaybackMs(m.seekTo)
     if failure <> invalid then body["error"] = failure
-    if m.skipped <> invalid then
-        body["skipped"] = m.skipped
-        m.skipped = invalid
+    if m.skipped <> invalid then body["skipped"] = m.skipped
+    item = { sessionId: m.session.id, method: "POST", body: body, urgent: urgent or m.skipped <> invalid or failure <> invalid }
+    if not PlayerQueueReport(item) then return
+    m.seq = body.seq
+    m.skipped = invalid
+end sub
+
+function PlayerReportGestureAllowed() as boolean
+    if TimelineOutboxGestureAllowed(m.reportOutbox) then return true
+    if not m.reportOverflow then
+        m.reportOverflow = true
+        Toast(PresentError(TimelineOutboxFullFailure(), "playback", { operation: "save" }).body, "warning")
     end if
-    ApiStart({ path: "/v1/playback/sessions/" + m.session.id + "/timeline", method: "POST", body: body }, "onPlayerReported")
-    if state <> "ended" and state <> "error" then PlayerReportSoon()
+    return false
+end function
+
+function PlayerQueueReport(item as object) as boolean
+    item.expectedViewer = ViewerRequestBinding(m.global.session.viewer)
+    if item.expectedViewer = invalid then return false
+    if not TimelineOutboxPut(m.reportOutbox, item) then
+        ' Bound memory during gesture storms against an offline server. Accepted facts stay
+        ' ordered and keep retrying; an explicit warning asks for recovery instead of hiding loss.
+        if not m.reportOverflow then
+            m.reportOverflow = true
+            Toast(PresentError(TimelineOutboxFullFailure(), "playback", { operation: "save" }).body, "warning")
+        end if
+        return false
+    end if
+    PlayerPumpReports()
+    return true
+end function
+
+sub PlayerPumpReports()
+    item = TimelineOutboxTake(m.reportOutbox)
+    if item = invalid then
+        PlayerReportSoon()
+        return
+    end if
+    if item.action = "advance" and item.playerGeneration <> m.generation then
+        TimelineOutboxAck(m.reportOutbox)
+        PlayerPumpReports()
+        return
+    end if
+    path = "/v1/playback/sessions/" + item.sessionId
+    if item.method = "POST" then path = path + "/timeline"
+    if item.path <> invalid then path = item.path
+    m.reportTask = ApiStart({ path: path, method: item.method, body: item.body, headers: item.headers, reader: item.reader, expectedViewer: item.expectedViewer }, "onPlayerReported")
+    if item.playerGeneration <> invalid then m.reportTask.addFields({ generation: item.playerGeneration })
 end sub
 
-sub onPlayerReported()
+sub onPlayerReported(event as object)
+    ' Late cancellation/results are fenced without touching a replacement session.
+    task = event.getRoSGNode()
+    if m.reportTask = invalid or not task.isSameNode(m.reportTask) then return
+    item = m.reportOutbox.pending[0]
+    m.reportTask.unobserveField("result")
+    m.reportTask = invalid
+    result = event.getData()
+    if item.action = "advance" and item.playerGeneration <> m.generation then
+        TimelineOutboxAck(m.reportOutbox)
+        PlayerPumpReports()
+        return
+    end if
+    if not result.ok and TimelineOutboxRetryable(result.error) then
+        m.reportRetry.duration = TimelineOutboxDelay(m.reportOutbox, result.error, (Rnd(1000) - 1) / 1000)
+        m.reportRetry.control = "start"
+        return
+    end if
+    if not result.ok then
+        if TimelineOutboxDeadSession(result.status) and item.action <> "advance" then
+            if m.session <> invalid and m.session.id = item.sessionId then m.reportDisabledId = item.sessionId
+            TimelineOutboxForget(m.reportOutbox, item.sessionId)
+        else
+            TimelineOutboxAck(m.reportOutbox)
+        end if
+        if m.session <> invalid and m.session.id = item.sessionId then Toast(PresentError(result.error, "playback", { operation: "save" }).body, "warning")
+    else
+        TimelineOutboxAck(m.reportOutbox)
+    end if
+    m.reportOverflow = false
+    if item.action = "advance" then onPlayerAdvanced(event)
+    PlayerPumpReports()
 end sub
 
-' DELETE the session with where it stopped (spec §5.8).
+sub onPlayerReportRetry()
+    m.reportOutbox.retrying = false
+    PlayerPumpReports()
+end sub
+
+sub PlayerCancelReports()
+    m.report.control = "stop"
+    m.reportRetry.control = "stop"
+    if m.reportTask <> invalid then
+        m.reportTask.unobserveField("result")
+        m.reportTask.control = "STOP"
+    end if
+    m.reportTask = invalid
+    m.reportOutbox = TimelineOutboxNew()
+    m.reportOverflow = false
+end sub
+
+' Final facts drain before DELETE, and the outbox survives normal PlayerReset/PlayerLeave.
 sub PlayerStopSession(finished as boolean)
     if m.session = invalid then return
+    if m.reportDisabledId = m.session.id then
+        m.session = invalid
+        return
+    end if
     m.report.control = "stop"
     m.channelPoll.control = "stop"
     body = invalid
-    ' A channel has no place to come back to: its session is simply ended.
     if not finished and m.channel = invalid then body = { "positionMs": PlaybackMs(PlayerPosition()) }
-    ApiStart({ path: "/v1/playback/sessions/" + m.session.id, method: "DELETE", body: body }, "onPlayerReported")
+    PlayerQueueReport({ sessionId: m.session.id, method: "DELETE", body: body, urgent: true })
     m.session = invalid
 end sub
 
 ' ---- Seeking, toggling, the queue ---------------------------------------------------------------
 
 sub toggle()
+    if not PlayerReportGestureAllowed() then return
     if m.session = invalid then return
     if PlayerGroupTook({ kind: "toggle", playing: m.video.state = "playing" or m.video.state = "buffering" }) then return
     if m.channel <> invalid then
@@ -678,6 +790,7 @@ sub toggle()
 end sub
 
 sub PlayerSeekBy(seconds as dynamic)
+    if not PlayerReportGestureAllowed() then return
     if m.session = invalid or m.channel <> invalid or m.video.duration <= 0 then return
     target = m.video.position + seconds
     if m.seekTo >= 0 then target = m.seekTo + seconds
@@ -685,17 +798,26 @@ sub PlayerSeekBy(seconds as dynamic)
     if PlayerGroupTook({ kind: "seek", seconds: target }) then return
     m.seekTo = target
     m.video.seek = target
+    PlayerSendReport(PlayerReportState(), invalid)
     PlayerTimeline()
     PlayerTouch()
 end sub
 
 sub PlayerAdvance(reason as string)
+    if m.advancePending then return
+    if reason <> "completion" and not PlayerReportGestureAllowed() then return
     if m.queue = invalid then return
     m.counting = false
     m.countdown.control = "stop"
     ' The advance starts the next session and replaces this one (spec §8): it is told where it
     ' stopped, and is not ended from here.
     if m.session <> invalid and m.phase <> "ended" then PlayerSendReport("paused", invalid)
+    oldSessionId = ""
+    if m.session <> invalid then oldSessionId = m.session.id
+    advance = { sessionId: oldSessionId, method: "POST", path: "/v1/queues/" + m.queue.id + ":advance", body: QueueAdvanceBody(reason), headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue", urgent: true, terminal: true, action: "advance", playerGeneration: m.generation }
+    ' The completion fact must be acknowledged before the queue replaces its session.
+    if not PlayerQueueReport(advance) then return
+    m.advancePending = true
     m.report.control = "stop"
     m.session = invalid
     m.video.control = "stop"
@@ -703,12 +825,12 @@ sub PlayerAdvance(reason as string)
     m.upNext = invalid
     m.waited = 0
     PlayerDraw()
-    PlayerSend("advance", { path: "/v1/queues/" + m.queue.id + ":advance", method: "POST", body: QueueAdvanceBody(reason), headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerAdvanced")
 end sub
 
 sub onPlayerAdvanced(event as object)
     task = event.getRoSGNode()
     if task.generation <> m.generation then return
+    m.advancePending = false
     result = event.getData()
     if not result.ok or result.value.ok <> true then
         PlayerFail(result.error)
@@ -808,8 +930,8 @@ end sub
 ' it counts down), else the player closes.
 sub PlayerFinished()
     PlayerSendReport("ended", invalid)
+    m.phase = "ended"
     if not PlayerHasNext() then
-        m.phase = "ended"
         PlayerLeave()
         return
     end if
@@ -1297,7 +1419,7 @@ sub PlayerSkipPrompt()
             marker = invalid
         else if mode = "auto" then
             ' Skipped without asking, once: going back into it afterwards plays it.
-            if m.autoSkipped[marker.id] = invalid then
+            if m.autoSkipped[marker.id] = invalid and TimelineOutboxGestureAllowed(m.reportOutbox) then
                 m.autoSkipped[marker.id] = true
                 m.skipped = { "markerId": marker.id, "mode": "auto", "positionMs": PlaybackMs(PlayerPosition()) }
                 m.video.seek = marker.endMs / 1000
@@ -1444,6 +1566,7 @@ sub onPlayerButton(event as object)
     else if id = "previous" then
         PlayerAdvance("previous")
     else if id = "skip" then
+        if not PlayerReportGestureAllowed() then return
         m.skipped = { "markerId": button.markerId, "mode": "manual", "positionMs": PlaybackMs(PlayerPosition()) }
         m.video.seek = button.markerEnd / 1000
         PlayerSendReport(PlayerReportState(), invalid)
@@ -1560,6 +1683,7 @@ sub onPlayerChoice()
         PlayerDraw()
         return
     end if
+    if not PlayerReportGestureAllowed() then return
     change = invalid
     if kind = "audio" then
         m.choices.audioId = value

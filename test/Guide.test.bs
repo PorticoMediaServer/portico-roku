@@ -2,6 +2,22 @@
 ' guides (the development server has no sources) and what it serves for none.
 import "pkg:/source/core/Guide.bs"
 
+sub Test_Guide_response_bounds()
+    fixture = TestFixture("golden/guide.json")
+    seed = fixture.cases[0]
+    document = ParseJson(FormatJson(seed.document))
+    for i = document.guide.channels.count() to 49
+        row = ParseJson(FormatJson(document.guide.channels[1]))
+        row.id = "bounded" + i.toStr()
+        document.guide.channels.push(row)
+    end for
+    AssertTrue(ParseChannelGuide(document, seed.serverId, seed.route).ok, "full50-row response accepted")
+    row = ParseJson(FormatJson(document.guide.channels[1]))
+    row.id = "over-bound"
+    document.guide.channels.push(row)
+    AssertTrue(not ParseChannelGuide(document, seed.serverId, seed.route).ok, "51-row oversized response refused")
+end sub
+
 sub Test_Guide_parse()
     fixture = TestFixture("golden/guide.json")
     if fixture = invalid then return

@@ -1,0 +1,91 @@
+function TestTimelineItem(seq as integer, state = "playing" as string, urgent = false as boolean, sessionId = "first" as string, generation = 1 as integer) as object
+    return { sessionId: sessionId, method: "POST", body: TimelineReport(seq, generation, state, seq), urgent: urgent }
+end function
+
+sub Test_TimelineOutbox_singleflight_and_lost_ack()
+    outbox = TimelineOutboxNew()
+    original = TestTimelineItem(1, "playing", true)
+    original.body.skipped = { markerId: "intro", mode: "manual", positionMs: 1 }
+    AssertTrue(TimelineOutboxPut(outbox, original), "marker enqueued")
+    first = TimelineOutboxTake(outbox)
+    AssertEqual(TimelineOutboxTake(outbox), invalid, "no second request while pending")
+    AssertTrue(TimelineOutboxPut(outbox, TestTimelineItem(2)), "steady tick queued")
+    AssertTrue(TimelineOutboxPut(outbox, TestTimelineItem(3)), "new tick replaces unsent tick")
+    AssertEqual(outbox.pending.count(), 2, "slow request does not accumulate ticks")
+    delay = TimelineOutboxDelay(outbox, { retryable: true, retryAfterSeconds: 12 }, 0.5)
+    AssertTrue(delay >= 12 and delay <= 13.2, "Retry-After floor plus bounded jitter")
+    AssertEqual(TimelineOutboxTake(outbox), invalid, "no requests before backoff elapses")
+    outbox.retrying = false
+    retry = TimelineOutboxTake(outbox)
+    AssertSame(retry, first, "lost acknowledgement retries exact seq and marker")
+    TimelineOutboxAck(outbox)
+    nextItem = TimelineOutboxTake(outbox)
+    AssertEqual(nextItem.body.seq, 2, "coalescing preserves reserved sequence")
+    AssertEqual(nextItem.body.positionMs, 3000, "coalescing keeps latest position")
+end sub
+
+sub Test_TimelineOutbox_urgent_order_and_close()
+    outbox = TimelineOutboxNew()
+    items = [TestTimelineItem(1), TestTimelineItem(2, "paused", true), TestTimelineItem(3, "playing", true), TestTimelineItem(4, "playing", true, "first", 2), TestTimelineItem(5, "ended", true)]
+    items.push({ sessionId: "first", method: "DELETE", body: invalid, urgent: true })
+    items.push(TestTimelineItem(1, "playing", true, "second"))
+    for each item in items
+        AssertTrue(TimelineOutboxPut(outbox, item), "ordered fact accepted")
+    end for
+    for each expected in items
+        AssertSame(TimelineOutboxTake(outbox), expected, "state/generation/end/close/session order preserved")
+        TimelineOutboxAck(outbox)
+    end for
+    AssertEqual(TimelineOutboxTake(outbox), invalid, "fully drained")
+end sub
+
+sub Test_TimelineOutbox_retry_head_is_immutable_and_bounded()
+    outbox = TimelineOutboxNew()
+    AssertTrue(TimelineOutboxPut(outbox, TestTimelineItem(1)), "first steady tick")
+    original = TimelineOutboxTake(outbox)
+    TimelineOutboxDelay(outbox, { retryable: true }, 0)
+    AssertTrue(TimelineOutboxPut(outbox, TestTimelineItem(2)), "tick after failed response")
+    AssertSame(outbox.pending[0], original, "retry head cannot coalesce, even while not in flight")
+    for i = 3 to 62
+        AssertTrue(TimelineOutboxPut(outbox, TestTimelineItem(i, "paused", true)), "urgent fact accepted below cap")
+    end for
+    AssertTrue(not TimelineOutboxGestureAllowed(outbox), "gesture rejected before local side effects at62")
+    AssertTrue(not TimelineOutboxPut(outbox, TestTimelineItem(63, "paused", true)), "normal facts cannot consume final slots")
+    AssertTrue(TimelineOutboxPut(outbox, TestTimelineItem(63, "ended", true)), "ended has reserved slot")
+    AssertTrue(TimelineOutboxPut(outbox, { sessionId: "first", method: "DELETE", body: invalid, urgent: true }), "close has reserved slot")
+    AssertTrue(not TimelineOutboxPut(outbox, TestTimelineItem(65, "ended", true)), "65th fact refused explicitly")
+    AssertEqual(outbox.pending.count(), 64, "memory bounded at64 unacknowledged facts")
+    AssertEqual(outbox.pending[0].body.seq, 1, "oldest retry retained under pressure")
+    AssertEqual(outbox.pending[61].body.seq, 62, "no accepted urgent fact displaced")
+    AssertEqual(outbox.pending[63].method, "DELETE", "close ordered after end")
+    TimelineOutboxForget(outbox, "first")
+    AssertEqual(outbox.pending.count(), 0, "revoked session cleared")
+end sub
+
+sub Test_TimelineOutbox_retry_and_session_isolation()
+    outbox = TimelineOutboxNew()
+    AssertTrue(TimelineOutboxRetryable({ status: 429, retryable: false }), "429 backs off even if body omitted retryability")
+    AssertTrue(TimelineOutboxRetryable({ status: 408, retryable: false }), "request timeout retries")
+    AssertTrue(not TimelineOutboxRetryable({ status: 403, retryable: false }), "permission failure not retried")
+    for i = 1 to 20
+        delay = TimelineOutboxDelay(outbox, { retryable: true }, 1)
+        AssertTrue(delay >= 1 and delay <= 33, "exponential backoff capped with bounded jitter")
+    end for
+    TimelineOutboxPut(outbox, TestTimelineItem(1, "ended", true))
+    TimelineOutboxPut(outbox, TestTimelineItem(1, "playing", true, "second"))
+    TimelineOutboxForget(outbox, "first")
+    AssertEqual(outbox.pending.count(), 1, "closing old session cannot clear new session")
+    AssertEqual(TimelineOutboxTake(outbox).sessionId, "second", "new session remains sendable")
+end sub
+
+sub Test_TimelineOutbox_dead_session_does_not_strand_queue_advance()
+    outbox = TimelineOutboxNew()
+    TimelineOutboxPut(outbox, TestTimelineItem(1, "ended", true))
+    advance = { sessionId: "first", method: "POST", path: "/v1/queues/queue:advance", body: { reason: "completion" }, urgent: true, terminal: true, action: "advance" }
+    TimelineOutboxPut(outbox, advance)
+    TimelineOutboxForget(outbox, "first")
+    AssertEqual(outbox.pending.count(), 1, "queue operation remains after old session is gone")
+    AssertSame(TimelineOutboxTake(outbox), advance, "queue operation gets its own result")
+    TimelineOutboxAck(outbox)
+    AssertEqual(outbox.pending.count(), 0, "failed advance can be removed without retry loop")
+end sub
