@@ -3,7 +3,8 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, roku-actions-builds]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,30 +15,45 @@ concurrency:
 
 jobs:
   package:
+    name: Compile, test and package Roku
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with: {path: portico-roku}
-      # The generator reads the shared packages and the Apple TV app from sibling checkouts.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with: {repository: PorticoMediaServer/portico-server, path: portico-server}
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with: {repository: PorticoMediaServer/portico-react-native, path: portico-react-native}
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with: {node-version: 24, cache: npm, cache-dependency-path: portico-roku/package-lock.json}
+        with:
+          node-version: 24
+          cache: npm
       - run: npm ci --no-audit --no-fund
-        working-directory: portico-roku
-      - name: Generated files are current
-        working-directory: portico-roku
+      # Generated assets and golden fixtures are versioned with the Roku source.
+      # Regeneration is an explicit authoring step, never a read of floating sibling branches.
+      - name: Static checks
+        run: npm run check
+      - name: Compiled BrightScript logic tests
+        run: npm test
+      - name: Compile unsigned sideload ZIP
+        run: npm run package
+      - name: Verify ZIP and record build provenance
         run: |
-          npm run generate
+          python3 scripts/verify-package.py
           git diff --exit-code
-      - run: npm run check
-        working-directory: portico-roku
-      - run: npm test
-        working-directory: portico-roku
-      - run: npm run package
-        working-directory: portico-roku
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with: {name: portico-roku, path: portico-roku/build/portico-roku.zip, if-no-files-found: error}
+        with:
+          name: portico-roku-sideload
+          path: |
+            build/portico-roku.zip
+            build/portico-roku.zip.sha256
+            build/metadata.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Build summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          ## Roku unsigned sideload ZIP
+          BrighterScript static checks, compiled logic tests, compilation and ZIP integrity checks passed.
+          Download **portico-roku-sideload** for the channel ZIP, SHA-256 checksum and source/tool metadata.
+          This is an unsigned development ZIP, not a device-signed `.pkg` or a Streaming Store release.
+          No device deployment, hardware acceptance or store certification is performed by this workflow.
+          SUMMARY

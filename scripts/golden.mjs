@@ -2,8 +2,9 @@
 /**
  * Golden fixtures: runs the TypeScript the channel's BrightScript was ported from (packages/i18n,
  * packages/client-core) over a set of inputs and writes the inputs with their real outputs to
- * test/fixtures/golden/. The BrightScript tests replay them, so a port that drifts from the
- * TypeScript fails. The fixtures are committed; `npm test` rewrites them first.
+ * test/fixtures/golden/. The BrightScript tests replay these recorded TypeScript outcomes.
+ * The fixtures are committed; `npm run fixtures:generate` updates them explicitly when porting
+ * shared-package changes, rather than making tests depend on floating sibling revisions.
  */
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
