@@ -6,7 +6,10 @@
     "components/**/*",
     "images/**/*",
     "fonts/**/*",
-    "locale/**/*"
+    "locale/**/*",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.txt",
+    "licenses/**/*"
   ],
   "stagingDir": "build/staging",
   "retainStagingDir": true,

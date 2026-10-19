@@ -1,0 +1,89 @@
+name: Release Roku
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: roku-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validate and build unsigned Roku release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npm test
+      - run: npm run package
+      - name: Verify version, ZIP, licenses and exact corresponding source
+        run: python3 scripts/prepare-release.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: roku-release
+          path: build/release/*
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: roku-release
+          path: release
+      - name: Verify and publish immutable release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          cd release
+          sha256sum --check SHA256SUMS
+          python3 - <<'PY'
+          import json, os
+          m = json.load(open('metadata.json'))
+          assert m['tag'] == os.environ['RELEASE_TAG'] == 'v' + m['version']
+          assert m['commit'] == m['source']['commit'] == os.environ['SOURCE_SHA']
+          assert m['signed'] is False and m['hardwareValidated'] is False
+          PY
+          # Only a 404 permits creation; auth/network/API errors must fail closed.
+          if gh api "repos/$GH_REPO/releases/tags/$RELEASE_TAG" > existing-release.json 2> release-error.txt; then
+            echo 'Release already exists; refusing to change its assets.' >&2
+            exit 1
+          elif ! grep -q 'HTTP 404' release-error.txt; then
+            cat release-error.txt >&2
+            exit 1
+          fi
+          rm existing-release.json release-error.txt
+          cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          Portico for Roku ${RELEASE_TAG#v} — unsigned development sideload ZIP.
+
+          Includes the freshly compiled channel, exact corresponding source, application and third-party licenses, SHA-256 checksums, and source/tool metadata.
+
+          Source commit: $SOURCE_SHA
+
+          This is prerelease software. The ZIP is unsigned; it is not a device-key-signed .pkg or a Roku Streaming Store release. No physical Roku installation, playback acceptance, or store certification is claimed.
+          EOF
+          gh release create "$RELEASE_TAG" ./* --verify-tag --prerelease \
+            --title "Portico for Roku ${RELEASE_TAG#v}" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
+          gh release view "$RELEASE_TAG" --json isDraft,url --jq 'if .isDraft then error("Release remains draft") else .url end'

@@ -1,6 +1,6 @@
 {
   "name": "portico-roku",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Portico for Roku: a BrightScript and SceneGraph translation of the Apple TV app.",
   "type": "module",

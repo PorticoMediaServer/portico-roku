@@ -1,0 +1,20 @@
+Portico for Roku
+Copyright (c) 2026 Justin Ehler
+Application source: GPL-3.0-or-later; see LICENSE.
+Portico names and marks: see TRADEMARKS.md in the corresponding source archive.
+
+Manrope fonts (fonts/manrope-400.ttf, manrope-500.ttf, manrope-600.ttf,
+manrope-700.ttf) are licensed under the SIL Open Font License 1.1.
+See licenses/Manrope-OFL.txt for the copyright notice and full license.
+Upstream: https://github.com/googlefonts/manrope
+
+Lucide-derived icons (images/icons/*): ISC license, with the original Feather
+MIT notice retained. See licenses/Lucide-LICENSE.txt.
+Upstream: https://github.com/lucide-icons/lucide
+
+BrighterScript runtime helper (source/bslib.brs): MIT license.
+Copyright (c) 2019 Bronley Plumb. See licenses/BrighterScript-MIT.txt.
+Upstream: https://github.com/rokucommunity/brighterscript
+
+Other build tools are not bundled with the channel. Their versions and dependency
+integrities are recorded in package-lock.json in the corresponding source.
