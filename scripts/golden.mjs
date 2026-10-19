@@ -1130,7 +1130,7 @@ const write = (name, value) => {
       sessions.push({name: `${name}: ${label}`, raw: value, ok: result.ok, ...(result.ok ? {value: result.value} : {})});
     }
   }
-  const queueOut = q => ({id: q.id, revision: q.revision, total: q.total, repeat: q.repeat, shuffled: !!q.shuffle, current: q.current ?? null, upcoming: q.next ? {available: q.next.available, reason: q.next.reason, ...(q.next.entryId ? {entryId: q.next.entryId} : {})} : null, postPlay: q.postPlay ? {autoplay: q.postPlay.autoplay, countdownSeconds: q.postPlay.countdownSeconds, passoutCheckDue: q.postPlay.passoutCheckDue} : null});
+  const queueOut = q => ({id: q.id, revision: q.revision, total: q.total, repeat: q.repeat, shuffled: !!q.shuffle, current: q.current ?? null, upcoming: q.next ? {available: q.next.available, reason: q.next.reason, ...(q.next.entryId ? {entryId: q.next.entryId} : {})} : null, postPlay: q.postPlay ? {autoplay: q.postPlay.autoplay, countdownSeconds: q.postPlay.countdownSeconds, passoutCheckDue: q.postPlay.passoutCheckDue, startDuringCredits: q.postPlay.startDuringCredits === true} : null});
   const entryOut = e => ({entryId: e.entryId, position: e.position, itemId: e.itemId, kind: e.kind, title: e.title, available: e.available, durationMs: e.durationMs ?? null, albumId: e.albumId ?? null});
   const queues = [];
   for (const name of ['playback-queue.json', 'playback-queue-advance.json']) {

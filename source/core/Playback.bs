@@ -193,7 +193,16 @@ function ParseQueueHeader(v as dynamic) as dynamic
         if IsString(v["next"].entryId) then upcoming.entryId = v["next"].entryId
         queue.upcoming = upcoming
     end if
-    if IsObject(v.postPlay) then queue.postPlay = { autoplay: IsBoolean(v.postPlay.autoplay) and v.postPlay.autoplay, countdownSeconds: PlaybackNumber(v.postPlay.countdownSeconds, 10), passoutCheckDue: IsBoolean(v.postPlay.passoutCheckDue) and v.postPlay.passoutCheckDue }
+    if IsObject(v.postPlay) then
+        ' post-play.ts: the countdown arrives in milliseconds (a server from before says seconds).
+        seconds = 10
+        if PlaybackNumber(v.postPlay.countdownMs, invalid) <> invalid then
+            seconds = Int(v.postPlay.countdownMs / 1000)
+        else if PlaybackNumber(v.postPlay.countdownSeconds, invalid) <> invalid then
+            seconds = v.postPlay.countdownSeconds
+        end if
+        queue.postPlay = { autoplay: IsBoolean(v.postPlay.autoplay) and v.postPlay.autoplay, countdownSeconds: seconds, passoutCheckDue: IsBoolean(v.postPlay.passoutCheckDue) and v.postPlay.passoutCheckDue, startDuringCredits: IsBoolean(v.postPlay.startDuringCredits) and v.postPlay.startDuringCredits }
+    end if
     return queue
 end function
 
@@ -472,6 +481,61 @@ function ActiveMarker(markers as object, positionSeconds as dynamic) as dynamic
         end if
     end for
     return invalid
+end function
+
+'' segment-skip.ts: an intro or recap skip lands a moment before the segment ends, so the cut is
+' not abrupt; closing segments (credits, a preview) land exactly where they end, on the scene
+' after them or at the end.
+function MarkerSkipTarget(marker as object, durationMs = 0 as dynamic) as dynamic
+    if marker.type = "credits" or marker.type = "preview" then return marker.endMs
+    target = marker.endMs - 1000
+    if target < marker.startMs then target = marker.startMs
+    if IsNumber(durationMs) and durationMs > 0 and target > durationMs then target = durationMs
+    return target
+end function
+
+' segment-skip.ts: skipped without asking only when the viewer chose to for this kind and the
+' server says the segment is safe to skip unattended.
+function MarkerSkipsAutomatically(marker as object, mode as string) as boolean
+    return mode = "auto" and marker.automaticSafe = true
+end function
+
+' segment-skip.ts: whether more of the title follows a closing segment (a scene after the credits).
+function MarkerFollowedByScene(marker as object, durationMs as dynamic) as boolean
+    return IsNumber(durationMs) and durationMs > 0 and durationMs - marker.endMs > 3000
+end function
+
+' up-next.ts `upNextOffer`: the closing credits playing now, while the next title can be offered
+' in a corner; invalid otherwise. Credits in the first half are opening credits. Credits the viewer
+' asked to have skipped unattended are left to the skip itself.
+function CreditsOffer(markers as object, positionSeconds as dynamic, durationSeconds as dynamic, mode as string, nextAvailable as boolean, passoutDue as boolean) as dynamic
+    if not nextAvailable or passoutDue or mode = "off" or not IsNumber(durationSeconds) or durationSeconds <= 0 then return invalid
+    position = positionSeconds * 1000
+    duration = durationSeconds * 1000
+    for each marker in markers
+        if marker.type = "credits" and marker.endMs > marker.startMs and marker.startMs >= duration / 2 and position >= marker.startMs and position < marker.endMs - 500 then
+            if MarkerSkipsAutomatically(marker, mode) then return invalid
+            return marker
+        end if
+    end for
+    return invalid
+end function
+
+' up-next.ts `upNextCountdown`: during the credits the next title starts by itself only when the
+' viewer turned on "Start the next episode during the credits", autoplay is on, the server is sure
+' of the credits, and no scene follows them. {automatic, seconds}, or invalid with autoplay off.
+function CreditsCountdown(marker as object, positionSeconds as dynamic, durationSeconds as dynamic, postPlay as dynamic, elapsedSeconds as dynamic) as dynamic
+    if postPlay = invalid or postPlay.autoplay <> true then return invalid
+    countdown = postPlay.countdownSeconds
+    if not IsNumber(countdown) or countdown < 0 then countdown = 0
+    if postPlay.startDuringCredits = true and marker.automaticSafe = true and not MarkerFollowedByScene(marker, durationSeconds * 1000) then
+        left = Int(countdown - elapsedSeconds + 0.999)
+        if left < 0 then left = 0
+        return { automatic: true, seconds: left }
+    end if
+    rest = durationSeconds - positionSeconds
+    if rest < 0 then rest = 0
+    return { automatic: false, seconds: Int(rest + countdown + 0.999) }
 end function
 
 ' The stream format a Video node is told for a presentation: HLS for a stream the server

@@ -276,15 +276,15 @@
   "pref.group.appearance.description.tv": "Applies to this TV.",
   "pref.group.navigation.title": "Navigation",
   "pref.group.notifications.title": "Notifications",
-  "pref.label.playback.skipBackSeconds": "Skip back",
-  "pref.help.playback.skipBackSeconds": "How far the back button rewinds.",
-  "pref.label.playback.skipForwardSeconds": "Skip forward",
-  "pref.help.playback.skipForwardSeconds": "How far the forward button jumps.",
+  "pref.label.playback.skipBackMs": "Skip back",
+  "pref.help.playback.skipBackMs": "How far the back button rewinds.",
+  "pref.label.playback.skipForwardMs": "Skip forward",
+  "pref.help.playback.skipForwardMs": "How far the forward button jumps.",
   "pref.label.playback.autoplayNext": "Play next automatically",
   "pref.help.playback.autoplayNext": "Start the next episode when one ends.",
-  "pref.label.playback.upNextCountdownSeconds": "Up Next countdown",
-  "pref.help.playback.upNextCountdownSeconds": "How long the next episode waits before starting.",
-  "pref.value.playback.upNextCountdownSeconds.0": "Immediately",
+  "pref.label.playback.upNextCountdownMs": "Up Next countdown",
+  "pref.help.playback.upNextCountdownMs": "How long the next episode waits before starting.",
+  "pref.value.playback.upNextCountdownMs.0": "Immediately",
   "pref.label.playback.passoutProtection": "Still watching check",
   "pref.help.playback.passoutProtection": "Pause autoplay after several episodes with no one using the remote.",
   "pref.label.playback.passoutAfterEpisodes": "Ask after",
@@ -751,7 +751,10 @@
   "server.export.days": "{count, plural, one {# day} other {# days}}",
   "server.export.share": "Share the export",
   "server.feedback.sentFrom": "Sent from {platform} while {state}, {online, select, yes {online} other {offline}}.",
-  "server.health.loadNotMeasured": "Processor, memory and network load are not measured on this system."
+  "server.health.loadNotMeasured": "Processor, memory and network load are not measured on this system.",
+  "pref.label.playback.startNextDuringCredits": "Start the next episode during the credits",
+  "pref.help.playback.startNextDuringCredits": "When the credits are clearly marked, count down and start the next episode without waiting for them to end. Off: the next episode starts when this one ends.",
+  "settings.row.startNextDuringCredits": "Start the next episode during the credits"
  },
  "structures": [
   {
@@ -824,31 +827,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -856,6 +859,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -986,34 +1002,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -1021,38 +1037,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -1060,7 +1076,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -1842,31 +1858,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -1874,6 +1890,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -2004,34 +2033,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -2039,38 +2068,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -2078,7 +2107,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -2866,31 +2895,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -2898,6 +2927,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -3028,34 +3070,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -3063,38 +3105,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -3102,7 +3144,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -3877,31 +3919,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -3909,6 +3951,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -4039,34 +4094,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -4074,38 +4129,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -4113,7 +4168,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -4902,31 +4957,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -4934,6 +4989,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -5064,34 +5132,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -5099,38 +5167,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -5138,7 +5206,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -5901,31 +5969,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -5933,6 +6001,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -6063,34 +6144,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -6098,38 +6179,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -6137,7 +6218,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -6920,31 +7001,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -6952,6 +7033,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -7082,34 +7176,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -7117,38 +7211,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -7156,7 +7250,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -7713,31 +7807,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -7745,6 +7839,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -7875,34 +7982,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -7910,38 +8017,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -7949,7 +8056,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -8619,31 +8726,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -8651,6 +8758,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -8781,34 +8901,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -8816,38 +8936,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -8855,7 +8975,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -9493,31 +9613,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -9525,6 +9645,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -9655,34 +9788,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -9690,38 +9823,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -9729,7 +9862,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -10568,31 +10701,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -10600,6 +10733,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -10730,34 +10876,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -10765,38 +10911,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -10804,7 +10950,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -11560,10 +11706,10 @@
      "deviceName": true,
      "manageSignIn": true,
      "preferenceKeys": [
-      "playback.skipBackSeconds",
-      "playback.skipForwardSeconds",
+      "playback.skipBackMs",
+      "playback.skipForwardMs",
       "playback.autoplayNext",
-      "playback.upNextCountdownSeconds",
+      "playback.upNextCountdownMs",
       "playback.passoutProtection",
       "playback.passoutAfterEpisodes",
       "playback.introSkip",
@@ -11709,31 +11855,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -11871,34 +12017,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -11906,38 +12052,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -11945,7 +12091,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -12701,8 +12847,8 @@
      "deviceName": true,
      "manageSignIn": true,
      "preferenceKeys": [
-      "playback.skipBackSeconds",
-      "playback.upNextCountdownSeconds",
+      "playback.skipBackMs",
+      "playback.upNextCountdownMs",
       "playback.introSkip",
       "playback.defaultSpeed",
       "playback.sleepTimerMinutes",
@@ -12802,31 +12948,31 @@
           "rows": [
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -12869,34 +13015,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -12904,7 +13050,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            }
           ]
          },
@@ -13530,31 +13676,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -13562,6 +13708,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -13692,34 +13851,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -13727,38 +13886,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -13766,7 +13925,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -14598,31 +14757,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -14630,6 +14789,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -14760,34 +14932,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -14795,38 +14967,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -14834,7 +15006,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -15680,31 +15852,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -15712,6 +15884,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -15842,34 +16027,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -15877,38 +16062,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -15916,7 +16101,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -16736,31 +16921,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -16768,6 +16953,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -16898,34 +17096,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -16933,38 +17131,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -16972,7 +17170,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -17812,31 +18010,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -17844,6 +18042,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -17974,34 +18185,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -18009,38 +18220,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -18048,7 +18259,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -18662,31 +18873,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -18694,6 +18905,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -18824,34 +19048,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -18859,38 +19083,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -18898,7 +19122,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -19625,31 +19849,31 @@
            },
            {
             "kind": "preference",
-            "key": "playback.upNextCountdownSeconds",
+            "key": "playback.upNextCountdownMs",
             "label": "settings.row.countdown",
             "control": {
              "type": "choice",
              "choices": [
               {
                "value": 0,
-               "label": "pref.value.playback.upNextCountdownSeconds.0"
+               "label": "pref.value.playback.upNextCountdownMs.0"
               },
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
@@ -19657,6 +19881,19 @@
               }
              ]
             },
+            "when": {
+             "key": "playback.autoplayNext",
+             "equals": true
+            }
+           },
+           {
+            "kind": "preference",
+            "key": "playback.startNextDuringCredits",
+            "label": "settings.row.startNextDuringCredits",
+            "control": {
+             "type": "switch"
+            },
+            "help": "pref.help.playback.startNextDuringCredits",
             "when": {
              "key": "playback.autoplayNext",
              "equals": true
@@ -19787,34 +20024,34 @@
            },
            {
             "kind": "preference",
-            "key": "playback.skipBackSeconds",
-            "label": "pref.label.playback.skipBackSeconds",
+            "key": "playback.skipBackMs",
+            "label": "pref.label.playback.skipBackMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 5,
+               "value": 5000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 5
                }
               },
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
@@ -19822,38 +20059,38 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipBackSeconds"
+            "help": "pref.help.playback.skipBackMs"
            },
            {
             "kind": "preference",
-            "key": "playback.skipForwardSeconds",
-            "label": "pref.label.playback.skipForwardSeconds",
+            "key": "playback.skipForwardMs",
+            "label": "pref.label.playback.skipForwardMs",
             "control": {
              "type": "choice",
              "choices": [
               {
-               "value": 10,
+               "value": 10000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 10
                }
               },
               {
-               "value": 15,
+               "value": 15000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 15
                }
               },
               {
-               "value": 30,
+               "value": 30000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 30
                }
               },
               {
-               "value": 60,
+               "value": 60000,
                "label": "pref.unit.seconds",
                "labelValues": {
                 "count": 60
@@ -19861,7 +20098,7 @@
               }
              ]
             },
-            "help": "pref.help.playback.skipForwardSeconds"
+            "help": "pref.help.playback.skipForwardMs"
            }
           ]
          },
@@ -20536,38 +20773,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -20583,20 +20820,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -21719,14 +21956,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -21780,14 +22017,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -21827,10 +22064,10 @@
    "expected": {
     "deviceClass": "television",
     "order": [
-     "playback.skipBackSeconds",
-     "playback.skipForwardSeconds",
+     "playback.skipBackMs",
+     "playback.skipForwardMs",
      "playback.autoplayNext",
-     "playback.upNextCountdownSeconds",
+     "playback.upNextCountdownMs",
      "playback.passoutProtection",
      "playback.passoutAfterEpisodes",
      "playback.introSkip",
@@ -21926,14 +22163,14 @@
      "playback.preferredSubtitleLanguages": [],
      "playback.recapSkip": "ask",
      "playback.showSyncedLyrics": true,
-     "playback.skipBackSeconds": 10,
-     "playback.skipForwardSeconds": 30,
+     "playback.skipBackMs": 10000,
+     "playback.skipForwardMs": 30000,
      "playback.sleepTimerMinutes": 0,
      "playback.startedThresholdPercent": 5,
      "playback.subtitleBackground": "translucent",
      "playback.subtitleMode": "forced",
      "playback.subtitleSize": "medium",
-     "playback.upNextCountdownSeconds": 10,
+     "playback.upNextCountdownMs": 10000,
      "privacy.includeInWatchTogether": true,
      "privacy.pauseWatchHistory": false,
      "privacy.showActivityToMembers": true,
@@ -21962,10 +22199,10 @@
      "search.rememberHistory": true
     },
     "defaults": {
-     "playback.skipBackSeconds": 10,
-     "playback.skipForwardSeconds": 30,
+     "playback.skipBackMs": 10000,
+     "playback.skipForwardMs": 30000,
      "playback.autoplayNext": true,
-     "playback.upNextCountdownSeconds": 10,
+     "playback.upNextCountdownMs": 10000,
      "playback.passoutProtection": true,
      "playback.passoutAfterEpisodes": 3,
      "playback.introSkip": "ask",
@@ -22023,16 +22260,16 @@
      "notifications.badges": true
     },
     "scopes": {
-     "playback.skipBackSeconds": [
+     "playback.skipBackMs": [
       "profile-server"
      ],
-     "playback.skipForwardSeconds": [
+     "playback.skipForwardMs": [
       "profile-server"
      ],
      "playback.autoplayNext": [
       "profile-server"
      ],
-     "playback.upNextCountdownSeconds": [
+     "playback.upNextCountdownMs": [
       "profile-server"
      ],
      "playback.passoutProtection": [
@@ -22219,38 +22456,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -22266,20 +22503,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -23402,14 +23639,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -23463,14 +23700,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -23580,14 +23817,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -23641,14 +23878,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -23703,38 +23940,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "colour",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -23750,20 +23987,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -24886,14 +25123,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -24947,14 +25184,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -24994,9 +25231,9 @@
    "expected": {
     "deviceClass": "television",
     "order": [
-     "playback.skipForwardSeconds",
+     "playback.skipForwardMs",
      "playback.autoplayNext",
-     "playback.upNextCountdownSeconds",
+     "playback.upNextCountdownMs",
      "playback.passoutProtection",
      "playback.passoutAfterEpisodes",
      "playback.introSkip",
@@ -25092,13 +25329,13 @@
      "playback.preferredSubtitleLanguages": [],
      "playback.recapSkip": "ask",
      "playback.showSyncedLyrics": true,
-     "playback.skipForwardSeconds": 30,
+     "playback.skipForwardMs": 30000,
      "playback.sleepTimerMinutes": 0,
      "playback.startedThresholdPercent": 5,
      "playback.subtitleBackground": "translucent",
      "playback.subtitleMode": "forced",
      "playback.subtitleSize": "medium",
-     "playback.upNextCountdownSeconds": 10,
+     "playback.upNextCountdownMs": 10000,
      "privacy.includeInWatchTogether": true,
      "privacy.pauseWatchHistory": false,
      "privacy.showActivityToMembers": true,
@@ -25127,9 +25364,9 @@
      "search.rememberHistory": true
     },
     "defaults": {
-     "playback.skipForwardSeconds": 30,
+     "playback.skipForwardMs": 30000,
      "playback.autoplayNext": true,
-     "playback.upNextCountdownSeconds": 10,
+     "playback.upNextCountdownMs": 10000,
      "playback.passoutProtection": true,
      "playback.passoutAfterEpisodes": 3,
      "playback.introSkip": "ask",
@@ -25187,13 +25424,13 @@
      "notifications.badges": true
     },
     "scopes": {
-     "playback.skipForwardSeconds": [
+     "playback.skipForwardMs": [
       "profile-server"
      ],
      "playback.autoplayNext": [
       "profile-server"
      ],
-     "playback.upNextCountdownSeconds": [
+     "playback.upNextCountdownMs": [
       "profile-server"
      ],
      "playback.passoutProtection": [
@@ -25380,38 +25617,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -25427,20 +25664,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -26507,20 +26744,20 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        }
       ]
      },
@@ -26581,14 +26818,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -26642,14 +26879,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -26704,38 +26941,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -26751,20 +26988,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -27880,14 +28117,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -27941,14 +28178,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -28003,38 +28240,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -28050,20 +28287,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -29186,14 +29423,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -29247,14 +29484,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -29309,38 +29546,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -29356,20 +29593,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -30492,14 +30729,14 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipBackSeconds": 10,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipBackMs": 10000,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -30553,14 +30790,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -30615,38 +30852,38 @@
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipBackSeconds",
+        "key": "playback.skipBackMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
-         5,
-         10,
-         15,
-         30
+         5000,
+         10000,
+         15000,
+         30000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipBackSeconds"
+        "labelKey": "preferences.playback.skipBackMs"
        },
        {
         "consumer": "client.playback.controls",
         "step": 1,
-        "key": "playback.skipForwardSeconds",
+        "key": "playback.skipForwardMs",
         "type": "integer",
-        "default": 30,
+        "default": 30000,
         "allowedValues": [
-         10,
-         15,
-         30,
-         60
+         10000,
+         15000,
+         30000,
+         60000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.skipForwardSeconds"
+        "labelKey": "preferences.playback.skipForwardMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -30662,20 +30899,20 @@
        {
         "consumer": "client.playback.continuation",
         "step": 1,
-        "key": "playback.upNextCountdownSeconds",
+        "key": "playback.upNextCountdownMs",
         "type": "integer",
-        "default": 10,
+        "default": 10000,
         "allowedValues": [
          0,
-         5,
-         10,
-         15
+         5000,
+         10000,
+         15000
         ],
         "scopes": [
          "profile-server"
         ],
         "group": "playback",
-        "labelKey": "preferences.playback.upNextCountdownSeconds"
+        "labelKey": "preferences.playback.upNextCountdownMs"
        },
        {
         "consumer": "client.playback.continuation",
@@ -31798,13 +32035,13 @@
       "playback.preferredSubtitleLanguages": [],
       "playback.recapSkip": "ask",
       "playback.showSyncedLyrics": true,
-      "playback.skipForwardSeconds": 30,
+      "playback.skipForwardMs": 30000,
       "playback.sleepTimerMinutes": 0,
       "playback.startedThresholdPercent": 5,
       "playback.subtitleBackground": "translucent",
       "playback.subtitleMode": "forced",
       "playback.subtitleSize": "medium",
-      "playback.upNextCountdownSeconds": 10,
+      "playback.upNextCountdownMs": 10000,
       "privacy.includeInWatchTogether": true,
       "privacy.pauseWatchHistory": false,
       "privacy.showActivityToMembers": true,
@@ -31858,14 +32095,14 @@
       "playback.preferredSubtitleLanguages": "default",
       "playback.recapSkip": "default",
       "playback.showSyncedLyrics": "default",
-      "playback.skipBackSeconds": "default",
-      "playback.skipForwardSeconds": "default",
+      "playback.skipBackMs": "default",
+      "playback.skipForwardMs": "default",
       "playback.sleepTimerMinutes": "profile-server",
       "playback.startedThresholdPercent": "default",
       "playback.subtitleBackground": "default",
       "playback.subtitleMode": "default",
       "playback.subtitleSize": "default",
-      "playback.upNextCountdownSeconds": "default",
+      "playback.upNextCountdownMs": "default",
       "privacy.includeInWatchTogether": "default",
       "privacy.pauseWatchHistory": "default",
       "privacy.showActivityToMembers": "default",
@@ -31907,78 +32144,78 @@
  ],
  "labels": [
   {
-   "key": "playback.skipBackSeconds",
-   "value": 5,
+   "key": "playback.skipBackMs",
+   "value": 5000,
    "label": "5 seconds"
   },
   {
-   "key": "playback.skipBackSeconds",
-   "value": 10,
+   "key": "playback.skipBackMs",
+   "value": 10000,
    "label": "10 seconds"
   },
   {
-   "key": "playback.skipBackSeconds",
-   "value": 15,
+   "key": "playback.skipBackMs",
+   "value": 15000,
    "label": "15 seconds"
   },
   {
-   "key": "playback.skipBackSeconds",
-   "value": 30,
+   "key": "playback.skipBackMs",
+   "value": 30000,
    "label": "30 seconds"
   },
   {
-   "key": "playback.skipBackSeconds",
-   "value": 10,
+   "key": "playback.skipBackMs",
+   "value": 10000,
    "label": "10 seconds"
   },
   {
-   "key": "playback.skipForwardSeconds",
-   "value": 10,
+   "key": "playback.skipForwardMs",
+   "value": 10000,
    "label": "10 seconds"
   },
   {
-   "key": "playback.skipForwardSeconds",
-   "value": 15,
+   "key": "playback.skipForwardMs",
+   "value": 15000,
    "label": "15 seconds"
   },
   {
-   "key": "playback.skipForwardSeconds",
-   "value": 30,
+   "key": "playback.skipForwardMs",
+   "value": 30000,
    "label": "30 seconds"
   },
   {
-   "key": "playback.skipForwardSeconds",
-   "value": 60,
+   "key": "playback.skipForwardMs",
+   "value": 60000,
    "label": "60 seconds"
   },
   {
-   "key": "playback.skipForwardSeconds",
-   "value": 30,
+   "key": "playback.skipForwardMs",
+   "value": 30000,
    "label": "30 seconds"
   },
   {
-   "key": "playback.upNextCountdownSeconds",
+   "key": "playback.upNextCountdownMs",
    "value": 0,
    "label": "Immediately"
   },
   {
-   "key": "playback.upNextCountdownSeconds",
-   "value": 5,
+   "key": "playback.upNextCountdownMs",
+   "value": 5000,
    "label": "5 seconds"
   },
   {
-   "key": "playback.upNextCountdownSeconds",
-   "value": 10,
+   "key": "playback.upNextCountdownMs",
+   "value": 10000,
    "label": "10 seconds"
   },
   {
-   "key": "playback.upNextCountdownSeconds",
-   "value": 15,
+   "key": "playback.upNextCountdownMs",
+   "value": 15000,
    "label": "15 seconds"
   },
   {
-   "key": "playback.upNextCountdownSeconds",
-   "value": 10,
+   "key": "playback.upNextCountdownMs",
+   "value": 10000,
    "label": "10 seconds"
   },
   {

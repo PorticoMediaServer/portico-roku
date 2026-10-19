@@ -116,13 +116,13 @@ sub Test_Settings_rows()
     AssertEqual(locales[0].id, "auto", "Follow this device comes first")
     AssertEqual(locales[locales.count() - 1].id, "fr-FR", "a stored language no choice names is shown as it is")
     ' A row as the page draws it.
-    snapshot = { ok: true, deviceClass: "television", order: ["playback.autoplayNext", "playback.upNextCountdownSeconds"], documents: [], fields: {}, effective: {} }
+    snapshot = { ok: true, deviceClass: "television", order: ["playback.autoplayNext", "playback.upNextCountdownMs"], documents: [], fields: {}, effective: {} }
     snapshot.fields.setModeCaseSensitive()
     snapshot.effective.setModeCaseSensitive()
     snapshot.fields["playback.autoplayNext"] = { key: "playback.autoplayNext", type: "boolean", default: true, scopes: ["profile-server"] }
-    snapshot.fields["playback.upNextCountdownSeconds"] = { key: "playback.upNextCountdownSeconds", type: "integer", default: 10, scopes: ["profile-server"] }
+    snapshot.fields["playback.upNextCountdownMs"] = { key: "playback.upNextCountdownMs", type: "integer", default: 10, scopes: ["profile-server"] }
     snapshot.effective["playback.autoplayNext"] = false
-    snapshot.effective["playback.upNextCountdownSeconds"] = 7
+    snapshot.effective["playback.upNextCountdownMs"] = 7000
     structure = SettingsStructureFor({ owner: false, capabilities: {} })
     playback = FindSettingsPage(structure, "playback").page
     autoplay = playback.sections[0].rows[0]
@@ -136,11 +136,13 @@ sub Test_Settings_rows()
     AssertEqual(model.control, "switch", "auto-play is a switch")
     AssertEqual(model.value, true, "and it is on")
     model = SettingsRowModel(countdown, snapshot, {})
-    AssertEqual(model.options[0].id, "7", "a stored value no choice names is shown as what it is")
+    AssertEqual(model.options[0].id, "7000", "a stored value no choice names is shown as what it is")
     AssertEqual(model.label, "7 seconds", "in words")
-    AssertEqual(SettingsChoiceValue(countdown, "10"), 10, "a chosen option writes the authored value")
+    AssertEqual(SettingsChoiceValue(countdown, "10000"), 10000, "a chosen option writes the authored value, in milliseconds")
     AssertEqual(SettingsChoiceValue(countdown, "11"), invalid, "an option that is not one writes nothing")
-    AssertSame(SettingsRowPatch(countdown, 10), { "playback.upNextCountdownSeconds": 10 }, "a preference writes its own key")
+    AssertSame(SettingsRowPatch(countdown, 10000), { "playback.upNextCountdownMs": 10000 }, "a preference writes its own key")
+    during = playback.sections[0].rows[2]
+    AssertEqual(during.key, "playback.startNextDuringCredits", "starting the next episode during the credits is a row of its own")
     appearance = FindSettingsPage(structure, "appearance").page
     text = invalid
     for each row in appearance.sections[0].rows
@@ -152,9 +154,9 @@ sub Test_Settings_rows()
     AssertEqual(SettingsRowPatch(text, "large"), invalid, "and writes nothing to the registry")
     AssertEqual(SettingsRowModel(text, invalid, {}), invalid, "a row without a value is not drawn")
     AssertEqual(SkipSeconds(snapshot, "back", 10), 10, "the Apple app's skip without the preference")
-    snapshot.fields["playback.skipBackSeconds"] = { key: "playback.skipBackSeconds", type: "integer", default: 10, scopes: ["profile-server"] }
-    snapshot.effective["playback.skipBackSeconds"] = 15
-    AssertEqual(SkipSeconds(snapshot, "back", 10), 15, "the viewer's skip amount")
+    snapshot.fields["playback.skipBackMs"] = { key: "playback.skipBackMs", type: "integer", default: 10000, scopes: ["profile-server"] }
+    snapshot.effective["playback.skipBackMs"] = 15000
+    AssertEqual(SkipSeconds(snapshot, "back", 10), 15, "the viewer's skip amount, stored in milliseconds")
     AssertEqual(SkipSeconds(invalid, "forward", 30), 30, "no registry, no change")
     AssertEqual(MarkerSkipMode(snapshot, "intro"), "ask", "an intro is asked about by default")
     snapshot.fields["playback.introSkip"] = { key: "playback.introSkip", type: "string", default: "ask", scopes: ["profile-server"] }

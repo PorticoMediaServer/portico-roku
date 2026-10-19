@@ -3516,7 +3516,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [
@@ -3824,7 +3825,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [
@@ -3973,7 +3975,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [
@@ -4126,7 +4129,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [],
@@ -4225,7 +4229,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [],
@@ -4400,7 +4405,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [],
@@ -4508,7 +4514,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [
@@ -4661,7 +4668,8 @@
      "postPlay": {
       "autoplay": false,
       "countdownSeconds": 10,
-      "passoutCheckDue": false
+      "passoutCheckDue": false,
+      "startDuringCredits": false
      }
     },
     "window": [],

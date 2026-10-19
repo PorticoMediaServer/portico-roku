@@ -12,38 +12,38 @@
     {
      "consumer": "client.playback.controls",
      "step": 1,
-     "key": "playback.skipBackSeconds",
+     "key": "playback.skipBackMs",
      "type": "integer",
-     "default": 10,
+     "default": 10000,
      "allowedValues": [
-      5,
-      10,
-      15,
-      30
+      5000,
+      10000,
+      15000,
+      30000
      ],
      "scopes": [
       "profile-server"
      ],
      "group": "playback",
-     "labelKey": "preferences.playback.skipBackSeconds"
+     "labelKey": "preferences.playback.skipBackMs"
     },
     {
      "consumer": "client.playback.controls",
      "step": 1,
-     "key": "playback.skipForwardSeconds",
+     "key": "playback.skipForwardMs",
      "type": "integer",
-     "default": 30,
+     "default": 30000,
      "allowedValues": [
-      10,
-      15,
-      30,
-      60
+      10000,
+      15000,
+      30000,
+      60000
      ],
      "scopes": [
       "profile-server"
      ],
      "group": "playback",
-     "labelKey": "preferences.playback.skipForwardSeconds"
+     "labelKey": "preferences.playback.skipForwardMs"
     },
     {
      "consumer": "client.playback.continuation",
@@ -59,20 +59,20 @@
     {
      "consumer": "client.playback.continuation",
      "step": 1,
-     "key": "playback.upNextCountdownSeconds",
+     "key": "playback.upNextCountdownMs",
      "type": "integer",
-     "default": 10,
+     "default": 10000,
      "allowedValues": [
       0,
-      5,
-      10,
-      15
+      5000,
+      10000,
+      15000
      ],
      "scopes": [
       "profile-server"
      ],
      "group": "playback",
-     "labelKey": "preferences.playback.upNextCountdownSeconds"
+     "labelKey": "preferences.playback.upNextCountdownMs"
     },
     {
      "consumer": "client.playback.continuation",
@@ -1195,14 +1195,14 @@
    "playback.preferredSubtitleLanguages": [],
    "playback.recapSkip": "ask",
    "playback.showSyncedLyrics": true,
-   "playback.skipBackSeconds": 10,
-   "playback.skipForwardSeconds": 30,
+   "playback.skipBackMs": 10000,
+   "playback.skipForwardMs": 30000,
    "playback.sleepTimerMinutes": 0,
    "playback.startedThresholdPercent": 5,
    "playback.subtitleBackground": "translucent",
    "playback.subtitleMode": "forced",
    "playback.subtitleSize": "medium",
-   "playback.upNextCountdownSeconds": 10,
+   "playback.upNextCountdownMs": 10000,
    "privacy.includeInWatchTogether": true,
    "privacy.pauseWatchHistory": false,
    "privacy.showActivityToMembers": true,
@@ -1256,14 +1256,14 @@
    "playback.preferredSubtitleLanguages": "default",
    "playback.recapSkip": "default",
    "playback.showSyncedLyrics": "default",
-   "playback.skipBackSeconds": "default",
-   "playback.skipForwardSeconds": "default",
+   "playback.skipBackMs": "default",
+   "playback.skipForwardMs": "default",
    "playback.sleepTimerMinutes": "profile-server",
    "playback.startedThresholdPercent": "default",
    "playback.subtitleBackground": "default",
    "playback.subtitleMode": "default",
    "playback.subtitleSize": "default",
-   "playback.upNextCountdownSeconds": "default",
+   "playback.upNextCountdownMs": "default",
    "privacy.includeInWatchTogether": "default",
    "privacy.pauseWatchHistory": "default",
    "privacy.showActivityToMembers": "default",

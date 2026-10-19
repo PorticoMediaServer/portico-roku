@@ -154,3 +154,35 @@ sub Test_Playback_window()
     AssertTrue(not IsSongPlaying("movie", invalid, false), "a movie is not")
     AssertEqual(SessionPrepareTimeout().code, "preparation_timeout", "a title that never became ready")
 end sub
+
+sub Test_Playback_skipping()
+    intro = { id: "i", type: "intro", startMs: 30000, endMs: 80000, automaticSafe: true }
+    credits = { id: "c", type: "credits", startMs: 1300000, endMs: 1360000, automaticSafe: true }
+    AssertEqual(MarkerSkipTarget(intro, 1400000), 79000, "an intro skip lands a moment before it ends")
+    AssertEqual(MarkerSkipTarget({ type: "recap", startMs: 1000, endMs: 1500 }, 0), 1000, "never before the segment starts")
+    AssertEqual(MarkerSkipTarget(credits, 1400000), 1360000, "credits land exactly on what follows them")
+    AssertEqual(MarkerSkipTarget({ type: "preview", startMs: 1360000, endMs: 1390000 }, 1400000), 1390000, "so does a preview of the next episode")
+    AssertTrue(MarkerSkipsAutomatically(intro, "auto"), "skipped unasked when the viewer chose to and the server is sure")
+    AssertTrue(not MarkerSkipsAutomatically({ type: "intro", automaticSafe: false }, "auto"), "never for a marker the server is not sure of")
+    AssertTrue(not MarkerSkipsAutomatically(intro, "ask"), "never when the viewer asked to be asked")
+    AssertTrue(MarkerFollowedByScene(credits, 1400000), "a scene follows these credits")
+    AssertTrue(not MarkerFollowedByScene({ endMs: 1398000 }, 1400000), "a fade to the end is not a scene")
+    AssertEqual(CreditsOffer([intro, credits], 1310, 1400, "ask", true, false).id, "c", "the next title is offered while the closing credits run")
+    AssertEqual(CreditsOffer([intro, credits], 1310, 1400, "ask", false, false), invalid, "nothing queued, nothing offered")
+    AssertEqual(CreditsOffer([intro, credits], 1310, 1400, "off", true, false), invalid, "credits prompts turned off")
+    AssertEqual(CreditsOffer([intro, credits], 1310, 1400, "auto", true, false), invalid, "credits skipped unattended are left to the skip")
+    AssertEqual(CreditsOffer([intro, credits], 1310, 1400, "ask", true, true), invalid, "not while the server asks whether anyone is watching")
+    opening = { id: "o", type: "credits", startMs: 30000, endMs: 90000, automaticSafe: true }
+    AssertEqual(CreditsOffer([opening], 40, 1400, "ask", true, false), invalid, "opening credits are not closing credits")
+    policy = { autoplay: true, countdownSeconds: 10, startDuringCredits: true }
+    AssertSame(CreditsCountdown(credits, 1310, 1400, policy, 4), { automatic: false, seconds: 100 }, "a scene after the credits is never cut by a countdown")
+    toEnd = { id: "e", type: "credits", startMs: 1300000, endMs: 1400000, automaticSafe: true }
+    AssertSame(CreditsCountdown(toEnd, 1310, 1400, policy, 4), { automatic: true, seconds: 6 }, "credits to the end count down when the viewer allows it")
+    AssertSame(CreditsCountdown(toEnd, 1310, 1400, { autoplay: true, countdownSeconds: 10, startDuringCredits: false }, 4), { automatic: false, seconds: 100 }, "off by default: the end card starts the next title")
+    AssertEqual(CreditsCountdown(toEnd, 1310, 1400, { autoplay: false, countdownSeconds: 10 }, 4), invalid, "no count with autoplay off")
+    queue = ParseQueueHeader({ id: "q1", revision: "r1", total: 2, postPlay: { autoplay: true, countdownMs: 5000, passoutCheckDue: false, startDuringCredits: true } })
+    AssertEqual(queue.postPlay.countdownSeconds, 5, "the post-play countdown arrives in milliseconds")
+    AssertTrue(queue.postPlay.startDuringCredits, "and with the viewer's start-during-credits choice")
+    older = ParseQueueHeader({ id: "q1", revision: "r1", total: 2, postPlay: { autoplay: true, countdownSeconds: 15, passoutCheckDue: false } })
+    AssertEqual(older.postPlay.countdownSeconds, 15, "a server from before says seconds")
+end sub
