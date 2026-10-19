@@ -1,0 +1,20 @@
+{
+ "account.tvHandoffTitle": "Gestiona perfiles, PIN y verificación en dos pasos en tu celular o computadora",
+ "error.title.load": "{subject, select, home {No se ha podido cargar Inicio} library {No se ha podido cargar esta biblioteca} detail {No se ha podido cargar este título} show {No se ha podido cargar esta serie} person {No se ha podido cargar esta persona} search {No se ha podido completar la búsqueda} saved {No se ha podido cargar Guardado} playlist {No se ha podido cargar esta lista de reproducción} collection {No se ha podido cargar esta colección} downloads {No se han podido cargar las descargas} live {No se ha podido cargar la guía de programación} together {No se ha podido cargar Ver juntos} notifications {No se han podido cargar las notificaciones} account {No se ha podido cargar tu cuenta} profiles {No se han podido cargar los perfiles} devices {No se han podido cargar los dispositivos} settings {No se ha podido cargar la configuración} preferences {No se han podido cargar las preferencias} server-console {No se ha podido cargar esta página} sign-in {No se ha podido iniciar sesión} feedback {No se pueden enviar informes} playback {La reproducción se ha detenido} portico-account {No se ha podido cargar tu Portico Account} claim {No se ha podido reclamar este servidor} link {No se ha podido abrir este enlace} other {No se ha podido cargar}}",
+ "live.offForProfile": "La TV en vivo está desactivada para este perfil.",
+ "playOn.receiver.askBody": "{device} podrá iniciar y controlar la reproducción en este televisor. Puedes quitarlo más tarde en Configuración.",
+ "portico.landing.pickBody": "Tu Portico Account tiene más de un servidor. Elige cuál abrir. Puedes cambiarlo más tarde en Configuración.",
+ "quickConnect.lede": "En un celular con sesión iniciada en {host}, abre Portico › Configuración › Vincular una TV, o en una computadora abre {host}/device.",
+ "search.chip.liveTV": "TV en vivo",
+ "settings.help.receiveFromDevices": "Permite que tu celular o computadora inicie la reproducción en este televisor.",
+ "settings.openOnWeb": "Escanea el código con el celular o ve a {url} en una computadora.",
+ "settings.row.videoSpeed": "Video",
+ "settings.title": "Configuración",
+ "title.playlistEmptyBodyTV": "Mantén presionado el botón central sobre un título y elige Añadir a lista de reproducción.",
+ "web.empty.libraryOwnerBody": "Los títulos aparecen aquí a medida que el servidor analiza las carpetas de esta biblioteca. Puedes iniciar un análisis desde la configuración de la biblioteca.",
+ "web.live.onNow": "Al aire",
+ "web.nowPlaying.delivery.convertVideo": "Convirtiendo video",
+ "web.saved.empty.playlistsBody": "Crea una lista de reproducción aquí o añade cualquier canción, álbum o video a una desde su menú Más.",
+ "web.shell.settings": "Configuración",
+ "web.telemetry.metricEncoder": "Codificador de video"
+}

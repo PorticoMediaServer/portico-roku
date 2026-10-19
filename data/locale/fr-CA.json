@@ -1,0 +1,23 @@
+{
+ "account.tvHandoffTitle": "Gérez les profils, les NIP et la validation en deux étapes sur votre téléphone ou ordinateur",
+ "auth.enterProfilePin": "Saisissez le NIP du profil",
+ "entry.addToPlaylist": "Ajouter à une liste de lecture…",
+ "entry.createPlaylist": "Créer une liste de lecture",
+ "entry.loadingPlaylists": "Chargement des listes de lecture",
+ "entry.sheet.addToPlaylist": "Ajouter à une liste de lecture",
+ "error.title.action": "{subject, select, search {Impossible de terminer la recherche} playlist {Impossible de modifier la liste de lecture} collection {Impossible de modifier la collection} downloads {Impossible de lancer le téléchargement} sign-in {La connexion n’a pas abouti} playback {Lecture interrompue} feedback {Votre signalement n’a pas été envoyé} portico-account {Cela n’a pas fonctionné} claim {Impossible de revendiquer ce serveur} link {Impossible d’ouvrir ce lien} other {Cela n’a pas fonctionné}}",
+ "error.title.load": "{subject, select, home {Impossible de charger l’accueil} library {Impossible de charger cette bibliothèque} detail {Impossible de charger ce titre} show {Impossible de charger cette série} person {Impossible de charger cette personne} search {Impossible de terminer la recherche} saved {Impossible de charger Enregistrés} playlist {Impossible de charger cette liste de lecture} collection {Impossible de charger cette collection} downloads {Impossible de charger les téléchargements} live {Impossible de charger le guide des programmes} together {Impossible de charger Regarder ensemble} notifications {Impossible de charger les notifications} account {Impossible de charger votre compte} profiles {Impossible de charger les profils} devices {Impossible de charger les appareils} settings {Impossible de charger les paramètres} preferences {Impossible de charger les préférences} server-console {Impossible de charger cette page} sign-in {Impossible de lancer la connexion} feedback {Le signalement n’est pas disponible} playback {Lecture interrompue} portico-account {Impossible de charger votre Portico Account} claim {Impossible de revendiquer ce serveur} link {Impossible d’ouvrir ce lien} other {Impossible de charger ce contenu}}",
+ "error.title.save": "{subject, select, home {Impossible d’enregistrer l’accueil} library {Impossible de modifier la bibliothèque} playlist {Impossible de modifier la liste de lecture} collection {Impossible de modifier la collection} downloads {Impossible de modifier le téléchargement} account {Impossible de modifier votre compte} profiles {Impossible de modifier le profil} devices {Impossible de modifier l’appareil} settings {Impossible d’enregistrer le paramètre} preferences {Impossible d’enregistrer la préférence} server-console {Impossible d’enregistrer la modification} search {Impossible de terminer la recherche} sign-in {La connexion n’a pas abouti} playback {Lecture interrompue} feedback {Votre signalement n’a pas été envoyé} portico-account {Impossible de modifier votre Portico Account} claim {Impossible de revendiquer ce serveur} other {Impossible d’enregistrer cette modification}}",
+ "library.playlists.loadFailed": "Impossible de charger vos listes de lecture.",
+ "library.tab.playlists": "Listes de lecture",
+ "saved.tab.playlists": "Listes de lecture",
+ "signIn.error.pinInvalid": "Ce NIP est incorrect. Réessayez.",
+ "title.kind": "{kind, select, movie {Film} show {Série} anime {Anime} season {Saison} episode {Épisode} song {Morceau} album {Album} artist {Artiste} audiobook_file {Livre audio} book {Livre audio} collection {Collection} category {Catégorie} author {Auteur} book_series {Série de livres} disc {Disque} playlist {Liste de lecture} person {Personne} other {Titre}}",
+ "title.playlistEmpty": "Cette liste de lecture est vide",
+ "title.playlistEmptyBodyTV": "Maintenez la touche Sélection sur un titre et choisissez Ajouter à une liste de lecture.",
+ "web.account.notif.event.contact_email_changed": "Votre adresse courriel de contact a été modifiée",
+ "web.account.notif.event.contact_email_verified": "Votre adresse courriel de contact a été confirmée",
+ "web.saved.empty.playlists": "Aucune liste de lecture pour l’instant",
+ "web.saved.empty.playlistsBody": "Créez une liste de lecture ici, ou ajoutez-y n’importe quel morceau, album ou vidéo depuis son menu Plus.",
+ "web.saved.newPlaylist": "Nouvelle liste de lecture"
+}
