@@ -451,6 +451,8 @@ function PreferenceValueLabel(key as string, value as dynamic) as string
         return T("pref.unit.height", { value: SettingsNumberText(value) })
     end if
     if Right(key, 7) = "Seconds" then return T("pref.unit.seconds", { count: value })
+    ' Durations stored in milliseconds are shown in seconds (settings-structure.ts `seconds`).
+    if Right(key, 2) = "Ms" then return T("pref.unit.seconds", { count: value / 1000 })
     if Right(key, 8) = "Episodes" then return T("pref.unit.episodes", { count: value })
     if Right(key, 7) = "Percent" then return T("pref.unit.percent", { value: value })
     if Right(key, 5) = "Speed" then
@@ -651,12 +653,13 @@ function SettingsAddresses(structure as object) as object
     return out
 end function
 
-' The player's skip amounts ("back" or "forward"): the viewer's, else the Apple app's own.
+' The player's skip amounts ("back" or "forward"), in seconds: the viewer's (stored in
+' milliseconds), else the Apple app's own.
 function SkipSeconds(snapshot as dynamic, direction as string, fallback as dynamic) as dynamic
-    key = "playback.skipForwardSeconds"
-    if direction = "back" then key = "playback.skipBackSeconds"
+    key = "playback.skipForwardMs"
+    if direction = "back" then key = "playback.skipBackMs"
     value = PreferenceValueOf(snapshot, key)
-    if IsNumber(value) and value > 0 then return value
+    if IsNumber(value) and value > 0 then return value / 1000
     return fallback
 end function
 

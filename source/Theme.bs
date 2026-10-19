@@ -1278,6 +1278,12 @@ namespace Theme.apple
     const playerSkipForward = 30
     ' apps/native/src/player/VideoPlayer.tsx:390  bottom={bottomInset + (isTV ? 260 : 190)}
     const playerSkipPromptBottom = 260
+    ' packages/client-core/src/segment-skip.ts:15  export const UNDO_SECONDS = 6;
+    const playerUndoSeconds = 6
+    ' apps/native/src/player/UpNextCredits.tsx:81  maxWidth: isTV ? 560 : 360
+    const playerUpNextWidth = 560
+    ' apps/native/src/player/UpNextCredits.tsx:82  backgroundColor: alpha(colors.ink, 0.86)
+    const playerUpNextAlpha = 0.86
     ' apps/native/src/player/VideoPlayer.tsx:382  isTV ? 0.42 : 0.7
     const playerAudioArtFraction = 0.42
     ' apps/native/src/player/VideoPlayer.tsx:380  paddingTop: topInset + (isTV ? 120 : 72)

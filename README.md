@@ -40,23 +40,58 @@ Portico for Roku is the native Roku client for browsing and playing media from P
 
 ## Building
 
-The channel's design tokens, strings, and settings structure are generated from
-Portico's shared client packages, and its layout constants from the Apple TV
-app it mirrors. Clone this repository next to
-[`portico-server`](https://github.com/PorticoMediaServer/portico-server) and
-[`portico-react-native`](https://github.com/PorticoMediaServer/portico-react-native)
-(or set `PORTICO_SERVER_ROOT` and `PORTICO_REACT_NATIVE_ROOT`). Install
-Node.js and npm, then run:
+The repository includes the generated channel assets and golden test fixtures needed
+for a standalone build. Install Node.js 24 and npm, then run:
 
 ```sh
 npm ci
-npm run generate
 npm run check
 npm test
 npm run package
 ```
 
-`npm run package` writes `build/portico-roku.zip`. The resulting channel package is intended for development sideloading. Roku Channel Store publication will happen separately when the client is ready.
+`npm test` compiles and runs the BrightScript logic tests against the committed
+fixtures in an off-device interpreter. `npm run package` compiles the channel
+with BrighterScript and writes `build/portico-roku.zip`, an **unsigned development
+sideload ZIP**. These checks do not establish Roku hardware behavior, playback,
+or Streaming Store certification.
+
+### GitHub Actions artifacts
+
+The CI workflow runs on pull requests, pushes to `main` and `roku-actions-builds`,
+and manual dispatch. A successful run provides a `portico-roku-sideload` artifact
+containing the compiled ZIP, its SHA-256 checksum, and build metadata identifying
+the exact Roku commit and tool versions. The workflow checks the ZIP for expected
+channel files and excludes authoring sources, tests, and dependencies. Download
+and extract the Actions artifact to obtain `portico-roku.zip`.
+
+This workflow does not create a signed `.pkg`. Roku requires a linked, online
+Roku development device with the appropriate signing key to encrypt and sign
+that package. See [Roku's packaging documentation](https://developer.roku.com/dev/docs/packaging-channels).
+The workflow does not install on a device or publish to the Streaming Store.
+
+### Updating generated assets and fixtures
+
+Design tokens, strings, fonts, and settings are generated from Portico's shared
+packages; layout constants are derived from the Apple TV app. To update these
+inputs deliberately, clone compatible revisions of
+[`portico-server`](https://github.com/PorticoMediaServer/portico-server) and
+[`portico-react-native`](https://github.com/PorticoMediaServer/portico-react-native)
+next to this repository, then run:
+
+```sh
+npm run generate
+npm run fixtures:generate
+npm run check
+npm test
+npm run package
+```
+
+Review and commit the generated changes together with their Roku adaptations.
+The current generators reference upstream Apple literals and playback modules
+that have since changed or been removed; they need migration before regeneration
+against current sibling branches. Ordinary builds and tests use the checked-in
+snapshot and do not read floating sibling branches.
 
 ## Support and warranty
 

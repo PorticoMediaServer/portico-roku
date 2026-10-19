@@ -129,6 +129,10 @@
             <translation>Try again</translation>
         </message>
         <message>
+            <source>action.undo</source>
+            <translation>Undo</translation>
+        </message>
+        <message>
             <source>action.update</source>
             <translation>Update</translation>
         </message>
@@ -1558,12 +1562,32 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
             <translation>{kind, select, intro {Skip intro} recap {Skip recap} credits {Skip credits} commercial {Skip ad} outro {Skip outro} other {Skip}}</translation>
         </message>
         <message>
+            <source>player.skipped</source>
+            <translation>{kind, select, intro {Skipped intro} recap {Skipped recap} credits {Skipped credits} commercial {Skipped ad} outro {Skipped outro} other {Skipped}}</translation>
+        </message>
+        <message>
             <source>player.stoppedTitle</source>
             <translation>Playback stopped</translation>
         </message>
         <message>
             <source>player.unplayableBody</source>
             <translation>This title couldn’t be played.</translation>
+        </message>
+        <message>
+            <source>player.upNext.duringCredits</source>
+            <translation>Up next</translation>
+        </message>
+        <message>
+            <source>player.upNext.playNow</source>
+            <translation>Play now</translation>
+        </message>
+        <message>
+            <source>player.upNext.startsIn</source>
+            <translation>Starts in {time}</translation>
+        </message>
+        <message>
+            <source>player.upNext.watchCredits</source>
+            <translation>Watch credits</translation>
         </message>
         <message>
             <source>portico.failure.clockSkew.body</source>
@@ -1670,12 +1694,16 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
             <translation>How much you watch before a title is marked watched.</translation>
         </message>
         <message>
-            <source>pref.help.playback.skipBackSeconds</source>
+            <source>pref.help.playback.skipBackMs</source>
             <translation>How far the back button rewinds.</translation>
         </message>
         <message>
-            <source>pref.help.playback.skipForwardSeconds</source>
+            <source>pref.help.playback.skipForwardMs</source>
             <translation>How far the forward button jumps.</translation>
+        </message>
+        <message>
+            <source>pref.help.playback.startNextDuringCredits</source>
+            <translation>When the credits are clearly marked, count down and start the next episode without waiting for them to end. Off: the next episode starts when this one ends.</translation>
         </message>
         <message>
             <source>pref.help.privacy.pauseWatchHistory</source>
@@ -1714,11 +1742,11 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
             <translation>Recaps</translation>
         </message>
         <message>
-            <source>pref.label.playback.skipBackSeconds</source>
+            <source>pref.label.playback.skipBackMs</source>
             <translation>Skip back</translation>
         </message>
         <message>
-            <source>pref.label.playback.skipForwardSeconds</source>
+            <source>pref.label.playback.skipForwardMs</source>
             <translation>Skip forward</translation>
         </message>
         <message>
@@ -1874,7 +1902,7 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
             <translation>Extra large</translation>
         </message>
         <message>
-            <source>pref.value.playback.upNextCountdownSeconds.0</source>
+            <source>pref.value.playback.upNextCountdownMs.0</source>
             <translation>Immediately</translation>
         </message>
         <message>
@@ -2396,6 +2424,10 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
         <message>
             <source>settings.row.showActivity</source>
             <translation>Show my activity</translation>
+        </message>
+        <message>
+            <source>settings.row.startNextDuringCredits</source>
+            <translation>Start the next episode during the credits</translation>
         </message>
         <message>
             <source>settings.row.stillWatching</source>

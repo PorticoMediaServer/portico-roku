@@ -5,14 +5,13 @@
  * Screens and layout are not tested.
  */
 import {execFileSync, spawnSync} from 'node:child_process';
-import {existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from 'node:fs';
+import {readFileSync, readdirSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const app = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(app, 'build', 'test');
 const bin = name => join(app, 'node_modules', '.bin', name);
-if (existsSync(join(app, 'scripts', 'golden.mjs'))) execFileSync(process.execPath, [join(app, 'scripts', 'golden.mjs')], {cwd: app, stdio: 'inherit'});
 rmSync(out, {recursive: true, force: true});
 execFileSync(bin('bsc'), ['--project', 'bsconfig.test.json'], {cwd: app, stdio: 'inherit'});
 const files = [];

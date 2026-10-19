@@ -79,6 +79,13 @@ sub init()
     m.countdown.duration = 1
     m.countdown.repeat = true
     m.countdown.observeField("fire", "onPlayerCountdown")
+    ' "Skipped intro · Undo" after an unattended skip, for a few seconds.
+    m.undo = invalid
+    m.undoTimer = m.top.createChild("Timer")
+    m.undoTimer.duration = Theme.apple.playerUndoSeconds
+    m.undoTimer.observeField("fire", "onPlayerUndoExpired")
+    ' The next title, offered in a corner while the closing credits run.
+    m.credits = invalid
     m.channelPoll = m.top.createChild("Timer")
     m.channelPoll.duration = 1
     m.channelPoll.repeat = true
@@ -97,6 +104,9 @@ sub init()
 end sub
 
 sub PlayerReset()
+    ' A prompt from the title before never outlives it.
+    if m.undo <> invalid then PlayerHideUndo()
+    if m.credits <> invalid then PlayerHideCredits()
     m.request = invalid
     m.session = invalid
     m.queue = invalid
@@ -135,6 +145,9 @@ sub PlayerReset()
     m.channelWanted = "playing"
     m.channelPolling = false
     m.autoSkipped = {}
+    m.creditsDismissed = {}
+    m.creditsElapsed = 0
+    m.creditsAt = 0
     m.lastPosition = 0
     m.audio = false
     m.waited = 0
@@ -1409,21 +1422,28 @@ sub onPlayerTimelineFocus()
     m.knob.scale = [size, size]
 end sub
 
-' "Skip intro", "Skip recap", "Skip credits": offered while the position is inside the marker.
+'' "Skip intro", "Skip recap", "Skip credits": offered while the position is inside the marker
+' (segment-skip.ts). Skipped without asking only when the viewer chose to and the server says the
+' marker is safe; then "Skipped intro · Undo" shows for a few seconds. An intro skip lands a moment
+' before it ends, credits on the scene after them. While the Up next card stands in for the
+' credits, it carries their skip.
 sub PlayerSkipPrompt()
     if m.options = invalid or not m.top.expanded or m.phase = "ended" or m.phase = "error" or m.audio = true then return
+    PlayerCreditsOffer()
     marker = ActiveMarker(m.options.markers, m.video.position)
     if marker <> invalid then
         mode = MarkerSkipMode(m.prefs, marker.type)
-        if mode = "off" then
+        if mode = "off" or m.autoSkipped[marker.id] <> invalid or m.credits <> invalid and m.credits.markerId = marker.id then
             marker = invalid
-        else if mode = "auto" then
+        else if MarkerSkipsAutomatically(marker, mode) then
             ' Skipped without asking, once: going back into it afterwards plays it.
-            if m.autoSkipped[marker.id] = invalid and TimelineOutboxGestureAllowed(m.reportOutbox) then
+            if TimelineOutboxGestureAllowed(m.reportOutbox) then
                 m.autoSkipped[marker.id] = true
-                m.skipped = { "markerId": marker.id, "mode": "auto", "positionMs": PlaybackMs(PlayerPosition()) }
-                m.video.seek = marker.endMs / 1000
+                from = PlayerPosition()
+                m.skipped = { "markerId": marker.id, "mode": "automatic", "positionMs": PlaybackMs(from) }
+                m.video.seek = MarkerSkipTarget(marker, m.video.duration * 1000) / 1000
                 PlayerSendReport(PlayerReportState(), invalid)
+                PlayerShowUndo(marker, from)
             end if
             marker = invalid
         end if
@@ -1433,18 +1453,14 @@ sub PlayerSkipPrompt()
             had = m.skip.isInFocusChain()
             m.top.removeChild(m.skip)
             m.skip = invalid
-            if had and m.chromeShown and m.playButton <> invalid then
-                FocusOn(m.playButton)
-            else if had then
-                m.top.setFocus(true)
-            end if
+            if had then PlayerFocusAfterPrompt()
         end if
         return
     end if
     if m.skip <> invalid and m.skip.markerId = marker.id then return
     if m.skip <> invalid then m.top.removeChild(m.skip)
     m.skip = m.top.createChild("UiButton")
-    m.skip.addFields({ playerId: "skip", markerId: marker.id, markerEnd: marker.endMs })
+    m.skip.addFields({ playerId: "skip", markerId: marker.id, markerEnd: MarkerSkipTarget(marker, m.video.duration * 1000) })
     m.skip.variant = "secondary"
     m.skip.icon = "forward"
     m.skip.label = T("player.skip", { kind: marker.type })
@@ -1452,6 +1468,154 @@ sub PlayerSkipPrompt()
     Place(m.skip, Theme.screen.width - Theme.apple.playerSide - m.skip.controlWidth, Theme.screen.height - Theme.apple.playerInset - Theme.apple.playerSkipPromptBottom - m.skip.controlHeight)
     ' With the chrome hidden the prompt is the only control: it takes focus.
     if not m.chromeShown and not m.menuOpen then FocusOn(m.skip)
+end sub
+
+' Where focus goes when a prompt in the corner goes away while it held focus.
+sub PlayerFocusAfterPrompt()
+    if m.chromeShown and m.playButton <> invalid then
+        FocusOn(m.playButton)
+    else
+        m.top.setFocus(true)
+    end if
+end sub
+
+' "Skipped intro · Undo": Undo goes back to where the skip happened, and the segment plays.
+sub PlayerShowUndo(marker as object, from as dynamic)
+    PlayerHideUndo()
+    m.undo = m.top.createChild("Group")
+    note = MakeText(m.undo, "caption", "secondary", T("player.skipped", { kind: marker.type }))
+    button = m.undo.createChild("UiButton")
+    button.addFields({ playerId: "undo", undoFrom: from })
+    button.variant = "secondary"
+    button.icon = "back"
+    button.label = T("action.undo")
+    button.observeField("pressed", "onPlayerButton")
+    Place(note, 0, (button.controlHeight - TextHeight(note)) / 2)
+    Place(button, TextWidth(note) + Theme.space.sm, 0)
+    width = TextWidth(note) + Theme.space.sm + button.controlWidth
+    Place(m.undo, Theme.screen.width - Theme.apple.playerSide - width, Theme.screen.height - Theme.apple.playerInset - Theme.apple.playerSkipPromptBottom - button.controlHeight)
+    if not m.chromeShown and not m.menuOpen then FocusOn(button)
+    m.undoTimer.control = "stop"
+    m.undoTimer.control = "start"
+end sub
+
+sub PlayerHideUndo()
+    m.undoTimer.control = "stop"
+    if m.undo = invalid then return
+    had = m.undo.isInFocusChain()
+    m.top.removeChild(m.undo)
+    m.undo = invalid
+    if had then PlayerFocusAfterPrompt()
+end sub
+
+sub onPlayerUndoExpired()
+    PlayerHideUndo()
+end sub
+
+' up-next.ts: while the closing credits run and a next title is queued, it is offered in a corner:
+' Play now, Skip credits when a scene follows them, and Watch credits. It starts the next title by
+' itself only when the viewer turned on "Start the next episode during the credits" for credits the
+' server is sure of with nothing after them; otherwise it says when the end card will.
+sub PlayerCreditsOffer()
+    marker = invalid
+    if PlayerHasNext() and m.options <> invalid then
+        passout = m.queue.postPlay <> invalid and m.queue.postPlay.passoutCheckDue = true
+        marker = CreditsOffer(m.options.markers, m.video.position, m.video.duration, MarkerSkipMode(m.prefs, "credits"), true, passout)
+        if marker <> invalid and m.creditsDismissed[marker.id] <> invalid then marker = invalid
+    end if
+    if marker = invalid then
+        PlayerHideCredits()
+        return
+    end if
+    if m.credits = invalid or m.credits.markerId <> marker.id then
+        PlayerHideCredits()
+        m.creditsElapsed = 0
+        PlayerShowCredits(marker)
+    else if m.phase = "playing" then
+        ' Seconds of this offer spent playing: a pause holds the count where it is.
+        moved = m.video.position - m.creditsAt
+        if moved > 0 and moved < 2 then m.creditsElapsed = m.creditsElapsed + moved
+    end if
+    m.creditsAt = m.video.position
+    countdown = CreditsCountdown(marker, m.video.position, m.video.duration, m.queue.postPlay, m.creditsElapsed)
+    line = ""
+    if countdown <> invalid and countdown.automatic then
+        line = T("player.post.playingIn", { seconds: countdown.seconds })
+    else if countdown <> invalid then
+        line = T("player.upNext.startsIn", { time: FormatClock(countdown.seconds) })
+    end if
+    m.creditsLine.value = line
+    if countdown <> invalid and countdown.automatic and countdown.seconds <= 0 then PlayerLeaveCredits(true)
+end sub
+
+sub PlayerShowCredits(marker as object)
+    title = ""
+    for each entry in PlaybackList(m.window)
+        if m.queue.upcoming.entryId <> invalid and entry.entryId = m.queue.upcoming.entryId then title = entry.title
+    end for
+    m.credits = m.top.createChild("Group")
+    m.credits.addFields({ markerId: marker.id })
+    width = Theme.apple.playerUpNextWidth
+    pad = Theme.space.md
+    background = MakeShape(m.credits, width, 0, Theme.metrics.radius.panel, ColorAlpha(Theme.colors.ink, Theme.apple.playerUpNextAlpha))
+    heading = MakeText(m.credits, "label", "tertiary", T("player.upNext.duringCredits"))
+    Place(heading, pad, pad)
+    y = pad + TextHeight(heading)
+    name = MakeText(m.credits, "subheading", "primary", title)
+    name.maxWidth = width - pad * 2
+    Place(name, pad, y)
+    y = y + TextHeight(name)
+    m.creditsLine = MakeText(m.credits, "caption", "secondary", "")
+    Place(m.creditsLine, pad, y)
+    y = y + TextHeight(m.creditsLine) + Theme.space.sm
+    buttons = [{ id: "creditsNext", label: T("player.upNext.playNow"), variant: "primary", icon: "play" }]
+    if MarkerFollowedByScene(marker, m.video.duration * 1000) then buttons.push({ id: "creditsSkip", label: T("player.skip", { kind: "credits" }), variant: "secondary", icon: "forward" })
+    buttons.push({ id: "creditsWatch", label: T("player.upNext.watchCredits"), variant: "ghost" })
+    x = pad
+    first = invalid
+    rowHeight = 0
+    for each item in buttons
+        button = m.credits.createChild("UiButton")
+        button.addFields({ playerId: item.id, markerId: marker.id, markerEnd: marker.endMs })
+        button.variant = item.variant
+        if item.icon <> invalid then button.icon = item.icon
+        button.label = item.label
+        button.observeField("pressed", "onPlayerButton")
+        Place(button, x, y)
+        x = x + button.controlWidth + Theme.space.sm
+        rowHeight = button.controlHeight
+        if first = invalid then first = button
+    end for
+    height = y + rowHeight + pad
+    StyleShape(background, width, height, Theme.metrics.radius.panel, ColorAlpha(Theme.colors.ink, Theme.apple.playerUpNextAlpha))
+    Place(m.credits, Theme.screen.width - Theme.apple.playerSide - width, Theme.screen.height - Theme.apple.playerInset - Theme.apple.playerSkipPromptBottom - height)
+    ' On the television the card takes focus when it appears (once per offer), so OK plays the next title.
+    if not m.chromeShown and not m.menuOpen and first <> invalid then FocusOn(first)
+end sub
+
+sub PlayerHideCredits()
+    if m.credits = invalid then return
+    had = m.credits.isInFocusChain()
+    m.top.removeChild(m.credits)
+    m.credits = invalid
+    m.creditsLine = invalid
+    if had then PlayerFocusAfterPrompt()
+end sub
+
+' Leaving during the credits is a skip of them, recorded like the skip button's.
+sub PlayerLeaveCredits(automatic as boolean)
+    if m.credits = invalid then return
+    mode = "manual"
+    if automatic then mode = "automatic"
+    m.skipped = { "markerId": m.credits.markerId, "mode": mode, "positionMs": PlaybackMs(PlayerPosition()) }
+    PlayerSendReport(PlayerReportState(), invalid)
+    m.creditsDismissed[m.credits.markerId] = true
+    PlayerHideCredits()
+    if automatic then
+        PlayerAdvance("completion")
+    else
+        PlayerAdvance("next")
+    end if
 end sub
 
 ' The television now-playing pill: top right, while audio continues behind the page.
@@ -1565,11 +1729,24 @@ sub onPlayerButton(event as object)
         PlayerAdvance("next")
     else if id = "previous" then
         PlayerAdvance("previous")
-    else if id = "skip" then
+    else if id = "skip" or id = "creditsSkip" then
         if not PlayerReportGestureAllowed() then return
         m.skipped = { "markerId": button.markerId, "mode": "manual", "positionMs": PlaybackMs(PlayerPosition()) }
+        if id = "creditsSkip" then
+            m.creditsDismissed[button.markerId] = true
+            PlayerHideCredits()
+        end if
         m.video.seek = button.markerEnd / 1000
         PlayerSendReport(PlayerReportState(), invalid)
+    else if id = "undo" then
+        from = button.undoFrom
+        PlayerHideUndo()
+        m.video.seek = from
+    else if id = "creditsNext" then
+        PlayerLeaveCredits(false)
+    else if id = "creditsWatch" then
+        m.creditsDismissed[button.markerId] = true
+        PlayerHideCredits()
     else if id = "advance" then
         PlayerAdvance("next")
     else if id = "cancel" then
