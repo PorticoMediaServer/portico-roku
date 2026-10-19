@@ -70,6 +70,24 @@ Roku development device with the appropriate signing key to encrypt and sign
 that package. See [Roku's packaging documentation](https://developer.roku.com/dev/docs/packaging-channels).
 The workflow does not install on a device or publish to the Streaming Store.
 
+### GitHub Releases
+
+[Published releases](https://github.com/PorticoMediaServer/portico-roku/releases)
+provide `portico-roku.zip`, an unsigned development sideload ZIP, plus its
+SHA-256 checksum, exact corresponding source archive, application/third-party licenses,
+`SHA256SUMS`, and `metadata.json` with the full source commit and tool versions.
+
+A new `vX.Y.Z` tag builds and validates that exact commit, then publishes a
+GitHub prerelease. `package.json`, the root lockfile version, and Roku's manifest
+must agree: X is `major_version`, Y is `minor_version`, and Z is the integer
+`build_version` (written with five-digit padding). A mismatch fails the build.
+Existing releases and assets are never overwritten. Validate the review branch
+before creating a version tag; tags must remain fixed on the validated commit.
+
+The ZIP includes GPL, Manrope OFL, Lucide/Feather, and BrighterScript notices.
+This workflow does not sign a
+`.pkg`, install on a Roku, or upload to the Streaming Store.
+
 ### Updating generated assets and fixtures
 
 Design tokens, strings, fonts, and settings are generated from Portico's shared

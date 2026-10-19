@@ -31,7 +31,7 @@ function InstallationIdentity(store as object) as object
     end if
     name = "Roku"
     transport = ""
-    version = "0.1.0"
+    version = ""
     info = CreateObject("roDeviceInfo")
     if info <> invalid then
         friendly = info.getFriendlyName()
