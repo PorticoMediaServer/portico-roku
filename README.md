@@ -93,6 +93,10 @@ that have since changed or been removed; they need migration before regeneration
 against current sibling branches. Ordinary builds and tests use the checked-in
 snapshot and do not read floating sibling branches.
 
+## Support and warranty
+
+Portico is provided **"AS IS", without warranty**, to the extent permitted by applicable law. Support is voluntary and not guaranteed, including responses, fixes, maintenance, and updates. See [SUPPORT.md](SUPPORT.md) and [LICENSE](LICENSE) for details.
+
 ## Feedback and contributions
 
 Bug reports and product feedback are welcome through [GitHub Issues](https://github.com/PorticoMediaServer/portico-roku/issues). Portico does not accept external code contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).
