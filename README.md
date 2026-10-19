@@ -58,6 +58,10 @@ npm run package
 
 `npm run package` writes `build/portico-roku.zip`. The resulting channel package is intended for development sideloading. Roku Channel Store publication will happen separately when the client is ready.
 
+## Support and warranty
+
+Portico is provided **"AS IS", without warranty**, to the extent permitted by applicable law. Support is voluntary and not guaranteed, including responses, fixes, maintenance, and updates. See [SUPPORT.md](SUPPORT.md) and [LICENSE](LICENSE) for details.
+
 ## Feedback and contributions
 
 Bug reports and product feedback are welcome through [GitHub Issues](https://github.com/PorticoMediaServer/portico-roku/issues). Portico does not accept external code contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).
