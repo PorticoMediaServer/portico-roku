@@ -23,7 +23,9 @@ import {dirname, join, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {Resvg} from '@resvg/resvg-js';
 import * as design from '../../portico-server/packages/design/src/index.ts';
-import {catalogue, supportedLocales} from '../../portico-server/packages/i18n/src/catalog/index.ts';
+import {catalogue, selectableLocales} from '../../portico-server/packages/i18n/src/catalog/index.ts';
+// English reads translations.xml and these tables; every other language is data/locale/ (scripts/locales.mjs).
+const supportedLocales = ['en-US', 'en-CA', 'en-GB'];
 import {enUS} from '../../portico-server/packages/i18n/src/catalog/en-US.ts';
 import {appleLiterals} from './apple-literals.mjs';
 import {appleStrings} from './apple-strings.mjs';
@@ -671,7 +673,7 @@ function SettingsAuthored() as object
 end function
 
 function SettingsLocales() as object
-    return ${toBs([...supportedLocales])}
+    return ${toBs([...selectableLocales])}
 end function
 
 function SettingsCommonLanguages() as object
@@ -751,6 +753,9 @@ end function
 `);
   console.log(`generate: ${differing.length} messages differ between ${supportedLocales.join(', ')}`);
 }
+
+// The translated languages' words and forms, and the language names the English files carry.
+await import('./locales.mjs');
 
 const size = dir => walk(join(app, dir), ['']).reduce((n, f) => n + statSync(f).size, 0);
 console.log(`generate: Theme.bs, ThemeTables.bs, manifest; ${ids.length} messages × ${Object.keys(rokuLocales).length} locales; ${iconCount} icon renders at [${iconSizes.join(', ')}]; ${shapeCount} shapes; ${maskSizes.size} masks`);

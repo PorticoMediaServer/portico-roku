@@ -88,6 +88,12 @@ npm run package
 ```
 
 Review and commit the generated changes together with their Roku adaptations.
+
+The channel's languages come from the same catalogue: English from `locale/en_*/translations.xml`
+(Roku picks one by the device's locale) and every translated language from `data/locale/<locale>.json`,
+read at run time for the profile's or the device's language, with its date, number and list forms in
+`source/core/LocaleIndex.bs`. `npm run locales` regenerates just those (with `PORTICO_SERVER_ROOT`
+pointing at a compatible `portico-server` checkout); it works against current sibling branches.
 The current generators reference upstream Apple literals and playback modules
 that have since changed or been removed; they need migration before regeneration
 against current sibling branches. Ordinary builds and tests use the checked-in
