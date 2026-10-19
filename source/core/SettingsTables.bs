@@ -8,7 +8,7 @@ function SettingsAuthored() as object
 end function
 
 function SettingsLocales() as object
-    return ["en-US", "en-CA", "en-GB", "fr", "es", "de", "ru", "pt-BR", "it", "nl", "pl", "sv", "da", "nb", "cs", "tr", "uk", "zh-Hans", "zh-Hant", "ja", "ko", "fr-CA", "es-419", "pt-PT", "el", "hu", "ro", "fi", "id", "vi", "th", "hi"]
+    return ["en-US", "en-CA", "en-GB", "fr", "fr-CA", "es", "es-419", "de", "ru", "pt-BR", "pt-PT", "it", "nl", "pl", "sv", "da", "nb", "fi", "cs", "hu", "ro", "el", "tr", "uk", "id", "vi", "th", "hi", "zh-Hans", "zh-Hant", "ja", "ko"]
 end function
 
 function SettingsCommonLanguages() as object
