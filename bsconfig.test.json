@@ -5,7 +5,8 @@
     "source/**/*",
     "!source/Main.bs",
     { "src": "test/**/*.bs", "dest": "source/test" },
-    { "src": "test/fixtures/**/*.json", "dest": "test/fixtures" }
+    { "src": "test/fixtures/**/*.json", "dest": "test/fixtures" },
+    { "src": "data/**/*", "dest": "data" }
   ],
   "stagingDir": "build/test"
 }

@@ -5,7 +5,8 @@
 import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Time.bs"
 
-' {locale: "en-US" | "en-CA" | "en-GB", hour12, utc}. Times are always in the device's own zone;
+' {locale: "en-US" | "en-CA" | "en-GB" | a translated language, forms, hour12, utc}. `forms` is the
+' translated language's (LocaleIndex), invalid for English. Times are always in the device's own zone;
 ' `utc` is for the off-device tests. The profile's language and hour cycle (Messages.bs
 ' `RegionChoice`) come first, then the device's.
 function FormatRegion() as object
@@ -34,6 +35,14 @@ function RegionFor(choice as string, deviceLocale as string, deviceClock as stri
     if deviceLocale = "en_CA" then region.locale = "en-CA"
     parts = choice.split("|")
     if parts.count() > 0 and (parts[0] = "en-US" or parts[0] = "en-CA" or parts[0] = "en-GB") then region.locale = parts[0]
+    ' A translated language formats as it is written: the profile's when it chose one, else the device's.
+    tag = deviceLocale
+    if parts.count() > 0 and parts[0] <> "" and parts[0] <> "auto" then tag = parts[0]
+    translated = CatalogueLocale(tag)
+    if translated <> "" then
+        region.locale = translated
+        region.forms = LocaleIndex()[translated].forms
+    end if
     if parts.count() > 1 then
         if parts[1] = "h12" then region.hour12 = true
         if parts[1] = "h23" then region.hour12 = false
@@ -78,6 +87,12 @@ end function
 function FormatDate(value as dynamic, style = "medium" as string) as string
     parts = FormatDateParts(value)
     if parts = invalid then return ""
+    forms = FormatRegion().forms
+    if forms <> invalid then
+        pattern = forms.date[style]
+        if pattern = invalid then pattern = forms.date.medium
+        return FormatPattern(pattern.t, { d: parts.day.toStr(), y: parts.year.toStr(), M: FormatPick(pattern.m, parts.month - 1), W: FormatPick(pattern.w, parts.weekday) })
+    end if
     locale = FormatRegion().locale
     dayFirst = locale = "en-GB"
     day = parts.day.toStr()
@@ -103,12 +118,44 @@ function FormatDate(value as dynamic, style = "medium" as string) as string
     return month + " " + day + ", " + year
 end function
 
+' A pattern from LocaleIndex: literal parts as they are, field parts from `fields`.
+function FormatPattern(pattern as object, fields as object) as string
+    out = ""
+    for each part in pattern
+        if part.s <> invalid then
+            out = out + part.s
+        else
+            value = fields[part.k]
+            if value <> invalid then out = out + value
+        end if
+    end for
+    return out
+end function
+
+function FormatPick(names as dynamic, index as integer) as string
+    if names = invalid or index < 0 or index >= names.count() then return ""
+    return names[index]
+end function
+
 ' i18n `time`: "9:41 PM" or "21:41" by the device's clock setting.
 function FormatTime(value as dynamic) as string
     parts = FormatDateParts(value)
     if parts = invalid then return ""
     minute = parts.minute.toStr()
     if Len(minute) < 2 then minute = "0" + minute
+    forms = FormatRegion().forms
+    if forms <> invalid then
+        if FormatRegion().hour12 then
+            hour = parts.hour mod 12
+            if hour = 0 then hour = 12
+            period = forms.am
+            if parts.hour >= 12 then period = forms.pm
+            return FormatPattern(forms.time12, { h: hour.toStr(), m: minute, a: period })
+        end if
+        hour = parts.hour.toStr()
+        if Len(hour) < 2 and forms.pad24 then hour = "0" + hour
+        return FormatPattern(forms.time24, { h: hour, m: minute })
+    end if
     if not FormatRegion().hour12 then
         hour = parts.hour.toStr()
         ' US English pads the hour of a 24-hour clock; British English does not.
@@ -188,6 +235,15 @@ function FormatBytes(value as dynamic) as string
         v = v / 1024
         index = index + 1
     end while
+    forms = FormatRegion().forms
+    if forms <> invalid then
+        ' The language's own number and unit ("1,4 Go"), from Intl.
+        number = MessageNumber(v, "integer", forms)
+        if v < 10 and index > 0 then number = MessageNumber(Int(v * 10 + 0.5) / 10, "", forms)
+        unit = forms.bytes[index]
+        if unit.before then return unit.u + unit.gap + number
+        return number + unit.gap + unit.u
+    end if
     if v < 10 and index > 0 then
         tenths = Int(v * 10 + 0.5)
         text = (tenths \ 10).toStr()
@@ -202,6 +258,15 @@ function FormatList(items as object) as string
     count = items.count()
     if count = 0 then return ""
     if count = 1 then return items[0]
+    forms = FormatRegion().forms
+    if forms <> invalid then
+        if count = 2 then return items[0] + forms.pair + items[1]
+        joined = items[0]
+        for index = 1 to count - 2
+            joined = joined + forms.middle + items[index]
+        end for
+        return joined + forms.last + items[count - 1]
+    end if
     if count = 2 then return items[0] + " and " + items[1]
     out = ""
     for index = 0 to count - 2

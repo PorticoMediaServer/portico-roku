@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "generate": "node scripts/generate.mjs",
+    "locales": "node scripts/locales.mjs",
     "lint:literals": "node scripts/lint-literals.mjs",
     "check": "npm run lint:literals && bsc --project bsconfig.json --copy-to-staging=false --create-package=false",
     "build": "bsc --project bsconfig.json",

@@ -1,0 +1,104 @@
+' The channel's translated languages (scripts/locales.mjs): which language a profile or device
+' reads, the words from data/locale/, plural forms by CLDR rule, and dates, numbers, lists and sizes
+' as Intl writes them in that language.
+
+sub LocalesReset()
+    globals = GetGlobalAA()
+    globals.deviceLocale = invalid
+    globals.regionFixed = invalid
+    globals.messageLanguageFor = invalid
+    globals.messageLocale = invalid
+    globals.formatRegion = invalid
+    globals.formatRegionFor = invalid
+end sub
+
+sub Test_Locales_catalogueLanguage()
+    AssertEqual(CatalogueLocale("fr_FR"), "fr")
+    AssertEqual(CatalogueLocale("fr_CA"), "fr-CA")
+    AssertEqual(CatalogueLocale("fr-BE"), "fr")
+    AssertEqual(CatalogueLocale("es_ES"), "es")
+    AssertEqual(CatalogueLocale("es_MX"), "es-419")
+    AssertEqual(CatalogueLocale("de_DE"), "de")
+    AssertEqual(CatalogueLocale("ru"), "ru")
+    ' English, and a language with no words yet, read the device's English translations.
+    AssertEqual(CatalogueLocale("en_GB"), "")
+    AssertEqual(CatalogueLocale("ja_JP"), "")
+    AssertEqual(CatalogueLocale(""), "")
+end sub
+
+sub Test_Locales_pluralRules()
+    AssertEqual(MessagePluralRule("ru", "ru", 1), "one")
+    AssertEqual(MessagePluralRule("ru", "ru", 3), "few")
+    AssertEqual(MessagePluralRule("ru", "ru", 5), "many")
+    AssertEqual(MessagePluralRule("ru", "ru", 11), "many")
+    AssertEqual(MessagePluralRule("ru", "ru", 21), "one")
+    AssertEqual(MessagePluralRule("ru", "ru", 112), "many")
+    AssertEqual(MessagePluralRule("ru", "ru", 1.5), "other")
+    AssertEqual(MessagePluralRule("pl", "pl", 22), "few")
+    AssertEqual(MessagePluralRule("pl", "pl", 21), "many")
+    AssertEqual(MessagePluralRule("cs", "cs", 4), "few")
+    AssertEqual(MessagePluralRule("cs", "cs", 5), "other")
+    AssertEqual(MessagePluralRule("ro", "ro", 19), "few")
+    AssertEqual(MessagePluralRule("ro", "ro", 20), "other")
+    AssertEqual(MessagePluralRule("fr", "fr", 0), "one")
+    AssertEqual(MessagePluralRule("fr", "fr", 2), "other")
+    AssertEqual(MessagePluralRule("pt", "pt-PT", 0), "other")
+    AssertEqual(MessagePluralRule("de", "de", 1), "one")
+    AssertEqual(MessagePluralRule("de", "de", 0), "other")
+    AssertEqual(MessagePluralRule("ja", "ja", 1), "other")
+end sub
+
+sub Test_Locales_wordsFollowTheDeviceThenTheProfile()
+    LocalesReset()
+    globals = GetGlobalAA()
+    globals.deviceLocale = "ru_RU"
+    globals.regionFixed = ""
+    AssertEqual(T("count.titles", { count: 1 }), "1 название")
+    AssertEqual(T("count.titles", { count: 3 }), "3 названия")
+    AssertEqual(T("count.titles", { count: 5 }), "5 названий")
+    AssertEqual(T("count.titles", { count: 1234567 }), "1" + Chr(160) + "234" + Chr(160) + "567 названий")
+    ' The profile's language wins over the device's; Canadian French reads French where it says nothing of its own.
+    globals.regionFixed = "fr-CA|"
+    AssertEqual(T("preferences.followDevice"), ReadJsonWord("fr", "preferences.followDevice"))
+    globals.regionFixed = "de|h23"
+    AssertEqual(T("count.titles", { count: 1 }), "1 Titel")
+    LocalesReset()
+end sub
+
+function ReadJsonWord(locale as string, id as string) as string
+    return ParseJson(ReadAsciiFile("pkg:/data/locale/" + locale + ".json"))[id]
+end function
+
+sub Test_Locales_formsAsIntlWritesThem()
+    LocalesReset()
+    globals = GetGlobalAA()
+    stamp = 1791925500
+    region = RegionFor("de|h23", "en_US", "24h")
+    AssertEqual(region.locale, "de")
+    region.utc = true
+    globals.formatRegion = region
+    AssertEqual(FormatDate(stamp, "medium"), "13.10.2026")
+    AssertEqual(FormatDate(stamp, "weekday"), "Dienstag, 13. Okt.")
+    AssertEqual(FormatTime(stamp), "21:05")
+    AssertEqual(FormatList(["A", "B", "C"]), "A, B und C")
+    AssertEqual(MessageNumber(12345.5#, "", region.forms), "12.345,5")
+    region = RegionFor("fr|", "en_US", "24h")
+    region.utc = true
+    globals.formatRegion = region
+    AssertEqual(FormatDate(stamp, "medium"), "13 oct. 2026")
+    AssertEqual(FormatBytes(1500000000), "1,4" + Chr(8239) + "Go")
+    AssertEqual(FormatList(["A", "B"]), "A et B")
+    region = RegionFor("ru|", "en_US", "24h")
+    region.utc = true
+    globals.formatRegion = region
+    AssertEqual(FormatDate(stamp, "medium"), "13 окт. 2026 г.")
+    region = RegionFor("", "es_ES", "12h")
+    region.utc = true
+    globals.formatRegion = region
+    AssertEqual(FormatTime(stamp), "9:05 p. m.")
+    AssertEqual(MessageNumber(1234, "", region.forms), "1234")
+    ' English and a language without words keep the English forms.
+    AssertEqual(RegionFor("ja|", "en_US", "12h").forms, invalid)
+    AssertEqual(RegionFor("", "en_GB", "24h").locale, "en-GB")
+    LocalesReset()
+end sub

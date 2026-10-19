@@ -1,13 +1,16 @@
 ' packages/i18n/src/messageformat.ts in BrightScript: the ICU MessageFormat subset the catalogue
 ' uses. `{arg}`, `{arg, number[, integer|percent]}`, `{arg, plural, [offset:n] =0 {…} one {…} other {…}}`
 ' with `#`, `{arg, selectordinal, …}`, `{arg, select, key {…} other {…}}`, and apostrophe quoting
-' (`''` is a quote, `'{…}'` is literal). The words come from locale/<locale>/translations.xml,
-' generated from packages/i18n/src/catalog, so they are the same words by the same ids.
+' (`''` is a quote, `'{…}'` is literal). English comes from locale/<locale>/translations.xml and
+' every other language from data/locale/<locale>.json, both generated from packages/i18n/src/catalog,
+' so they are the same words by the same ids. Plural forms and number separators follow the
+' language the words are in.
 '
 ' Dates and times inside a message (`{arg, date}`) are formatted for US English; the channel
 ' formats its own dates through core/Format.bs.
 
 import "pkg:/source/core/LocaleTables.bs"
+import "pkg:/source/core/LocaleIndex.bs"
 
 ' The catalogue message for an id, formatted. An id with no message returns the id (as `tr` does).
 function T(id as string, values = invalid as dynamic) as string
@@ -30,11 +33,113 @@ sub RegionKeep()
     GetGlobalAA().regionFixed = RegionChoice()
 end sub
 
-' The catalogue source for an id. The profile's language first (the words that differ between the
-' catalogue's locales), then the device's translations (locale/<locale>/translations.xml).
+' The catalogue language a tag ("fr-CA", or Roku's "fr_CA") reads, when the channel has words for
+' it: exact, then a regional variant (French in Canada, Spanish outside Spain, Portuguese outside
+' Brazil), then the language alone. "" for English and for a language with no words yet.
+function CatalogueLocale(tag as string) as string
+    if tag = "" then return ""
+    parts = CreateObject("roRegex", "[-_]", "").split(tag)
+    language = LCase(parts[0])
+    if language = "en" then return ""
+    region = ""
+    script = ""
+    for at = 1 to parts.count() - 1
+        part = parts[at]
+        if Len(part) = 4 then script = LCase(part)
+        if region = "" and (Len(part) = 2 or (Len(part) = 3 and Val(part, 10) > 0)) then region = UCase(part)
+    end for
+    index = LocaleIndex()
+    exact = language
+    if script <> "" then exact = exact + "-" + script
+    if region <> "" then exact = exact + "-" + region
+    entry = index[exact]
+    if entry <> invalid then return entry.id
+    variant = ""
+    if language = "fr" and region = "CA" then variant = "fr-CA"
+    if language = "es" and region <> "" and region <> "ES" then variant = "es-419"
+    if language = "pt" and region <> "" and region <> "BR" then variant = "pt-PT"
+    if variant <> "" and index[variant] <> invalid then return index[variant].id
+    if language = "no" or language = "nn" then language = "nb"
+    if language = "zh" then
+        language = "zh-hans"
+        if script = "hant" or (script <> "hans" and (region = "TW" or region = "HK" or region = "MO")) then language = "zh-hant"
+    end if
+    for each name in index
+        entry = index[name]
+        if entry.lang = language and entry.base = "" then return entry.id
+    end for
+    return ""
+end function
+
+' The language the words are in for the viewer's choice: the profile's language when it has one,
+' else the device's. invalid for English. Tests set `deviceLocale` in place of the device's.
+function MessageLanguage() as dynamic
+    globals = GetGlobalAA()
+    choice = RegionChoice()
+    device = globals.deviceLocale
+    if device = invalid then
+        ' The device's locale is read once per run of the channel.
+        if globals.deviceLocaleRead = invalid then
+            info = CreateObject("roDeviceInfo")
+            globals.deviceLocaleRead = ""
+            if info <> invalid then globals.deviceLocaleRead = info.getCurrentLocale()
+        end if
+        device = globals.deviceLocaleRead
+    end if
+    key = choice + "|" + device
+    if globals.messageLanguageFor <> invalid and globals.messageLanguageFor = key then return globals.messageLanguage
+    tag = Left(choice, Instr(1, choice + "|", "|") - 1)
+    if tag = "" or tag = "auto" then tag = device
+    locale = CatalogueLocale(tag)
+    language = invalid
+    if locale <> "" then language = LocaleIndex()[locale]
+    globals.messageLanguage = language
+    globals.messageLanguageFor = key
+    return language
+end function
+
+' A language's words (data/locale/<locale>.json), read once. Empty when it has no file of its own.
+function LocaleWordsFile(locale as string) as object
+    globals = GetGlobalAA()
+    if globals.localeFiles = invalid then globals.localeFiles = {}
+    words = globals.localeFiles[locale]
+    if words = invalid then
+        words = {}
+        text = ReadAsciiFile("pkg:/data/locale/" + locale + ".json")
+        if text <> "" then
+            parsed = ParseJson(text)
+            if Type(parsed) = "roAssociativeArray" then words = parsed
+        end if
+        globals.localeFiles[locale] = words
+    end if
+    return words
+end function
+
+' The catalogue source for an id. A translated language's words first (a variant's own, then its
+' base's), then the words that differ between the English locales when the profile chose one, then
+' the device's English translations (locale/<locale>/translations.xml). `messageLocale` records the
+' language that answered, for its plural rules and numbers.
 ' The off-device tests have no translations, so they register the sources their fixtures carry.
 function MessageSource(id as string) as string
     globals = GetGlobalAA()
+    language = MessageLanguage()
+    if language <> invalid then
+        if language.words then
+            source = LocaleWordsFile(language.id)[id]
+            if source <> invalid then
+                globals.messageLocale = language.id
+                return source
+            end if
+        end if
+        if language.base <> "" then
+            source = LocaleWordsFile(language.base)[id]
+            if source <> invalid then
+                globals.messageLocale = language.id
+                return source
+            end if
+        end if
+    end if
+    globals.messageLocale = "en"
     choice = RegionChoice()
     if choice <> "" and Left(choice, 1) <> "|" then
         if globals.localeWordsFor = invalid or globals.localeWordsFor <> choice then
@@ -250,10 +355,65 @@ end function
 
 ' English plural categories (messageformat.ts `pluralCategory`; Intl.PluralRules for "en").
 function MessagePluralCategory(n as dynamic, ordinal as boolean) as string
-    if not ordinal then
-        if n = 1 then return "one"
+    locale = GetGlobalAA().messageLocale
+    if locale = invalid then locale = "en"
+    language = LCase(Left(locale, Instr(1, locale + "-", "-") - 1))
+    if ordinal then
+        if language = "en" then return MessageEnglishOrdinal(n)
+        ' French alone among the catalogue's languages marks the first ("1er").
+        if language = "fr" and n = 1 then return "one"
         return "other"
     end if
+    return MessagePluralRule(language, locale, n)
+end function
+
+' CLDR cardinal plural rules (what Intl.PluralRules gives) for the catalogue's languages.
+function MessagePluralRule(language as string, locale as string, n as dynamic) as string
+    whole = n = Int(n)
+    i = Int(Abs(n))
+    ones = i mod 10
+    hundreds = i mod 100
+    if language = "ja" or language = "zh" or language = "ko" or language = "id" or language = "vi" or language = "th" then return "other"
+    if language = "ru" or language = "uk" then
+        if not whole then return "other"
+        if ones = 1 and hundreds <> 11 then return "one"
+        if ones >= 2 and ones <= 4 and (hundreds < 12 or hundreds > 14) then return "few"
+        return "many"
+    end if
+    if language = "pl" then
+        if not whole then return "other"
+        if i = 1 then return "one"
+        if ones >= 2 and ones <= 4 and (hundreds < 12 or hundreds > 14) then return "few"
+        return "many"
+    end if
+    if language = "cs" then
+        if not whole then return "many"
+        if i = 1 then return "one"
+        if i >= 2 and i <= 4 then return "few"
+        return "other"
+    end if
+    if language = "ro" then
+        if not whole then return "few"
+        if i = 1 then return "one"
+        if i = 0 or (hundreds >= 2 and hundreds <= 19) then return "few"
+        return "other"
+    end if
+    if language = "hi" then
+        if i = 0 or n = 1 then return "one"
+        return "other"
+    end if
+    ' French and Brazilian Portuguese: 0 and 1 are both "one"; a round million takes "many" ("de").
+    if language = "fr" or (language = "pt" and locale <> "pt-PT") then
+        if i <= 1 then return "one"
+        if whole and i mod 1000000 = 0 then return "many"
+        return "other"
+    end if
+    if n = 1 then return "one"
+    if (language = "es" or language = "it" or language = "pt") and whole and i <> 0 and i mod 1000000 = 0 then return "many"
+    return "other"
+end function
+
+function MessageEnglishOrdinal(n as dynamic) as string
     if n <> Int(n) then return "other"
     whole = Int(n)
     ones = whole mod 10
@@ -264,8 +424,25 @@ function MessagePluralCategory(n as dynamic, ordinal as boolean) as string
     return "other"
 end function
 
-' Intl.NumberFormat("en-US"): grouping by thousands, up to three fraction digits, half rounds up.
-function MessageNumber(value as dynamic, style = "" as string) as string
+' The number forms of the language the words are in (LocaleIndex), or invalid for English.
+function MessageForms() as dynamic
+    locale = GetGlobalAA().messageLocale
+    if locale = invalid or locale = "en" then return invalid
+    entry = LocaleIndex()[locale]
+    if entry = invalid then return invalid
+    return entry.forms
+end function
+
+' Intl.NumberFormat: grouping by thousands, up to three fraction digits, half rounds up, with the
+' separators of the language the words are in (`forms`, by default MessageForms()); US English otherwise.
+function MessageNumber(value as dynamic, style = "" as string, forms = invalid as dynamic) as string
+    if forms = invalid then forms = MessageForms()
+    group = ","
+    point = "."
+    if forms <> invalid then
+        group = forms.group
+        point = forms.decimal
+    end if
     n = value
     if style = "percent" then n = n * 100
     negative = n < 0
@@ -288,8 +465,10 @@ function MessageNumber(value as dynamic, style = "" as string) as string
     end if
     digits = whole&.toStr()
     grouped = ""
+    ' Some languages (Spanish, Polish) leave a four-digit number ungrouped.
+    if forms <> invalid and not forms.groupFour and Len(digits) = 4 then group = ""
     while Len(digits) > 3
-        grouped = "," + Right(digits, 3) + grouped
+        grouped = group + Right(digits, 3) + grouped
         digits = Left(digits, Len(digits) - 3)
     end while
     out = digits + grouped
@@ -301,7 +480,7 @@ function MessageNumber(value as dynamic, style = "" as string) as string
         while Right(tail, 1) = "0"
             tail = Left(tail, Len(tail) - 1)
         end while
-        out = out + "." + tail
+        out = out + point + tail
     end if
     if negative and (whole& <> 0 or fraction > 0) then out = "-" + out
     if style = "percent" then out = out + "%"

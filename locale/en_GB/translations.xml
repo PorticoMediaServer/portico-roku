@@ -1274,6 +1274,22 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
             <translation>Live TV is turned off for this profile.</translation>
         </message>
         <message>
+            <source>locale.cs</source>
+            <translation>Čeština</translation>
+        </message>
+        <message>
+            <source>locale.da</source>
+            <translation>Dansk</translation>
+        </message>
+        <message>
+            <source>locale.de</source>
+            <translation>Deutsch</translation>
+        </message>
+        <message>
+            <source>locale.el</source>
+            <translation>Ελληνικά</translation>
+        </message>
+        <message>
             <source>locale.en-CA</source>
             <translation>English (Canada)</translation>
         </message>
@@ -1284,6 +1300,106 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
         <message>
             <source>locale.en-US</source>
             <translation>English (United States)</translation>
+        </message>
+        <message>
+            <source>locale.es</source>
+            <translation>Español (España)</translation>
+        </message>
+        <message>
+            <source>locale.es-419</source>
+            <translation>Español (Latinoamérica)</translation>
+        </message>
+        <message>
+            <source>locale.fi</source>
+            <translation>Suomi</translation>
+        </message>
+        <message>
+            <source>locale.fr</source>
+            <translation>Français (France)</translation>
+        </message>
+        <message>
+            <source>locale.fr-CA</source>
+            <translation>Français (Canada)</translation>
+        </message>
+        <message>
+            <source>locale.hi</source>
+            <translation>हिन्दी</translation>
+        </message>
+        <message>
+            <source>locale.hu</source>
+            <translation>Magyar</translation>
+        </message>
+        <message>
+            <source>locale.id</source>
+            <translation>Bahasa Indonesia</translation>
+        </message>
+        <message>
+            <source>locale.it</source>
+            <translation>Italiano</translation>
+        </message>
+        <message>
+            <source>locale.ja</source>
+            <translation>日本語</translation>
+        </message>
+        <message>
+            <source>locale.ko</source>
+            <translation>한국어</translation>
+        </message>
+        <message>
+            <source>locale.nb</source>
+            <translation>Norsk bokmål</translation>
+        </message>
+        <message>
+            <source>locale.nl</source>
+            <translation>Nederlands</translation>
+        </message>
+        <message>
+            <source>locale.pl</source>
+            <translation>Polski</translation>
+        </message>
+        <message>
+            <source>locale.pt-BR</source>
+            <translation>Português (Brasil)</translation>
+        </message>
+        <message>
+            <source>locale.pt-PT</source>
+            <translation>Português (Portugal)</translation>
+        </message>
+        <message>
+            <source>locale.ro</source>
+            <translation>Română</translation>
+        </message>
+        <message>
+            <source>locale.ru</source>
+            <translation>Русский</translation>
+        </message>
+        <message>
+            <source>locale.sv</source>
+            <translation>Svenska</translation>
+        </message>
+        <message>
+            <source>locale.th</source>
+            <translation>ไทย</translation>
+        </message>
+        <message>
+            <source>locale.tr</source>
+            <translation>Türkçe</translation>
+        </message>
+        <message>
+            <source>locale.uk</source>
+            <translation>Українська</translation>
+        </message>
+        <message>
+            <source>locale.vi</source>
+            <translation>Tiếng Việt</translation>
+        </message>
+        <message>
+            <source>locale.zh-Hans</source>
+            <translation>简体中文</translation>
+        </message>
+        <message>
+            <source>locale.zh-Hant</source>
+            <translation>繁體中文</translation>
         </message>
         <message>
             <source>mediaInfo.audio</source>

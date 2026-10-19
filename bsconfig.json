@@ -6,7 +6,8 @@
     "components/**/*",
     "images/**/*",
     "fonts/**/*",
-    "locale/**/*"
+    "locale/**/*",
+    "data/**/*"
   ],
   "stagingDir": "build/staging",
   "retainStagingDir": true,

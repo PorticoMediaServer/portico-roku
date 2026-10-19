@@ -21,7 +21,7 @@ with zipfile.ZipFile(archive) as package:
         path = PurePosixPath(name)
         assert not path.is_absolute() and ".." not in path.parts and "\\" not in name, f"Unsafe ZIP path: {name}"
         assert not {"test", "tests", "node_modules", ".git"}.intersection(path.parts), f"Build-only file: {name}"
-        assert name == "manifest" or path.parts[0] in {"source", "components", "images", "fonts", "locale"}, f"Unexpected ZIP file: {name}"
+        assert name == "manifest" or path.parts[0] in {"source", "components", "images", "fonts", "locale", "data"}, f"Unexpected ZIP file: {name}"
         assert path.suffix.lower() not in {".bs", ".ts", ".map", ".pkg"} and not path.name.startswith("."), f"Non-runtime file: {name}"
     manifest = package.read("manifest").decode("utf-8")
     for field in ("title", "major_version", "minor_version", "build_version"):
