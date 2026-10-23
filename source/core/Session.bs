@@ -320,6 +320,7 @@ function SessionSignInOutcome(ctx as object, connection as object, answer as obj
     if parsed.kind = "challenge" then return { ok: true, kind: "challenge", token: parsed.token }
     if parsed.snapshot.serverId <> connection.pin.serverId then return SessionFailure("server_mismatch", "The server answered as a different server.")
     if parsed.passwordChangeRequired then return { ok: true, kind: "password-change", accountSession: parsed.session, snapshot: parsed.snapshot }
+    if parsed.snapshot.twoStepSetupRequired = true then return { ok: true, kind: "two-step-setup", accountSession: parsed.session, snapshot: parsed.snapshot }
     if parsed.accountScoped then return { ok: true, kind: "profiles", accountSession: parsed.session, snapshot: parsed.snapshot }
     if details = invalid then details = {}
     details.capabilities = parsed.snapshot.capabilities

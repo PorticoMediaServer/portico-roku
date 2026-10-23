@@ -255,6 +255,12 @@ sub SessionOutcome(result as object)
     kind = result.kind
     if kind = "ready" then
         SessionReady(result.record, result.session, result.connection)
+    else if kind = "two-step-setup" then
+        ' This restricted account is retained privately. Roku offers no owner enrollment
+        ' page and cannot turn it into a profile/viewer or management grant.
+        m.accountSession = result.accountSession
+        m.top.directFailure = { code: "two_step_setup_required", status: 0, message: "" }
+        m.top.error = SignInMessage(m.top.directFailure)
     else if kind = "profiles" then
         m.top.directStep = ""
         m.top.pending = { snapshot: result.snapshot, accountSession: result.accountSession, switching: false }

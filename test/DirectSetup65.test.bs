@@ -1,0 +1,54 @@
+import "pkg:/source/core/Session.bs"
+
+function TestDirectRequiredSetup(ctx as object) as object
+    raw = TestSnapshot(ctx, [TestProfile("prof_1", "Demo", true)])
+    raw.canManage = false
+    raw.capabilities = { manageAccount: false, managePeople: false, manageServer: false, manageSignIn: false }
+    raw.session = TestSessionJson(ctx, "account")
+    raw.twoStepSetupRequired = true
+    return raw
+end function
+
+sub Test_DirectSetup65_retainsOnlyTheRestrictedTopLevelContinuation()
+    ctx = TestContext()
+    raw = TestDirectRequiredSetup(ctx)
+    parsed = ParseDirectSignIn(raw, ctx.now)
+    AssertTrue(parsed.ok)
+    AssertTrue(parsed.snapshot.twoStepSetupRequired)
+    AssertEqual(DirectSignInContinuation(parsed), "two-step-setup")
+    AssertEqual(parsed.session.twoStepSetupRequired, invalid)
+    connection = { signIn: "local", origin: ctx.base, pin: TestPin(ctx) }
+    outcome = SessionSignInOutcome(ctx, connection, { ok: true, data: raw })
+    AssertEqual(outcome.kind, "two-step-setup")
+    AssertEqual(outcome.accountSession.viewer.role, "account")
+    AssertEqual(SessionRecord(ctx), invalid)
+    AssertEqual(ctx.transport.requests.count(), 0)
+    raw.passwordChangeRequired = true
+    parsed = ParseDirectSignIn(raw, ctx.now)
+    AssertEqual(DirectSignInContinuation(parsed), "password-change")
+end sub
+
+sub Test_DirectSetup65_viewerBooleanAndManagementEscalationsAreRefused()
+    ctx = TestContext()
+    raw = TestDirectRequiredSetup(ctx)
+    raw.session = TestSessionJson(ctx, "viewer")
+    AssertEqual(ParseDirectSignIn(raw, ctx.now).ok, false)
+    for each flag in ["true", 1, invalid]
+        raw = TestDirectRequiredSetup(ctx)
+        raw.twoStepSetupRequired = flag
+        AssertEqual(ParseDirectSignIn(raw, ctx.now).ok, false)
+    end for
+    for each capability in ["manageAccount", "managePeople", "manageServer", "manageSignIn"]
+        raw = TestDirectRequiredSetup(ctx)
+        raw.canManage = true
+        raw.capabilities.manageAccount = true
+        raw.capabilities[capability] = true
+        AssertEqual(ParseDirectSignIn(raw, ctx.now).ok, false)
+    end for
+    raw = TestDirectRequiredSetup(ctx)
+    raw.twoStepSetupRequired = false
+    parsed = ParseDirectSignIn(raw, ctx.now)
+    AssertTrue(parsed.ok)
+    AssertEqual(parsed.snapshot.twoStepSetupRequired, invalid)
+    AssertEqual(DirectSignInContinuation(parsed), "profile-selection")
+end sub
