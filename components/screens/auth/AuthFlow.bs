@@ -61,6 +61,7 @@ function FlowWanted() as string
     end if
     if m.step = "hosted-credentials" then return "ScreenTVCredentials"
     if m.step = "direct" then
+        if m.session.directStep = "challenge" and m.session.connection <> invalid and m.session.connection.signIn = "local" then return "ScreenTVCredentials"
         if m.directView = "password" and m.session.directStep <> "password-change" then return "ScreenTVCredentials"
         if m.directView = "code" and m.session.connection <> invalid and m.session.directStep = "" then return "ScreenQuickConnect"
         return "ScreenDirectSignIn"
