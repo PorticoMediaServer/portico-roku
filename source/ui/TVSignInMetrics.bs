@@ -41,6 +41,7 @@ namespace TVSignInMetrics
     const padGap = 20
     const padRadius = 20
     const padSize = 48
+    const padDeleteSize = 46
     const padFill = "0xEDF5FA12"
     const padFocusFill = "0xEDF5FA2E"
     const padScale = 1.05

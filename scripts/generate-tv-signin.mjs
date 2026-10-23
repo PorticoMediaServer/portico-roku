@@ -3,7 +3,7 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync, writeFileSync, renameSync, readdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, resolve, join} from 'node:path';
-import {stripTypeScriptTypes} from 'node:module';
+import {stripTypeScriptTypes, createRequire} from 'node:module';
 const app = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = process.env.PORTICO_INTERNAL_ROOT;
 if (!root) throw new Error('Set PORTICO_INTERNAL_ROOT to the immutable design Git repository');
@@ -62,6 +62,7 @@ const metrics = {
   termsBottom: 64, termsSize: 20, termsLineHeight: 30,
   legalGap: 28,
   padRight: 260, padColumns: 3, padKeyWidth: 148, padKeyHeight: 118, padGap: 20, padRadius: 20, padSize: 48,
+  padDeleteSize: 46,
   padFill: '0xEDF5FA12', padFocusFill: '0xEDF5FA2E', padScale: 1.05, padLinkGap: 18, padLinkHeight: 72, padLinkSize: 24,
   boxWidth: 104, boxHeight: 116, boxGap: 18, boxRadius: 18, boxBorder: 2, boxCaretHeight: 52, boxDot: 24,
   keyboardColumns: 9, keyboardGap: 10, keyboardKeyHeight: 72, keyboardRadius: 14, keyboardSize: 28,
@@ -75,6 +76,17 @@ const emit = (name, value) => {
   if (process.argv.includes('--check')) { if (readFileSync(path, 'utf8') !== value) throw new Error('Regenerate ' + name); }
   else { writeFileSync(path + '.tmp', value); renameSync(path + '.tmp', path); }
 };
+const require = createRequire(process.env.PORTICO_ASSET_TOOLS_ROOT ? join(process.env.PORTICO_ASSET_TOOLS_ROOT, 'package.json') : import.meta.url);
+const {Resvg} = require('@resvg/resvg-js');
+const backspace = /<symbol id="i-backspace"[^>]*>([\s\S]*?)<\/symbol>/.exec(auth)?.[1];
+if (!backspace) throw new Error('Missing drawn backspace symbol');
+for (const size of [metrics.padDeleteSize, metrics.fieldSize]) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">${backspace.replaceAll('currentColor', '#fff')}</svg>`;
+  const bytes = new Resvg(svg).render().asPng();
+  const path = join(app, `images/icons/tv-auth-backspace-${size}.png`);
+  if (process.argv.includes('--check')) { if (!readFileSync(path).equals(bytes)) throw new Error('Regenerate drawn backspace'); }
+  else { writeFileSync(path + '.tmp', bytes); renameSync(path + '.tmp', path); }
+}
 emit('source/ui/TVSignInMetrics.bs', `' Composed by ruling 28: immutable ${commit}, auth8/9/17 + connect36.\nnamespace TVSignInMetrics\n${Object.entries(metrics).map(([key,value]) => '    const ' + key + ' = ' + JSON.stringify(value)).join('\n')}\nend namespace\n`);
 const xml = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 for (const locale of readdirSync(join(app, 'locale'))) {

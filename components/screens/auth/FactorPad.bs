@@ -54,8 +54,12 @@ sub init()
         label.value = keys[index]
         if keys[index] = "delete" then
             label.visible = false
-            icon = MakeIcon(node, "backspace", TVSignInMetrics.padSize, Theme.colors.textSecondary)
-            Place(icon, (TVSignInMetrics.padKeyWidth - TVSignInMetrics.padSize) / 2, (TVSignInMetrics.padKeyHeight - TVSignInMetrics.padSize) / 2)
+            icon = node.createChild("Poster")
+            icon.uri = "pkg:/images/icons/tv-auth-backspace-46.png"
+            icon.width = TVSignInMetrics.padDeleteSize
+            icon.height = TVSignInMetrics.padDeleteSize
+            icon.blendColor = Theme.colors.textSecondary
+            Place(icon, (TVSignInMetrics.padKeyWidth - TVSignInMetrics.padDeleteSize) / 2, (TVSignInMetrics.padKeyHeight - TVSignInMetrics.padDeleteSize) / 2)
         end if
         node.observeField("pressed", "onFactorKey")
         node.observeField("isFocused", "onFactorStyle")

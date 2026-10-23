@@ -45,7 +45,11 @@ sub init()
         if key = "clear" then text.value = T("roku.tvSignIn.clear")
         if key = "delete" then
             text.visible = false
-            icon = MakeIcon(node, "backspace", TVSignInMetrics.fieldSize, Theme.colors.textSecondary)
+            icon = node.createChild("Poster")
+            icon.uri = "pkg:/images/icons/tv-auth-backspace-32.png"
+            icon.width = TVSignInMetrics.fieldSize
+            icon.height = TVSignInMetrics.fieldSize
+            icon.blendColor = Theme.colors.textSecondary
             Place(icon, (node.controlWidth - TVSignInMetrics.fieldSize) / 2, (node.controlHeight - TVSignInMetrics.fieldSize) / 2)
         end if
         Place(node, column * (unit + TVSignInMetrics.keyboardGap), row * (TVSignInMetrics.keyboardKeyHeight + TVSignInMetrics.keyboardGap))
