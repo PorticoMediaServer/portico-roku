@@ -119,7 +119,13 @@ function ParseServerSignIn(raw as dynamic, serverId as string) as object
     if raw.id <> serverId then return SessionFailure("identity_mismatch")
     if not IsString(raw.signIn) or (raw.signIn <> "portico" and raw.signIn <> "local") then return SessionFailure("invalid_response")
     if not IsBoolean(raw.setupRequired) or not IsBoolean(raw.hostedAttached) or not IsBoolean(raw.hostedConfigured) then return SessionFailure("invalid_response")
-    return { ok: true, signIn: raw.signIn, name: raw.name }
+    if not raw.doesExist("move") then return SessionFailure("invalid_response")
+    if raw.move <> invalid then
+        if not IsString(raw.move) or not ArrayIncludes(ServerSignInMoveKinds(), raw.move) then return SessionFailure("invalid_response")
+        if raw.move = "to_portico" and raw.signIn <> "portico" then return SessionFailure("invalid_response")
+        if raw.move = "to_local" and raw.signIn <> "local" then return SessionFailure("invalid_response")
+    end if
+    return { ok: true, signIn: raw.signIn, name: raw.name, move: raw.move }
 end function
 
 ' Checked canonical sign-in.ts URL, on this server's own validated origin.

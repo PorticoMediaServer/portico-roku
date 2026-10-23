@@ -65,7 +65,7 @@ sub Test_Accounts_restoreKeepsAConcurrentRenewalAndCannotResurrectLogout()
 end sub
 
 function AccountTestSystem(ctx as object, kind as dynamic) as object
-    return { "id": TestPin(ctx).serverId, "name": "Den", "signIn": kind, "setupRequired": false, "version": "1.0.0", "hostedAttached": false, "hostedConfigured": false }
+    return { "id": TestPin(ctx).serverId, "name": "Den", "signIn": kind, "move": invalid, "setupRequired": false, "version": "1.0.0", "hostedAttached": false, "hostedConfigured": false }
 end function
 
 sub Test_Accounts_kindProbeNeverGuessesLocal()
@@ -92,6 +92,27 @@ sub Test_Accounts_kindProbeNeverGuessesLocal()
     AssertEqual(SessionCompleteChallenge(ctx, connected.connection, "secret-challenge", "123456").failure.code, "sign_in_kind_portico")
     AssertEqual(ctx.transport.requests.count(), count, "no credential or Local code request leaves the client")
     AssertEqual(SessionSignIn(ctx, { origin: ctx.base, pin: TestPin(ctx) }, "u", "p").ok, false, "an unprobed connection is refused")
+end sub
+
+sub Test_Accounts_moveDiscriminatorIsRequiredAndCannotChangeKind()
+    ctx = TestContext()
+    for each kind in ["local", "portico"]
+        raw = AccountTestSystem(ctx, kind)
+        AssertTrue(ParseServerSignIn(raw, raw.id).ok, "explicit null means no active move")
+        raw.delete("move")
+        AssertEqual(ParseServerSignIn(raw, raw.id).ok, false, "missing move is not an implicit no-move")
+        for each value in ["", "preview", false, 1, {}, []]
+            raw["move"] = value
+            AssertEqual(ParseServerSignIn(raw, raw.id).ok, false, "unknown move cannot open credentials")
+        end for
+        for each direction in ["to_portico", "to_local"]
+            raw["move"] = direction
+            parsed = ParseServerSignIn(raw, raw.id)
+            matches = (direction = "to_portico" and kind = "portico") or (direction = "to_local" and kind = "local")
+            AssertEqual(parsed.ok, matches, "committed move agrees with the server-owned sign-in kind")
+            if parsed.ok then AssertEqual(parsed.move, direction)
+        end for
+    end for
 end sub
 
 function AccountTestBinding(ctx as object, kind as string, other = false as boolean, accountId = "acct_1" as string) as object

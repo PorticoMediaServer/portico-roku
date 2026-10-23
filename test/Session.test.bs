@@ -86,7 +86,7 @@ end function
 
 function TestConnected(ctx as object) as object
     TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
-    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "setupRequired": false, "id": TestPin(ctx).serverId, "name": "Den", "signIn": "local", "version": "1.0.0", "hostedAttached": false, "hostedConfigured": false })
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "setupRequired": false, "id": TestPin(ctx).serverId, "name": "Den", "signIn": "local", "move": invalid, "version": "1.0.0", "hostedAttached": false, "hostedConfigured": false })
     return SessionConnect(ctx, "192.168.1.20:32500")
 end function
 
@@ -492,7 +492,7 @@ sub Test_Hosted_openingAServer()
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, routes.value)
     TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.proofs[0].answer)
-    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "id": pin.serverId, "name": "Den", "signIn": "portico", "setupRequired": false, "version": "1.0.0", "hostedAttached": true, "hostedConfigured": true })
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "id": pin.serverId, "name": "Den", "signIn": "portico", "move": invalid, "setupRequired": false, "version": "1.0.0", "hostedAttached": true, "hostedConfigured": true })
     TestAnswer(ctx, "POST", ctx.base + "/v1/direct/portico-challenge", 200, fixture.challenges[0].answer)
     TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/identity", 200, { "payload": "assertion-payload", "signature": "assertion-signature", "keyId": "hosted-key-1" })
     answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
@@ -525,7 +525,7 @@ sub Test_Hosted_openingAServer()
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, routes.value)
     TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.proofs[0].answer)
-    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "id": pin.serverId, "name": "Den", "signIn": "portico", "setupRequired": false, "version": "1.0.0", "hostedAttached": true, "hostedConfigured": true })
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "id": pin.serverId, "name": "Den", "signIn": "portico", "move": invalid, "setupRequired": false, "version": "1.0.0", "hostedAttached": true, "hostedConfigured": true })
     TestAnswer(ctx, "POST", ctx.base + "/v1/direct/portico-challenge", 200, fixture.challenges[4].answer)
     relay = HostedOpen(ctx, server)
     AssertEqual(relay.failure.code, "challenge_not_proven")

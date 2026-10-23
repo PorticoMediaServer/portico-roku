@@ -10,6 +10,7 @@ const app = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = process.env.PORTICO_SERVER_ROOT;
 if (!root) throw new Error('Set PORTICO_SERVER_ROOT to the checkout containing the checked source.');
 const pins = JSON.parse(readFileSync(join(app, 'scripts/transport-source-pins.json'), 'utf8'));
+execFileSync('git', ['merge-base', '--is-ancestor', pins.commit, 'origin/main'], {cwd: root});
 const source = {};
 for (const [name, hash] of Object.entries(pins.files)) {
   const bytes = execFileSync('git', ['show', `${pins.commit}:${name}`], {cwd: root, maxBuffer: 16*1024*1024});

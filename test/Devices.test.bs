@@ -2,34 +2,73 @@
 ' `parseDevices`, and what Security.tsx `DevicesSection` says and offers for each.
 import "pkg:/source/core/Devices.bs"
 
-sub Test_Devices_parse()
+sub Test_Devices_preservedApprovalDocumentsAreRetired()
+    ' Keep the old actual/golden bytes as negative evidence. Do not regenerate them from
+    ' the parser under test: every preserved record contains retired approval/trust fields.
     fixture = TestFixture("golden/devices.json")
     if fixture = invalid then return
     for each item in fixture.cases
-        parsed = ParseDevices(item.document)
-        AssertEqual(parsed.ok, item.ok, "the devices, " + item.name)
-        if parsed.ok and item.ok then AssertSame(parsed.devices, item.expected, "what each device holds, " + item.name)
+        AssertEqual(ParseDevices(item.document).ok, false, "retired device document: " + item.name)
     end for
-    AssertTrue(not ParseDevices(invalid).ok, "no document")
+    AssertEqual(ParseDevices(invalid).ok, false)
+end sub
+
+function DeviceCurrentContractFixture() as object
+    return { id: "device_1", authority: "local", installationId: String(43, "a"), name: "Living room", platform: "roku", app: "Portico", appVersion: "1", ip: "192.168.1.20", firstSeen: "1970-01-01T00:00:00Z", lastSeen: "1970-01-01T00:00:00Z", lastProfileId: "profile_1", rememberAccount: true, current: true, sessions: 1 }
+end function
+
+sub Test_Devices_currentContractKeepsOnlyDeclaredAuthority()
+    own = DeviceCurrentContractFixture()
+    parsed = ParseDevices({ items: [own] })
+    AssertTrue(parsed.ok, "current actual contract needs no approval or trust")
+    if parsed.ok then AssertSame(parsed.devices, [{ id: "device_1", name: "Living room", platform: "roku", ip: "192.168.1.20", lastSeen: 0, current: true, sessions: 1 }])
+    other = DeviceCurrentContractFixture()
+    other.id = "device_2"
+    other.current = false
+    other.installationId = ""
+    AssertTrue(ParseDevices({ items: [own, other] }).ok, "another device's installation secret is redacted")
+    own.installationId = ""
+    AssertEqual(ParseDevices({ items: [own] }).ok, false, "this device still needs its real installation identity")
+    for each retired in ["trusted", "approvalState"]
+        raw = DeviceCurrentContractFixture()
+        raw[retired] = true
+        AssertEqual(ParseDevices({ items: [raw] }).ok, false, "retired authority field is refused")
+    end for
+    raw = DeviceCurrentContractFixture()
+    raw.installationId = "guessable"
+    AssertEqual(ParseDevices({ items: [raw] }).ok, false, "short installation IDs remain refused")
+    raw = DeviceCurrentContractFixture()
+    raw.lastSeen = "2026-10-23T00:00:00+02:00"
+    AssertEqual(ParseDevices({ items: [raw] }).ok, false, "stronger strict UTC timestamp validation remains")
+    raw = DeviceCurrentContractFixture()
+    raw.sessions = 1001
+    AssertEqual(ParseDevices({ items: [raw] }).ok, false, "session count stays bounded")
+    raw = DeviceCurrentContractFixture()
+    AssertEqual(ParseDevices({ items: [raw, raw] }).ok, false, "duplicate device IDs stay refused")
+    second = DeviceCurrentContractFixture()
+    second.id = "device_2"
+    AssertEqual(ParseDevices({ items: [raw, second] }).ok, false, "two current devices stay refused")
+    raw.owner = true
+    AssertEqual(ParseDevices({ items: [raw] }).ok, false, "an undeclared permission cannot be smuggled")
 end sub
 
 sub Test_Devices_rows()
     GetGlobalAA().messageCatalogue = { "devices.lastSeen": "{platform} · last seen {when}", "device.platform.web": "Web browser", "device.thisDevice": "This device", "device.waiting": "Waiting", "device.signedIn": "Signed in", "device.signedOut": "Signed out", "device.approve": "Approve", "device.deny": "Deny", "device.trust": "Trust", "device.untrust": "Stop trusting", "device.signOutThis": "Sign out of this device", "device.signOutOther": "Sign out", "device.remove": "Remove", "confirm.removeDevice.title": "Remove {device}?", "confirm.removeDevice.body": "It will need to sign in again.", "confirm.signOutThisDevice.title": "Sign out of this device?", "confirm.signOutThisDevice.body": "You’ll need to sign in again.", "confirm.signOutDevice.title": "Sign out {device}?", "action.removeShort": "Remove", "action.signOut": "Sign out" }
-    here = { id: "d1", name: "Living Room", platform: "roku", ip: "192.168.1.20", lastSeen: 0, trusted: true, approvalState: "approved", current: true, sessions: 1 }
-    waiting = { id: "d2", name: "Justin's iPad", platform: "ipados", ip: "", lastSeen: 0, trusted: false, approvalState: "pending", current: false, sessions: 0 }
-    browser = { id: "d3", name: "Browser", platform: "web", ip: "fe80::1", lastSeen: 0, trusted: false, approvalState: "approved", current: false, sessions: 2 }
+    here = { id: "d1", name: "Living Room", platform: "roku", ip: "192.168.1.20", lastSeen: 0, current: true, sessions: 1 }
+    signedOut = { id: "d2", name: "Justin's iPad", platform: "ipados", ip: "", lastSeen: 0, current: false, sessions: 0 }
+    browser = { id: "d3", name: "Browser", platform: "web", ip: "fe80::1", lastSeen: 0, current: false, sessions: 2 }
     row = DeviceRow(here, "now")
     AssertEqual(row.badge, "this", "this device is badged")
     AssertEqual(row.subtitle, "roku · last seen now", "a platform without a name of its own is said as the server names it")
     AssertEqual(row.icon, "tvDevice", "a Roku is a television")
-    AssertEqual(DeviceRow(waiting, "now").badge, "", "retired approval state is never displayed as a gate")
-    AssertEqual(DeviceRow(waiting, "now").icon, "tablet", "an iPad is a tablet")
+    AssertEqual(DeviceRow(signedOut, "now").badge, "", "a signed-out device has no approval badge")
+    AssertEqual(DeviceRow(signedOut, "now").icon, "tablet", "an iPad is a tablet")
     AssertEqual(DeviceRow(browser, "2 hours ago").meta, "Signed in", "a device with sessions is signed in")
     AssertEqual(DeviceRow(browser, "2 hours ago").subtitle, "Web browser · last seen 2 hours ago", "a known platform in words")
     AssertEqual(DeviceGlyph("", "Kitchen tablet"), "tablet", "a name that says tablet")
     AssertEqual(DeviceGlyph("", "Something"), "browser", "anything else is a browser")
     ids = []
-    for each action in DeviceActions(waiting)
+    for each action in DeviceActions(signedOut)
         ids.push(action.id)
     end for
     AssertSame(ids, ["remove"], "retired approval and trust actions are absent")
@@ -40,9 +79,9 @@ sub Test_Devices_rows()
     AssertSame(ids, ["signOut"], "this device can only be signed out")
     AssertEqual(DeviceActions(here)[0].label, "Sign out of this device")
     AssertEqual(DeviceMenuLine(browser), "Web browser · fe80::1", "a device's platform and address")
-    AssertEqual(DeviceMenuLine(waiting), "ipados", "no address, no separator")
+    AssertEqual(DeviceMenuLine(signedOut), "ipados", "no address, no separator")
     for each retired in ["approve", "deny", "trust"]
-        AssertTrue(DeviceRequest(waiting, retired) = invalid, "no retired-policy request can be sent")
+        AssertTrue(DeviceRequest(signedOut, retired) = invalid, "no retired-policy request can be sent")
     end for
     AssertEqual(DeviceRequest(browser, "signOutConfirmed").path, "/v1/devices/d3/sessions", "signing a device out ends its sessions")
     AssertEqual(DeviceRequest(browser, "removeConfirmed").method, "DELETE", "removing deletes the device")
