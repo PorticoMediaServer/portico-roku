@@ -28,10 +28,16 @@ const html=`<!doctype html><meta charset="utf-8"><title>Roku identity component 
 <style>html,body{margin:0;background:#000;width:1920px;height:1080px;overflow:hidden}#display,#player{position:absolute;inset:0;width:1920px;height:1080px}#player{z-index:-1}</style>
 <canvas id="display" width="1920" height="1080"></canvas><video id="player"></video><script src="/brs.api.js"></script><script>
 window.engineEvents=[];
-brs.subscribe('visual-identity',(event,data)=>engineEvents.push({event,data}));
+window.paintedFrame=0;window.readyFrame=0;
+brs.subscribe('visual-identity',(event,data)=>{
+ if(event==='framePainted')window.paintedFrame=data;
+ if(event==='debug'&&String(data?.content).includes('VISUAL_COMPONENT_READY'))window.readyFrame=window.paintedFrame;
+ engineEvents.push({event,data});
+});
 (async()=>{
  const assets=await(await fetch('/common.zip')).arrayBuffer();
  await brs.initialize({displayMode:'1080p',locale:'en_US',maxFps:30,assets,registry:new Map(),extensions:new Map([[brs.SupportedExtension.SceneGraph,location.origin+'/brs-sg.js']])},{debugToConsole:true});
+ brs.setFrameNotify(true);
  const payload=await(await fetch('/visual-identity.zip')).arrayBuffer();
  brs.execute('visual-identity.zip',payload,{clearDisplayOnExit:false});
 })().catch(error=>engineEvents.push({setupError:String(error)}));
@@ -59,28 +65,21 @@ async function settledCanvas(page){
 async function captureCanvas(page,name){
  await settledCanvas(page);
  if(credentials){
-  // This view's canvas buffer may already be cleared while Chromium retains its real
-  // composited frame. Capture that visible frame; never paint or alter product pixels.
-  // Texture/font arrival can leave a partial composited frame after the scene's
-  // BrightScript ready marker. Observe the drawn wordmark, then two identical
-  // visible frames. This never freezes motion or changes the product's pixels.
-  await page.waitForFunction(()=>{
-   const p=document.querySelector('#display').getContext('2d').getImageData(120,72,200,40).data;
-   let bright=0;for(let i=0;i<p.length;i+=4)if(p[i]>180&&p[i+1]>180&&p[i+2]>180)bright++;
-   return bright>400;
-  },{},{timeout:30000});
-  let previous,stable=0;
-  for(let attempt=0;attempt<40;attempt++){
-   const bytes=await page.screenshot({type:'jpeg',quality:96});
-   stable=previous?.equals(bytes)?stable+1:0;
-   if(stable>=2){
-    if(bytes.length<60000)throw new Error('Blank/incomplete credential screen');
-    writeFileSync(join(output,name),bytes);return;
-   }
-   previous=bytes;
-   await page.waitForTimeout(250);
-  }
-  throw new Error('Credential compositor did not reach two unchanged visible frames');
+  // v2.6.1 documents framePainted + getDisplayBuffer as the mirroring boundary.
+  // Read that actual buffer; never freeze motion, redraw nodes or compensate scale.
+  await page.waitForFunction(()=>window.paintedFrame>window.readyFrame,{},{timeout:30000});
+  const captured=await page.evaluate(async()=>{
+   const buffer=brs.getDisplayBuffer();
+   if(!buffer||buffer.width!==1920||buffer.height!==1080)throw new Error('Unexpected actual display-buffer resolution');
+   const frame=window.paintedFrame;
+   const blob=await buffer.convertToBlob({type:'image/jpeg',quality:.96});
+   const url=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);});
+   return {frame,url};
+  });
+  const bytes=Buffer.from(captured.url.split(',')[1],'base64');
+  if(bytes.length<60000)throw new Error('Blank/incomplete actual display buffer');
+  diagnostics.push('Read-only engine display buffer at framePainted '+captured.frame);
+  writeFileSync(join(output,name),bytes);return;
  }
  const url=await page.evaluate(()=>new Promise(resolve=>document.querySelector('#display').toBlob(blob=>{
   const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);
