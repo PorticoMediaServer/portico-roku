@@ -2,7 +2,7 @@
 <!-- One step of signing in or coming back, run off the render thread (core/Session.bs, core/Hosted.bs). -->
 <component name="SessionTask" extends="Task">
     <interface>
-        <!-- {kind, …}: restore | connect | signIn | challenge | changePassword | chooseProfile | profiles | signOut | servers | openServer | signOutAccount -->
+        <!-- {kind, …}: restore | connect | signIn | challenge | changePassword | chooseProfile | profiles | signOut | servers | openServer | signOutAccount | readSignInStatus (captured viewerBinding required) -->
         <field id="job" type="assocarray" />
         <field id="result" type="assocarray" />
     </interface>

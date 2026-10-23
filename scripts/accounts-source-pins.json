@@ -22,7 +22,8 @@
     "packages/i18n/src/catalog/en-US/web.ts": "54ad87187b4180346f5a90ccb72ad3e26f29a524a3b5a7de232bba8a5679a55d",
     "packages/contracts/src/schemas.ts": "1d0186f24845196066ad150c104062cb62621cead9b20fdad53a83ee63285fbc",
     "packages/client-core/src/identity-devices.ts": "8d2e8ed97db219d8aaf61c431823b0efee31c75138d6549220b70db627701d21",
-    "packages/client-core/src/index.ts": "7f535d21c420cf63f8a2b05bc7c8fdc2b28fc251f717d0f2eb9a06ed1667d3cd"
+    "packages/client-core/src/index.ts": "7f535d21c420cf63f8a2b05bc7c8fdc2b28fc251f717d0f2eb9a06ed1667d3cd",
+    "packages/client-core/src/account-move.ts": "7d16dcd1a3cbd05f2fddeff08cb6e4b300dca9b2fffa165df95effe39a2eff8b"
   },
   "hostedProducer": "27000e033df453ec237b801029204da65105b6d2",
   "historicalRootIntakeReceipt": "orchestrator-r29/media-dispatch/shared-207-intake.json",

@@ -3,6 +3,7 @@
 import "pkg:/source/core/Session.bs"
 import "pkg:/source/core/Hosted.bs"
 import "pkg:/source/core/TVConsent.bs"
+import "pkg:/source/core/SignInStatus.bs"
 
 sub init()
     m.top.functionName = "work"
@@ -14,7 +15,14 @@ sub work()
     result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
     kind = job.kind
     if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then ctx.admissionRevision = SessionRevision(ctx)
-    if kind = "reviewTVConsent" then
+    if kind = "readSignInStatus" then
+        ctx.task = m.top
+        reader = ReadOnlySignInNew(ctx, job.viewerBinding)
+        if reader <> invalid then
+            result = reader.read()
+            reader.dispose()
+        end if
+    else if kind = "reviewTVConsent" then
         result = TVConsentReview(ctx, job.authorityKind, job.code)
     else if kind = "decideTVConsent" then
         result = TVConsentDecide(ctx, job.reviewed, job.decision)
