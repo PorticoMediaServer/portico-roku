@@ -25,7 +25,7 @@ const catalogue = async name => {
 const {servicesMessages} = await catalogue('services');
 const {webMessages} = await catalogue('web');
 const {shared: nextSharedMessages} = await catalogue('next/shared');
-const sharedIds = ['services.signin.credentials', 'services.signin.unavailable', 'services.signin.tooMany', 'web.signIn.error.credentials', 'web.signIn.error.code', 'web.signIn.error.tooMany', 'web.twoStep.turnOnTitle', 'web.direct.newPasswordTitle', 'web.hostedAccount.signInAgain', 'next.auth.tv.requiredTwoStepBody', 'next.auth.tv.requiredPasswordBody', 'next.auth.tv.handoffHint', 'next.auth.tv.playPause', 'next.auth.tv.deleteDigit'];
+const sharedIds = ['services.signin.credentials', 'services.signin.unavailable', 'services.signin.tooMany', 'web.signIn.error.credentials', 'web.signIn.error.code', 'web.signIn.error.tooMany', 'web.twoStep.turnOnTitle', 'web.direct.newPasswordTitle', 'web.hostedAccount.signInAgain', 'web.direct.otherProfiles', 'next.auth.tv.requiredTwoStepBody', 'next.auth.tv.requiredPasswordBody', 'next.auth.tv.handoffHint', 'next.auth.tv.playPause', 'next.auth.tv.deleteDigit'];
 const shared = {...servicesMessages, ...webMessages, ...nextSharedMessages};
 for (const id of sharedIds) if (typeof shared[id] !== 'string') throw new Error('Missing canonical sign-in error: ' + id);
 const messages = {
@@ -33,6 +33,7 @@ const messages = {
   'roku.tvSignIn.identity': 'Username or email',
   'roku.tvSignIn.codeLead': 'Two-step verification is on for this account. Enter the code from your authenticator app.',
   'roku.tvSignIn.recovery': 'Lost your phone? Use a recovery code',
+  'roku.tvSignIn.forgotPin': 'Forgot PIN?',
   'roku.tvSignIn.agreement': 'By continuing, you agree to Portico’s terms and privacy policy.',
   'roku.tvSignIn.space': 'Space',
   'roku.tvSignIn.clear': 'Clear'
@@ -70,6 +71,9 @@ const metrics = {
   padDeleteSize: 46,
   padFill: '0xEDF5FA12', padFocusFill: '0xEDF5FA2E', padScale: 1.05, padLinkGap: 18, padLinkHeight: 72, padLinkSize: 24,
   boxWidth: 104, boxHeight: 116, boxGap: 18, boxRadius: 18, boxBorder: 2, boxCaretHeight: 52, boxDot: 24,
+  pinFaceSide: 196, pinFaceLeft: 462, pinFaceTop: 292, pinInitialSize: 78,
+  pinColumnLeft: 240, pinColumnWidth: 640, pinTitleSize: 52, pinTitleTop: 520, pinTitleHeight: 72, pinTitleTracking: -.04,
+  pinNameSize: 28, pinNameTop: 596, pinNameHeight: 40.6, pinBoxLeft: 325, pinBoxTop: 673,
   keyboardColumns: 9, keyboardGap: 10, keyboardKeyHeight: 72, keyboardRadius: 14, keyboardSize: 28,
   keyboardSpaceSpan: 3, keyboardClearSpan: 2, keyboardFill: '0xEDF5FA0D'
   ,cardRight: 140, cardWidth: 720, cardTop: 52, cardSide: 56, cardBottom: 48, cardRadius: 28,
@@ -89,6 +93,20 @@ const emit = (name, value) => {
 };
 const require = createRequire(process.env.PORTICO_ASSET_TOOLS_ROOT ? join(process.env.PORTICO_ASSET_TOOLS_ROOT, 'package.json') : import.meta.url);
 const {Resvg} = require('@resvg/resvg-js');
+// The profile PIN face uses its actual profile-art name, never a channel hash or palette index.
+const colors = JSON.parse(/function ThemeColorTable\(\) as object\s+return (\{[^\n]+\})/.exec(readFileSync(join(app, 'source/ThemeTables.bs'), 'utf8'))?.[1] ?? 'null');
+if (!colors || !auth.includes('linear-gradient(140deg, color-mix(in srgb, var(--c) 100%, #fff 18%), var(--c) 55%, color-mix(in srgb, var(--c) 60%, #071018))')) throw new Error('Re-read drawn profile gradient');
+const mix = (a,b,weight) => '#' + [0,1,2].map(i=>Math.round(parseInt(a.slice(i*2,i*2+2),16)*weight+parseInt(b.slice(i*2,i*2+2),16)*(1-weight)).toString(16).padStart(2,'0')).join('');
+for (const art of ['blue','violet','mint','coral','gold','slate','rose','sky']) {
+  const key='profile'+art[0].toUpperCase()+art.slice(1),color=colors[key];
+  if (!/^0x[0-9A-F]{8}$/.test(color ?? '')) throw new Error('Missing profile art '+art);
+  const rgb=color.slice(2,8),side=metrics.pinFaceSide,angle=140*Math.PI/180;
+  const dx=Math.sin(angle),dy=-Math.cos(angle),length=side*(Math.abs(dx)+Math.abs(dy));
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${side}" height="${side}"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="${side/2-dx*length/2}" y1="${side/2-dy*length/2}" x2="${side/2+dx*length/2}" y2="${side/2+dy*length/2}"><stop stop-color="${mix(rgb,'ffffff',100/118)}"/><stop offset=".55" stop-color="#${rgb}"/><stop offset="1" stop-color="${mix(rgb,'071018',.6)}"/></linearGradient></defs><circle cx="${side/2}" cy="${side/2}" r="${side/2}" fill="url(#g)"/></svg>`;
+  const bytes=new Resvg(svg).render().asPng(),path=join(app,`images/shapes/tv-profile-pin-${art}.png`);
+  if(process.argv.includes('--check')){if(!readFileSync(path).equals(bytes))throw new Error('Regenerate profile PIN face');}
+  else{writeFileSync(path+'.tmp',bytes);renameSync(path+'.tmp',path);}
+}
 const backspace = /<symbol id="i-backspace"[^>]*>([\s\S]*?)<\/symbol>/.exec(auth)?.[1];
 if (!backspace) throw new Error('Missing drawn backspace symbol');
 for (const size of [metrics.padDeleteSize, metrics.fieldSize]) {

@@ -4500,6 +4500,10 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>roku.tvSignIn.recovery</source>
             <target>Lost your phone? Use a recovery code</target>
         </trans-unit>
+        <trans-unit id="roku.tvSignIn.forgotPin">
+            <source>roku.tvSignIn.forgotPin</source>
+            <target>Forgot PIN?</target>
+        </trans-unit>
         <trans-unit id="roku.tvSignIn.agreement">
             <source>roku.tvSignIn.agreement</source>
             <target>By continuing, you agree to Portico’s terms and privacy policy.</target>
@@ -4547,6 +4551,10 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
         <trans-unit id="web.hostedAccount.signInAgain">
             <source>web.hostedAccount.signInAgain</source>
             <target>Sign in again</target>
+        </trans-unit>
+        <trans-unit id="web.direct.otherProfiles">
+            <source>web.direct.otherProfiles</source>
+            <target>Other profiles</target>
         </trans-unit>
         <trans-unit id="next.auth.tv.requiredTwoStepBody">
             <source>next.auth.tv.requiredTwoStepBody</source>
