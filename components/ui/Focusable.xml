@@ -25,5 +25,7 @@
         <!-- Inside a list that holds focus itself (a grid of rows): the list's focus, 0 to 1. -->
         <field id="focusProgress" type="float" value="-1" onChange="onFocusableDriven" />
         <field id="focusHeight" type="float" value="0" />
+        <!-- Geometry of the actual control surface, excluding focus rings and glows. -->
+        <field id="focusBounds" type="node" />
     </interface>
 </component>

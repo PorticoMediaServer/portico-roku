@@ -12,6 +12,9 @@ import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 
 sub init()
+    m.focusBoundsNode = m.top.createChild("Rectangle")
+    m.focusBoundsNode.opacity = 0
+    m.top.focusBounds = m.focusBoundsNode
     m.focusRingNode = m.top.createChild("Poster")
     m.focusRingNode.opacity = 0
     m.focusDriver = m.top.createChild("Group")
@@ -26,6 +29,8 @@ sub onFocusableSize()
     width = m.top.controlWidth
     height = m.top.controlHeight
     if width <= 0 or height <= 0 then return
+    m.focusBoundsNode.width = width
+    m.focusBoundsNode.height = height
     inset = Theme.metrics.ringInset
     if m.top.ringInset > 0 then inset = m.top.ringInset
     Place(m.focusRingNode, -inset, -inset)
