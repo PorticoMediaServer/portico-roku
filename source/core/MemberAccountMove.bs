@@ -1,0 +1,149 @@
+' account-move.ts member commands, on the explicitly captured server. No owner move commands,
+' automatic session admission or stored redemption credentials live here.
+import "pkg:/source/core/SignInStatus.bs"
+
+function IsMemberMoveSecret(value as dynamic) as boolean
+    return MatchesPattern(value, "^[A-Za-z0-9_-]{43}$")
+end function
+
+function MemberMoveExpiry(value as dynamic, maximum as integer, now as dynamic) as boolean
+    seconds = IsoToSeconds(value)
+    if seconds = invalid then return false
+    expires# = seconds
+    dot = Instr(1, value, ".")
+    if dot > 0 then
+        fraction = CreateObject("roRegex", "^[.]([0-9]+)", "").match(Mid(value, dot))
+        expires# = expires# + Val("0." + fraction[1])
+    end if
+    return expires# > now and expires# <= now + maximum + 60
+end function
+
+function ParseMemberMoveTicket(raw as dynamic, now as dynamic) as object
+    if not IsObject(raw) or not HasExactKeys(raw, ["ticket", "expiresAt"]) then return SessionFailure("invalid_account_move")
+    if not IsMemberMoveSecret(raw.ticket) or not MemberMoveExpiry(raw.expiresAt, 600, now) then return SessionFailure("invalid_account_move")
+    return { ok: true, ticket: raw.ticket, expiresAt: raw.expiresAt }
+end function
+
+function ParseMemberMoveCode(raw as dynamic, now as dynamic) as object
+    if not IsObject(raw) or not HasExactKeys(raw, ["username", "signIn", "expiresAt"]) then return SessionFailure("invalid_account_move")
+    if not IsSignInStatusText(raw.username, 64) or not ArrayIncludes(["local", "portico"], raw.signIn) or not MemberMoveExpiry(raw.expiresAt, 604800, now) then return SessionFailure("invalid_account_move")
+    return { ok: true, username: raw.username, signIn: raw.signIn, expiresAt: raw.expiresAt }
+end function
+
+function MemberMoveCurrent(client as object) as boolean
+    if client.disposed or client.revision <> SessionRevision(client.ctx) or not SessionAdmissionCurrent(client.ctx) then return false
+    return client.options.isCurrent()
+end function
+
+' options.isCurrent and retireLateGrant are mandatory. The latter owns the captured issuing
+' authority, never the current selection. A returned grant still uses normal session admission.
+function MemberAccountMoveNew(ctx as object, connection as dynamic, options as dynamic) as dynamic
+    if not IsObject(connection) or not IsObject(connection.pin) or not IsObject(options) then return invalid
+    if Type(options.isCurrent) <> "Function" or Type(options.retireLateGrant) <> "Function" then return invalid
+    origin = RouteOrigin(connection.origin)
+    if not origin.ok or origin.origin <> connection.origin then return invalid
+    pin = ServerPin(connection.pin.serverId, connection.pin.publicKey, connection.pin.fingerprint)
+    if not pin.ok then return invalid
+    client = { ctx: ctx, connection: { origin: origin.origin, pin: pin.pin }, options: options, revision: SessionRevision(ctx), epoch: 0, disposed: false, mutating: false }
+    client.cancel = sub()
+        m.epoch = m.epoch + 1
+    end sub
+    client.dispose = sub()
+        m.cancel()
+        m.disposed = true
+    end sub
+    client.password = function(username as dynamic, password as dynamic) as object
+        if not IsSignInStatusText(username, 64) or not IsSignInStatusText(password, 72) then return SessionFailure("invalid_account_move")
+        return MemberMoveRequest(m, AccountRoutes.movePassword, { "username": username, "password": password }, "ticket")
+    end function
+    client.previewCode = function(code as dynamic) as object
+        if not IsMemberMoveSecret(code) then return SessionFailure("invalid_account_move")
+        return MemberMoveRequest(m, AccountRoutes.moveCodePreview, { "code": code }, "preview")
+    end function
+    client.redeemLocal = function(code as dynamic, username as dynamic, password as dynamic) as object
+        if not IsMemberMoveSecret(code) or not IsSignInStatusText(username, 64) or not IsSignInStatusText(password, 72) then return SessionFailure("invalid_account_move")
+        return MemberMoveRequest(m, AccountRoutes.moveLocal, { "code": code, "username": username, "password": password }, "grant")
+    end function
+    client.redeemPortico = function(proof as dynamic, identity as dynamic) as object
+        if not IsObject(proof) then return SessionFailure("invalid_account_move")
+        code = HasExactKeys(proof, ["code"]) and IsMemberMoveSecret(proof.code)
+        ticket = HasExactKeys(proof, ["ticket"]) and IsMemberMoveSecret(proof.ticket)
+        if not code and not ticket then return SessionFailure("invalid_account_move")
+        ' The actual server verifies the assertion/challenge and its account binding. Do not
+        ' infer an account from a code or manufacture a Hosted request/identity here.
+        if not IsObject(identity) or not IsText(identity.keyId, 128) or not IsText(identity.payload, 8192) or not IsText(identity.signature, 128) then return SessionFailure("invalid_account_move")
+        signed = SignedEnvelope(identity, identity.keyId)
+        if not signed.ok then return SessionFailure("invalid_account_move")
+        if identity.certificate <> invalid and Len(FormatJson(identity.certificate)) > 16384 then return SessionFailure("invalid_account_move")
+        body = { "porticoIdentity": identity }
+        if code then body["code"] = proof.code else body["ticket"] = proof.ticket
+        return MemberMoveRequest(m, AccountRoutes.movePortico, body, "grant")
+    end function
+    return client
+end function
+
+function MemberMoveRequest(client as object, path as string, body as object, kind as string) as object
+    if not MemberMoveCurrent(client) then return SessionFailure("cancelled")
+    if client.mutating then return SessionFailure("move_request_in_progress")
+    client.cancel()
+    epoch = client.epoch
+    client.mutating = true
+    ' SessionApi has no automatic renewal/replay. These are anonymous member commands, with
+    ' the installation header from ApiRequest's existing credential-issuing path rule.
+    answer = ApiRequest(SessionApi(client.ctx, client.connection.origin), path, "POST", body)
+    client.mutating = false
+    result = { ok: false, failure: answer.error }
+    if not answer.ok and answer.status = 409 and answer.error.code = "move_collision" then
+        current = invalid
+        if IsObject(answer.data) and IsObject(answer.data.error) then current = answer.data.error.current
+        result = SessionFailure("invalid_account_move")
+        if IsObject(current) and HasExactKeys(current, ["existingUsername", "serverName"]) then
+            if IsSignInStatusText(current.existingUsername, 64) and IsSignInStatusText(current.serverName, 120) then
+                failure = answer.error
+                failure.current = { existingUsername: current.existingUsername, serverName: current.serverName }
+                result = { ok: false, failure: failure }
+            end if
+        end if
+    end if
+    if answer.ok then
+        if kind = "ticket" then
+            result = ParseMemberMoveTicket(answer.data, SessionNow(client.ctx))
+        else if kind = "preview" then
+            result = ParseMemberMoveCode(answer.data, SessionNow(client.ctx))
+        else
+            parsed = ParseDirectSignIn(answer.data, SessionNow(client.ctx))
+            result = SessionFailure("invalid_account_move")
+            if parsed.ok then
+                if parsed.kind = "challenge" then
+                    result = { ok: true, signIn: parsed }
+                else if parsed.snapshot.serverId = client.connection.pin.serverId then
+                    result = { ok: true, signIn: parsed }
+                end if
+            end if
+        end if
+    end if
+    if epoch <> client.epoch or not MemberMoveCurrent(client) then
+        if result.ok and result.signIn <> invalid and result.signIn.kind = "signed-in" then client.options.retireLateGrant(result.signIn.session)
+        return SessionFailure("cancelled")
+    end if
+    return result
+end function
+
+' Task adapter: explicit captured authority for retiring only a late newly-issued local family.
+' The old or concurrently replaced session record is never removed or overwritten here.
+function MemberMoveTaskOptions(ctx as object, connection as dynamic, expectedRevision as dynamic) as dynamic
+    if not IsObject(connection) or not IsObject(connection.pin) or not IsNatural(expectedRevision) then return invalid
+    ctx.admissionRevision = expectedRevision
+    captured = { origin: connection.origin, pin: { serverId: connection.pin.serverId, publicKey: connection.pin.publicKey, fingerprint: connection.pin.fingerprint } }
+    return {
+        ctx: ctx
+        connection: captured
+        revision: expectedRevision
+        isCurrent: function() as boolean
+            return m.revision = SessionRevision(m.ctx) and SessionAdmissionCurrent(m.ctx)
+        end function
+        retireLateGrant: sub(session as object)
+            SessionRevokeRecord(m.ctx, { "logicalOrigin": m.connection.origin, "pin": m.connection.pin, "session": session })
+        end sub
+    }
+end function

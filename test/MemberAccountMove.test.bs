@@ -1,0 +1,250 @@
+import "pkg:/source/core/MemberAccountMove.bs"
+
+function MemberTestConnection(ctx as object) as object
+    return { origin: ctx.base, pin: TestPin(ctx), signIn: "local", serverName: "Den" }
+end function
+
+function MemberTestOptions() as object
+    return {
+        current: true
+        retired: []
+        isCurrent: function() as boolean
+            return m.current
+        end function
+        retireLateGrant: sub(session as object)
+            m.retired.push(session)
+        end sub
+    }
+end function
+
+function MemberTestGrant(ctx as object) as object
+    raw = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
+    raw["session"] = TestSessionJson(ctx, "viewer")
+    raw["session"].sessionFamilyId = "new_move_family"
+    raw["session"].accessToken = "new-move-access"
+    return raw
+end function
+
+function MemberTestIdentity() as object
+    ' Structural transport fixture only. The real producer verifies the signed assertion.
+    return { "payload": Base64UrlEncode(BytesFromText("{}")), "signature": Base64UrlEncode(BytesFromHex(String(128, "0"))), "keyId": "issuer_1" }
+end function
+
+sub Test_MemberAccountMove_ticketAndCodeBoundsAreIndependent()
+    now = IsoToSeconds("2026-10-23T12:00:00Z")
+    ticket = { "ticket": String(43, "a"), "expiresAt": "2026-10-23T12:10:00Z" }
+    AssertTrue(ParseMemberMoveTicket(ticket, now).ok)
+    for each expiry in ["2026-10-23T12:00:00Z", "2026-10-23T12:11:00.1Z", "2026-10-23T13:00:00+01:00", "2026-02-30T12:10:00Z"]
+        ticket.expiresAt = expiry
+        AssertEqual(ParseMemberMoveTicket(ticket, now).ok, false)
+    end for
+    ticket.expiresAt = "2026-10-23T12:10:00Z"
+    ticket.ticket = String(44, "a")
+    AssertEqual(ParseMemberMoveTicket(ticket, now).ok, false)
+    ticket.ticket = String(43, "a")
+    ticket.secret = "unexpected"
+    AssertEqual(ParseMemberMoveTicket(ticket, now).ok, false)
+    preview = { "username": "justin", "signIn": "portico", "expiresAt": "2026-10-30T12:00:00Z" }
+    AssertTrue(ParseMemberMoveCode(preview, now).ok)
+    preview.expiresAt = "2026-10-30T12:01:01Z"
+    AssertEqual(ParseMemberMoveCode(preview, now).ok, false)
+    preview.expiresAt = "2026-10-30T12:00:00Z"
+    preview.signIn = "hosted"
+    AssertEqual(ParseMemberMoveCode(preview, now).ok, false)
+end sub
+
+sub Test_MemberAccountMove_inputsFailBeforeTransport()
+    ctx = TestContext()
+    options = MemberTestOptions()
+    connection = MemberTestConnection(ctx)
+    mover = MemberAccountMoveNew(ctx, connection, options)
+    AssertTrue(mover <> invalid)
+    AssertEqual(MemberAccountMoveNew(ctx, connection, {}), invalid, "current/late-grant callbacks are mandatory")
+    AssertEqual(MemberMoveTaskOptions(ctx, connection, invalid), invalid, "queued jobs require the caller's revision")
+    for each code in ["", String(42, "a"), String(44, "a"), String(42, "a") + "+", invalid]
+        AssertEqual(mover.previewCode(code).ok, false)
+        AssertEqual(mover.redeemLocal(code, "sam", "secret").ok, false)
+    end for
+    for each value in ["", String(73, "a"), "sam" + Chr(8207), invalid]
+        AssertEqual(mover.password("sam", value).ok, false)
+    end for
+    for each proof in [{}, { code: String(43, "a"), ticket: String(43, "b") }, { code: String(43, "a"), extra: true }]
+        AssertEqual(mover.redeemPortico(proof, MemberTestIdentity()).ok, false)
+    end for
+    AssertEqual(mover.redeemPortico({ code: String(43, "a") }, {}).ok, false)
+    AssertEqual(ctx.transport.requests.count(), 0)
+    AssertEqual(ctx.store.values.count(), 0, "invalid inputs never store secrets")
+end sub
+
+sub Test_MemberAccountMove_fourRoutesBodiesAndNoImplicitAdmission()
+    ctx = TestContext()
+    ctx.now = IsoToSeconds("2026-10-23T12:00:00Z")
+    mover = MemberAccountMoveNew(ctx, MemberTestConnection(ctx), MemberTestOptions())
+    secret = String(43, "a")
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/password", 200, { "ticket": secret, "expiresAt": "2026-10-23T12:10:00Z" })
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/code", 200, { "username": "sam", "signIn": "local", "expiresAt": "2026-10-30T12:00:00Z" })
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/local", 200, MemberTestGrant(ctx))
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/portico", 200, MemberTestGrant(ctx))
+    AssertEqual(mover.password("sam", "secret").ticket, secret)
+    AssertEqual(mover.previewCode(secret).username, "sam")
+    AssertTrue(mover.redeemLocal(secret, "sam", "new secret").ok)
+    AssertTrue(mover.redeemPortico({ ticket: secret }, MemberTestIdentity()).ok)
+    AssertEqual(ctx.transport.requests.count(), 4)
+    for each request in ctx.transport.requests
+        AssertEqual(request.method, "POST")
+        AssertTrue(Left(request.url, Len(ctx.base)) = ctx.base, "only the explicitly captured server")
+        AssertEqual(Instr(1, request.url, secret), 0, "no secret URL")
+        AssertEqual(request.headers.Authorization, invalid, "no borrowed current bearer")
+        AssertEqual(request.headers["X-Portico-Installation-Id"], ctx.installation.installationId)
+    end for
+    AssertEqual(ParseJson(ctx.transport.requests[0].body).password, "secret")
+    AssertEqual(ParseJson(ctx.transport.requests[1].body).code, secret)
+    AssertEqual(ParseJson(ctx.transport.requests[2].body).username, "sam")
+    AssertEqual(ParseJson(ctx.transport.requests[3].body).ticket, secret)
+    AssertEqual(ParseJson(ctx.transport.requests[3].body).code, invalid)
+    AssertEqual(SessionRecord(ctx), invalid, "redemption is not durable session admission")
+    AssertEqual(ctx.store.values.count(), 0, "tickets/codes/grants never enter this client's storage")
+end sub
+
+function MemberRaceSend(request as object) as object
+    m.recordAnswer = TestSend
+    answer = m.recordAnswer(request)
+    if Right(request.url, 19) <> "/v1/auth/move/local" then return answer
+    mover = m.transport.mover
+    action = m.transport.action
+    if action = "cancel" then
+        mover.cancel()
+    else if action = "dispose" then
+        mover.dispose()
+    else if action = "revision" then
+        SessionAdvance(m.transport.context)
+    else if action = "stop" then
+        m.transport.context.task = { state: "stop" }
+    else if action = "duplicate" then
+        m.transport.duplicate = mover.previewCode(String(43, "b"))
+    else
+        mover.options.current = false
+    end if
+    return answer
+end function
+
+sub Test_MemberAccountMove_lateExactFamilyAndDuplicateMutationFences()
+    for each action in ["cancel", "dispose", "revision", "stop", "authority", "duplicate"]
+        ctx = TestContext()
+        options = MemberTestOptions()
+        mover = MemberAccountMoveNew(ctx, MemberTestConnection(ctx), options)
+        ctx.send = MemberRaceSend
+        ctx.transport.context = ctx
+        ctx.transport.mover = mover
+        ctx.transport.action = action
+        TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/local", 200, MemberTestGrant(ctx))
+        answer = mover.redeemLocal(String(43, "a"), "sam", "new secret")
+        if action = "duplicate" then
+            AssertTrue(answer.ok)
+            AssertEqual(ctx.transport.duplicate.failure.code, "move_request_in_progress")
+            AssertEqual(options.retired.count(), 0)
+        else
+            AssertEqual(answer.ok, false)
+            AssertEqual(answer.failure.code, "cancelled")
+            AssertEqual(options.retired.count(), 1)
+            AssertEqual(options.retired[0].sessionFamilyId, "new_move_family")
+        end if
+        AssertEqual(ctx.transport.requests.count(), 1, "no replay or hidden second mutation")
+    end for
+end sub
+
+sub Test_MemberAccountMove_taskRetirementPreservesConcurrentSession()
+    ctx = TestContext()
+    connection = MemberTestConnection(ctx)
+    survivor = TestSessionJson(ctx, "viewer")
+    survivor.sessionFamilyId = "surviving_family"
+    saved = SessionAccept(ctx, connection, survivor)
+    AssertTrue(saved.ok)
+    before = StoreReadJson(ctx.store, SessionRecordSection(connection.pin.serverId), "record")
+    options = MemberMoveTaskOptions(ctx, connection, SessionRevision(ctx))
+    mover = MemberAccountMoveNew(ctx, connection, options)
+    ' The issuing authority was copied, not borrowed from a mutable caller connection.
+    connection.origin = "https://other.example"
+    ctx.send = MemberRaceSend
+    ctx.transport.context = ctx
+    ctx.transport.mover = mover
+    ctx.transport.action = "cancel"
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/local", 200, MemberTestGrant(ctx))
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/sessions/current", 204)
+    AssertEqual(mover.redeemLocal(String(43, "a"), "sam", "secret").failure.code, "cancelled")
+    deletes = TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current")
+    AssertEqual(deletes.count(), 1)
+    if deletes.count() = 1 then AssertEqual(deletes[0].headers.Authorization, "Bearer new-move-access")
+    AssertEqual(TestCanon(StoreReadJson(ctx.store, SessionRecordSection(TestPin(ctx).serverId), "record")), TestCanon(before), "late compensation does not erase/replace another saved family")
+end sub
+
+sub Test_MemberAccountMove_uncertaintyAndQueuedRevisionNeverReplay()
+    ctx = TestContext()
+    connection = MemberTestConnection(ctx)
+    options = MemberMoveTaskOptions(ctx, connection, SessionRevision(ctx))
+    mover = MemberAccountMoveNew(ctx, connection, options)
+    answer = mover.redeemLocal(String(43, "a"), "sam", "secret")
+    AssertEqual(answer.ok, false)
+    AssertEqual(ctx.transport.requests.count(), 1, "unknown network result is not replayed")
+    old = SessionRevision(ctx)
+    SessionAdvance(ctx)
+    mover = MemberAccountMoveNew(ctx, connection, MemberMoveTaskOptions(ctx, connection, old))
+    AssertEqual(mover.previewCode(String(43, "a")).failure.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 1, "a queued job cannot recapture a newer selection revision")
+    ctx.admissionRevision = SessionRevision(ctx)
+    ctx.task = { state: "run" }
+    AssertTrue(SessionAdmissionCurrent(ctx), "a running Task may proceed with its captured revision")
+    for each control in ["stop", "STOP"]
+        ctx.task = { state: control }
+        AssertEqual(SessionAdmissionCurrent(ctx), false)
+    end for
+end sub
+
+sub Test_MemberAccountMove_wrongServerGrantCannotBeAdmittedOrRetiredAsOurs()
+    ctx = TestContext()
+    options = MemberTestOptions()
+    mover = MemberAccountMoveNew(ctx, MemberTestConnection(ctx), options)
+    ' The preserved mismatch case's pin is the expected OLD key; its signed payload identifies
+    ' the independently generated foreign server. Never regenerate that original fixture.
+    other = ParseJson(BytesToText(Base64UrlDecode(ctx.fixture.proofs[2].answer.payload)))
+    raw = MemberTestGrant(ctx)
+    raw.serverId = other.serverId
+    raw["session"].viewer.serverId = other.serverId
+    raw["session"].serverIdentity = { publicKey: other.publicKey, fingerprint: other.fingerprint }
+    AssertTrue(ParseDirectSignIn(raw, SessionNow(ctx)).ok, "independent valid grant belongs to a different server")
+    TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/local", 200, raw)
+    result = mover.redeemLocal(String(43, "a"), "sam", "secret")
+    AssertEqual(result.ok, false)
+    if not result.ok then AssertEqual(result.failure.code, "invalid_account_move")
+    AssertEqual(options.retired.count(), 0)
+    AssertEqual(SessionRecord(ctx), invalid)
+    AssertEqual(ctx.transport.requests.count(), 1)
+end sub
+
+sub Test_MemberAccountMove_checkedCollisionAndNoErrorReplay()
+    for each valid in [false, true]
+        ctx = TestContext()
+        mover = MemberAccountMoveNew(ctx, MemberTestConnection(ctx), MemberTestOptions())
+        current = { "existingUsername": "existing", "serverName": "Den" }
+        if not valid then current["secret"] = "unexpected"
+        TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/local", 409, { "error": { "code": "move_collision", "current": current } })
+        answer = mover.redeemLocal(String(43, "a"), "sam", "secret")
+        AssertEqual(answer.ok, false)
+        if valid then
+            AssertEqual(answer.failure.code, "move_collision")
+            AssertEqual(answer.failure.current.existingUsername, "existing")
+            AssertEqual(answer.failure.current.serverName, "Den")
+        else
+            AssertEqual(answer.failure.code, "invalid_account_move")
+        end if
+        AssertEqual(ctx.transport.requests.count(), 1)
+    end for
+    for each status in [401, 500]
+        ctx = TestContext()
+        mover = MemberAccountMoveNew(ctx, MemberTestConnection(ctx), MemberTestOptions())
+        TestAnswer(ctx, "POST", ctx.base + "/v1/auth/move/local", status, { "error": { "code": "refused" } })
+        AssertEqual(mover.redeemLocal(String(43, "a"), "sam", "secret").ok, false)
+        AssertEqual(ctx.transport.requests.count(), 1, "no automatic authentication or server-error replay")
+    end for
+end sub
