@@ -28,7 +28,6 @@ namespace TVSignInMetrics
     const caretHeight = 40
     const caretGap = 3
     const caretRadius = 2
-    const caretHalfPeriod = 0.55
     const actionGap = 20
     const actionTop = 48
     const termsBottom = 64

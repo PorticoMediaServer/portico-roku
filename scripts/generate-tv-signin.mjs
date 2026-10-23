@@ -43,7 +43,7 @@ const metrics = {
   fieldRadius: px(rule(connect, '.tf'), 'border-radius'), fieldPadding: 28,
   fieldSize: px(rule(connect, '.tf'), 'font-size'), fieldLabelSize: px(rule(connect, '.tf small'), 'font-size'),
   fieldLabelOffset: 34, fieldGap: 22, fieldBorder: 1.5, fieldFill: '0x0710189E',
-  caretWidth: 3, caretHeight: 40, caretGap: 3, caretRadius: 2, caretHalfPeriod: .55,
+  caretWidth: 3, caretHeight: 40, caretGap: 3, caretRadius: 2,
   actionGap: px(rule(auth, '.tvl .btns'), 'gap'), actionTop: 48,
   termsBottom: 64, termsSize: 20, termsLineHeight: 30,
   legalGap: 28,

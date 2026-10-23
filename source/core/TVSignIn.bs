@@ -38,7 +38,10 @@ function TVSignInRecoveryKeys() as object
 end function
 
 function TVSignInRecoveryEdit(value as string, key as string) as string
-    if key = "delete" then return Left(value, Max(0, Len(value) - 1))
+    if key = "delete" then
+        if Len(value) = 0 then return ""
+        return Left(value, Len(value) - 1)
+    end if
     if key = "clear" then return ""
     if Len(value) >= 128 then return value
     if key = "space" then return value + " "

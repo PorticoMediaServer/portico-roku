@@ -20,10 +20,6 @@ sub init()
     m.valueNode = MakeText(m.control, Theme.spec.field.text)
     m.caret = m.control.createChild("Poster")
     m.caret.visible = false
-    m.caretTimer = m.top.createChild("Timer")
-    m.caretTimer.duration = TVSignInMetrics.caretHalfPeriod
-    m.caretTimer.repeat = true
-    m.caretTimer.observeField("fire", "onFieldCaret")
     m.errorIcon = m.top.createChild("Poster")
     m.noteNode = MakeText(m.top, Theme.spec.field.help.role, "tertiary")
     m.noteNode.lines = 0
@@ -104,12 +100,9 @@ sub onFieldLayout()
     m.caret.visible = showCaret
     if showCaret then
         StyleShape(m.caret, TVSignInMetrics.caretWidth, TVSignInMetrics.caretHeight, TVSignInMetrics.caretRadius, Theme.colors.accentStrong)
-        textWidth = 0
-        if value <> "" then textWidth = TextWidth(m.valueNode)
-        Place(m.caret, Min(width - padding, padding + textWidth + TVSignInMetrics.caretGap), (height - TVSignInMetrics.caretHeight) / 2)
-        m.caretTimer.control = "start"
-    else
-        m.caretTimer.control = "stop"
+        valueWidth = 0
+        if value <> "" then valueWidth = TextWidth(m.valueNode)
+        Place(m.caret, Min(width - padding, padding + valueWidth + TVSignInMetrics.caretGap), (height - TVSignInMetrics.caretHeight) / 2)
     end if
     y = y + height
 
@@ -135,10 +128,6 @@ sub onFieldLayout()
         y = y + TextHeight(m.noteNode)
     end if
     m.top.fieldHeight = y
-end sub
-
-sub onFieldCaret()
-    if m.top.tvAuth and m.control.isFocused and m.dialog = invalid then m.caret.visible = not m.caret.visible
 end sub
 
 ' Opens Roku's keyboard for this field.
@@ -208,6 +197,5 @@ sub cancelEdit()
         m.dialog.text = ""
         m.dialog.close = true
     end if
-    m.caretTimer.control = "stop"
     m.caret.visible = false
 end sub

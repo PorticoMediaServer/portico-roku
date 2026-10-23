@@ -1,4 +1,6 @@
 import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/core/TVSignIn.bs"
 import "pkg:/source/core/Messages.bs"
 import "pkg:/source/ui/Nodes.bs"
@@ -65,11 +67,6 @@ sub init()
     top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) - TVSignInMetrics.padGap + TVSignInMetrics.padLinkGap
     Place(m.recovery, 0, top)
     Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
-    m.timer = m.top.createChild("Timer")
-    m.timer.duration = TVSignInMetrics.caretHalfPeriod
-    m.timer.repeat = true
-    m.timer.observeField("fire", "onFactorBlink")
-    m.timer.control = "start"
     onFactorStyle()
     onFactorBoxes()
 end sub
@@ -85,13 +82,6 @@ sub onFactorBoxes()
         StyleRing(cell.border, TVSignInMetrics.boxWidth, TVSignInMetrics.boxHeight, TVSignInMetrics.boxRadius, TVSignInMetrics.boxBorder, color)
         cell.text.value = Mid(m.top.value, index + 1, 1)
         cell.caret.visible = active
-    end for
-end sub
-
-sub onFactorBlink()
-    for index = 0 to m.cells.count() - 1
-        caret = m.cells[index].caret
-        if index = Len(m.top.value) and not m.top.busy then caret.visible = not caret.visible
     end for
 end sub
 
@@ -134,7 +124,6 @@ sub focusEntry()
 end sub
 
 sub leave()
-    m.timer.control = "stop"
     m.top.value = ""
 end sub
 
