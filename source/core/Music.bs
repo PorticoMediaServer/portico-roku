@@ -38,13 +38,14 @@ function MusicPrepare(ctx as object, job as object) as object
     if not MusicJobValid(ctx, job) or not IsText(job.requestId, 128) then return MusicCancelled()
     published = PublishDeviceCapabilities(ctx, job.binding, DeviceFacts())
     if not published.ok then return published
+    if not MusicJobValid(ctx, job) then return MusicCancelled()
     api = ViewerApi(ctx, job.binding)
     if api = invalid then return { ok: false, status: 401, error: { code: "session_expired", status: 401, retryable: false } }
     answer = ApiRequest(api, PlaybackQueuePath(PlaybackRoutes.queuePrepare, job.queueId), "POST", { sessionId: job.sessionId, sessionGeneration: job.sessionGeneration }, { "If-Match": job.queueRevision, "Idempotency-Key": job.requestId })
     if not answer.ok then return answer
     prepared = ParsePreparedMusic(answer.data, SessionNow(ctx))
     if prepared = invalid then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, retryable: false } }
-    if ctx.task <> invalid and ctx.task.command = "stop" then return { ok: false, status: 0, error: { code: "cancelled", status: 0, retryable: false } }
+    if not SessionAdmissionCurrent(ctx) then return MusicCancelled()
     if ViewerApi(ctx, job.binding) = invalid then return { ok: false, status: 401, error: { code: "session_expired", status: 401, retryable: false } }
     prepared.append({ queueId: job.queueId, queueRevision: job.queueRevision, sessionId: job.sessionId, sessionGeneration: job.sessionGeneration, binding: job.binding, epoch: job.epoch })
     return { ok: true, status: answer.status, value: prepared }
@@ -59,7 +60,7 @@ function MusicCommit(ctx as object, job as object) as object
     parsed = ParseQueueResult(answer.data)
     if not parsed.ok or parsed.session = invalid then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, retryable: true } }
     if parsed.queue.id <> job.queueId or parsed.session.id = job.sessionId then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, retryable: true } }
-    if (ctx.task <> invalid and ctx.task.command = "stop") or ViewerApi(ctx, job.binding) = invalid then
+    if not SessionAdmissionCurrent(ctx) or ViewerApi(ctx, job.binding) = invalid then
         ' Only the captured newly issued playback session is retired; never a replacement viewer.
         ApiRequest(api, "/v1/playback/sessions/" + parsed.session.id.encodeUriComponent(), "DELETE")
         return { ok: false, status: 0, error: { code: "cancelled", status: 0, retryable: false } }
@@ -80,7 +81,7 @@ function MusicJobValid(ctx as object, job as dynamic) as boolean
     if not IsObject(job) or not IsObject(job.binding) then return false
     if not IsPlaybackId(job.queueId) or not IsPlaybackId(job.sessionId) then return false
     if not IsText(job.queueRevision, 256) or not IsNatural(job.sessionGeneration) then return false
-    if ctx.task <> invalid and ctx.task.command = "stop" then return false
+    if not SessionAdmissionCurrent(ctx) then return false
     return ViewerApi(ctx, job.binding) <> invalid
 end function
 
