@@ -22,11 +22,15 @@ sub init()
         text.maxWidth = TVSignInMetrics.boxWidth
         text.height = TVSignInMetrics.boxHeight
         text.align = "center"
+        dot = cell.createChild("Poster")
+        StyleShape(dot, TVSignInMetrics.boxDot, TVSignInMetrics.boxDot, TVSignInMetrics.boxDot / 2, Theme.colors.text)
+        Place(dot, (TVSignInMetrics.boxWidth - TVSignInMetrics.boxDot) / 2, (TVSignInMetrics.boxHeight - TVSignInMetrics.boxDot) / 2)
+        dot.visible = false
         caret = cell.createChild("Poster")
         StyleShape(caret, TVSignInMetrics.caretWidth, TVSignInMetrics.boxCaretHeight, TVSignInMetrics.caretRadius, Theme.colors.accentStrong)
         Place(caret, (TVSignInMetrics.boxWidth - TVSignInMetrics.caretWidth) / 2, (TVSignInMetrics.boxHeight - TVSignInMetrics.boxCaretHeight) / 2)
         Place(cell, index * (TVSignInMetrics.boxWidth + TVSignInMetrics.boxGap), 0)
-        m.cells.push({ border: border, text: text, caret: caret })
+        m.cells.push({ node: cell, border: border, text: text, caret: caret, dot: dot })
     end for
     m.keys = m.top.createChild("Group")
     m.buttons = []
@@ -85,6 +89,7 @@ sub init()
     Place(m.recovery, 0, top)
     Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
     hint = m.top.createChild("Group")
+    m.hint = hint
     cap = hint.createChild("Poster")
     capText = MakeText(hint, "title", "secondary")
     capText.sizeOverride = TVSignInMetrics.termsSize
@@ -105,19 +110,41 @@ sub init()
     width = capWidth + TVSignInMetrics.hintGap + TextWidth(explanation)
     Place(hint, (Theme.screen.width - width) / 2, Theme.screen.height - TVSignInMetrics.hintBottom - TVSignInMetrics.keyCapHeight)
     onFactorStyle()
+    onFactorOptions()
+end sub
+
+function FactorDigitCount() as integer
+    if m.top.pinMode then return TVProfilePinDigits()
+    return TVSignInFactorDigits()
+end function
+
+sub onFactorOptions()
+    if m.recovery = invalid then return
+    m.hint.visible = m.top.hintVisible
+    m.recovery.fillWidth = 0
+    label = m.top.recoveryLabel
+    if label = "" then label = T("roku.tvSignIn.recovery")
+    m.recovery.label = label
+    width = TVSignInMetrics.padColumns * TVSignInMetrics.padKeyWidth + (TVSignInMetrics.padColumns - 1) * TVSignInMetrics.padGap
+    m.recovery.fillWidth = Max(width, m.recovery.controlWidth)
     onFactorBoxes()
 end sub
 
 sub onFactorBoxes()
     if m.cells = invalid then return
-    Place(m.boxes, TVSignInMetrics.left, m.top.boxTop)
+    left = TVSignInMetrics.left
+    if m.top.boxLeft > 0 then left = m.top.boxLeft
+    Place(m.boxes, left, m.top.boxTop)
     for index = 0 to m.cells.count() - 1
         cell = m.cells[index]
+        cell.node.visible = index < FactorDigitCount()
         active = index = Len(m.top.value) and not m.top.busy
         color = Theme.colors.lineStrong
         if active then color = Theme.colors.accentStrong
         StyleRing(cell.border, TVSignInMetrics.boxWidth, TVSignInMetrics.boxHeight, TVSignInMetrics.boxRadius, TVSignInMetrics.boxBorder, color)
         cell.text.value = Mid(m.top.value, index + 1, 1)
+        cell.text.visible = not m.top.pinMode
+        cell.dot.visible = m.top.pinMode and index < Len(m.top.value)
         cell.caret.visible = active
     end for
 end sub
@@ -144,13 +171,13 @@ end sub
 
 sub onFactorKey(event as object)
     if m.top.busy then return
-    nextValue = TVSignInDigit(m.top.value, event.getRoSGNode().factorKey, TVSignInFactorDigits())
+    nextValue = TVSignInDigit(m.top.value, event.getRoSGNode().factorKey, FactorDigitCount())
     m.top.value = nextValue.value
     if nextValue.complete then m.top.submitted = true
 end sub
 
 sub erase()
-    if not m.top.busy then m.top.value = TVSignInDigit(m.top.value, "delete", TVSignInFactorDigits()).value
+    if not m.top.busy then m.top.value = TVSignInDigit(m.top.value, "delete", FactorDigitCount()).value
 end sub
 
 sub onFactorRecovery()

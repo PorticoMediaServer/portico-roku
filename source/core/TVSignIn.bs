@@ -6,6 +6,10 @@ function TVSignInFactorDigits() as integer
     return 6
 end function
 
+function TVProfilePinDigits() as integer
+    return 4
+end function
+
 function TVSignInFailure(failure as dynamic, kind as string, serverName = "" as string) as string
     if not IsObject(failure) then return SignInMessage(failure)
     if ArrayIncludes(["invalid_credentials", "invalid_grant", "ambiguous_credentials"], failure.code) then
