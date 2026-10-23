@@ -5,6 +5,7 @@ import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/ui/Focus.bs"
 import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/IdentityRecovery.bs"
 
 sub init()
     m.session = m.global.session
@@ -123,7 +124,7 @@ sub onIdentityLayout()
     recovery = m.session.recovery
     if recovery = invalid then return
     closedDialog = false
-    if m.overlay.visible and FormatJson(m.forgetRecovery) <> FormatJson(recovery) then
+    if m.overlay.visible and not IdentityRecoveryMatches(m.forgetRecovery, recovery) then
         m.overlay.visible = false
         m.forgetRecovery = invalid
         closedDialog = true
