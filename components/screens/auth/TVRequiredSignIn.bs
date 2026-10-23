@@ -1,0 +1,152 @@
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.session = m.global.session
+    backdrop = m.top.createChild("Poster")
+    backdrop.uri = "pkg:/images/gradients/auth-left.png"
+    backdrop.width = Theme.screen.width
+    backdrop.height = Theme.screen.height
+    mark = m.top.createChild("Poster")
+    mark.uri = "pkg:/images/brand/wordmark.png"
+    mark.height = TVSignInMetrics.wordmarkHeight
+    mark.width = TVSignInMetrics.wordmarkHeight * Theme.apple.wordmarkAspect
+    Place(mark, TVSignInMetrics.left, TVSignInMetrics.wordmarkTop)
+    m.column = m.top.createChild("Group")
+    m.why = MakeText(m.column, "bodyStrong")
+    m.why.tint = Theme.colors.accentStrong
+    m.why.sizeOverride = TVSignInMetrics.whySize
+    m.why.lineHeightOverride = TVSignInMetrics.whyHeight
+    m.heading = m.column.createChild("IdentityHeading")
+    m.heading.textSize = TVSignInMetrics.titleSize
+    m.heading.lineHeight = TVSignInMetrics.titleSize
+    m.heading.tracking = TVSignInMetrics.titleSize * TVSignInMetrics.titleTracking
+    m.heading.maxWidth = TVSignInMetrics.columnWidth
+    m.lead = MakeText(m.column, "body", "secondary")
+    m.lead.sizeOverride = TVSignInMetrics.leadSize
+    m.lead.lineHeightOverride = TVSignInMetrics.leadHeight
+    m.lead.maxWidth = TVSignInMetrics.leadWidth
+    m.lead.lines = 0
+    m.actions = m.column.createChild("Group")
+    m.retry = m.actions.createChild("UiButton")
+    m.retry.label = T("web.hostedAccount.signInAgain")
+    m.retry.variant = "primary"
+    m.retry.size = "lg"
+    m.retry.authAppearance = true
+    m.retry.observeField("pressed", "onRequiredRetry")
+    m.back = m.actions.createChild("UiButton")
+    m.back.label = T("accounts.signIn.back")
+    m.back.variant = "secondary"
+    m.back.size = "lg"
+    m.back.authAppearance = true
+    m.back.observeField("pressed", "onRequiredBack")
+    m.card = m.top.createChild("Group")
+    m.shadow = m.card.createChild("Poster")
+    m.fill = m.card.createChild("Poster")
+    m.border = m.card.createChild("Poster")
+    m.qr = m.card.createChild("UiQrCode")
+    m.qr.paddingOverride = TVSignInMetrics.qrPadding
+    m.qr.radiusOverride = TVSignInMetrics.qrRadius
+    m.qr.qrSize = TVSignInMetrics.qrSide - TVSignInMetrics.qrPadding * 2
+    m.host = MakeText(m.card, "title", "secondary")
+    m.host.sizeOverride = TVSignInMetrics.hostSize
+    m.host.lineHeightOverride = TVSignInMetrics.hostLineHeight
+    m.host.align = "center"
+    m.host.lines = 0
+    m.host.maxWidth = TVSignInMetrics.cardWidth - TVSignInMetrics.cardSide * 2
+    m.hint = MakeText(m.card, "body", "tertiary")
+    m.hint.sizeOverride = TVSignInMetrics.refSize
+    m.hint.lineHeightOverride = TVSignInMetrics.refLineHeight
+    m.hint.align = "center"
+    m.hint.lines = 0
+    m.hint.maxWidth = m.host.maxWidth
+    m.hint.value = T("next.auth.tv.handoffHint")
+end sub
+
+sub enter()
+    info = m.session.requiredSignIn
+    if m.top.profileHandoff <> invalid then info = m.top.profileHandoff
+    if info = invalid then return
+    m.why.value = info.serverName
+    m.heading.value = T("web.twoStep.turnOnTitle")
+    m.lead.value = T("next.auth.tv.requiredTwoStepBody", { server: info.serverName })
+    if info.kind = "password-change" then
+        m.heading.value = T("web.direct.newPasswordTitle")
+        m.lead.value = T("next.auth.tv.requiredPasswordBody", { server: info.serverName })
+    end if
+    if info.kind = "forgot-pin" then
+        m.why.value = info.profileName
+        m.heading.value = T("roku.tvSignIn.forgotPin")
+        m.lead.value = T("roku.tvSignIn.profileHandoff")
+        m.retry.label = T("accounts.signIn.back")
+        m.back.visible = false
+    end if
+    y = 0
+    Place(m.why, 0, y)
+    y = y + TVSignInMetrics.whyHeight + TVSignInMetrics.whyGap
+    Place(m.heading, 0, y)
+    y = y + m.heading.contentHeight + TVSignInMetrics.titleGap
+    Place(m.lead, 0, y)
+    y = y + TextHeight(m.lead) + TVSignInMetrics.leadGap
+    Place(m.actions, 0, y)
+    actions = [m.retry, m.back]
+    if info.kind = "forgot-pin" then actions = [m.retry]
+    height = StackRow(actions, 0, TVSignInMetrics.actionGap, TVSignInMetrics.columnWidth, 0, "start")
+    Place(m.column, TVSignInMetrics.left, (Theme.screen.height - y - height) / 2)
+    m.qr.value = info.url
+    m.host.value = info.address
+    Place(m.qr, (TVSignInMetrics.cardWidth - TVSignInMetrics.qrSide) / 2, TVSignInMetrics.cardTop)
+    y = TVSignInMetrics.cardTop + TVSignInMetrics.qrSide + TVSignInMetrics.qrGap
+    Place(m.host, TVSignInMetrics.cardSide, y)
+    y = y + TextHeight(m.host)
+    Place(m.hint, TVSignInMetrics.cardSide, y)
+    height = y + TextHeight(m.hint) + TVSignInMetrics.cardBottom
+    StyleShape(m.fill, TVSignInMetrics.cardWidth, height, TVSignInMetrics.cardRadius, TVSignInMetrics.cardFill)
+    StyleRing(m.border, TVSignInMetrics.cardWidth, height, TVSignInMetrics.cardRadius, TVSignInMetrics.cardBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.cardBorderAlpha))
+    lines = Min(TVSignInMetrics.padColumns + 1, Max(1, Int(TextHeight(m.host) / TVSignInMetrics.hostLineHeight + 0.5)))
+    m.shadow.uri = "pkg:/images/shapes/tv-handoff-shadow-" + lines.toStr() + ".png"
+    m.shadow.width = TVSignInMetrics.cardWidth + TVSignInMetrics.cardShadowMargin * 2
+    m.shadow.height = height + TVSignInMetrics.cardShadowMargin * 2
+    Place(m.shadow, -TVSignInMetrics.cardShadowMargin, -TVSignInMetrics.cardShadowMargin)
+    Place(m.card, Theme.screen.width - TVSignInMetrics.cardRight - TVSignInMetrics.cardWidth, (Theme.screen.height - height) / 2)
+    FocusOn(m.retry)
+end sub
+
+sub leave()
+end sub
+
+sub onRequiredRetry()
+    if m.top.profileHandoff <> invalid then
+        back()
+        return
+    end if
+    m.top.retryPressed = true
+end sub
+
+sub onRequiredBack()
+    back()
+end sub
+
+function back() as boolean
+    m.top.backPressed = true
+    return true
+end function
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if key = "back" then
+        if press then return back()
+        return true
+    end if
+    direction = FocusDirection(key)
+    if direction <> "" then
+        if press then return FocusMove(m.actions, direction)
+        return true
+    end if
+    return false
+end function

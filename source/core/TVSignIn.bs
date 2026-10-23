@@ -1,0 +1,141 @@
+' Ruling 28 TV interaction state. No media-server request is ever used for Hosted credentials.
+import "pkg:/source/core/HostedCredentialOwner.bs"
+import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Content.bs"
+
+function TVSignInFactorDigits() as integer
+    return 6
+end function
+
+' Busy/error notifications for an existing challenge must not close recovery-code entry.
+function TVSignInChallengeStage(stage as string, challenged as boolean) as string
+    if challenged and stage = "credentials" then return "factor"
+    return stage
+end function
+
+function TVProfilePinDigits() as integer
+    return 4
+end function
+
+' A late profile list cannot attach itself to a different current viewer/server/family.
+function TVProfileSwitchCurrent(record as dynamic, asked as dynamic, current as dynamic, snapshot as dynamic) as boolean
+    if record = invalid or asked = invalid or current = invalid or not IsObject(snapshot) then return false
+    if not IsText(asked.sessionFamilyId, 128) or not IsText(current.sessionFamilyId, 128) then return false
+    if not ViewerMatchesRequestBinding(record, asked) or not ViewerMatchesRequestBinding(record, current) then return false
+    if not IsObject(snapshot.account) then return false
+    return snapshot.serverId = asked.serverId and snapshot.account.id = asked.accountId
+end function
+
+' A public fence for the picker, not a grant. It contains no bearer/PIN and grants nothing.
+function TVProfilePickerBinding(connection as dynamic, pending as dynamic, profileId as string) as dynamic
+    if not IsObject(connection) or not IsObject(connection.pin) or not IsObject(pending) then return invalid
+    if not ArrayIncludes(["local", "portico"], connection.signIn) then return invalid
+    origin = RouteOrigin(connection.origin)
+    if not origin.ok or origin.origin <> connection.origin then return invalid
+    if not IsObject(pending.snapshot) or not IsObject(pending.snapshot.account) or not IsArray(pending.snapshot.profiles) then return invalid
+    if not IsObject(pending.accountSession) or not IsObject(pending.accountSession.viewer) then return invalid
+    session = pending.accountSession
+    snapshot = pending.snapshot
+    if not IsRevision(snapshot.account.revision) or snapshot.account.disabled = true then return invalid
+    if snapshot.twoStepSetupRequired = true then return invalid
+    if session.viewer.role <> "account" then
+        if pending.switching <> true or not ArrayIncludes(["viewer", "admin", "owner"], session.viewer.role) then return invalid
+    end if
+    if session.viewer.accountId <> snapshot.account.id or session.viewer.serverId <> snapshot.serverId then return invalid
+    if connection.pin.serverId <> snapshot.serverId or not IsText(connection.pin.publicKey, 256) or not IsText(session.sessionFamilyId, 128) then return invalid
+    for each profile in snapshot.profiles
+        if profile.id = profileId then
+            if not IsText(profile.id, 128) or not IsRevision(profile.revision) or not IsRevision(profile.pinRevision) then return invalid
+            return { origin: origin.origin, serverId: snapshot.serverId, publicKey: connection.pin.publicKey, accountId: snapshot.account.id, accountRevision: snapshot.account.revision, familyId: session.sessionFamilyId, profileId: profile.id, revision: profile.revision, pinRevision: profile.pinRevision }
+        end if
+    end for
+    return invalid
+end function
+
+function TVProfilePickerCurrent(captured as dynamic, connection as dynamic, pending as dynamic) as boolean
+    if not IsObject(captured) then return false
+    current = TVProfilePickerBinding(connection, pending, captured.profileId)
+    if current = invalid then return false
+    for each key in ["origin", "serverId", "publicKey", "accountId", "accountRevision", "familyId", "profileId", "revision", "pinRevision"]
+        if current[key] <> captured[key] then return false
+    end for
+    return true
+end function
+
+' Ruling34 keeps the account session. Only these public facts reach the QR composition.
+function TVForgotPinInfo(binding as object, profileName as string) as object
+    target = binding.origin + "/settings/profile"
+    address = CreateObject("roRegex", "^https?://", "i").replace(target, "")
+    return { kind: "forgot-pin", profileName: profileName, url: target, address: address }
+end function
+
+function TVSignInFailure(failure as dynamic, kind as string, serverName = "" as string) as string
+    if not IsObject(failure) then return SignInMessage(failure)
+    if ArrayIncludes(["invalid_credentials", "invalid_grant", "ambiguous_credentials"], failure.code) then
+        if kind = "portico" then return T("services.signin.credentials")
+        return T("web.signIn.error.credentials", { server: serverName })
+    end if
+    if ArrayIncludes(["challenge_invalid", "invalid_code", "mfa_invalid"], failure.code) then return T("web.signIn.error.code")
+    if failure.status = 429 then
+        if kind = "portico" then return T("services.signin.tooMany")
+        return T("web.signIn.error.tooMany")
+    end if
+    if kind = "portico" and ArrayIncludes(["network", "timeout", "server_unavailable"], failure.code) then return T("services.signin.unavailable")
+    return SignInMessage(failure)
+end function
+
+function TVSignInDigit(value as string, key as string, count as integer) as object
+    if not MatchesPattern(value, "^[0-9]*$") or Len(value) > count then value = ""
+    complete = false
+    if key = "delete" then
+        if Len(value) > 0 then value = Left(value, Len(value) - 1)
+    else if MatchesPattern(key, "^[0-9]$") and Len(value) < count then
+        value = value + key
+        complete = Len(value) = count
+    end if
+    return { value: value, complete: complete }
+end function
+
+function TVSignInLocalCurrent(captured as dynamic, current as dynamic) as boolean
+    if not SessionRequiresLocal(captured).ok or not SessionRequiresLocal(current).ok then return false
+    if not IsObject(captured.pin) or not IsObject(current.pin) then return false
+    if not IsText(captured.origin, 2048) or not IsText(captured.pin.serverId, 256) or not IsText(captured.pin.publicKey, 256) then return false
+    if not IsText(current.origin, 2048) or not IsText(current.pin.serverId, 256) or not IsText(current.pin.publicKey, 256) then return false
+    return captured.origin = current.origin and captured.pin.serverId = current.pin.serverId and captured.pin.publicKey = current.pin.publicKey
+end function
+
+' Ruling31 has one approved server address. No credential, operation ID or token crosses it.
+function TVRequiredSignInInfo(connection as dynamic, kind as string, username as string) as dynamic
+    if not SessionRequiresLocal(connection).ok then return invalid
+    if kind <> "password-change" and kind <> "two-step-setup" then return invalid
+    if not IsText(connection.serverName, 2048) or not IsText(username, 64) then return invalid
+    origin = RouteOrigin(connection.origin)
+    if not origin.ok or origin.origin <> connection.origin then return invalid
+    target = origin.origin + "/settings/profile"
+    address = CreateObject("roRegex", "^https?://", "i").replace(target, "")
+    return { kind: kind, serverName: connection.serverName, username: username, origin: origin.origin, url: target, address: address, portico: false }
+end function
+
+function TVSignInRecoveryKeys() as object
+    keys = []
+    for index = 0 to 25
+        keys.push(Chr(65 + index))
+    end for
+    keys.push("-")
+    for each key in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "space", "delete", "clear"]
+        keys.push(key)
+    end for
+    return keys
+end function
+
+function TVSignInRecoveryEdit(value as string, key as string) as string
+    if key = "delete" then
+        if Len(value) = 0 then return ""
+        return Left(value, Len(value) - 1)
+    end if
+    if key = "clear" then return ""
+    if Len(value) >= 128 then return value
+    if key = "space" then return value + " "
+    if MatchesPattern(key, "^[A-Z0-9-]$") then return value + key
+    return value
+end function

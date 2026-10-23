@@ -1,0 +1,82 @@
+import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/core/TVSignIn.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Focus.bs"
+
+sub init()
+    m.keys = []
+    unit = (TVSignInMetrics.fieldWidth - (TVSignInMetrics.keyboardColumns - 1) * TVSignInMetrics.keyboardGap) / TVSignInMetrics.keyboardColumns
+    column = 0
+    row = 0
+    for each key in TVSignInRecoveryKeys()
+        span = 1
+        if key = "space" then span = TVSignInMetrics.keyboardSpaceSpan
+        if key = "clear" then span = TVSignInMetrics.keyboardClearSpan
+        if column + span > TVSignInMetrics.keyboardColumns then
+            column = 0
+            row = row + 1
+        end if
+        node = m.top.createChild("UiFocusable")
+        node.addFields({ recoveryKey: key })
+        node.controlWidth = unit * span + TVSignInMetrics.keyboardGap * (span - 1)
+        node.controlHeight = TVSignInMetrics.keyboardKeyHeight
+        node.radius = TVSignInMetrics.keyboardRadius
+        node.focusScale = TVSignInMetrics.padScale
+        node.ringInset = AuthFrameMetrics.ringInset
+        shadow = node.createChild("Poster")
+        shadow.uri = "pkg:/images/shapes/auth-focus.9.png"
+        shadow.width = node.controlWidth + AuthFrameMetrics.shadowMargin * 2
+        shadow.height = node.controlHeight + AuthFrameMetrics.shadowMargin * 2
+        Place(shadow, -AuthFrameMetrics.shadowMargin, AuthFrameMetrics.shadowOffset - AuthFrameMetrics.shadowMargin)
+        fill = node.createChild("Poster")
+        text = MakeText(node, "title", "secondary")
+        text.sizeOverride = TVSignInMetrics.keyboardSize
+        if span > 1 then text.sizeOverride = TVSignInMetrics.fieldLabelSize
+        text.lineHeightOverride = TVSignInMetrics.keyboardKeyHeight
+        text.maxWidth = node.controlWidth
+        text.align = "center"
+        text.value = key
+        if key = "space" then text.value = T("roku.tvSignIn.space")
+        if key = "clear" then text.value = T("roku.tvSignIn.clear")
+        if key = "delete" then
+            text.visible = false
+            icon = node.createChild("Poster")
+            icon.uri = "pkg:/images/icons/tv-auth-backspace-32.png"
+            icon.width = TVSignInMetrics.fieldSize
+            icon.height = TVSignInMetrics.fieldSize
+            icon.blendColor = Theme.colors.textSecondary
+            Place(icon, (node.controlWidth - TVSignInMetrics.fieldSize) / 2, (node.controlHeight - TVSignInMetrics.fieldSize) / 2)
+        end if
+        Place(node, column * (unit + TVSignInMetrics.keyboardGap), row * (TVSignInMetrics.keyboardKeyHeight + TVSignInMetrics.keyboardGap))
+        node.observeField("pressed", "onRecoveryKey")
+        node.observeField("isFocused", "onRecoveryKeyStyle")
+        m.keys.push({ node: node, fill: fill, text: text, shadow: shadow })
+        column = column + span
+    end for
+    onRecoveryKeyStyle()
+end sub
+
+sub onRecoveryKeyStyle()
+    for each key in m.keys
+        fill = TVSignInMetrics.keyboardFill
+        if key.node.isFocused then fill = TVSignInMetrics.padFocusFill
+        key.shadow.visible = key.node.isFocused
+        key.text.tone = "secondary"
+        if MatchesPattern(key.node.recoveryKey, "^[0-9]$") then key.text.tone = "tertiary"
+        if key.node.isFocused then key.text.tone = "primary"
+        StyleShape(key.fill, key.node.controlWidth, key.node.controlHeight, TVSignInMetrics.keyboardRadius, fill)
+    end for
+end sub
+
+sub onRecoveryKey(event as object)
+    m.top.value = TVSignInRecoveryEdit(m.top.value, event.getRoSGNode().recoveryKey)
+end sub
+
+sub focusEntry()
+    FocusOn(m.keys[0].node)
+end sub

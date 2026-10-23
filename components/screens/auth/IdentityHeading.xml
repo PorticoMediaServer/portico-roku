@@ -6,6 +6,7 @@
         <field id="lineHeight" type="float" value="0" onChange="onHeadingLayout" />
         <field id="tracking" type="float" value="0" onChange="onHeadingLayout" />
         <field id="maxWidth" type="float" value="0" onChange="onHeadingLayout" />
+        <field id="centered" type="boolean" value="false" onChange="onHeadingLayout" />
         <field id="contentHeight" type="float" value="0" />
     </interface>
 </component>

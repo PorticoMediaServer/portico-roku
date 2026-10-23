@@ -1,0 +1,206 @@
+import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/core/TVSignIn.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Focus.bs"
+
+sub init()
+    m.boxes = m.top.createChild("Group")
+    m.cells = []
+    for index = 0 to TVSignInFactorDigits() - 1
+        cell = m.boxes.createChild("Group")
+        fill = cell.createChild("Poster")
+        StyleShape(fill, TVSignInMetrics.boxWidth, TVSignInMetrics.boxHeight, TVSignInMetrics.boxRadius, TVSignInMetrics.fieldFill)
+        border = cell.createChild("Poster")
+        text = MakeText(cell, "title")
+        text.sizeOverride = TVSignInMetrics.keyboardSize
+        text.lineHeightOverride = TVSignInMetrics.boxHeight
+        text.maxWidth = TVSignInMetrics.boxWidth
+        text.height = TVSignInMetrics.boxHeight
+        text.align = "center"
+        dot = cell.createChild("Poster")
+        StyleShape(dot, TVSignInMetrics.boxDot, TVSignInMetrics.boxDot, TVSignInMetrics.boxDot / 2, Theme.colors.text)
+        Place(dot, (TVSignInMetrics.boxWidth - TVSignInMetrics.boxDot) / 2, (TVSignInMetrics.boxHeight - TVSignInMetrics.boxDot) / 2)
+        dot.visible = false
+        caret = cell.createChild("Poster")
+        StyleShape(caret, TVSignInMetrics.caretWidth, TVSignInMetrics.boxCaretHeight, TVSignInMetrics.caretRadius, Theme.colors.accentStrong)
+        Place(caret, (TVSignInMetrics.boxWidth - TVSignInMetrics.caretWidth) / 2, (TVSignInMetrics.boxHeight - TVSignInMetrics.boxCaretHeight) / 2)
+        Place(cell, index * (TVSignInMetrics.boxWidth + TVSignInMetrics.boxGap), 0)
+        m.cells.push({ node: cell, border: border, text: text, caret: caret, dot: dot })
+    end for
+    m.keys = m.top.createChild("Group")
+    m.buttons = []
+    keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "delete", "0"]
+    for index = 0 to keys.count() - 1
+        node = m.keys.createChild("UiFocusable")
+        node.addFields({ factorKey: keys[index] })
+        node.controlWidth = TVSignInMetrics.padKeyWidth
+        node.controlHeight = TVSignInMetrics.padKeyHeight
+        node.radius = TVSignInMetrics.padRadius
+        node.focusScale = TVSignInMetrics.padScale
+        node.ringInset = AuthFrameMetrics.ringInset
+        shadow = node.createChild("Poster")
+        shadow.uri = "pkg:/images/shapes/auth-focus.9.png"
+        shadow.width = TVSignInMetrics.padKeyWidth + AuthFrameMetrics.shadowMargin * 2
+        shadow.height = TVSignInMetrics.padKeyHeight + AuthFrameMetrics.shadowMargin * 2
+        Place(shadow, -AuthFrameMetrics.shadowMargin, AuthFrameMetrics.shadowOffset - AuthFrameMetrics.shadowMargin)
+        fill = node.createChild("Poster")
+        label = MakeText(node, "title")
+        label.sizeOverride = TVSignInMetrics.padSize
+        label.lineHeightOverride = TVSignInMetrics.padKeyHeight
+        label.maxWidth = TVSignInMetrics.padKeyWidth
+        label.height = TVSignInMetrics.padKeyHeight
+        label.align = "center"
+        label.value = keys[index]
+        if keys[index] = "delete" then
+            label.visible = false
+            icon = node.createChild("Poster")
+            icon.uri = "pkg:/images/icons/tv-auth-backspace-46.png"
+            icon.width = TVSignInMetrics.padDeleteSize
+            icon.height = TVSignInMetrics.padDeleteSize
+            icon.blendColor = Theme.colors.textSecondary
+            Place(icon, (TVSignInMetrics.padKeyWidth - TVSignInMetrics.padDeleteSize) / 2, (TVSignInMetrics.padKeyHeight - TVSignInMetrics.padDeleteSize) / 2)
+        end if
+        node.observeField("pressed", "onFactorKey")
+        node.observeField("isFocused", "onFactorStyle")
+        column = index mod TVSignInMetrics.padColumns
+        row = Int(index / TVSignInMetrics.padColumns)
+        Place(node, column * (TVSignInMetrics.padKeyWidth + TVSignInMetrics.padGap), row * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap))
+        m.buttons.push({ node: node, fill: fill, label: label, shadow: shadow })
+    end for
+    width = TVSignInMetrics.padColumns * TVSignInMetrics.padKeyWidth + (TVSignInMetrics.padColumns - 1) * TVSignInMetrics.padGap
+    m.recovery = m.keys.createChild("UiButton")
+    m.recovery.variant = "secondary"
+    m.recovery.size = "lg"
+    m.recovery.authAppearance = true
+    m.recovery.label = T("roku.tvSignIn.recovery")
+    ' A composed longer label keeps the drawn font/padding and its CSS intrinsic minimum;
+    ' it must not ellipsize or shrink the words to the three fixed key columns.
+    m.recovery.fillWidth = Max(width, m.recovery.controlWidth)
+    m.recovery.observeField("pressed", "onFactorRecovery")
+    rows = Int((keys.count() + TVSignInMetrics.padColumns - 1) / TVSignInMetrics.padColumns)
+    ' The forgot/recovery action occupies the next CSS grid row: the grid gap and
+    ' its own margin-top both apply, after the four key rows.
+    top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) + TVSignInMetrics.padLinkGap
+    Place(m.recovery, 0, top)
+    Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
+    hint = m.top.createChild("Group")
+    m.hint = hint
+    cap = hint.createChild("Poster")
+    capText = MakeText(hint, "title", "secondary")
+    capText.sizeOverride = TVSignInMetrics.termsSize
+    capText.lineHeightOverride = TVSignInMetrics.keyCapHeight
+    capText.value = T("next.auth.tv.playPause")
+    font = CreateObject("roSGNode", "Font")
+    font.uri = "pkg:/fonts/manrope-800.ttf"
+    font.size = TVSignInMetrics.termsSize
+    capText.font = font
+    capWidth = Max(TVSignInMetrics.keyCapMin, TextWidth(capText) + TVSignInMetrics.keyCapPadding * 2)
+    StyleRing(cap, capWidth, TVSignInMetrics.keyCapHeight, TVSignInMetrics.keyCapRadius, TVSignInMetrics.keyCapBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.keyCapBorderAlpha))
+    Place(capText, TVSignInMetrics.keyCapPadding, 0)
+    explanation = MakeText(hint, "bodyStrong", "tertiary")
+    explanation.value = T("next.auth.tv.deleteDigit")
+    explanation.sizeOverride = TVSignInMetrics.termsSize
+    explanation.lineHeightOverride = TVSignInMetrics.keyCapHeight
+    Place(explanation, capWidth + TVSignInMetrics.hintGap, 0)
+    width = capWidth + TVSignInMetrics.hintGap + TextWidth(explanation)
+    Place(hint, (Theme.screen.width - width) / 2, Theme.screen.height - TVSignInMetrics.hintBottom - TVSignInMetrics.keyCapHeight)
+    onFactorStyle()
+    onFactorOptions()
+end sub
+
+function FactorDigitCount() as integer
+    if m.top.pinMode then return TVProfilePinDigits()
+    return TVSignInFactorDigits()
+end function
+
+sub onFactorOptions()
+    if m.recovery = invalid then return
+    m.hint.visible = m.top.hintVisible
+    m.recovery.fillWidth = 0
+    label = m.top.recoveryLabel
+    if label = "" then label = T("roku.tvSignIn.recovery")
+    m.recovery.label = label
+    width = TVSignInMetrics.padColumns * TVSignInMetrics.padKeyWidth + (TVSignInMetrics.padColumns - 1) * TVSignInMetrics.padGap
+    m.recovery.fillWidth = Max(width, m.recovery.controlWidth)
+    onFactorBoxes()
+end sub
+
+sub onFactorBoxes()
+    if m.cells = invalid then return
+    left = TVSignInMetrics.left
+    if m.top.boxLeft > 0 then left = m.top.boxLeft
+    Place(m.boxes, left, m.top.boxTop)
+    for index = 0 to m.cells.count() - 1
+        cell = m.cells[index]
+        cell.node.visible = index < FactorDigitCount()
+        active = index = Len(m.top.value) and not m.top.busy
+        color = Theme.colors.lineStrong
+        if active then color = Theme.colors.accentStrong
+        state = "rest"
+        if active then state = "active"
+        cell.border.uri = "pkg:/images/shapes/tv-pin-border-" + state + ".png"
+        cell.border.width = TVSignInMetrics.boxWidth
+        cell.border.height = TVSignInMetrics.boxHeight
+        cell.border.blendColor = color
+        cell.text.value = Mid(m.top.value, index + 1, 1)
+        cell.text.visible = not m.top.pinMode
+        cell.dot.visible = m.top.pinMode and index < Len(m.top.value)
+        cell.caret.visible = active
+    end for
+end sub
+
+sub onFactorStyle()
+    for each item in m.buttons
+        fill = TVSignInMetrics.padFill
+        if item.node.isFocused then fill = TVSignInMetrics.padFocusFill
+        item.shadow.visible = item.node.isFocused
+        StyleShape(item.fill, TVSignInMetrics.padKeyWidth, TVSignInMetrics.padKeyHeight, TVSignInMetrics.padRadius, fill)
+        item.label.tone = "secondary"
+        if item.node.isFocused then item.label.tone = "primary"
+    end for
+end sub
+
+sub onFactorBusy()
+    if m.buttons = invalid then return
+    for each item in m.buttons
+        item.node.busy = m.top.busy
+    end for
+    m.recovery.busy = m.top.busy
+    onFactorBoxes()
+end sub
+
+sub onFactorKey(event as object)
+    if m.top.busy then return
+    nextValue = TVSignInDigit(m.top.value, event.getRoSGNode().factorKey, FactorDigitCount())
+    m.top.value = nextValue.value
+    if nextValue.complete then m.top.submitted = true
+end sub
+
+sub erase()
+    if not m.top.busy then m.top.value = TVSignInDigit(m.top.value, "delete", FactorDigitCount()).value
+end sub
+
+sub onFactorRecovery()
+    m.top.recoveryPressed = true
+end sub
+
+sub focusEntry()
+    FocusOn(m.buttons[0].node)
+end sub
+
+sub leave()
+    m.top.value = ""
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if key = "play" or key = "pause" or key = "playpause" then
+        if press then erase()
+        return true
+    end if
+    return false
+end function

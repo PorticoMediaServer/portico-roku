@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Composed by ruling31; bounded handoff only, never an enrollment panel or active session. -->
+<component name="ScreenTVRequiredSignIn" extends="Group">
+    <interface>
+        <!-- Ruling34 public QR variant; no session mutation or required-sign-in transition. -->
+        <field id="profileHandoff" type="assocarray" />
+        <field id="retryPressed" type="boolean" value="false" alwaysNotify="true" />
+        <field id="backPressed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

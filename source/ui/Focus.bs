@@ -95,6 +95,12 @@ sub FocusCollect(node as object, out as object)
 end sub
 
 function FocusRect(node as object) as object
+    ' A Group's rectangle includes its children, including the focused glow. Replacing
+    ' only its width/height leaves that glow's displaced origin in navigation geometry.
+    ' Query the actual non-painted surface instead, with native ancestor transforms.
+    if node.hasField("focusBounds") and node.focusBounds <> invalid then
+        if node.focusWidth > 0 and node.focusHeight > 0 then return node.focusBounds.sceneBoundingRect()
+    end if
     rect = node.sceneBoundingRect()
     if node.hasField("focusWidth") and node.focusWidth > 0 then rect.width = node.focusWidth
     if node.hasField("focusHeight") and node.focusHeight > 0 then rect.height = node.focusHeight

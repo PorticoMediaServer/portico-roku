@@ -1,0 +1,192 @@
+import "pkg:/source/core/TVSignIn.bs"
+import "pkg:/source/core/DirectSignIn.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+
+sub init()
+    m.session = m.global.session
+    m.binding = invalid
+    m.handoff = invalid
+    m.active = false
+    m.body = m.top.createChild("Group")
+    backdrop = m.body.createChild("Poster")
+    backdrop.uri = "pkg:/images/gradients/auth-round.png"
+    backdrop.width = Theme.screen.width
+    backdrop.height = Theme.screen.height
+    mark = m.body.createChild("Poster")
+    mark.uri = "pkg:/images/brand/wordmark.png"
+    mark.width = TVSignInMetrics.wordmarkHeight * Theme.apple.wordmarkAspect
+    mark.height = TVSignInMetrics.wordmarkHeight
+    Place(mark, TVSignInMetrics.left, TVSignInMetrics.wordmarkTop)
+    m.face = m.body.createChild("Poster")
+    m.face.width = TVSignInMetrics.pinFaceSide
+    m.face.height = TVSignInMetrics.pinFaceSide
+    Place(m.face, TVSignInMetrics.pinFaceLeft, TVSignInMetrics.pinFaceTop)
+    m.initial = MakeText(m.body, "title")
+    m.initial.tint = Theme.colors.white
+    m.initial.sizeOverride = TVSignInMetrics.pinInitialSize
+    m.initial.lineHeightOverride = TVSignInMetrics.pinFaceSide
+    m.initial.maxWidth = TVSignInMetrics.pinFaceSide
+    m.initial.align = "center"
+    Place(m.initial, TVSignInMetrics.pinFaceLeft, TVSignInMetrics.pinFaceTop)
+    m.heading = m.body.createChild("IdentityHeading")
+    m.heading.value = T("auth.enterProfilePin")
+    m.heading.textSize = TVSignInMetrics.pinTitleSize
+    m.heading.lineHeight = TVSignInMetrics.pinTitleHeight
+    m.heading.tracking = TVSignInMetrics.pinTitleTracking * TVSignInMetrics.pinTitleSize
+    m.heading.maxWidth = TVSignInMetrics.pinColumnWidth
+    m.heading.centered = true
+    Place(m.heading, TVSignInMetrics.pinColumnLeft, TVSignInMetrics.pinTitleTop)
+    m.name = MakeText(m.body, "body", "secondary")
+    m.name.sizeOverride = TVSignInMetrics.pinNameSize
+    m.name.lineHeightOverride = TVSignInMetrics.pinNameHeight
+    m.name.maxWidth = TVSignInMetrics.pinColumnWidth
+    m.name.align = "center"
+    Place(m.name, TVSignInMetrics.pinColumnLeft, TVSignInMetrics.pinNameTop)
+    m.error = MakeText(m.body, "body", "secondary")
+    m.error.maxWidth = TVSignInMetrics.pinColumnWidth
+    m.error.align = "center"
+    Place(m.error, TVSignInMetrics.pinColumnLeft, TVSignInMetrics.pinNameTop + TVSignInMetrics.pinNameHeight)
+    m.pad = m.body.createChild("AuthFactorPad")
+    m.pad.pinMode = true
+    m.pad.boxLeft = TVSignInMetrics.pinBoxLeft
+    m.pad.boxTop = TVSignInMetrics.pinBoxTop
+    m.pad.hintVisible = false
+    m.pad.recoveryLabel = T("roku.tvSignIn.forgotPin")
+    m.pad.observeField("submitted", "onProfilePinSubmit")
+    m.pad.observeField("recoveryPressed", "onProfilePinForgot")
+    hint = m.body.createChild("Group")
+    first = ProfilePinHint(hint, T("next.auth.tv.playPause"), T("next.auth.tv.deleteDigit"), 0)
+    width = ProfilePinHint(hint, T("accounts.signIn.back"), T("web.direct.otherProfiles"), first + TVSignInMetrics.pinHintGap)
+    Place(hint, (Theme.screen.width - width) / 2, Theme.screen.height - TVSignInMetrics.hintBottom - TVSignInMetrics.keyCapHeight)
+    for each field in ["pending", "hasPending", "connection", "error", "busy"]
+        m.session.observeField(field, "onProfilePinState")
+    end for
+end sub
+
+function ProfilePinHint(parent as object, key as string, value as string, left as float) as float
+    cap = parent.createChild("Poster")
+    label = MakeText(parent, "title", "secondary")
+    label.sizeOverride = TVSignInMetrics.termsSize
+    label.lineHeightOverride = TVSignInMetrics.keyCapHeight
+    label.value = key
+    font = CreateObject("roSGNode", "Font")
+    font.uri = "pkg:/fonts/manrope-800.ttf"
+    font.size = TVSignInMetrics.termsSize
+    label.font = font
+    width = Max(TVSignInMetrics.keyCapMin, TextWidth(label) + TVSignInMetrics.keyCapPadding * 2)
+    StyleRing(cap, width, TVSignInMetrics.keyCapHeight, TVSignInMetrics.keyCapRadius, TVSignInMetrics.keyCapBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.keyCapBorderAlpha))
+    Place(cap, left, 0)
+    Place(label, left + TVSignInMetrics.keyCapPadding, 0)
+    text = MakeText(parent, "bodyStrong", "tertiary")
+    text.sizeOverride = TVSignInMetrics.termsSize
+    text.lineHeightOverride = TVSignInMetrics.keyCapHeight
+    text.value = value
+    Place(text, left + width + TVSignInMetrics.hintGap, 0)
+    return left + width + TVSignInMetrics.hintGap + TextWidth(text)
+end function
+
+sub enter()
+    if m.top.profile = invalid then return
+    m.binding = m.top.pickerBinding
+    if not TVProfilePickerCurrent(m.binding, m.session.connection, m.session.pending) then
+        m.top.closed = true
+        return
+    end if
+    if m.top.profile.id <> m.binding.profileId then
+        m.top.closed = true
+        return
+    end if
+    m.active = true
+    profile = m.top.profile
+    m.name.value = profile.name
+    m.initial.value = UCase(Left(profile.name, 1))
+    m.face.uri = "pkg:/images/shapes/tv-profile-pin-" + profile.art + ".png"
+    m.pad.value = ""
+    onProfilePinState()
+    m.pad.callFunc("focusEntry")
+end sub
+
+function ProfilePinCurrent() as boolean
+    return m.active and m.session.hasPending and TVProfilePickerCurrent(m.binding, m.session.connection, m.session.pending)
+end function
+
+sub onProfilePinState()
+    if not m.active then return
+    if not ProfilePinCurrent() then
+        m.pad.callFunc("leave")
+        m.top.closed = true
+        return
+    end if
+    m.pad.busy = m.session.busy
+    m.error.value = m.session.error
+    if m.session.error <> "" then m.pad.value = ""
+end sub
+
+sub onProfilePinSubmit()
+    if not ProfilePinCurrent() or m.session.busy then return
+    pin = m.pad.value
+    m.pad.value = ""
+    if not MatchesPattern(pin, "^[0-9]{4}$") then return
+    m.session.callFunc("chooseProfile", { profileId: m.binding.profileId, pin: pin, pickerBinding: m.binding })
+end sub
+
+sub onProfilePinForgot()
+    if not ProfilePinCurrent() or m.session.busy or m.handoff <> invalid then return
+    m.pad.callFunc("leave")
+    m.body.visible = false
+    m.handoff = m.top.createChild("ScreenTVRequiredSignIn")
+    m.handoff.profileHandoff = TVForgotPinInfo(m.binding, m.name.value)
+    m.handoff.observeField("backPressed", "onProfilePinReturn")
+    m.handoff.callFunc("enter")
+end sub
+
+sub onProfilePinReturn()
+    if m.handoff = invalid then return
+    m.handoff.callFunc("leave")
+    m.top.removeChild(m.handoff)
+    m.handoff = invalid
+    m.body.visible = true
+    m.pad.value = ""
+    if ProfilePinCurrent() then m.pad.callFunc("focusEntry")
+end sub
+
+sub leave()
+    m.active = false
+    m.binding = invalid
+    m.pad.callFunc("leave")
+    if m.handoff <> invalid then m.handoff.callFunc("leave")
+    for each field in ["pending", "hasPending", "connection", "error", "busy"]
+        m.session.unobserveField(field)
+    end for
+end sub
+
+function back() as boolean
+    if m.handoff <> invalid then
+        onProfilePinReturn()
+    else
+        if m.session.busy then m.session.callFunc("cancelProfileSelection")
+        m.pad.callFunc("leave")
+        m.top.closed = true
+    end if
+    return true
+end function
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if key = "back" then
+        if press then return back()
+        return true
+    end if
+    if m.handoff <> invalid then return false
+    direction = FocusDirection(key)
+    if direction <> "" then
+        if press then return FocusMove(m.pad, direction)
+        return true
+    end if
+    return false
+end function

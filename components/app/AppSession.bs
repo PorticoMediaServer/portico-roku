@@ -4,9 +4,12 @@
 ' source/core/Hosted.bs; the words for a failure come from source/core/Errors.bs.
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Hosted.bs"
+import "pkg:/source/core/HostedCredentialOwner.bs"
+import "pkg:/source/core/TVSignIn.bs"
 import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/IdentityRecovery.bs"
 import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Content.bs"
 
 sub init()
     m.tasks = []
@@ -16,9 +19,13 @@ sub init()
     m.details = invalid
     m.afterConnect = invalid
     m.recoverySerial = 0
+    m.accountCredentialTask = invalid
+    m.accountCredentialTasks = []
 end sub
 
 sub SessionRun(job as object)
+    if job.kind = "profiles" then job.viewerBinding = ViewerRequestBinding(m.top.viewer)
+    if job.kind = "signIn" or job.kind = "challenge" or job.kind = "changePassword" or job.kind = "chooseProfile" or job.kind = "openServer" then job.expectedRevision = SessionRevision(SessionContextNew())
     if job.kind = "restore" or job.kind = "connect" or job.kind = "selectServer" then job.recoverySerial = m.recoverySerial
     task = CreateObject("roSGNode", "SessionTask")
     task.job = job
@@ -31,6 +38,8 @@ end sub
 sub onSessionResult(event as object)
     task = event.getRoSGNode()
     result = event.getData()
+    task.unobserveField("result")
+    task.result = invalid
     kept = []
     for each running in m.tasks
         if not running.isSameNode(task) then kept.push(running)
@@ -83,8 +92,12 @@ sub onSessionResult(event as object)
         SessionOutcome(result)
     else if kind = "profiles" then
         if result.ok then
-            m.top.pending = { snapshot: result.snapshot, accountSession: { accessToken: m.top.viewer.token }, switching: true }
-            m.top.hasPending = true
+            record = SessionRecord(SessionContextNew(), result.snapshot.serverId)
+            binding = ViewerRequestBinding(m.top.viewer)
+            if TVProfileSwitchCurrent(record, result.viewerBinding, binding, result.snapshot) then
+                m.top.pending = { snapshot: result.snapshot, accountSession: record["session"], switching: true }
+                m.top.hasPending = true
+            end if
         else
             m.top.error = PresentError(result.failure, "profiles", { operation: "load" }).body
         end if
@@ -150,6 +163,8 @@ sub SessionRestored(result as object)
 end sub
 
 sub SessionReady(record as dynamic, session as object, connection as object)
+    m.top.requiresTwoStepSetup = false
+    m.top.requiredSignIn = invalid
     m.top.accountRequested = connection.signIn = "portico"
     viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, sessionFamilyId: session.sessionFamilyId, viewer: session.viewer, profileName: "", serverName: "", username: "", signIn: connection.signIn }
     if record <> invalid then
@@ -166,6 +181,7 @@ sub SessionReady(record as dynamic, session as object, connection as object)
     m.top.error = ""
     m.top.note = ""
     m.top.directStep = ""
+    m.top.pending = invalid
     m.top.hasPending = false
     m.top.hasRecovery = false
     m.top.switching = false
@@ -224,8 +240,12 @@ end sub
 
 ' {username, password}: a direct sign-in to the server at the typed address.
 sub signIn(credentials as object)
-    if m.top.busy then return
+    if m.top.busy or m.top.requiresTwoStepSetup or m.top.requiredSignIn <> invalid then return
+    if credentials.expectedConnection <> invalid then
+        if not TVSignInLocalCurrent(credentials.expectedConnection, m.top.connection) then return
+    end if
     m.top.error = ""
+    m.top.directFailure = invalid
     m.credentials = credentials
     m.details = invalid
     job = { kind: "signIn", connection: m.top.connection, username: credentials.username, password: credentials.password }
@@ -239,28 +259,56 @@ end sub
 
 sub SessionOutcome(result as object)
     if not result.ok then
+        m.top.directFailure = result.failure
         m.top.error = SignInMessage(result.failure)
         return
     end if
     kind = result.kind
     if kind = "ready" then
         SessionReady(result.record, result.session, result.connection)
+    else if kind = "two-step-setup" or kind = "password-change" then
+        required = TVRequiredSignInInfo(result.connection, kind, result.snapshot.account.username)
+        m.accountSession = invalid
+        m.credentials = invalid
+        m.details = invalid
+        m.challengeToken = ""
+        m.top.hasPending = false
+        m.top.pending = invalid
+        m.top.directStep = ""
+        m.top.error = ""
+        m.top.directFailure = invalid
+        m.top.username = result.snapshot.account.username
+        m.top.requiredSignIn = required
+        if required = invalid then m.top.error = SignInMessage({ code: "invalid_response", status: 0 })
+        SessionRun({ kind: "retireRestricted", connection: result.connection, session: result.accountSession })
     else if kind = "profiles" then
         m.top.directStep = ""
         m.top.pending = { snapshot: result.snapshot, accountSession: result.accountSession, switching: false }
         m.top.hasPending = true
-    else if kind = "password-change" then
-        m.accountSession = result.accountSession
-        m.top.directStep = "password-change"
     else if kind = "challenge" then
         m.challengeToken = result.token
         m.top.directStep = "challenge"
     end if
 end sub
 
+sub retryRequiredSignIn()
+    required = m.top.requiredSignIn
+    if required = invalid then return
+    cancelStep()
+    m.top.origin = required.origin
+    m.top.username = required.username
+    m.top.requiredSignIn = invalid
+end sub
+
+sub cancelRequiredSignIn()
+    cancelStep()
+    m.top.requiredSignIn = invalid
+end sub
+
 sub completeChallenge(code as string)
-    if m.top.busy then return
+    if m.top.busy or m.top.requiresTwoStepSetup or m.top.requiredSignIn <> invalid then return
     m.top.error = ""
+    m.top.directFailure = invalid
     username = ""
     if m.credentials <> invalid then username = m.credentials.username
     SessionRun({ kind: "challenge", connection: m.top.connection, token: m.challengeToken, code: code, username: username })
@@ -274,15 +322,24 @@ sub changeRequiredPassword(newPassword as string)
 end sub
 
 sub cancelStep()
+    SessionAdvance(SessionContextNew())
     m.top.directStep = ""
     m.top.error = ""
+    m.top.directFailure = invalid
+    m.top.requiresTwoStepSetup = false
     m.challengeToken = ""
     m.accountSession = invalid
+    m.credentials = invalid
+    m.details = invalid
 end sub
 
 ' {profileId, pin}
 sub chooseProfile(choice as object)
     if m.top.busy or not m.top.hasPending then return
+    if choice.pickerBinding <> invalid then
+        if not TVProfilePickerCurrent(choice.pickerBinding, m.top.connection, m.top.pending) then return
+        if choice.profileId <> choice.pickerBinding.profileId then return
+    end if
     m.top.error = ""
     pin = ""
     if choice.pin <> invalid then pin = choice.pin
@@ -290,7 +347,15 @@ sub chooseProfile(choice as object)
 end sub
 
 sub cancelPending()
+    SessionAdvance(SessionContextNew())
     m.top.hasPending = false
+    m.top.pending = invalid
+    m.top.error = ""
+end sub
+
+' Back from a submitting PIN fences a late grant while preserving the picker account.
+sub cancelProfileSelection()
+    SessionAdvance(SessionContextNew())
     m.top.error = ""
 end sub
 
@@ -318,6 +383,7 @@ end sub
 
 sub cancelSwitch()
     if not m.top.switching then return
+    cancelStep()
     if m.switchBack <> invalid then
         m.top.connection = m.switchBack.connection
         m.top.origin = m.switchBack.origin
@@ -349,6 +415,76 @@ sub accountApproved(account as object)
     m.top.accountRequested = true
     m.top.landing = { kind: "deciding" }
     refreshServers()
+end sub
+
+' The renderer sends one password or factor submission. Native continuation/challenge tokens
+' remain in HostedCredentialTask, which persists the family before returning its summary.
+sub beginAccountCredentials()
+    if m.accountCredentialTask <> invalid or m.top.hasAccount then return
+    task = CreateObject("roSGNode", "HostedCredentialTask")
+    task.observeField("credentialState", "onAccountCredentialState")
+    task.observeField("outcome", "onAccountCredentialOutcome")
+    m.accountCredentialTask = task
+    m.accountCredentialTasks.push(task)
+    m.top.accountCredentialState = { phase: "starting" }
+    task.control = "RUN"
+end sub
+
+sub submitAccountCredentials(input as object)
+    if m.accountCredentialTask = invalid then return
+    state = m.top.accountCredentialState
+    if state <> invalid and (state.phase = "starting" or state.phase = "working") then return
+    if input.kind <> "login" and input.kind <> "mfa" then return
+    m.top.accountCredentialState = { phase: "working" }
+    m.accountCredentialTask.submission = input
+end sub
+
+sub cancelAccountCredentials()
+    if m.accountCredentialTask <> invalid then
+        m.accountCredentialTask.unobserveField("credentialState")
+        m.accountCredentialTask.command = "stop"
+        m.accountCredentialTask = invalid
+    end if
+    m.top.accountCredentialState = invalid
+end sub
+
+sub onAccountCredentialState(event as object)
+    if m.accountCredentialTask = invalid then return
+    if not m.accountCredentialTask.isSameNode(event.getRoSGNode()) then return
+    m.top.accountCredentialState = event.getData()
+end sub
+
+sub onAccountCredentialOutcome(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    kept = []
+    for each running in m.accountCredentialTasks
+        if not running.isSameNode(task) then kept.push(running)
+    end for
+    m.accountCredentialTasks = kept
+    task.unobserveField("credentialState")
+    task.unobserveField("outcome")
+    if m.accountCredentialTask = invalid then
+        task.command = "stop"
+        return
+    end if
+    if not m.accountCredentialTask.isSameNode(task) then
+        task.command = "stop"
+        return
+    end if
+    m.accountCredentialTask = invalid
+    if result.ok and result.kind = "signed-in" then
+        if not HostedCredentialAcceptancePending(task.credentialState, NowSeconds()) then
+            task.command = "stop"
+            m.top.accountCredentialState = { phase: "error", failure: { code: "cancelled", status: 0, message: "" } }
+            return
+        end if
+        task.command = "accept"
+        m.top.accountCredentialState = invalid
+        accountApproved(result.account)
+    else
+        m.top.accountCredentialState = { phase: "error", failure: result.failure }
+    end if
 end sub
 
 sub requestAccount()
@@ -492,9 +628,10 @@ sub retryIdentity()
     SessionRun({ kind: "retryIdentity", recovery: m.top.recovery, recoverySerial: m.recoverySerial })
 end sub
 
-sub forgetIdentity()
+sub forgetIdentity(captured as object)
     if m.top.busy or m.top.phase <> "identity" then return
-    SessionRun({ kind: "forgetIdentity", recovery: m.top.recovery, recoverySerial: m.recoverySerial })
+    if not IdentityRecoveryMatches(captured, m.top.recovery) then return
+    SessionRun({ kind: "forgetIdentity", recovery: captured, recoverySerial: m.recoverySerial })
 end sub
 
 

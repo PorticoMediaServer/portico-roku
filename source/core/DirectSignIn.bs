@@ -102,6 +102,7 @@ end function
 function ParseDirectSnapshot(raw as dynamic, expected = invalid as dynamic) as object
     if not IsObject(raw) or raw.authority <> "local" or not IsText(raw.serverId, 128) or not IsObject(raw.account) or not IsBoolean(raw.canManage) then return DirectUnreadable()
     if raw.doesExist("custodyPending") and not IsBoolean(raw.custodyPending) then return DirectUnreadable()
+    if raw.doesExist("twoStepSetupRequired") and not IsBoolean(raw.twoStepSetupRequired) then return DirectUnreadable()
     a = raw.account
     if not IsText(a.id, 128) or not IsText(a.username, 64) or not IsText(a.primaryProfileId, 128) or not IsString(a.role) then return DirectUnreadable()
     if a.role <> "owner" and a.role <> "admin" and a.role <> "member" then return DirectUnreadable()
@@ -129,7 +130,10 @@ function ParseDirectSnapshot(raw as dynamic, expected = invalid as dynamic) as o
     if caps.manageSignIn and a.role <> "owner" then return DirectUnreadable()
     if (caps.managePeople or caps.manageServer) and a.role <> "owner" and a.role <> "admin" then return DirectUnreadable()
     if not caps.manageAccount and (caps.managePeople or caps.manageServer or caps.manageSignIn) then return DirectUnreadable()
-    return { ok: true, snapshot: { authority: "local", serverId: raw.serverId, account: account, profiles: parsed.profiles, canManage: raw.canManage, capabilities: caps, custodyPending: raw.custodyPending = true } }
+    if raw.twoStepSetupRequired = true and (caps.manageAccount or caps.managePeople or caps.manageServer or caps.manageSignIn) then return DirectUnreadable()
+    snapshot = { authority: "local", serverId: raw.serverId, account: account, profiles: parsed.profiles, canManage: raw.canManage, capabilities: caps, custodyPending: raw.custodyPending = true }
+    if raw.twoStepSetupRequired = true then snapshot.twoStepSetupRequired = true
+    return { ok: true, snapshot: snapshot }
 end function
 
 
@@ -164,9 +168,19 @@ function ParseDirectSignIn(raw as dynamic, atSeconds = invalid as dynamic) as ob
     issued = ParseLocalSession(raw.session, { authority: "local", accountId: snapshot.account.id, serverId: snapshot.serverId, profileId: snapshot.account.primaryProfileId }, false, atSeconds)
     if not issued.ok then return issued
     accountScoped = issued.session.viewer.role = "account"
+    if snapshot.twoStepSetupRequired = true and not accountScoped then return DirectUnreadable()
     ' A viewer session straight from sign-in only for one unprotected profile and no forced password change.
     if not accountScoped and (passwordChangeRequired or snapshot.profiles.count() <> 1 or snapshot.profiles[0].pinRequired) then return DirectUnreadable()
     return { ok: true, kind: "signed-in", snapshot: snapshot, session: issued.session, accountScoped: accountScoped, passwordChangeRequired: passwordChangeRequired }
+end function
+
+' Checked MAIN65 profile-management.ts: no role fallback and no implied viewer admission.
+function DirectSignInContinuation(result as object) as string
+    if result.kind = "challenge" then return "challenge"
+    if result.passwordChangeRequired then return "password-change"
+    if result.snapshot.twoStepSetupRequired = true then return "two-step-setup"
+    if result.accountScoped then return "profile-selection"
+    return "viewer"
 end function
 
 ' `selectDirectProfile`'s request check: a PIN, when given, is four digits.

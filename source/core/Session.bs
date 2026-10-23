@@ -317,9 +317,17 @@ function SessionSignInOutcome(ctx as object, connection as object, answer as obj
     if not answer.ok then return { ok: false, failure: answer.error }
     parsed = ParseDirectSignIn(answer.data, SessionNow(ctx))
     if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } }
-    if parsed.kind = "challenge" then return { ok: true, kind: "challenge", token: parsed.token }
+    if parsed.kind = "challenge" then
+        if not SessionAdmissionCurrent(ctx) then return SessionFailure("cancelled")
+        return { ok: true, kind: "challenge", token: parsed.token }
+    end if
     if parsed.snapshot.serverId <> connection.pin.serverId then return SessionFailure("server_mismatch", "The server answered as a different server.")
-    if parsed.passwordChangeRequired then return { ok: true, kind: "password-change", accountSession: parsed.session, snapshot: parsed.snapshot }
+    if not SessionAdmissionCurrent(ctx) then
+        SessionRevokeRecord(ctx, { "logicalOrigin": connection.origin, "pin": connection.pin, "session": parsed.session })
+        return SessionFailure("cancelled")
+    end if
+    if parsed.passwordChangeRequired then return { ok: true, kind: "password-change", accountSession: parsed.session, snapshot: parsed.snapshot, connection: connection }
+    if parsed.snapshot.twoStepSetupRequired = true then return { ok: true, kind: "two-step-setup", accountSession: parsed.session, snapshot: parsed.snapshot, connection: connection }
     if parsed.accountScoped then return { ok: true, kind: "profiles", accountSession: parsed.session, snapshot: parsed.snapshot }
     if details = invalid then details = {}
     details.capabilities = parsed.snapshot.capabilities

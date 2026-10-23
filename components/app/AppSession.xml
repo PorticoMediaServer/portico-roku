@@ -17,6 +17,10 @@
         <field id="connected" type="boolean" value="false" alwaysNotify="true" />
         <!-- A step a direct sign-in stopped at: challenge | password-change. -->
         <field id="directStep" type="string" value="" />
+        <field id="directFailure" type="assocarray" />
+        <field id="requiresTwoStepSetup" type="boolean" value="false" />
+        <!-- Ruling31 public facts only: kind, serverName, username, origin, url, address. -->
+        <field id="requiredSignIn" type="assocarray" />
         <!-- An account session waiting for a profile: {snapshot, accountSession}. -->
         <field id="pending" type="assocarray" />
         <field id="hasPending" type="boolean" value="false" />
@@ -42,10 +46,18 @@
         <function name="completeChallenge" />
         <function name="changeRequiredPassword" />
         <function name="cancelStep" />
+        <function name="retryRequiredSignIn" />
+        <function name="cancelRequiredSignIn" />
         <function name="chooseProfile" />
         <function name="cancelPending" />
+        <function name="cancelProfileSelection" />
         <function name="acceptOutcome" />
         <function name="accountApproved" />
+        <!-- The on-device Hosted password/MFA path, independent of same-account QR consent. -->
+        <field id="accountCredentialState" type="assocarray" />
+        <function name="beginAccountCredentials" />
+        <function name="submitAccountCredentials" />
+        <function name="cancelAccountCredentials" />
         <function name="requestAccount" />
         <function name="refreshServers" />
         <function name="openServer" />

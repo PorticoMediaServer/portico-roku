@@ -1,0 +1,201 @@
+import "pkg:/source/core/TVSignIn.bs"
+
+sub Test_TVSignIn_recoveryEntrySurvivesNotificationsForTheSameChallenge()
+    AssertEqual(TVSignInChallengeStage("credentials", true), "factor", "a new challenge opens its six boxes")
+    AssertEqual(TVSignInChallengeStage("credentials", false), "credentials")
+    for each stage in ["factor", "recovery"]
+        AssertEqual(TVSignInChallengeStage(stage, true), stage, "a retained challenge never replaces the chosen factor entry")
+        AssertEqual(TVSignInChallengeStage(stage, false), stage, "working/error notifications keep the chosen factor entry")
+    end for
+end sub
+
+sub Test_TVSignIn_forgotPinKeepsThePickerAccountWithoutAuthorityInTheAddress()
+    ctx = TestContext()
+    connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
+    pending = { snapshot: TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)]), accountSession: TestSessionJson(ctx, "account") }
+    original = FormatJson(pending)
+    captured = TVProfilePickerBinding(connection, pending, "prof_1")
+    AssertTrue(captured <> invalid)
+    AssertTrue(TVProfilePickerCurrent(captured, connection, pending))
+    info = TVForgotPinInfo(captured, "Alex")
+    AssertTrue(HasExactKeys(info, ["kind", "profileName", "url", "address"]))
+    AssertEqual(info.kind, "forgot-pin")
+    AssertEqual(info.url, ctx.base + "/settings/profile")
+    AssertEqual(info.address, "192.168.1.20:32500/settings/profile")
+    AssertEqual(info.profileName, "Alex")
+    AssertEqual(FormatJson(pending), original, "opening/closing the public handoff does not replace the picker grant")
+    AssertEqual(ctx.transport.requests.count(), 0, "no polling, signout or profile selection")
+    AssertEqual(SessionRecord(ctx), invalid, "no viewer is admitted by the handoff")
+    fourth = TVSignInDigit("123", "4", TVProfilePinDigits())
+    AssertTrue(fourth.complete)
+    AssertEqual(fourth.value, "1234")
+    AssertEqual(TVSignInDigit("", "delete", TVProfilePinDigits()).value, "")
+end sub
+
+sub Test_TVSignIn_profilePinCannotCrossAnAccountFamilyServerOrProfileRevision()
+    ctx = TestContext()
+    connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
+    pending = { snapshot: TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)]), accountSession: TestSessionJson(ctx, "account") }
+    captured = TVProfilePickerBinding(connection, pending, "prof_1")
+    for each key in ["origin", "serverId", "publicKey", "accountId", "accountRevision", "familyId", "profileId", "revision", "pinRevision"]
+        wrong = ParseJson(FormatJson(captured))
+        wrong[key] = "changed"
+        AssertEqual(TVProfilePickerCurrent(wrong, connection, pending), false, "reject stale " + key)
+    end for
+    AssertEqual(TVProfilePickerBinding(connection, pending, "unknown-profile"), invalid)
+    pending.accountSession.viewer.role = "viewer"
+    AssertEqual(TVProfilePickerBinding(connection, pending, "prof_1"), invalid, "unsigned picker cannot promote a viewer grant")
+    pending.switching = true
+    AssertTrue(TVProfilePickerBinding(connection, pending, "prof_1") <> invalid, "an already signed-in switch retains its captured viewer grant")
+    pending.snapshot.twoStepSetupRequired = true
+    AssertEqual(TVProfilePickerBinding(connection, pending, "prof_1"), invalid)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_TVSignIn_aLateProfileListCannotAttachToAnotherCurrentViewer()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "owner")
+    connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
+    AssertTrue(SessionAccept(ctx, connection, session).ok)
+    record = SessionRecord(ctx)
+    viewer = { origin: ctx.base, sessionFamilyId: session.sessionFamilyId, viewer: session.viewer }
+    asked = ViewerRequestBinding(viewer)
+    current = ParseJson(FormatJson(asked))
+    snapshot = TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)])
+    AssertTrue(TVProfileSwitchCurrent(record, asked, current, snapshot))
+    AssertEqual(TVProfileSwitchCurrent(record, invalid, current, snapshot), false)
+    for each key in ["origin", "serverId", "accountId", "profileId", "sessionFamilyId"]
+        wrong = ParseJson(FormatJson(current))
+        wrong[key] = "changed"
+        AssertEqual(TVProfileSwitchCurrent(record, wrong, current, snapshot), false, "reject stale request " + key)
+        AssertEqual(TVProfileSwitchCurrent(record, asked, wrong, snapshot), false, "reject changed current " + key)
+    end for
+    snapshot.account.id = "another-account"
+    AssertEqual(TVProfileSwitchCurrent(record, asked, current, snapshot), false)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_TVSignIn_sharedErrorsKeepLocalAndHostedAccountWordsSeparate()
+    globals = GetGlobalAA()
+    previous = globals.messageCatalogue
+    globals.messageCatalogue = {
+        "services.signin.credentials": "That username or email and password didn’t match a Portico Account. Check them and try again."
+        "web.signIn.error.credentials": "That username and password didn’t match an account on {server}. Check them and try again."
+        "web.signIn.error.code": "That code didn’t work. Enter the current code from your authenticator app, or a recovery code."
+    }
+    refused = { code: "invalid_credentials", status: 401 }
+    AssertEqual(TVSignInFailure(refused, "local", "Portico demo"), "That username and password didn’t match an account on Portico demo. Check them and try again.")
+    AssertEqual(TVSignInFailure(refused, "portico"), "That username or email and password didn’t match a Portico Account. Check them and try again.")
+    AssertEqual(TVSignInFailure({ code: "mfa_invalid", status: 401 }, "local", "Portico demo"), "That code didn’t work. Enter the current code from your authenticator app, or a recovery code.")
+    globals.messageCatalogue = previous
+end sub
+
+sub Test_TVSignIn_requiredHandoffHasOnlyTheApprovedAddressAndPublicFacts()
+    ctx = TestContext()
+    connection = { signIn: "local", origin: ctx.base, pin: TestPin(ctx), serverName: "Portico demo" }
+    info = TVRequiredSignInInfo(connection, "two-step-setup", "nana_r")
+    AssertTrue(HasExactKeys(info, ["kind", "serverName", "username", "origin", "url", "address", "portico"]))
+    AssertEqual(info.url, ctx.base + "/settings/profile")
+    AssertEqual(info.address, "192.168.1.20:32500/settings/profile")
+    AssertEqual(info.username, "nana_r")
+    AssertEqual(info.kind, "two-step-setup")
+    AssertEqual(Instr(1, info.url, "?"), 0)
+    AssertEqual(Instr(1, info.url, "#"), 0)
+    AssertEqual(TVRequiredSignInInfo(connection, "password-change", "nana_r").kind, "password-change")
+    connection.signIn = "portico"
+    AssertEqual(TVRequiredSignInInfo(connection, "two-step-setup", "nana_r"), invalid, "a media server cannot issue a Services account setup handoff")
+    connection.signIn = "local"
+    connection.origin = "https://demo.example.com/a-path"
+    AssertEqual(TVRequiredSignInInfo(connection, "two-step-setup", "nana_r"), invalid)
+    AssertEqual(ctx.transport.requests.count(), 0, "the handoff never polls or sends credential authority")
+end sub
+
+sub Test_TVSignIn_restrictedCleanupUsesTheCapturedServerAndKeepsTheViewer()
+    ctx = TestContext()
+    active = AccountTestBinding(ctx, "local", true)
+    captured = TestSessionJson(ctx, "account")
+    pin = TestPin(ctx)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/sessions/current", 204)
+    revision = SessionRevision(ctx)
+    SessionRevokeRecord(ctx, { "logicalOrigin": ctx.base, "pin": pin, "session": captured })
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, active.session.sessionFamilyId)
+    AssertEqual(SessionRevision(ctx), revision)
+    AssertEqual(ctx.transport.requests[0].headers.Authorization, invalid)
+    deleted = TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current")
+    AssertEqual(deleted.count(), 1)
+    AssertEqual(deleted[0].headers.Authorization, "Bearer " + captured.accessToken)
+end sub
+
+sub Test_TVSignIn_sixthDigitSubmitsOnceAndPlayPauseCanDelete()
+    value = ""
+    for each key in ["1", "2", "3", "4", "5"]
+        nextValue = TVSignInDigit(value, key, TVSignInFactorDigits())
+        AssertEqual(nextValue.complete, false)
+        value = nextValue.value
+    end for
+    sixth = TVSignInDigit(value, "6", TVSignInFactorDigits())
+    AssertEqual(sixth.value, "123456")
+    AssertTrue(sixth.complete)
+    AssertEqual(TVSignInDigit(sixth.value, "7", TVSignInFactorDigits()).complete, false)
+    deleted = TVSignInDigit(sixth.value, "delete", TVSignInFactorDigits())
+    AssertEqual(deleted.value, "12345")
+    AssertEqual(deleted.complete, false)
+    AssertEqual(TVSignInDigit("", "delete", TVSignInFactorDigits()).value, "")
+    AssertEqual(TVSignInDigit("", "@", TVSignInFactorDigits()).value, "")
+end sub
+
+sub Test_TVSignIn_localFormCannotFollowAnotherOriginOrPorticoKind()
+    ctx = TestContext()
+    connection = { signIn: "local", origin: ctx.base, pin: TestPin(ctx) }
+    AssertTrue(TVSignInLocalCurrent(connection, ParseJson(FormatJson(connection))))
+    for each key in ["origin", "signIn"]
+        current = ParseJson(FormatJson(connection))
+        current[key] = "portico"
+        AssertEqual(TVSignInLocalCurrent(connection, current), false)
+    end for
+    current = ParseJson(FormatJson(connection))
+    current.pin.serverId = "different_server"
+    AssertEqual(TVSignInLocalCurrent(connection, current), false)
+    current = ParseJson(FormatJson(connection))
+    current.pin.publicKey = "different_key"
+    AssertEqual(TVSignInLocalCurrent(connection, current), false)
+    AssertEqual(TVSignInLocalCurrent(invalid, connection), false)
+    AssertEqual(TVSignInLocalCurrent(connection, {}), false)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_TVSignIn_recoveryKeyboardHasOnlyTheDrawnSetAndBoundedEditing()
+    keys = TVSignInRecoveryKeys()
+    AssertEqual(keys.count(), 40)
+    AssertEqual(keys[0], "A")
+    AssertEqual(keys[25], "Z")
+    AssertEqual(keys[26], "-")
+    AssertEqual(ArrayIncludes(keys, "a"), false)
+    AssertEqual(ArrayIncludes(keys, "@"), false)
+    AssertEqual(ArrayIncludes(keys, "."), false)
+    value = ""
+    for each key in ["7", "K", "Q", "M", "-", "4", "T", "X", "P"]
+        value = TVSignInRecoveryEdit(value, key)
+    end for
+    AssertEqual(value, "7KQM-4TXP")
+    AssertEqual(TVSignInRecoveryEdit(value, "delete"), "7KQM-4TX")
+    AssertEqual(TVSignInRecoveryEdit(value, "clear"), "")
+    AssertEqual(TVSignInRecoveryEdit(value, "space"), value + " ")
+    AssertEqual(TVSignInRecoveryEdit(value, "@"), value)
+    AssertEqual(Len(TVSignInRecoveryEdit(String(128, "A"), "Z")), 128)
+end sub
+
+sub Test_TVSignIn_hostedEmailUsesOnlyTheActualHostedNativeLogin()
+    ctx = TestContext()
+    owner = TestHostedCredentialOwner()
+    client = HostedCredentialsNew(ctx, TestHostedCredentialBinding(), owner)
+    email = "a.long.account.address.that.exceeds.thirty.two@example.com"
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions", 200, TestGrant())
+    AssertTrue(client.login(email, "test-password", ctx.requestId).ok)
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ctx.transport.requests[0].url, ctx.hostedUrl + "/v1/sessions")
+    AssertEqual(ParseJson(ctx.transport.requests[0].body).username, email)
+    AssertEqual(ctx.transport.requests[0].headers["X-Portico-Continuation"], TestHostedCredentialBinding())
+    AssertEqual(owner.admissions.count(), 1)
+end sub

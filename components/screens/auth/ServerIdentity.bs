@@ -5,6 +5,7 @@ import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/ui/Focus.bs"
 import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/IdentityRecovery.bs"
 
 sub init()
     m.session = m.global.session
@@ -51,6 +52,7 @@ sub init()
     m.cancel = IdentityButton(m.dialogActions, "identity:cancel", T("action.cancel"), "secondary", "")
     m.cancel.observeField("pressed", "onIdentityCancel")
     m.overlay.visible = false
+    m.forgetRecovery = invalid
     m.session.observeField("busy", "onIdentityBusy")
     m.session.observeField("recovery", "onIdentityLayout")
 end sub
@@ -115,11 +117,18 @@ end sub
 
 sub leave()
     m.overlay.visible = false
+    m.forgetRecovery = invalid
 end sub
 
 sub onIdentityLayout()
     recovery = m.session.recovery
     if recovery = invalid then return
+    closedDialog = false
+    if m.overlay.visible and not IdentityRecoveryMatches(m.forgetRecovery, recovery) then
+        m.overlay.visible = false
+        m.forgetRecovery = invalid
+        closedDialog = true
+    end if
     changed = recovery.kind = "changed"
     name = recovery.serverName
     m.title.value = T("portico.failure.identity.title", { server: name })
@@ -151,6 +160,7 @@ sub onIdentityLayout()
     Place(m.forget, x, 0)
     Place(m.content, IdentityFrameMetrics.left, (Theme.screen.height - y - m.retry.controlHeight) / 2)
     onIdentityBusy()
+    if closedDialog then FocusOn(m.retry)
 end sub
 
 sub onIdentityBusy()
@@ -170,6 +180,7 @@ end sub
 sub onIdentityAskForget()
     recovery = m.session.recovery
     if recovery = invalid or recovery.kind <> "changed" then return
+    m.forgetRecovery = ParseJson(FormatJson(recovery))
     m.dialogTitle.value = T("connection.identity.forgetTitle", { server: recovery.serverName })
     bodyHeight = IdentityBodyText(m.dialogBody, T("connection.identity.forgetBody"))
     y = IdentityFrameMetrics.dialogTop
@@ -199,11 +210,12 @@ end sub
 
 sub onIdentityCancel()
     m.overlay.visible = false
+    m.forgetRecovery = invalid
     FocusOn(m.forget)
 end sub
 
 sub onIdentityForget()
-    m.session.callFunc("forgetIdentity")
+    if m.forgetRecovery <> invalid then m.session.callFunc("forgetIdentity", m.forgetRecovery)
 end sub
 
 function back() as boolean

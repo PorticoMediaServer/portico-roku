@@ -1,0 +1,7 @@
+{
+  "commit": "e10873b5cc53684025c4ebab87c3bd4da729c101",
+  "files": {
+    "packages/client-core/src/presentation/kit-model/channels.ts": "926358b23e517f40f6f0d435728cb3ad2069b7cad7381c0e7f26b2bb90a2b24f",
+    "packages/client-core/test/fixtures/channel-tint-vectors.json": "7553334a9e704fea20d08d157feb9e2050b114a8f7ef4e8c20f07af164fa7ad5"
+  }
+}

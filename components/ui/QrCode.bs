@@ -18,11 +18,14 @@ sub onQrDraw()
     size = m.top.qrSize
     if size <= 0 then return
     padding = Theme.space.md
+    if m.top.paddingOverride > 0 then padding = m.top.paddingOverride
+    radius = Theme.apple.activationQrRadius
+    if m.top.radiusOverride > 0 then radius = m.top.radiusOverride
     side = size + padding * 2
-    StyleShape(m.plate, side, side, Theme.apple.activationQrRadius, Theme.colors.white)
+    StyleShape(m.plate, side, side, radius, Theme.colors.white)
     m.top.boxWidth = side
     m.top.boxHeight = side
-    key = m.top.value + "|" + size.toStr()
+    key = m.top.value + "|" + size.toStr() + "|" + padding.toStr()
     if key = m.drawn then return
     m.drawn = key
     m.modules.removeChildrenIndex(m.modules.getChildCount(), 0)

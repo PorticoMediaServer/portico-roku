@@ -3,10 +3,7 @@
 ' colour with its initial in the title role, the name beneath in body strong, and a small lock when
 ' it has a PIN. Focus is a ring hugging the face and a gentle lift (Theme.apple.profileFocusScale).
 '
-' Difference from the Apple TV app: a profile's PIN is entered on Roku's own PIN pad
-' (StandardPinPadDialog) instead of the Apple app's on-screen keypad, and the pictures profiles
-' uploaded are not drawn (a Roku image cannot carry the session's bearer); the initial on the
-' profile's colour stands in, as it does on Apple TV while a picture loads.
+' Protected profiles use auth17's four-box D-pad pad; ruling34 keeps the picker grant.
 import "pkg:/source/core/DirectSignIn.bs"
 import "pkg:/source/Theme.bs"
 import "pkg:/source/ThemeTables.bs"
@@ -14,6 +11,7 @@ import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/ui/Layout.bs"
 import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/TVSignIn.bs"
 
 sub init()
     m.session = m.global.session
@@ -24,24 +22,33 @@ sub init()
     m.content = CreateObject("roSGNode", "Group")
     m.tiles = []
     m.pinFor = invalid
-    m.dialog = invalid
+    m.pinScreen = invalid
     m.avatars = invalid
     m.avatarTask = invalid
+    m.activeProfiles = false
     m.session.observeField("error", "onProfilesError")
     m.session.observeField("busy", "onProfilesBusy")
+    m.session.observeField("pending", "onProfilesPending")
+    m.session.observeField("connection", "onProfilesPending")
 end sub
 
 sub enter()
+    m.activeProfiles = true
     ProfilesBuild()
     ProfilesPictures()
     m.frame.callFunc("focusContent", invalid)
 end sub
 
 sub leave()
-    if m.dialog <> invalid then m.dialog.close = true
+    m.activeProfiles = false
+    for each field in ["error", "busy", "pending", "connection"]
+        m.session.unobserveField(field)
+    end for
+    ProfilesClosePin()
 end sub
 
 function back() as boolean
+    if m.pinScreen <> invalid then return m.pinScreen.callFunc("back")
     m.session.callFunc("cancelPending")
     return true
 end function
@@ -56,6 +63,7 @@ sub ProfilesBuild()
     m.frame.error = m.session.error
     m.content.removeChildrenIndex(m.content.getChildCount(), 0)
     m.tiles = []
+    m.pinFor = invalid
     if pending = invalid or pending.snapshot = invalid then
         m.frame.callFunc("setContent", m.content, 0)
         return
@@ -65,7 +73,7 @@ sub ProfilesBuild()
     border = Theme.apple.profileBorder
     for each profile in pending.snapshot.profiles
         tile = m.content.createChild("UiFocusable")
-        tile.addFields({ profileId: profile.id, pinRequired: profile.pinRequired, profileName: profile.name })
+        tile.addFields({ profileId: profile.id, pinRequired: profile.pinRequired, profileName: profile.name, profileData: profile, pickerBinding: TVProfilePickerBinding(m.session.connection, pending, profile.id) })
         tile.ring = false
         tile.focusScale = Theme.apple.profileFocusScale
         face = tile.createChild("Poster")
@@ -186,46 +194,39 @@ end sub
 sub onProfilesChoose(event as object)
     tile = event.getRoSGNode()
     if tile = invalid or m.session.busy then return
+    if not TVProfilePickerCurrent(tile.pickerBinding, m.session.connection, m.session.pending) then return
     if not tile.pinRequired then
-        m.session.callFunc("chooseProfile", { profileId: tile.profileId })
+        m.session.callFunc("chooseProfile", { profileId: tile.profileId, pickerBinding: tile.pickerBinding })
         return
     end if
     m.pinFor = tile
-    dialog = CreateObject("roSGNode", "StandardPinPadDialog")
-    dialog.title = T("auth.enterProfilePin")
-    dialog.message = [tile.profileName]
-    dialog.buttons = [T("action.continue"), T("action.cancel")]
-    palette = CreateObject("roSGNode", "RSGPalette")
-    palette.colors = {
-        DialogBackgroundColor: Theme.colors.overlaySurface
-        DialogTextColor: Theme.colors.text
-        DialogFocusColor: Theme.colors.focus
-        DialogFocusItemColor: Theme.colors.ink
-        DialogSecondaryTextColor: Theme.colors.textSecondary
-        DialogSecondaryItemColor: Theme.colors.textTertiary
-        DialogInputFieldColor: Theme.colors.raised
-        DialogKeyboardColor: Theme.colors.raised
-        DialogFootprintColor: Theme.colors.lineStrong
-    }
-    dialog.palette = palette
-    dialog.observeField("buttonSelected", "onProfilesPin")
-    dialog.observeField("wasClosed", "onProfilesPinClosed")
-    m.dialog = dialog
-    m.top.getScene().dialog = dialog
+    m.frame.visible = false
+    m.pinScreen = m.top.createChild("ScreenTVProfilePin")
+    m.pinScreen.profile = tile.profileData
+    m.pinScreen.pickerBinding = tile.pickerBinding
+    m.pinScreen.observeField("closed", "onProfilesPinClosed")
+    m.pinScreen.callFunc("enter")
 end sub
 
-sub onProfilesPin()
-    if m.dialog = invalid or m.pinFor = invalid then return
-    confirmed = m.dialog.buttonSelected = 0
-    pin = m.dialog.pin
-    tile = m.pinFor
-    m.dialog.close = true
-    if confirmed then m.session.callFunc("chooseProfile", { profileId: tile.profileId, pin: pin })
+sub ProfilesClosePin()
+    if m.pinScreen = invalid then return
+    m.pinScreen.callFunc("leave")
+    m.top.removeChild(m.pinScreen)
+    m.pinScreen = invalid
+    m.frame.visible = true
 end sub
 
 sub onProfilesPinClosed()
-    m.dialog = invalid
-    if m.pinFor <> invalid then m.pinFor.setFocus(true)
+    ProfilesClosePin()
+    if m.activeProfiles and m.pinFor <> invalid then m.pinFor.setFocus(true)
+end sub
+
+sub onProfilesPending()
+    if not m.activeProfiles then return
+    ProfilesClosePin()
+    ProfilesBuild()
+    ProfilesPictures()
+    m.frame.callFunc("focusContent", invalid)
 end sub
 
 ' A wrong PIN says so above the faces; the profile is pressed again to try again.

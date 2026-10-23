@@ -16,8 +16,33 @@ sub work()
     ctx = SessionContextNew()
     result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
     kind = job.kind
-    if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then ctx.admissionRevision = SessionRevision(ctx)
-    if kind = "retryIdentity" then
+    if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then
+        if not IsNatural(job.expectedRevision) then
+            result.kindOfJob = kind
+            m.top.job = { kind: kind }
+            m.top.result = result
+            return
+        end if
+        ctx.admissionRevision = job.expectedRevision
+        ctx.task = m.top
+        if not SessionAdmissionCurrent(ctx) then
+            result = SessionFailure("cancelled")
+            result.kindOfJob = kind
+            m.top.job = { kind: kind }
+            m.top.result = result
+            return
+        end if
+    end if
+    if kind = "retireRestricted" then
+        ' Cleanup uses only this captured account family at its proved issuing server.
+        ' Failure still drops the TV's copy: ruling31 never polls or auto-continues.
+        if IsObject(job.session) and IsObject(job.connection) and IsObject(job.session.viewer) then
+          if job.session.viewer.role = "account" then
+            SessionRevokeRecord(ctx, { "logicalOrigin": job.connection.origin, "pin": job.connection.pin, "session": job.session })
+          end if
+        end if
+        result = { ok: true }
+    else if kind = "retryIdentity" then
         result = IdentityRecoveryRetry(ctx, job.recovery)
         result.source = job.recovery.source
         result.recovery = job.recovery
@@ -101,6 +126,9 @@ sub work()
         result = { ok: true, record: SessionRecord(ctx) }
     end if
     result.kindOfJob = kind
+    if kind = "profiles" then result.viewerBinding = job.viewerBinding
+    if kind = "signIn" or kind = "challenge" or kind = "changePassword" then m.top.job = { kind: kind }
     if job.doesExist("recoverySerial") then result.recoverySerial = job.recoverySerial
+    m.top.job = { kind: kind }
     m.top.result = result
 end sub
