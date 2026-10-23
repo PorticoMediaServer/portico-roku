@@ -46,6 +46,11 @@
         <function name="cancelPending" />
         <function name="acceptOutcome" />
         <function name="accountApproved" />
+        <!-- The on-device Hosted password/MFA path, independent of same-account QR consent. -->
+        <field id="accountCredentialState" type="assocarray" />
+        <function name="beginAccountCredentials" />
+        <function name="submitAccountCredentials" />
+        <function name="cancelAccountCredentials" />
         <function name="requestAccount" />
         <function name="refreshServers" />
         <function name="openServer" />

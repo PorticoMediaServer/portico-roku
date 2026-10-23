@@ -16,6 +16,8 @@ sub init()
     m.details = invalid
     m.afterConnect = invalid
     m.recoverySerial = 0
+    m.accountCredentialTask = invalid
+    m.accountCredentialTasks = []
 end sub
 
 sub SessionRun(job as object)
@@ -349,6 +351,71 @@ sub accountApproved(account as object)
     m.top.accountRequested = true
     m.top.landing = { kind: "deciding" }
     refreshServers()
+end sub
+
+' The renderer sends one password or factor submission. Native continuation/challenge tokens
+' remain in HostedCredentialTask, which persists the family before returning its summary.
+sub beginAccountCredentials()
+    if m.accountCredentialTask <> invalid or m.top.hasAccount then return
+    task = CreateObject("roSGNode", "HostedCredentialTask")
+    task.observeField("credentialState", "onAccountCredentialState")
+    task.observeField("outcome", "onAccountCredentialOutcome")
+    m.accountCredentialTask = task
+    m.accountCredentialTasks.push(task)
+    m.top.accountCredentialState = { phase: "starting" }
+    task.control = "RUN"
+end sub
+
+sub submitAccountCredentials(input as object)
+    if m.accountCredentialTask = invalid then return
+    state = m.top.accountCredentialState
+    if state <> invalid and (state.phase = "starting" or state.phase = "working") then return
+    if input.kind <> "login" and input.kind <> "mfa" then return
+    m.top.accountCredentialState = { phase: "working" }
+    m.accountCredentialTask.submission = input
+end sub
+
+sub cancelAccountCredentials()
+    if m.accountCredentialTask <> invalid then
+        m.accountCredentialTask.unobserveField("credentialState")
+        m.accountCredentialTask.command = "stop"
+        m.accountCredentialTask = invalid
+    end if
+    m.top.accountCredentialState = invalid
+end sub
+
+sub onAccountCredentialState(event as object)
+    if m.accountCredentialTask = invalid then return
+    if not m.accountCredentialTask.isSameNode(event.getRoSGNode()) then return
+    m.top.accountCredentialState = event.getData()
+end sub
+
+sub onAccountCredentialOutcome(event as object)
+    task = event.getRoSGNode()
+    result = event.getData()
+    kept = []
+    for each running in m.accountCredentialTasks
+        if not running.isSameNode(task) then kept.push(running)
+    end for
+    m.accountCredentialTasks = kept
+    task.unobserveField("credentialState")
+    task.unobserveField("outcome")
+    if m.accountCredentialTask = invalid then
+        task.command = "stop"
+        return
+    end if
+    if not m.accountCredentialTask.isSameNode(task) then
+        task.command = "stop"
+        return
+    end if
+    m.accountCredentialTask = invalid
+    if result.ok and result.kind = "signed-in" then
+        task.command = "accept"
+        m.top.accountCredentialState = invalid
+        accountApproved(result.account)
+    else
+        m.top.accountCredentialState = { phase: "error", failure: result.failure }
+    end if
 end sub
 
 sub requestAccount()
