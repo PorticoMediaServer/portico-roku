@@ -58,6 +58,13 @@ async function settledCanvas(page){
 }
 async function captureCanvas(page,name){
  await settledCanvas(page);
+ if(credentials){
+  // This view's canvas buffer may already be cleared while Chromium retains its real
+  // composited frame. Capture that visible frame; never paint or alter product pixels.
+  await page.screenshot({path:join(output,name),type:'jpeg',quality:96});
+  if(readFileSync(join(output,name)).length<60000)throw new Error('Blank/incomplete credential screen');
+  return;
+ }
  const url=await page.evaluate(()=>new Promise(resolve=>document.querySelector('#display').toBlob(blob=>{
   const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);
  },'image/jpeg',.96)));

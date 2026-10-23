@@ -159,7 +159,7 @@ sub onActivationLayout()
     m.direct.label = T("accounts.signIn.local")
     if m.started then
         m.account.label = T("accounts.signIn.onTV")
-        m.direct.label = T("action.back")
+        m.direct.label = T("accounts.signIn.back")
     end if
     m.panel.visible = m.started
     rowGap = Theme.space.md
