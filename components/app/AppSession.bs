@@ -5,6 +5,7 @@
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Hosted.bs"
 import "pkg:/source/core/HostedCredentialOwner.bs"
+import "pkg:/source/core/TVSignIn.bs"
 import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/IdentityRecovery.bs"
 import "pkg:/source/core/Messages.bs"
@@ -22,6 +23,7 @@ sub init()
 end sub
 
 sub SessionRun(job as object)
+    if job.kind = "signIn" or job.kind = "challenge" or job.kind = "changePassword" or job.kind = "chooseProfile" or job.kind = "openServer" then job.expectedRevision = SessionRevision(SessionContextNew())
     if job.kind = "restore" or job.kind = "connect" or job.kind = "selectServer" then job.recoverySerial = m.recoverySerial
     task = CreateObject("roSGNode", "SessionTask")
     task.job = job
@@ -228,6 +230,9 @@ end sub
 ' {username, password}: a direct sign-in to the server at the typed address.
 sub signIn(credentials as object)
     if m.top.busy then return
+    if credentials.expectedConnection <> invalid then
+        if not TVSignInLocalCurrent(credentials.expectedConnection, m.top.connection) then return
+    end if
     m.top.error = ""
     m.credentials = credentials
     m.details = invalid
@@ -277,10 +282,13 @@ sub changeRequiredPassword(newPassword as string)
 end sub
 
 sub cancelStep()
+    SessionAdvance(SessionContextNew())
     m.top.directStep = ""
     m.top.error = ""
     m.challengeToken = ""
     m.accountSession = invalid
+    m.credentials = invalid
+    m.details = invalid
 end sub
 
 ' {profileId, pin}

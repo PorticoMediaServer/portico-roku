@@ -16,7 +16,16 @@ sub work()
     ctx = SessionContextNew()
     result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
     kind = job.kind
-    if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then ctx.admissionRevision = SessionRevision(ctx)
+    if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then
+        if not IsNatural(job.expectedRevision) then
+            result.kindOfJob = kind
+            m.top.job = { kind: kind }
+            m.top.result = result
+            return
+        end if
+        ctx.admissionRevision = job.expectedRevision
+        ctx.task = m.top
+    end if
     if kind = "retryIdentity" then
         result = IdentityRecoveryRetry(ctx, job.recovery)
         result.source = job.recovery.source
@@ -101,6 +110,7 @@ sub work()
         result = { ok: true, record: SessionRecord(ctx) }
     end if
     result.kindOfJob = kind
+    if kind = "signIn" or kind = "challenge" or kind = "changePassword" then m.top.job = { kind: kind }
     if job.doesExist("recoverySerial") then result.recoverySerial = job.recoverySerial
     m.top.result = result
 end sub

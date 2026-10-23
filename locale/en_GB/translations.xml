@@ -4312,6 +4312,34 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>web.signin.welcomeHome</source>
             <target>Welcome home.</target>
         </trans-unit>
+        <trans-unit id="roku.tvSignIn.hostedLead">
+            <source>roku.tvSignIn.hostedLead</source>
+            <target>Sign in with your Portico Account to access servers shared with you.</target>
+        </trans-unit>
+        <trans-unit id="roku.tvSignIn.identity">
+            <source>roku.tvSignIn.identity</source>
+            <target>Username or email</target>
+        </trans-unit>
+        <trans-unit id="roku.tvSignIn.codeLead">
+            <source>roku.tvSignIn.codeLead</source>
+            <target>Two-step verification is on for this account. Enter the code from your authenticator app.</target>
+        </trans-unit>
+        <trans-unit id="roku.tvSignIn.recovery">
+            <source>roku.tvSignIn.recovery</source>
+            <target>Lost your phone? Use a recovery code</target>
+        </trans-unit>
+        <trans-unit id="roku.tvSignIn.agreement">
+            <source>roku.tvSignIn.agreement</source>
+            <target>By continuing, you agree to Portico’s terms and privacy policy.</target>
+        </trans-unit>
+        <trans-unit id="roku.tvSignIn.space">
+            <source>roku.tvSignIn.space</source>
+            <target>Space</target>
+        </trans-unit>
+        <trans-unit id="roku.tvSignIn.clear">
+            <source>roku.tvSignIn.clear</source>
+            <target>Clear</target>
+        </trans-unit>
     </body>
   </file>
 </xliff>

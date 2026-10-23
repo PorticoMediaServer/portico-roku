@@ -1,0 +1,47 @@
+' Ruling 28 TV interaction state. No media-server request is ever used for Hosted credentials.
+import "pkg:/source/core/HostedCredentialOwner.bs"
+
+function TVSignInFactorDigits() as integer
+    return 6
+end function
+
+function TVSignInDigit(value as string, key as string, count as integer) as object
+    if not MatchesPattern(value, "^[0-9]*$") or Len(value) > count then value = ""
+    complete = false
+    if key = "delete" then
+        if Len(value) > 0 then value = Left(value, Len(value) - 1)
+    else if MatchesPattern(key, "^[0-9]$") and Len(value) < count then
+        value = value + key
+        complete = Len(value) = count
+    end if
+    return { value: value, complete: complete }
+end function
+
+function TVSignInLocalCurrent(captured as dynamic, current as dynamic) as boolean
+    if not SessionRequiresLocal(captured).ok or not SessionRequiresLocal(current).ok then return false
+    if not IsObject(captured.pin) or not IsObject(current.pin) then return false
+    if not IsText(captured.origin, 2048) or not IsText(captured.pin.serverId, 256) or not IsText(captured.pin.publicKey, 256) then return false
+    if not IsText(current.origin, 2048) or not IsText(current.pin.serverId, 256) or not IsText(current.pin.publicKey, 256) then return false
+    return captured.origin = current.origin and captured.pin.serverId = current.pin.serverId and captured.pin.publicKey = current.pin.publicKey
+end function
+
+function TVSignInRecoveryKeys() as object
+    keys = []
+    for index = 0 to 25
+        keys.push(Chr(65 + index))
+    end for
+    keys.push("-")
+    for each key in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "space", "delete", "clear"]
+        keys.push(key)
+    end for
+    return keys
+end function
+
+function TVSignInRecoveryEdit(value as string, key as string) as string
+    if key = "delete" then return Left(value, Max(0, Len(value) - 1))
+    if key = "clear" then return ""
+    if Len(value) >= 128 then return value
+    if key = "space" then return value + " "
+    if MatchesPattern(key, "^[A-Z0-9-]$") then return value + key
+    return value
+end function

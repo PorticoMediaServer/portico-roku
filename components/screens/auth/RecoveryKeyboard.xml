@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ruling28 recovery entry uses connect36's own uppercase, number and hyphen key set. -->
+<component name="AuthRecoveryKeyboard" extends="Group">
+    <interface>
+        <field id="value" type="string" value="" alwaysNotify="true" />
+        <function name="focusEntry" />
+    </interface>
+</component>

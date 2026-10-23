@@ -1,0 +1,147 @@
+import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/core/TVSignIn.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Focus.bs"
+
+sub init()
+    m.boxes = m.top.createChild("Group")
+    m.cells = []
+    for index = 0 to TVSignInFactorDigits() - 1
+        cell = m.boxes.createChild("Group")
+        fill = cell.createChild("Poster")
+        StyleShape(fill, TVSignInMetrics.boxWidth, TVSignInMetrics.boxHeight, TVSignInMetrics.boxRadius, TVSignInMetrics.fieldFill)
+        border = cell.createChild("Poster")
+        text = MakeText(cell, "title")
+        text.sizeOverride = TVSignInMetrics.keyboardSize
+        text.lineHeightOverride = TVSignInMetrics.boxHeight
+        text.maxWidth = TVSignInMetrics.boxWidth
+        text.height = TVSignInMetrics.boxHeight
+        text.align = "center"
+        caret = cell.createChild("Poster")
+        StyleShape(caret, TVSignInMetrics.caretWidth, TVSignInMetrics.boxCaretHeight, TVSignInMetrics.caretRadius, Theme.colors.accentStrong)
+        Place(caret, (TVSignInMetrics.boxWidth - TVSignInMetrics.caretWidth) / 2, (TVSignInMetrics.boxHeight - TVSignInMetrics.boxCaretHeight) / 2)
+        Place(cell, index * (TVSignInMetrics.boxWidth + TVSignInMetrics.boxGap), 0)
+        m.cells.push({ border: border, text: text, caret: caret })
+    end for
+    m.keys = m.top.createChild("Group")
+    m.buttons = []
+    keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "delete", "0"]
+    for index = 0 to keys.count() - 1
+        node = m.keys.createChild("UiFocusable")
+        node.addFields({ factorKey: keys[index] })
+        node.controlWidth = TVSignInMetrics.padKeyWidth
+        node.controlHeight = TVSignInMetrics.padKeyHeight
+        node.radius = TVSignInMetrics.padRadius
+        node.focusScale = TVSignInMetrics.padScale
+        fill = node.createChild("Poster")
+        label = MakeText(node, "title")
+        label.sizeOverride = TVSignInMetrics.padSize
+        label.lineHeightOverride = TVSignInMetrics.padKeyHeight
+        label.maxWidth = TVSignInMetrics.padKeyWidth
+        label.height = TVSignInMetrics.padKeyHeight
+        label.align = "center"
+        label.value = keys[index]
+        if keys[index] = "delete" then
+            label.visible = false
+            icon = MakeIcon(node, "backspace", TVSignInMetrics.padSize, Theme.colors.textSecondary)
+            Place(icon, (TVSignInMetrics.padKeyWidth - TVSignInMetrics.padSize) / 2, (TVSignInMetrics.padKeyHeight - TVSignInMetrics.padSize) / 2)
+        end if
+        node.observeField("pressed", "onFactorKey")
+        node.observeField("isFocused", "onFactorStyle")
+        column = index mod TVSignInMetrics.padColumns
+        row = Int(index / TVSignInMetrics.padColumns)
+        Place(node, column * (TVSignInMetrics.padKeyWidth + TVSignInMetrics.padGap), row * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap))
+        m.buttons.push({ node: node, fill: fill, label: label })
+    end for
+    width = TVSignInMetrics.padColumns * TVSignInMetrics.padKeyWidth + (TVSignInMetrics.padColumns - 1) * TVSignInMetrics.padGap
+    m.recovery = m.keys.createChild("UiButton")
+    m.recovery.variant = "secondary"
+    m.recovery.label = T("roku.tvSignIn.recovery")
+    m.recovery.fillWidth = width
+    m.recovery.observeField("pressed", "onFactorRecovery")
+    rows = Int((keys.count() + TVSignInMetrics.padColumns - 1) / TVSignInMetrics.padColumns)
+    top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) - TVSignInMetrics.padGap + TVSignInMetrics.padLinkGap
+    Place(m.recovery, 0, top)
+    Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
+    m.timer = m.top.createChild("Timer")
+    m.timer.duration = TVSignInMetrics.caretHalfPeriod
+    m.timer.repeat = true
+    m.timer.observeField("fire", "onFactorBlink")
+    m.timer.control = "start"
+    onFactorStyle()
+    onFactorBoxes()
+end sub
+
+sub onFactorBoxes()
+    if m.cells = invalid then return
+    Place(m.boxes, TVSignInMetrics.left, m.top.boxTop)
+    for index = 0 to m.cells.count() - 1
+        cell = m.cells[index]
+        active = index = Len(m.top.value) and not m.top.busy
+        color = Theme.colors.lineStrong
+        if active then color = Theme.colors.accentStrong
+        StyleRing(cell.border, TVSignInMetrics.boxWidth, TVSignInMetrics.boxHeight, TVSignInMetrics.boxRadius, TVSignInMetrics.boxBorder, color)
+        cell.text.value = Mid(m.top.value, index + 1, 1)
+        cell.caret.visible = active
+    end for
+end sub
+
+sub onFactorBlink()
+    for index = 0 to m.cells.count() - 1
+        caret = m.cells[index].caret
+        if index = Len(m.top.value) and not m.top.busy then caret.visible = not caret.visible
+    end for
+end sub
+
+sub onFactorStyle()
+    for each item in m.buttons
+        fill = TVSignInMetrics.padFill
+        if item.node.isFocused then fill = TVSignInMetrics.padFocusFill
+        StyleShape(item.fill, TVSignInMetrics.padKeyWidth, TVSignInMetrics.padKeyHeight, TVSignInMetrics.padRadius, fill)
+        item.label.tone = "secondary"
+        if item.node.isFocused then item.label.tone = "primary"
+    end for
+end sub
+
+sub onFactorBusy()
+    if m.buttons = invalid then return
+    for each item in m.buttons
+        item.node.busy = m.top.busy
+    end for
+    m.recovery.busy = m.top.busy
+    onFactorBoxes()
+end sub
+
+sub onFactorKey(event as object)
+    if m.top.busy then return
+    nextValue = TVSignInDigit(m.top.value, event.getRoSGNode().factorKey, TVSignInFactorDigits())
+    m.top.value = nextValue.value
+    if nextValue.complete then m.top.submitted = true
+end sub
+
+sub erase()
+    if not m.top.busy then m.top.value = TVSignInDigit(m.top.value, "delete", TVSignInFactorDigits()).value
+end sub
+
+sub onFactorRecovery()
+    m.top.recoveryPressed = true
+end sub
+
+sub focusEntry()
+    FocusOn(m.buttons[0].node)
+end sub
+
+sub leave()
+    m.timer.control = "stop"
+    m.top.value = ""
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if key = "play" or key = "pause" or key = "playpause" then
+        if press then erase()
+        return true
+    end if
+    return false
+end function

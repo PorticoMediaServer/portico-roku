@@ -9,6 +9,7 @@ import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/core/Messages.bs"
+import "pkg:/source/ui/TVSignInMetrics.bs"
 
 sub init()
     m.labelNode = MakeText(m.top, Theme.spec.field.label.role, "secondary")
@@ -17,12 +18,20 @@ sub init()
     m.fill = m.control.createChild("Poster")
     m.border = m.control.createChild("Poster")
     m.valueNode = MakeText(m.control, Theme.spec.field.text)
+    m.caret = m.control.createChild("Poster")
+    m.caret.visible = false
+    m.caretTimer = m.top.createChild("Timer")
+    m.caretTimer.duration = TVSignInMetrics.caretHalfPeriod
+    m.caretTimer.repeat = true
+    m.caretTimer.observeField("fire", "onFieldCaret")
     m.errorIcon = m.top.createChild("Poster")
     m.noteNode = MakeText(m.top, Theme.spec.field.help.role, "tertiary")
     m.noteNode.lines = 0
     m.control.observeField("isFocused", "onFieldLayout")
     m.control.observeField("pressed", "edit")
     m.dialog = invalid
+    m.confirmedValue = invalid
+    m.abandoned = false
 end sub
 
 sub onFieldLayout()
@@ -38,6 +47,25 @@ sub onFieldLayout()
     height = Theme.spec.field.height
     radius = Theme.spec.field.radius
     focused = m.control.isFocused
+    padding = Theme.spec.field.paddingX
+    borderWidth = Theme.spec.field.borderWidth
+    m.control.ring = not m.top.tvAuth
+    m.control.focusScale = Theme.apple.fieldFocusScale
+    if m.top.tvAuth then
+        y = TVSignInMetrics.fieldLabelOffset
+        height = TVSignInMetrics.fieldHeight
+        radius = TVSignInMetrics.fieldRadius
+        padding = TVSignInMetrics.fieldPadding
+        borderWidth = TVSignInMetrics.fieldBorder
+        m.labelNode.role = "title"
+        m.labelNode.tone = "tertiary"
+        m.labelNode.sizeOverride = TVSignInMetrics.fieldLabelSize
+        m.labelNode.lineHeightOverride = TVSignInMetrics.fieldLabelOffset
+        m.valueNode.role = "bodyStrong"
+        m.valueNode.sizeOverride = TVSignInMetrics.fieldSize
+        m.valueNode.lineHeightOverride = TVSignInMetrics.fieldHeight
+        m.control.focusScale = 1
+    end if
     Place(m.control, 0, y)
     m.control.radius = radius
     m.control.controlWidth = width
@@ -49,9 +77,14 @@ sub onFieldLayout()
         fill = ThemeColor(Theme.spec.field.fill.focus)
         border = ThemeColor(Theme.spec.field.border.focus)
     end if
+    if m.top.tvAuth then
+        fill = TVSignInMetrics.fieldFill
+        border = Theme.colors.lineStrong
+        if focused then border = Theme.colors.accentStrong
+    end if
     if m.top.error <> "" then border = ThemeColor(Theme.spec.field.border.invalid_)
     StyleShape(m.fill, width, height, radius, fill)
-    StyleRing(m.border, width, height, radius, Theme.spec.field.borderWidth, border)
+    StyleRing(m.border, width, height, radius, borderWidth, border)
 
     ' A placeholder gives an example, never the field's identity again (PC-VISUAL §11.3).
     placeholder = m.top.placeholder
@@ -64,9 +97,20 @@ sub onFieldLayout()
         if m.top.secure then shown = String(Min(Len(value), Theme.apple.fieldSecureMax), "•")
         m.valueNode.tint = Theme.colors.text
     end if
-    m.valueNode.maxWidth = width - Theme.spec.field.paddingX * 2
+    m.valueNode.maxWidth = width - padding * 2
     m.valueNode.value = shown
-    Place(m.valueNode, Theme.spec.field.paddingX, (height - m.valueNode.height) / 2)
+    Place(m.valueNode, padding, (height - m.valueNode.height) / 2)
+    showCaret = m.top.tvAuth and focused and m.dialog = invalid
+    m.caret.visible = showCaret
+    if showCaret then
+        StyleShape(m.caret, TVSignInMetrics.caretWidth, TVSignInMetrics.caretHeight, TVSignInMetrics.caretRadius, Theme.colors.accentStrong)
+        textWidth = 0
+        if value <> "" then textWidth = TextWidth(m.valueNode)
+        Place(m.caret, Min(width - padding, padding + textWidth + TVSignInMetrics.caretGap), (height - TVSignInMetrics.caretHeight) / 2)
+        m.caretTimer.control = "start"
+    else
+        m.caretTimer.control = "stop"
+    end if
     y = y + height
 
     note = m.top.hint
@@ -93,9 +137,18 @@ sub onFieldLayout()
     m.top.fieldHeight = y
 end sub
 
+sub onFieldCaret()
+    if m.top.tvAuth and m.control.isFocused and m.dialog = invalid then m.caret.visible = not m.caret.visible
+end sub
+
 ' Opens Roku's keyboard for this field.
 sub edit()
     if not m.top.editable or m.dialog <> invalid then return
+    if m.top.customEntry then
+        m.top.editRequested = true
+        return
+    end if
+    m.abandoned = false
     dialog = CreateObject("roSGNode", "StandardKeyboardDialog")
     title = m.top.label
     if title = "" then title = m.top.placeholder
@@ -122,21 +175,39 @@ sub edit()
     dialog.observeField("buttonSelected", "onFieldDialogButton")
     dialog.observeField("wasClosed", "onFieldDialogClosed")
     m.dialog = dialog
+    m.confirmedValue = invalid
+    onFieldLayout()
     m.top.getScene().dialog = dialog
 end sub
 
 sub onFieldDialogButton()
     if m.dialog = invalid then return
     confirmed = m.dialog.buttonSelected = 0
-    text = m.dialog.text
+    if confirmed then m.confirmedValue = m.dialog.text
+    m.dialog.text = ""
     m.dialog.close = true
-    if confirmed then
-        m.top.value = text
-        m.top.submitted = true
-    end if
 end sub
 
 sub onFieldDialogClosed()
     m.dialog = invalid
+    if m.abandoned then return
     m.control.setFocus(true)
+    if m.confirmedValue <> invalid then
+        value = m.confirmedValue
+        m.confirmedValue = invalid
+        m.top.value = value
+        m.top.submitted = true
+    end if
+    onFieldLayout()
+end sub
+
+sub cancelEdit()
+    m.abandoned = true
+    m.confirmedValue = invalid
+    if m.dialog <> invalid then
+        m.dialog.text = ""
+        m.dialog.close = true
+    end if
+    m.caretTimer.control = "stop"
+    m.caret.visible = false
 end sub

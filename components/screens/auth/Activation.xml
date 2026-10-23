@@ -4,6 +4,8 @@
     <interface>
         <field id="directPressed" type="boolean" value="false" alwaysNotify="true" />
         <field id="approved" type="boolean" value="false" alwaysNotify="true" />
+        <field id="showCode" type="boolean" value="false" />
+        <field id="credentialsPressed" type="boolean" value="false" alwaysNotify="true" />
         <function name="enter" />
         <function name="leave" />
         <function name="back" />

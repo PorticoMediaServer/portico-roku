@@ -52,6 +52,7 @@ sub init()
 end sub
 
 sub enter()
+    if m.top.showCode and not m.session.hasAccount then ActivationStart()
     onActivationLayout()
     m.frame.callFunc("focusContent", m.account)
 end sub
@@ -152,8 +153,14 @@ sub onActivationLayout()
     end if
     m.panel.phase = state.phase
 
-    m.account.visible = not m.started
-    m.account.focusable = not m.started
+    m.account.visible = true
+    m.account.focusable = true
+    m.account.label = T("accounts.signIn.portico")
+    m.direct.label = T("accounts.signIn.local")
+    if m.started then
+        m.account.label = T("accounts.signIn.onTV")
+        m.direct.label = T("action.back")
+    end if
     m.panel.visible = m.started
     rowGap = Theme.space.md
     rowAlign = "center"
@@ -180,16 +187,23 @@ sub onActivationDismiss()
 end sub
 
 sub onActivationAccount()
-    if m.started then return
+    if m.started then
+        m.top.credentialsPressed = true
+        return
+    end if
     if m.session.hasAccount then
         m.session.callFunc("requestAccount")
         return
     end if
     ActivationStart()
     onActivationLayout()
-    m.frame.callFunc("focusContent", m.direct)
+    m.frame.callFunc("focusContent", m.account)
 end sub
 
 sub onActivationDirect()
+    if m.started then
+        back()
+        return
+    end if
     m.top.directPressed = true
 end sub

@@ -1,0 +1,74 @@
+import "pkg:/source/core/TVSignIn.bs"
+
+sub Test_TVSignIn_sixthDigitSubmitsOnceAndPlayPauseCanDelete()
+    value = ""
+    for each key in ["1", "2", "3", "4", "5"]
+        nextValue = TVSignInDigit(value, key, TVSignInFactorDigits())
+        AssertEqual(nextValue.complete, false)
+        value = nextValue.value
+    end for
+    sixth = TVSignInDigit(value, "6", TVSignInFactorDigits())
+    AssertEqual(sixth.value, "123456")
+    AssertTrue(sixth.complete)
+    AssertEqual(TVSignInDigit(sixth.value, "7", TVSignInFactorDigits()).complete, false)
+    deleted = TVSignInDigit(sixth.value, "delete", TVSignInFactorDigits())
+    AssertEqual(deleted.value, "12345")
+    AssertEqual(deleted.complete, false)
+    AssertEqual(TVSignInDigit("", "delete", TVSignInFactorDigits()).value, "")
+    AssertEqual(TVSignInDigit("", "@", TVSignInFactorDigits()).value, "")
+end sub
+
+sub Test_TVSignIn_localFormCannotFollowAnotherOriginOrPorticoKind()
+    ctx = TestContext()
+    connection = { signIn: "local", origin: ctx.base, pin: TestPin(ctx) }
+    AssertTrue(TVSignInLocalCurrent(connection, ParseJson(FormatJson(connection))))
+    for each key in ["origin", "signIn"]
+        current = ParseJson(FormatJson(connection))
+        current[key] = "portico"
+        AssertEqual(TVSignInLocalCurrent(connection, current), false)
+    end for
+    current = ParseJson(FormatJson(connection))
+    current.pin.serverId = "different_server"
+    AssertEqual(TVSignInLocalCurrent(connection, current), false)
+    current = ParseJson(FormatJson(connection))
+    current.pin.publicKey = "different_key"
+    AssertEqual(TVSignInLocalCurrent(connection, current), false)
+    AssertEqual(TVSignInLocalCurrent(invalid, connection), false)
+    AssertEqual(TVSignInLocalCurrent(connection, {}), false)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_TVSignIn_recoveryKeyboardHasOnlyTheDrawnSetAndBoundedEditing()
+    keys = TVSignInRecoveryKeys()
+    AssertEqual(keys.count(), 40)
+    AssertEqual(keys[0], "A")
+    AssertEqual(keys[25], "Z")
+    AssertEqual(keys[26], "-")
+    AssertEqual(ArrayIncludes(keys, "a"), false)
+    AssertEqual(ArrayIncludes(keys, "@"), false)
+    AssertEqual(ArrayIncludes(keys, "."), false)
+    value = ""
+    for each key in ["7", "K", "Q", "M", "-", "4", "T", "X", "P"]
+        value = TVSignInRecoveryEdit(value, key)
+    end for
+    AssertEqual(value, "7KQM-4TXP")
+    AssertEqual(TVSignInRecoveryEdit(value, "delete"), "7KQM-4TX")
+    AssertEqual(TVSignInRecoveryEdit(value, "clear"), "")
+    AssertEqual(TVSignInRecoveryEdit(value, "space"), value + " ")
+    AssertEqual(TVSignInRecoveryEdit(value, "@"), value)
+    AssertEqual(Len(TVSignInRecoveryEdit(String(128, "A"), "Z")), 128)
+end sub
+
+sub Test_TVSignIn_hostedEmailUsesOnlyTheActualHostedNativeLogin()
+    ctx = TestContext()
+    owner = TestHostedCredentialOwner()
+    client = HostedCredentialsNew(ctx, TestHostedCredentialBinding(), owner)
+    email = "a.long.account.address.that.exceeds.thirty.two@example.com"
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions", 200, TestGrant())
+    AssertTrue(client.login(email, "test-password", ctx.requestId).ok)
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ctx.transport.requests[0].url, ctx.hostedUrl + "/v1/sessions")
+    AssertEqual(ParseJson(ctx.transport.requests[0].body).username, email)
+    AssertEqual(ctx.transport.requests[0].headers["X-Portico-Continuation"], TestHostedCredentialBinding())
+    AssertEqual(owner.admissions.count(), 1)
+end sub

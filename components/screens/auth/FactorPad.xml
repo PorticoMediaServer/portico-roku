@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Composed by ruling 28 from auth17; this is a Portico pad, never a system PIN dialog. -->
+<component name="AuthFactorPad" extends="Group">
+    <interface>
+        <field id="value" type="string" value="" onChange="onFactorBoxes" />
+        <field id="boxTop" type="float" value="0" onChange="onFactorBoxes" />
+        <field id="busy" type="boolean" value="false" onChange="onFactorBusy" />
+        <field id="submitted" type="boolean" value="false" alwaysNotify="true" />
+        <field id="recoveryPressed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="focusEntry" />
+        <function name="erase" />
+        <function name="leave" />
+    </interface>
+</component>
