@@ -74,7 +74,9 @@ sub init()
     m.recovery.size = "lg"
     m.recovery.authAppearance = true
     m.recovery.label = T("roku.tvSignIn.recovery")
-    m.recovery.fillWidth = width
+    ' A composed longer label keeps the drawn font/padding and its CSS intrinsic minimum;
+    ' it must not ellipsize or shrink the words to the three fixed key columns.
+    m.recovery.fillWidth = Max(width, m.recovery.controlWidth)
     m.recovery.observeField("pressed", "onFactorRecovery")
     rows = Int((keys.count() + TVSignInMetrics.padColumns - 1) / TVSignInMetrics.padColumns)
     top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) - TVSignInMetrics.padGap + TVSignInMetrics.padLinkGap
