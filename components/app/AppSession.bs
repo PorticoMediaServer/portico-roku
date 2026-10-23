@@ -342,6 +342,7 @@ end sub
 
 sub cancelSwitch()
     if not m.top.switching then return
+    cancelStep()
     if m.switchBack <> invalid then
         m.top.connection = m.switchBack.connection
         m.top.origin = m.switchBack.origin
