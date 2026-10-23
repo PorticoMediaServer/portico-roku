@@ -5,6 +5,7 @@
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Hosted.bs"
 import "pkg:/source/core/TVConsent.bs"
+import "pkg:/source/core/IdentityRecovery.bs"
 import "pkg:/source/core/Messages.bs"
 
 sub init()
@@ -14,6 +15,7 @@ sub init()
     m.accountSession = invalid
     m.details = invalid
     m.afterConnect = invalid
+    m.recoverySerial = 0
 end sub
 
 sub SessionRun(job as object)
@@ -35,7 +37,30 @@ sub onSessionResult(event as object)
     m.tasks = kept
     m.top.busy = m.tasks.count() > 0
     kind = result.kindOfJob
-    if kind = "reviewTVConsent" then
+    if kind = "retryIdentity" or kind = "forgetIdentity" then
+        if result.recoverySerial <> m.recoverySerial or m.top.phase <> "identity" then return
+        if kind = "forgetIdentity" then
+            if result.ok then
+                m.top.connection = invalid
+                m.top.connected = false
+                m.top.viewer = invalid
+                m.top.token = ""
+                m.top.origin = ""
+                m.top.username = ""
+                m.top.note = ""
+                useElsewhere()
+            end if
+        else if result.source = "connect" then
+            SessionConnected(result)
+            if result.ok then
+                m.top.hasRecovery = false
+                m.top.phase = "signedOut"
+            end if
+        else
+            if result.ok then SessionRestored(result)
+        end if
+        return
+    else if kind = "reviewTVConsent" then
         if result.ok then
             m.reviewedConsent = result.reviewed
             m.top.tvConsent = result.reviewed.preview
@@ -105,8 +130,12 @@ sub SessionRestored(result as object)
         m.top.phase = "unavailable"
         return
     end if
+    if state = "changed" or state = "unconfirmed" then
+        SessionShowIdentity(IdentityRecovery(SessionContextNew(), record, state, "restore"))
+        return
+    end if
     m.top.hasRecovery = false
-    if state = "ended" or state = "refused" or state = "changed" then
+    if state = "ended" or state = "refused" then
         ' The sign-in screen opens with the server and username filled in, and says why, quietly.
         if result.failure <> invalid then m.top.note = SignInMessage(result.failure)
         if m.top.note = "" then m.top.note = T("error.authentication")
@@ -157,6 +186,14 @@ end sub
 sub SessionConnected(result as object)
     if not result.ok then
         m.afterConnect = invalid
+        if IsString(result.failure.savedServerId) then
+            ctx = SessionContextNew()
+            record = SessionRecord(ctx, result.failure.savedServerId)
+            if record <> invalid then
+                SessionShowIdentity(IdentityRecovery(ctx, record, "changed", "connect", m.top.origin))
+                return
+            end if
+        end if
         m.top.error = SignInMessage(result.failure)
         return
     end if
@@ -413,6 +450,7 @@ sub SessionSignedOut(account as boolean)
     m.top.accountRequested = false
     m.top.viewer = invalid
     m.top.connection = invalid
+    m.top.connected = false
     m.top.hasPending = false
     m.top.directStep = ""
     m.top.error = ""
@@ -427,7 +465,30 @@ end sub
 ' "Use another server or account" from the saved-server screen: the sign-in screens open, and the
 ' saved server stays reachable from them.
 sub useElsewhere()
+    m.recoverySerial = m.recoverySerial + 1
+    m.top.hasRecovery = false
+    m.top.recovery = invalid
     m.top.phase = "signedOut"
+end sub
+
+sub SessionShowIdentity(recovery as dynamic)
+    if recovery = invalid then return
+    m.recoverySerial = m.recoverySerial + 1
+    m.credentials = invalid
+    m.afterConnect = invalid
+    m.top.recovery = recovery
+    m.top.hasRecovery = true
+    m.top.phase = "identity"
+end sub
+
+sub retryIdentity()
+    if m.top.busy or m.top.phase <> "identity" then return
+    SessionRun({ kind: "retryIdentity", recovery: m.top.recovery, recoverySerial: m.recoverySerial })
+end sub
+
+sub forgetIdentity()
+    if m.top.busy or m.top.phase <> "identity" then return
+    SessionRun({ kind: "forgetIdentity", recovery: m.top.recovery, recoverySerial: m.recoverySerial })
 end sub
 
 

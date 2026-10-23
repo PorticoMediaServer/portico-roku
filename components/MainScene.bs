@@ -55,6 +55,7 @@ function SceneWanted() as string
     phase = m.session.phase
     if phase = "restoring" then return "connecting"
     if phase = "unavailable" then return "ScreenSavedServerUnavailable"
+    if phase = "identity" then return "ScreenServerIdentity"
     if phase = "ready" and not m.session.hasPending and not m.session.switching then return "Shell"
     return "ScreenAuthFlow"
 end function

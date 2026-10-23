@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="IdentityHeading" extends="Group">
+    <interface>
+        <field id="value" type="string" value="" onChange="onHeadingLayout" />
+        <field id="textSize" type="float" value="0" onChange="onHeadingLayout" />
+        <field id="lineHeight" type="float" value="0" onChange="onHeadingLayout" />
+        <field id="tracking" type="float" value="0" onChange="onHeadingLayout" />
+        <field id="maxWidth" type="float" value="0" onChange="onHeadingLayout" />
+        <field id="contentHeight" type="float" value="0" />
+    </interface>
+</component>

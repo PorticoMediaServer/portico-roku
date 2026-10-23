@@ -2,7 +2,7 @@
 <!-- apps/native/src/app/session.tsx: the session the screens read and act through (m.global.session). -->
 <component name="AppSession" extends="Node">
     <interface>
-        <!-- restoring | signedOut | ready | unavailable -->
+        <!-- restoring | signedOut | ready | unavailable | identity -->
         <field id="phase" type="string" value="restoring" />
         <field id="busy" type="boolean" value="false" />
         <!-- The words for what went wrong, for the screen on show. -->
@@ -53,6 +53,8 @@
         <function name="signOut" />
         <function name="signOutAccount" />
         <function name="useElsewhere" />
+        <function name="retryIdentity" />
+        <function name="forgetIdentity" />
         <function name="clearError" />
         <field id="tvConsent" type="assocarray" />
         <function name="reviewTVConsent" />

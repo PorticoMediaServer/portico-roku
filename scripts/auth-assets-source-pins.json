@@ -14,7 +14,8 @@
       "commit": "69f2d45a972ff9ec1bd8743c760183026c92d555",
       "files": {
         "design/ui-v1/connect.html": "a1786d0009fd54a73c56aff5391b544d6dd21e231c39eb0bed7599f981c658ee",
-        "design/ui-v1/kit.css": "82385d5289e9ec193463716b3d39ffb334c5a302a40092a27a119b44231a1fdd"
+        "design/ui-v1/kit.css": "82385d5289e9ec193463716b3d39ffb334c5a302a40092a27a119b44231a1fdd",
+        "design/ui-v1/server-identity.html": "53faf150e31f2d9d148d6cb59ac902acebe98d2ebf246a700d64489af6c4c10b"
       }
     }
   ],

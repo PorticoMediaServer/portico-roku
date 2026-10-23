@@ -89,7 +89,7 @@ function SessionProbe(ctx as object, origin as string, pin as dynamic) as object
         return { ok: false, failure: { code: code, status: answer.status, message: "The connection could not be verified." } }
     end if
     checked = RouteProofCheck(answer.data, origin, nonce, pin, SessionNow(ctx))
-    if not checked.ok then return { ok: false, failure: { code: checked.code, status: 0, message: checked.message } }
+    if not checked.ok then return { ok: false, failure: { code: checked.code, status: 0, message: checked.message, differentServer: checked.differentServer = true } }
     return { ok: true, pin: checked.pin }
 end function
 
@@ -464,7 +464,11 @@ function SessionRestore(ctx as object) as object
     if record = invalid then return { ok: true, state: "none" }
     probe = SessionProbe(ctx, record["logicalOrigin"], record["pin"])
     if not probe.ok then
-        if probe.failure.code = "identity_mismatch" then return { ok: true, state: "changed", record: record, failure: probe.failure }
+        if probe.failure.code = "identity_mismatch" or probe.failure.code = "invalid_identity" then
+            state = "unconfirmed"
+            if record["signIn"] = "local" and probe.failure.differentServer = true then state = "changed"
+            return { ok: true, state: state, record: record, failure: probe.failure }
+        end if
         return { ok: true, state: "offline", record: record, failure: probe.failure }
     end if
     connection = { origin: record["logicalOrigin"], pin: record["pin"], signIn: record["signIn"], serverName: record["serverName"] }

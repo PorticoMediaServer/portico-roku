@@ -5,6 +5,7 @@ import "pkg:/source/core/Hosted.bs"
 import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/SignInStatus.bs"
 import "pkg:/source/core/MemberAccountMove.bs"
+import "pkg:/source/core/IdentityRecovery.bs"
 
 sub init()
     m.top.functionName = "work"
@@ -16,7 +17,15 @@ sub work()
     result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
     kind = job.kind
     if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then ctx.admissionRevision = SessionRevision(ctx)
-    if kind = "movePassword" or kind = "moveCodePreview" or kind = "moveRedeemLocal" or kind = "moveRedeemPortico" then
+    if kind = "retryIdentity" then
+        result = IdentityRecoveryRetry(ctx, job.recovery)
+        result.source = job.recovery.source
+        result.recovery = job.recovery
+        result.recoverySerial = job.recoverySerial
+    else if kind = "forgetIdentity" then
+        result = IdentityRecoveryForget(ctx, job.recovery)
+        result.recoverySerial = job.recoverySerial
+    else if kind = "movePassword" or kind = "moveCodePreview" or kind = "moveRedeemLocal" or kind = "moveRedeemPortico" then
         ctx.task = m.top
         mover = MemberAccountMoveNew(ctx, job.connection, MemberMoveTaskOptions(ctx, job.connection, job.expectedRevision))
         if mover <> invalid then

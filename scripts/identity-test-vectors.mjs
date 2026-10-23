@@ -38,11 +38,11 @@ vector('expired evidence',b=>{b.issuedAt='2026-10-23T11:59:00Z';b.expiresAt='202
 // signatures are valid, but the old fixture never recorded those digest/verdict operations.
 // Supply only independent crypto facts; do not rewrite that golden or its expectations.
 const legacy=JSON.parse(readFileSync(new URL('../test/fixtures/golden/route-identity.json',import.meta.url),'utf8'));
-for(const item of legacy.proofs.filter(item=>item.code==='route_stale')){
+for(const item of legacy.proofs.filter(item=>item.code==='route_stale'||item.name==='a different server at a pinned address')){
  const payload=Buffer.from(item.answer.payload,'base64url'),signature=Buffer.from(item.answer.signature,'base64url'),document=JSON.parse(payload),publicKey=Buffer.from(document.publicKey,'base64url');
  const key=createPublicKey({key:Buffer.concat([Buffer.from('302a300506032b6570032100','hex'),publicKey]),format:'der',type:'spki'});
  const d=digest('sha512',Buffer.concat([signature.subarray(0,32),publicKey,payload]));
- if(!verify(null,payload,key,signature))throw new Error('Preserved clock proof has invalid signature: '+item.name);
+ if(!verify(null,payload,key,signature))throw new Error('Preserved proof has invalid signature: '+item.name);
  verdicts.push({publicKey:publicKey.toString('hex'),signature:signature.toString('hex'),digest:d.toString('hex'),valid:true});
 }
 const path=fileURLToPath(new URL('../test/fixtures/identity-main38.json',import.meta.url)),temp=path+'.tmp';

@@ -1,0 +1,93 @@
+' The identity frame's live, localised heading. Its name is never baked into a bitmap.
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/IdentityFrameMetrics.bs"
+import "pkg:/source/ui/Nodes.bs"
+
+sub init()
+    m.measure = m.top.createChild("Label")
+    m.measure.opacity = 0
+    m.letters = m.top.createChild("Group")
+    onHeadingLayout()
+end sub
+
+function HeadingWidth(value as string) as float
+    m.measure.text = value
+    return m.measure.boundingRect().width + Max(0, Len(value) - 1) * m.top.tracking
+end function
+
+function HeadingJoin(words as object, first as integer, last as integer) as string
+    value = ""
+    for index = first to last
+        if value <> "" then value = value + " "
+        value = value + words[index]
+    end for
+    return value
+end function
+
+function HeadingLines(value as string) as object
+    width = m.top.maxWidth
+    if width <= 0 or HeadingWidth(value) <= width then return [value]
+    words = value.split(" ")
+    best = invalid
+    score = invalid
+    ' CSS text-wrap:balance's two-line case, chosen from measured live words.
+    for split = 1 to words.count() - 1
+        first = HeadingJoin(words, 0, split - 1)
+        last = HeadingJoin(words, split, words.count() - 1)
+        a = HeadingWidth(first)
+        b = HeadingWidth(last)
+        if a <= width and b <= width then
+            difference = Abs(a - b)
+            if score = invalid or difference < score then
+                best = [first, last]
+                score = difference
+            end if
+        end if
+    end for
+    if best <> invalid then return best
+    lines = []
+    line = ""
+    for index = 1 to Len(value)
+        letter = Mid(value, index, 1)
+        if line <> "" and HeadingWidth(line + letter) > width then
+            lines.push(line)
+            line = ""
+        end if
+        line = line + letter
+    end for
+    if line <> "" then lines.push(line)
+    return lines
+end function
+
+sub onHeadingLayout()
+    if m.letters = invalid or m.top.textSize <= 0 then return
+    font = CreateObject("roSGNode", "Font")
+    font.uri = "pkg:/fonts/manrope-800.ttf"
+    font.size = m.top.textSize
+    m.measure.font = font
+    m.letters.removeChildrenIndex(m.letters.getChildCount(), 0)
+    lineHeight = m.top.lineHeight
+    if lineHeight <= 0 then lineHeight = m.top.textSize
+    lines = HeadingLines(m.top.value)
+    y = (lineHeight - m.top.textSize * (1 - IdentityFrameMetrics.titleOffsetRatio * 2)) / 2
+    for each line in lines
+        prefix = ""
+        for index = 1 to Len(line)
+            letter = Mid(line, index, 1)
+            prefix = prefix + letter
+            m.measure.text = prefix
+            endX = m.measure.boundingRect().width
+            glyph = m.letters.createChild("Label")
+            glyph.font = font
+            glyph.text = letter
+            glyph.color = Theme.colors.text
+            glyph.height = lineHeight
+            glyph.vertAlign = "center"
+            glyph.translation = [endX - glyph.boundingRect().width + (index - 1) * m.top.tracking, y]
+        end for
+        y = y + lineHeight
+    end for
+    m.top.contentHeight = lines.count() * lineHeight
+end sub
