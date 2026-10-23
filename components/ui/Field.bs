@@ -29,6 +29,7 @@ sub init()
     m.dialog = invalid
     m.confirmedValue = invalid
     m.abandoned = false
+    m.customEditing = false
 end sub
 
 sub onFieldLayout()
@@ -43,7 +44,7 @@ sub onFieldLayout()
     end if
     height = Theme.spec.field.height
     radius = Theme.spec.field.radius
-    focused = m.control.isFocused
+    focused = m.control.isFocused or (m.top.customEntry and m.customEditing)
     padding = Theme.spec.field.paddingX
     borderWidth = Theme.spec.field.borderWidth
     m.control.ring = not m.top.tvAuth
@@ -147,6 +148,8 @@ end sub
 sub edit()
     if not m.top.editable or m.dialog <> invalid then return
     if m.top.customEntry then
+        m.customEditing = true
+        onFieldLayout()
         m.top.editRequested = true
         return
     end if
@@ -205,6 +208,7 @@ end sub
 
 sub cancelEdit()
     m.abandoned = true
+    m.customEditing = false
     m.confirmedValue = invalid
     if m.dialog <> invalid then
         m.dialog.text = ""
