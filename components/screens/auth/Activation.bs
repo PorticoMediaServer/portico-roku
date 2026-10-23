@@ -61,7 +61,7 @@ sub ActivationStart()
     m.started = true
     m.task = CreateObject("roSGNode", "SetupCodeTask")
     m.task.mode = "account"
-    m.task.observeField("state", "onActivationState")
+    m.task.observeField("codeState", "onActivationState")
     m.task.observeField("outcome", "onActivationOutcome")
     m.task.control = "RUN"
 end sub
@@ -69,7 +69,7 @@ end sub
 ' Leaving the screen cancels the code.
 sub leave()
     if m.task <> invalid then
-        m.task.unobserveField("state")
+        m.task.unobserveField("codeState")
         m.task.unobserveField("outcome")
         m.task.command = "stop"
         m.task = invalid
@@ -89,7 +89,7 @@ end function
 
 sub onActivationState()
     if m.task = invalid then return
-    m.state = m.task.state
+    m.state = m.task.codeState
     onActivationLayout()
 end sub
 

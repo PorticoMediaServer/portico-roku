@@ -53,6 +53,18 @@ sub Test_MemberAccountMove_ticketAndCodeBoundsAreIndependent()
     AssertEqual(ParseMemberMoveCode(preview, now).ok, false)
 end sub
 
+sub Test_MemberAccountMove_cooperativeCommandAndNativeStateBothCancel()
+    ctx = TestContext()
+    for each fields in [{ command: "stop", state: { phase: "waiting" } }, { command: "STOP", state: "run" }, { command: "", state: "stop" }, { command: "running", state: "STOP" }]
+        ctx.task = fields
+        AssertEqual(SessionAdmissionCurrent(ctx), false, "neither cancellation channel can mask the other")
+    end for
+    ctx.task = { command: "", state: { phase: "waiting" } }
+    AssertTrue(SessionAdmissionCurrent(ctx), "a setup-code projection is not a Task run state")
+    ctx.task = { command: "", state: "run" }
+    AssertTrue(SessionAdmissionCurrent(ctx))
+end sub
+
 sub Test_MemberAccountMove_inputsFailBeforeTransport()
     ctx = TestContext()
     options = MemberTestOptions()

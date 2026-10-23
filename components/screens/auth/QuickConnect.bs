@@ -48,14 +48,14 @@ sub QuickStart()
     m.task = CreateObject("roSGNode", "SetupCodeTask")
     m.task.mode = "server"
     m.task.connection = m.session.connection
-    m.task.observeField("state", "onQuickState")
+    m.task.observeField("codeState", "onQuickState")
     m.task.observeField("outcome", "onQuickOutcome")
     m.task.control = "RUN"
 end sub
 
 sub leave()
     if m.task <> invalid then
-        m.task.unobserveField("state")
+        m.task.unobserveField("codeState")
         m.task.unobserveField("outcome")
         m.task.command = "stop"
         m.task = invalid
@@ -68,7 +68,7 @@ end function
 
 sub onQuickState()
     if m.task = invalid then return
-    m.state = m.task.state
+    m.state = m.task.codeState
     onQuickLayout()
 end sub
 

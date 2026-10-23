@@ -30,7 +30,7 @@ sub work()
     createAfter = 0
     cleanupAfter = 0
     halted = false
-    m.top.state = SetupTaskState(authorization)
+    m.top.codeState = SetupTaskState(authorization)
     while true
         now = NowSeconds()
         if not SessionAdmissionCurrent(ctx) then
@@ -46,7 +46,7 @@ sub work()
             if (creating <> invalid or SetupCodeNeedsReplacing(authorization, now)) and now >= createAfter then
                 started = SetupBeginCreation(ctx, scope)
                 if not started.ok then
-                    m.top.state = { phase: "error" }
+                    m.top.codeState = { phase: "error" }
                     return
                 end if
                 creating = started.entry
@@ -60,7 +60,7 @@ sub work()
                 if created.ok then
                     committed = SetupCommitCreation(ctx, scope, creating, created.authorization)
                     if not committed.ok then
-                        m.top.state = { phase: "error" }
+                        m.top.codeState = { phase: "error" }
                         return
                     end if
                     if committed.retired then
@@ -71,7 +71,7 @@ sub work()
                         authorization = current.authorization
                         nextPoll = current.nextPollAt
                         failures = 0
-                        m.top.state = SetupTaskState(authorization)
+                        m.top.codeState = SetupTaskState(authorization)
                     end if
                 else
                     failures = failures + 1
@@ -81,7 +81,7 @@ sub work()
                     if authorization = invalid or SetupCodeExpired(authorization, NowSeconds()) then
                         phase = "creating"
                         if failures >= 2 then phase = "error"
-                        m.top.state = { phase: phase }
+                        m.top.codeState = { phase: phase }
                     end if
                 end if
             else if authorization <> invalid and now >= nextPoll then
@@ -98,7 +98,7 @@ sub work()
                 end if
                 if polled.next = "approved" then
                     SetupJournalAccepted(ctx, scope, account, polled)
-                    m.top.state = { phase: "approved" }
+                    m.top.codeState = { phase: "approved" }
                     if account then
                         m.top.outcome = { ok: true, account: polled.grant.account }
                     else
@@ -112,7 +112,7 @@ sub work()
                     createAfter = 0
                     if polled.next = "denied" then
                         halted = true
-                        m.top.state = { phase: "denied" }
+                        m.top.codeState = { phase: "denied" }
                     end if
                 else
                     authorization.interval = polled.interval
@@ -133,7 +133,7 @@ sub work()
                 halted = false
                 failures = 0
                 createAfter = 0
-                if authorization = invalid then m.top.state = { phase: "creating" }
+                if authorization = invalid then m.top.codeState = { phase: "creating" }
             end if
         end if
     end while
