@@ -10,9 +10,9 @@ const app=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const build=process.env.PORTICO_BUILD_DIR;
 const output=process.env.PORTICO_RUNNER_OUTPUT;
 const state=process.env.ROKU_VISUAL_STATE??'identity';
-if(!['identity','frontdoor','hosted-form','local-form','factor','recovery','required-factor','required-password'].includes(state))throw new Error('Unknown visual state');
+if(!['identity','frontdoor','hosted-form','local-form','factor','recovery','required-factor','required-password','profile-pin','forgot-pin'].includes(state))throw new Error('Unknown visual state');
 const credentials=!['identity','frontdoor'].includes(state);
-const captures=credentials?[state+'.jpg']:state==='identity'?['identity-3.jpg','identity-4.jpg','identity-return.jpg']:['frontdoor-primary.jpg','frontdoor-local.jpg','frontdoor-return.jpg'];
+const captures=credentials?(state==='forgot-pin'?['forgot-pin.jpg','forgot-pin-return.jpg']:[state+'.jpg']):state==='identity'?['identity-3.jpg','identity-4.jpg','identity-return.jpg']:['frontdoor-primary.jpg','frontdoor-local.jpg','frontdoor-return.jpg'];
 if(!build||!output)throw new Error('Set owned PORTICO_BUILD_DIR and PORTICO_RUNNER_OUTPUT');
 mkdirSync(output,{recursive:true});
 const fixture=join(build,'visual-identity.zip');
@@ -124,10 +124,13 @@ try{
    await moveTo(targetRow,targetColumn);await page.keyboard.press('Enter');await page.waitForTimeout(250);
   }
   await moveTo(2,1);
- }else if(state==='factor'){
+ }else if(state==='forgot-pin'){
+  for(const key of ['ArrowDown','ArrowDown','ArrowDown','ArrowDown','Enter']){await page.keyboard.press(key);await settledCanvas(page);}
+ }else if(state==='factor'||state==='profile-pin'){
   for(const key of ['Enter','Enter','ArrowDown','ArrowDown']){await page.keyboard.press(key);await settledCanvas(page);}
  }
  await captureCanvas(page,captures[0]);
+ if(state==='forgot-pin'){await page.keyboard.press('Escape');await captureCanvas(page,captures[1]);}
  if(!credentials){
  for(const key of (state==='identity'?['ArrowRight','ArrowRight','Enter']:['ArrowRight'])){
   await page.keyboard.press(key);

@@ -6,7 +6,7 @@ from pathlib import Path
 
 source, destination = map(Path, sys.argv[1:3])
 state = sys.argv[3] if len(sys.argv) > 3 else "identity"
-assert state in ("identity", "frontdoor", "hosted-form", "local-form", "factor", "recovery", "required-factor", "required-password")
+assert state in ("identity", "frontdoor", "hosted-form", "local-form", "factor", "recovery", "required-factor", "required-password", "profile-pin", "forgot-pin")
 main = '''sub main(args as dynamic)
  screen = CreateObject("roSGScreen")
  port = CreateObject("roMessagePort")
@@ -32,7 +32,7 @@ end sub
 '''
 if state == "frontdoor":
     scene = scene.replace('"ScreenServerIdentity"', '"ScreenActivation"')
-credential = state in ("hosted-form", "local-form", "factor", "recovery", "required-factor", "required-password")
+credential = state in ("hosted-form", "local-form", "factor", "recovery", "required-factor", "required-password", "profile-pin", "forgot-pin")
 if credential:
     scene = '''sub init()
  m.top.backgroundUri = ""
@@ -69,6 +69,9 @@ sub VisualLayout(node as object, depth as integer)
  end if
 end sub
 '''
+    if state in ('profile-pin', 'forgot-pin'):
+        scene = scene.replace('screen = m.top.createChild("ScreenTVCredentials")', 'session.pending = { snapshot: { serverId: "fixture-only", account: { id: "fixture-account" }, profiles: [{ id: "fixture-profile", name: "Alex", art: "violet", revision: 1, pinRevision: 1, pinRequired: true }] }, accountSession: { sessionFamilyId: "fixture-family", viewer: { role: "account", accountId: "fixture-account", serverId: "fixture-only" } } }\n session.hasPending = true\n screen = m.top.createChild("ScreenTVProfilePin")\n screen.profile = { id: "fixture-profile", name: "Alex", art: "violet", revision: 1, pinRevision: 1, pinRequired: true }')
+        scene = scene.replace('screen.kind = "portico"', '')
     # The capture fixture owns these no-op callbacks. No product component or transport is edited.
     session_xml = '''<component name="VisualCredentialSession" extends="Node"><interface>
 <field id="busy" type="boolean" value="false"/><field id="error" type="string" value=""/>
@@ -76,11 +79,19 @@ end sub
 <field id="directStep" type="string" value=""/><field id="directFailure" type="assocarray"/>
 <field id="requiresTwoStepSetup" type="boolean" value="false"/>
 <field id="requiredSignIn" type="assocarray"/>
+<field id="pending" type="assocarray"/><field id="hasPending" type="boolean" value="false"/>
 <field id="connection" type="assocarray"/><field id="accountCredentialState" type="assocarray"/>
 <function name="beginAccountCredentials"/><function name="submitAccountCredentials"/>
 <function name="cancelAccountCredentials"/><function name="cancelStep"/>
+<function name="chooseProfile"/><function name="cancelProfileSelection"/>
 </interface><script type="text/brightscript" uri="pkg:/components/VisualCredentialSession.brs"/></component>'''
-    session_brs = '''sub beginAccountCredentials()
+    session_brs = '''sub chooseProfile(choice as object)
+ print "UNEXPECTED_PROFILE_SUBMISSION"
+end sub
+sub cancelProfileSelection()
+ print "UNEXPECTED_PROFILE_CANCEL"
+end sub
+sub beginAccountCredentials()
 end sub
 sub submitAccountCredentials(input as object)
 end sub
