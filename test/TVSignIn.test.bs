@@ -1,5 +1,48 @@
 import "pkg:/source/core/TVSignIn.bs"
 
+sub Test_TVSignIn_forgotPinKeepsThePickerAccountWithoutAuthorityInTheAddress()
+    ctx = TestContext()
+    connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
+    pending = { snapshot: TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)]), accountSession: TestSessionJson(ctx, "account") }
+    original = FormatJson(pending)
+    captured = TVProfilePickerBinding(connection, pending, "prof_1")
+    AssertTrue(captured <> invalid)
+    AssertTrue(TVProfilePickerCurrent(captured, connection, pending))
+    info = TVForgotPinInfo(captured, "Alex")
+    AssertTrue(HasExactKeys(info, ["kind", "profileName", "url", "address"]))
+    AssertEqual(info.kind, "forgot-pin")
+    AssertEqual(info.url, ctx.base + "/settings/profile")
+    AssertEqual(info.address, "192.168.1.20:32500/settings/profile")
+    AssertEqual(info.profileName, "Alex")
+    AssertEqual(FormatJson(pending), original, "opening/closing the public handoff does not replace the picker grant")
+    AssertEqual(ctx.transport.requests.count(), 0, "no polling, signout or profile selection")
+    AssertEqual(SessionRecord(ctx), invalid, "no viewer is admitted by the handoff")
+    fourth = TVSignInDigit("123", "4", TVProfilePinDigits())
+    AssertTrue(fourth.complete)
+    AssertEqual(fourth.value, "1234")
+    AssertEqual(TVSignInDigit("", "delete", TVProfilePinDigits()).value, "")
+end sub
+
+sub Test_TVSignIn_profilePinCannotCrossAnAccountFamilyServerOrProfileRevision()
+    ctx = TestContext()
+    connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
+    pending = { snapshot: TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)]), accountSession: TestSessionJson(ctx, "account") }
+    captured = TVProfilePickerBinding(connection, pending, "prof_1")
+    for each key in ["origin", "serverId", "publicKey", "accountId", "familyId", "profileId", "revision", "pinRevision"]
+        wrong = ParseJson(FormatJson(captured))
+        wrong[key] = "changed"
+        AssertEqual(TVProfilePickerCurrent(wrong, connection, pending), false, "reject stale " + key)
+    end for
+    AssertEqual(TVProfilePickerBinding(connection, pending, "unknown-profile"), invalid)
+    pending.accountSession.viewer.role = "viewer"
+    AssertEqual(TVProfilePickerBinding(connection, pending, "prof_1"), invalid, "unsigned picker cannot promote a viewer grant")
+    pending.switching = true
+    AssertTrue(TVProfilePickerBinding(connection, pending, "prof_1") <> invalid, "an already signed-in switch retains its captured viewer grant")
+    pending.snapshot.twoStepSetupRequired = true
+    AssertEqual(TVProfilePickerBinding(connection, pending, "prof_1"), invalid)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
 sub Test_TVSignIn_sharedErrorsKeepLocalAndHostedAccountWordsSeparate()
     globals = GetGlobalAA()
     previous = globals.messageCatalogue

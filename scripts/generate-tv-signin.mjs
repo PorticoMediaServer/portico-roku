@@ -10,7 +10,7 @@ const root = process.env.PORTICO_INTERNAL_ROOT;
 if (!root) throw new Error('Set PORTICO_INTERNAL_ROOT to the immutable design Git repository');
 const commit = '69f2d45a972ff9ec1bd8743c760183026c92d555';
 const load = name => execFileSync('git', ['show', `${commit}:design/ui-v1/${name}`], {cwd: root, maxBuffer: 4 * 1024 * 1024}).toString();
-const auth = load('auth.html'), connect = load('connect.html');
+const auth = load('auth.html'), connect = load('connect.html'), tvMore = load('tv-more.html');
 const serverRoot = process.env.PORTICO_SERVER_ROOT;
 if (!serverRoot) throw new Error('Set PORTICO_SERVER_ROOT for checked MAIN sign-in error copy');
 const serverPins = JSON.parse(readFileSync(join(app, 'scripts/accounts-source-pins.json')));
@@ -34,11 +34,17 @@ const messages = {
   'roku.tvSignIn.codeLead': 'Two-step verification is on for this account. Enter the code from your authenticator app.',
   'roku.tvSignIn.recovery': 'Lost your phone? Use a recovery code',
   'roku.tvSignIn.forgotPin': 'Forgot PIN?',
+  // Ruling34 supplies the sentence punctuation for tv-more24's drawn card line.
+  'roku.tvSignIn.profileHandoff': 'Manage profiles, PINs and two-step verification on your phone or computer.',
   'roku.tvSignIn.agreement': 'By continuing, you agree to Portico’s terms and privacy policy.',
   'roku.tvSignIn.space': 'Space',
   'roku.tvSignIn.clear': 'Clear'
 };
 for (const [id, text] of Object.entries(messages)) {
+  if (id.endsWith('.profileHandoff')) {
+    if (!tvMore.includes(text.slice(0, -1))) throw new Error('Missing tv-more24 handoff copy');
+    continue;
+  }
   const plain = (id.endsWith('.space') || id.endsWith('.clear') ? connect : auth).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
   if (!plain.includes(text)) throw new Error(`Approved frame text missing: ${id}`);
 }
@@ -73,7 +79,7 @@ const metrics = {
   boxWidth: 104, boxHeight: 116, boxGap: 18, boxRadius: 18, boxBorder: 2, boxCaretHeight: 52, boxDot: 24,
   pinFaceSide: 196, pinFaceLeft: 462, pinFaceTop: 292, pinInitialSize: 78,
   pinColumnLeft: 240, pinColumnWidth: 640, pinTitleSize: 52, pinTitleTop: 520, pinTitleHeight: 72, pinTitleTracking: -.04,
-  pinNameSize: 28, pinNameTop: 596, pinNameHeight: 40.6, pinBoxLeft: 325, pinBoxTop: 673,
+  pinNameSize: 28, pinNameTop: 596, pinNameHeight: 40.6, pinBoxLeft: 325, pinBoxTop: 673, pinHintGap: 44,
   keyboardColumns: 9, keyboardGap: 10, keyboardKeyHeight: 72, keyboardRadius: 14, keyboardSize: 28,
   keyboardSpaceSpan: 3, keyboardClearSpan: 2, keyboardFill: '0xEDF5FA0D'
   ,cardRight: 140, cardWidth: 720, cardTop: 52, cardSide: 56, cardBottom: 48, cardRadius: 28,

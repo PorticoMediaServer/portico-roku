@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- auth17; Forgot PIN is composed by ruling34. No native PIN dialog or enrollment. -->
+<component name="ScreenTVProfilePin" extends="Group">
+    <interface>
+        <field id="profile" type="assocarray" />
+        <field id="closed" type="boolean" value="false" alwaysNotify="true" />
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

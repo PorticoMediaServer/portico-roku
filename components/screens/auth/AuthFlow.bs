@@ -157,6 +157,7 @@ end sub
 
 function back() as boolean
     if m.session.hasPending then
+        if m.screen <> invalid and m.shown = "ScreenDirectProfiles" then return m.screen.callFunc("back")
         m.session.callFunc("cancelPending")
         return true
     end if

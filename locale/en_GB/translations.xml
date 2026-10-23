@@ -4504,6 +4504,10 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>roku.tvSignIn.forgotPin</source>
             <target>Forgot PIN?</target>
         </trans-unit>
+        <trans-unit id="roku.tvSignIn.profileHandoff">
+            <source>roku.tvSignIn.profileHandoff</source>
+            <target>Manage profiles, PINs and two-step verification on your phone or computer.</target>
+        </trans-unit>
         <trans-unit id="roku.tvSignIn.agreement">
             <source>roku.tvSignIn.agreement</source>
             <target>By continuing, you agree to Portico’s terms and privacy policy.</target>

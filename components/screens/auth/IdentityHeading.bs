@@ -73,6 +73,8 @@ sub onHeadingLayout()
     lines = HeadingLines(m.top.value)
     y = (lineHeight - m.top.textSize * (1 - IdentityFrameMetrics.titleOffsetRatio * 2)) / 2
     for each line in lines
+        left = 0
+        if m.top.centered and m.top.maxWidth > 0 then left = (m.top.maxWidth - HeadingWidth(line)) / 2
         prefix = ""
         for index = 1 to Len(line)
             letter = Mid(line, index, 1)
@@ -85,7 +87,7 @@ sub onHeadingLayout()
             glyph.color = Theme.colors.text
             glyph.height = lineHeight
             glyph.vertAlign = "center"
-            glyph.translation = [endX - glyph.boundingRect().width + (index - 1) * m.top.tracking, y]
+            glyph.translation = [left + endX - glyph.boundingRect().width + (index - 1) * m.top.tracking, y]
         end for
         y = y + lineHeight
     end for

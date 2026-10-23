@@ -10,6 +10,48 @@ function TVProfilePinDigits() as integer
     return 4
 end function
 
+' A public fence for the picker, not a grant. It contains no bearer/PIN and grants nothing.
+function TVProfilePickerBinding(connection as dynamic, pending as dynamic, profileId as string) as dynamic
+    if not IsObject(connection) or not IsObject(connection.pin) or not IsObject(pending) then return invalid
+    if not ArrayIncludes(["local", "portico"], connection.signIn) then return invalid
+    origin = RouteOrigin(connection.origin)
+    if not origin.ok or origin.origin <> connection.origin then return invalid
+    if not IsObject(pending.snapshot) or not IsObject(pending.snapshot.account) or not IsArray(pending.snapshot.profiles) then return invalid
+    if not IsObject(pending.accountSession) or not IsObject(pending.accountSession.viewer) then return invalid
+    session = pending.accountSession
+    snapshot = pending.snapshot
+    if snapshot.twoStepSetupRequired = true then return invalid
+    if session.viewer.role <> "account" then
+        if pending.switching <> true or not ArrayIncludes(["viewer", "admin", "owner"], session.viewer.role) then return invalid
+    end if
+    if session.viewer.accountId <> snapshot.account.id or session.viewer.serverId <> snapshot.serverId then return invalid
+    if connection.pin.serverId <> snapshot.serverId or not IsText(connection.pin.publicKey, 256) or not IsText(session.sessionFamilyId, 128) then return invalid
+    for each profile in snapshot.profiles
+        if profile.id = profileId then
+            if not IsText(profile.id, 128) or not IsRevision(profile.revision) or not IsRevision(profile.pinRevision) then return invalid
+            return { origin: origin.origin, serverId: snapshot.serverId, publicKey: connection.pin.publicKey, accountId: snapshot.account.id, familyId: session.sessionFamilyId, profileId: profile.id, revision: profile.revision, pinRevision: profile.pinRevision }
+        end if
+    end for
+    return invalid
+end function
+
+function TVProfilePickerCurrent(captured as dynamic, connection as dynamic, pending as dynamic) as boolean
+    if not IsObject(captured) then return false
+    current = TVProfilePickerBinding(connection, pending, captured.profileId)
+    if current = invalid then return false
+    for each key in ["origin", "serverId", "publicKey", "accountId", "familyId", "profileId", "revision", "pinRevision"]
+        if current[key] <> captured[key] then return false
+    end for
+    return true
+end function
+
+' Ruling34 keeps the account session. Only these public facts reach the QR composition.
+function TVForgotPinInfo(binding as object, profileName as string) as object
+    target = binding.origin + "/settings/profile"
+    address = CreateObject("roRegex", "^https?://", "i").replace(target, "")
+    return { kind: "forgot-pin", profileName: profileName, url: target, address: address }
+end function
+
 function TVSignInFailure(failure as dynamic, kind as string, serverName = "" as string) as string
     if not IsObject(failure) then return SignInMessage(failure)
     if ArrayIncludes(["invalid_credentials", "invalid_grant", "ambiguous_credentials"], failure.code) then

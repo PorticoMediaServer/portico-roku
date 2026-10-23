@@ -71,6 +71,7 @@ namespace TVSignInMetrics
     const pinNameHeight = 40.6
     const pinBoxLeft = 325
     const pinBoxTop = 673
+    const pinHintGap = 44
     const keyboardColumns = 9
     const keyboardGap = 10
     const keyboardKeyHeight = 72

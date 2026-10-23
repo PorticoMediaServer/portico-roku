@@ -9,6 +9,7 @@ import "pkg:/source/core/TVSignIn.bs"
 import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/IdentityRecovery.bs"
 import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Content.bs"
 
 sub init()
     m.tasks = []
@@ -90,8 +91,12 @@ sub onSessionResult(event as object)
         SessionOutcome(result)
     else if kind = "profiles" then
         if result.ok then
-            m.top.pending = { snapshot: result.snapshot, accountSession: { accessToken: m.top.viewer.token }, switching: true }
-            m.top.hasPending = true
+            record = SessionRecord(SessionContextNew(), result.snapshot.serverId)
+            binding = ViewerRequestBinding(m.top.viewer)
+            if record <> invalid and ViewerMatchesRequestBinding(record, binding) then
+                m.top.pending = { snapshot: result.snapshot, accountSession: record["session"], switching: true }
+                m.top.hasPending = true
+            end if
         else
             m.top.error = PresentError(result.failure, "profiles", { operation: "load" }).body
         end if
@@ -329,6 +334,10 @@ end sub
 ' {profileId, pin}
 sub chooseProfile(choice as object)
     if m.top.busy or not m.top.hasPending then return
+    if choice.pickerBinding <> invalid then
+        if not TVProfilePickerCurrent(choice.pickerBinding, m.top.connection, m.top.pending) then return
+        if choice.profileId <> choice.pickerBinding.profileId then return
+    end if
     m.top.error = ""
     pin = ""
     if choice.pin <> invalid then pin = choice.pin
@@ -336,7 +345,15 @@ sub chooseProfile(choice as object)
 end sub
 
 sub cancelPending()
+    SessionAdvance(SessionContextNew())
     m.top.hasPending = false
+    m.top.pending = invalid
+    m.top.error = ""
+end sub
+
+' Back from a submitting PIN fences a late grant while preserving the picker account.
+sub cancelProfileSelection()
+    SessionAdvance(SessionContextNew())
     m.top.error = ""
 end sub
 

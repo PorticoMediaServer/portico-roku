@@ -71,6 +71,7 @@ end sub
 
 sub enter()
     info = m.session.requiredSignIn
+    if m.top.profileHandoff <> invalid then info = m.top.profileHandoff
     if info = invalid then return
     m.why.value = info.serverName
     m.heading.value = T("web.twoStep.turnOnTitle")
@@ -78,6 +79,13 @@ sub enter()
     if info.kind = "password-change" then
         m.heading.value = T("web.direct.newPasswordTitle")
         m.lead.value = T("next.auth.tv.requiredPasswordBody", { server: info.serverName })
+    end if
+    if info.kind = "forgot-pin" then
+        m.why.value = info.profileName
+        m.heading.value = T("roku.tvSignIn.forgotPin")
+        m.lead.value = T("roku.tvSignIn.profileHandoff")
+        m.retry.label = T("accounts.signIn.back")
+        m.back.visible = false
     end if
     y = 0
     Place(m.why, 0, y)
@@ -87,7 +95,9 @@ sub enter()
     Place(m.lead, 0, y)
     y = y + TextHeight(m.lead) + TVSignInMetrics.leadGap
     Place(m.actions, 0, y)
-    height = StackRow([m.retry, m.back], 0, TVSignInMetrics.actionGap, TVSignInMetrics.columnWidth, 0, "start")
+    actions = [m.retry, m.back]
+    if info.kind = "forgot-pin" then actions = [m.retry]
+    height = StackRow(actions, 0, TVSignInMetrics.actionGap, TVSignInMetrics.columnWidth, 0, "start")
     Place(m.column, TVSignInMetrics.left, (Theme.screen.height - y - height) / 2)
     m.qr.value = info.url
     m.host.value = info.address
@@ -112,6 +122,10 @@ sub leave()
 end sub
 
 sub onRequiredRetry()
+    if m.top.profileHandoff <> invalid then
+        back()
+        return
+    end if
     m.top.retryPressed = true
 end sub
 
