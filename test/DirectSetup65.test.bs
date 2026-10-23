@@ -28,6 +28,22 @@ sub Test_DirectSetup65_retainsOnlyTheRestrictedTopLevelContinuation()
     AssertEqual(DirectSignInContinuation(parsed), "password-change")
 end sub
 
+sub Test_DirectSetup65_lateRestrictedOutcomeIsRetiredInsteadOfReopeningAuth()
+    ctx = TestContext()
+    ctx.admissionRevision = SessionRevision(ctx)
+    SessionAdvance(ctx)
+    raw = TestDirectRequiredSetup(ctx)
+    connection = { signIn: "local", origin: ctx.base, pin: TestPin(ctx), serverName: "Portico demo" }
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/sessions/current", 204)
+    result = SessionSignInOutcome(ctx, connection, { ok: true, data: raw })
+    AssertEqual(result.failure.code, "cancelled")
+    AssertEqual(result.accountSession, invalid)
+    AssertEqual(SessionRecord(ctx), invalid)
+    AssertEqual(TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current").count(), 1)
+    AssertEqual(ctx.transport.requests[0].headers.Authorization, invalid)
+end sub
+
 sub Test_DirectSetup65_viewerBooleanAndManagementEscalationsAreRefused()
     ctx = TestContext()
     raw = TestDirectRequiredSetup(ctx)
