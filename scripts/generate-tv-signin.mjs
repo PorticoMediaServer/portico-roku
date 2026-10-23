@@ -48,7 +48,7 @@ const px = (css, name) => {
   return Number(match[1]);
 };
 const metrics = {
-  left: 200, columnWidth: px(rule(auth, '.tvl'), 'width'),
+  left: px(rule(auth, '.screen.tv'), '--gutter'), columnWidth: px(rule(auth, '.tvl'), 'width'),
   wordmarkTop: 72, wordmarkHeight: 40,
   titleSize: px(rule(auth, '.tvl h1'), 'font-size'), titleTracking: -.045, titleGap: 22,
   whySize: 24, whyHeight: 34, whyGap: 14,

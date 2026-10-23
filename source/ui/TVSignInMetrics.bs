@@ -1,6 +1,6 @@
 ' Composed by ruling 28: immutable 69f2d45a972ff9ec1bd8743c760183026c92d555, auth8/9/17 + connect36.
 namespace TVSignInMetrics
-    const left = 200
+    const left = 120
     const columnWidth = 900
     const wordmarkTop = 72
     const wordmarkHeight = 40

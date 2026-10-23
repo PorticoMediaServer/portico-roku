@@ -1,4 +1,5 @@
 import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
 import "pkg:/source/Theme.bs"
 import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/core/TVSignIn.bs"
@@ -37,6 +38,12 @@ sub init()
         node.controlHeight = TVSignInMetrics.padKeyHeight
         node.radius = TVSignInMetrics.padRadius
         node.focusScale = TVSignInMetrics.padScale
+        node.ringInset = AuthFrameMetrics.ringInset
+        shadow = node.createChild("Poster")
+        shadow.uri = "pkg:/images/shapes/auth-focus.9.png"
+        shadow.width = TVSignInMetrics.padKeyWidth + AuthFrameMetrics.shadowMargin * 2
+        shadow.height = TVSignInMetrics.padKeyHeight + AuthFrameMetrics.shadowMargin * 2
+        Place(shadow, -AuthFrameMetrics.shadowMargin, -AuthFrameMetrics.shadowMargin)
         fill = node.createChild("Poster")
         label = MakeText(node, "title")
         label.sizeOverride = TVSignInMetrics.padSize
@@ -55,11 +62,13 @@ sub init()
         column = index mod TVSignInMetrics.padColumns
         row = Int(index / TVSignInMetrics.padColumns)
         Place(node, column * (TVSignInMetrics.padKeyWidth + TVSignInMetrics.padGap), row * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap))
-        m.buttons.push({ node: node, fill: fill, label: label })
+        m.buttons.push({ node: node, fill: fill, label: label, shadow: shadow })
     end for
     width = TVSignInMetrics.padColumns * TVSignInMetrics.padKeyWidth + (TVSignInMetrics.padColumns - 1) * TVSignInMetrics.padGap
     m.recovery = m.keys.createChild("UiButton")
     m.recovery.variant = "secondary"
+    m.recovery.size = "lg"
+    m.recovery.authAppearance = true
     m.recovery.label = T("roku.tvSignIn.recovery")
     m.recovery.fillWidth = width
     m.recovery.observeField("pressed", "onFactorRecovery")
@@ -89,6 +98,7 @@ sub onFactorStyle()
     for each item in m.buttons
         fill = TVSignInMetrics.padFill
         if item.node.isFocused then fill = TVSignInMetrics.padFocusFill
+        item.shadow.visible = item.node.isFocused
         StyleShape(item.fill, TVSignInMetrics.padKeyWidth, TVSignInMetrics.padKeyHeight, TVSignInMetrics.padRadius, fill)
         item.label.tone = "secondary"
         if item.node.isFocused then item.label.tone = "primary"

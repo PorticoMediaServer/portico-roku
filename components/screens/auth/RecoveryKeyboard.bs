@@ -1,4 +1,5 @@
 import "pkg:/source/ui/TVSignInMetrics.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
 import "pkg:/source/Theme.bs"
 import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/core/TVSignIn.bs"
@@ -26,9 +27,16 @@ sub init()
         node.controlHeight = TVSignInMetrics.keyboardKeyHeight
         node.radius = TVSignInMetrics.keyboardRadius
         node.focusScale = TVSignInMetrics.padScale
+        node.ringInset = AuthFrameMetrics.ringInset
+        shadow = node.createChild("Poster")
+        shadow.uri = "pkg:/images/shapes/auth-focus.9.png"
+        shadow.width = node.controlWidth + AuthFrameMetrics.shadowMargin * 2
+        shadow.height = node.controlHeight + AuthFrameMetrics.shadowMargin * 2
+        Place(shadow, -AuthFrameMetrics.shadowMargin, -AuthFrameMetrics.shadowMargin)
         fill = node.createChild("Poster")
         text = MakeText(node, "title", "secondary")
         text.sizeOverride = TVSignInMetrics.keyboardSize
+        if span > 1 then text.sizeOverride = TVSignInMetrics.fieldLabelSize
         text.lineHeightOverride = TVSignInMetrics.keyboardKeyHeight
         text.maxWidth = node.controlWidth
         text.align = "center"
@@ -43,7 +51,7 @@ sub init()
         Place(node, column * (unit + TVSignInMetrics.keyboardGap), row * (TVSignInMetrics.keyboardKeyHeight + TVSignInMetrics.keyboardGap))
         node.observeField("pressed", "onRecoveryKey")
         node.observeField("isFocused", "onRecoveryKeyStyle")
-        m.keys.push({ node: node, fill: fill })
+        m.keys.push({ node: node, fill: fill, text: text, shadow: shadow })
         column = column + span
     end for
     onRecoveryKeyStyle()
@@ -53,6 +61,10 @@ sub onRecoveryKeyStyle()
     for each key in m.keys
         fill = TVSignInMetrics.keyboardFill
         if key.node.isFocused then fill = TVSignInMetrics.padFocusFill
+        key.shadow.visible = key.node.isFocused
+        key.text.tone = "secondary"
+        if MatchesPattern(key.node.recoveryKey, "^[0-9]$") then key.text.tone = "tertiary"
+        if key.node.isFocused then key.text.tone = "primary"
         StyleShape(key.fill, key.node.controlWidth, key.node.controlHeight, TVSignInMetrics.keyboardRadius, fill)
     end for
 end sub
