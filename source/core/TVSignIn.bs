@@ -1,6 +1,7 @@
 ' Ruling 28 TV interaction state. No media-server request is ever used for Hosted credentials.
 import "pkg:/source/core/HostedCredentialOwner.bs"
 import "pkg:/source/core/Errors.bs"
+import "pkg:/source/core/Content.bs"
 
 function TVSignInFactorDigits() as integer
     return 6
@@ -8,6 +9,15 @@ end function
 
 function TVProfilePinDigits() as integer
     return 4
+end function
+
+' A late profile list cannot attach itself to a different current viewer/server/family.
+function TVProfileSwitchCurrent(record as dynamic, asked as dynamic, current as dynamic, snapshot as dynamic) as boolean
+    if record = invalid or asked = invalid or current = invalid or not IsObject(snapshot) then return false
+    if not IsText(asked.sessionFamilyId, 128) or not IsText(current.sessionFamilyId, 128) then return false
+    if not ViewerMatchesRequestBinding(record, asked) or not ViewerMatchesRequestBinding(record, current) then return false
+    if not IsObject(snapshot.account) then return false
+    return snapshot.serverId = asked.serverId and snapshot.account.id = asked.accountId
 end function
 
 ' A public fence for the picker, not a grant. It contains no bearer/PIN and grants nothing.
@@ -29,7 +39,7 @@ function TVProfilePickerBinding(connection as dynamic, pending as dynamic, profi
     for each profile in snapshot.profiles
         if profile.id = profileId then
             if not IsText(profile.id, 128) or not IsRevision(profile.revision) or not IsRevision(profile.pinRevision) then return invalid
-            return { origin: origin.origin, serverId: snapshot.serverId, publicKey: connection.pin.publicKey, accountId: snapshot.account.id, familyId: session.sessionFamilyId, profileId: profile.id, revision: profile.revision, pinRevision: profile.pinRevision }
+            return { origin: origin.origin, serverId: snapshot.serverId, publicKey: connection.pin.publicKey, accountId: snapshot.account.id, accountRevision: snapshot.account.revision, familyId: session.sessionFamilyId, profileId: profile.id, revision: profile.revision, pinRevision: profile.pinRevision }
         end if
     end for
     return invalid
@@ -39,7 +49,7 @@ function TVProfilePickerCurrent(captured as dynamic, connection as dynamic, pend
     if not IsObject(captured) then return false
     current = TVProfilePickerBinding(connection, pending, captured.profileId)
     if current = invalid then return false
-    for each key in ["origin", "serverId", "publicKey", "accountId", "familyId", "profileId", "revision", "pinRevision"]
+    for each key in ["origin", "serverId", "publicKey", "accountId", "accountRevision", "familyId", "profileId", "revision", "pinRevision"]
         if current[key] <> captured[key] then return false
     end for
     return true

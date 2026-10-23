@@ -126,6 +126,7 @@ sub work()
         result = { ok: true, record: SessionRecord(ctx) }
     end if
     result.kindOfJob = kind
+    if kind = "profiles" then result.viewerBinding = job.viewerBinding
     if kind = "signIn" or kind = "challenge" or kind = "changePassword" then m.top.job = { kind: kind }
     if job.doesExist("recoverySerial") then result.recoverySerial = job.recoverySerial
     m.top.job = { kind: kind }

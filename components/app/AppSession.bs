@@ -24,6 +24,7 @@ sub init()
 end sub
 
 sub SessionRun(job as object)
+    if job.kind = "profiles" then job.viewerBinding = ViewerRequestBinding(m.top.viewer)
     if job.kind = "signIn" or job.kind = "challenge" or job.kind = "changePassword" or job.kind = "chooseProfile" or job.kind = "openServer" then job.expectedRevision = SessionRevision(SessionContextNew())
     if job.kind = "restore" or job.kind = "connect" or job.kind = "selectServer" then job.recoverySerial = m.recoverySerial
     task = CreateObject("roSGNode", "SessionTask")
@@ -93,7 +94,7 @@ sub onSessionResult(event as object)
         if result.ok then
             record = SessionRecord(SessionContextNew(), result.snapshot.serverId)
             binding = ViewerRequestBinding(m.top.viewer)
-            if record <> invalid and ViewerMatchesRequestBinding(record, binding) then
+            if TVProfileSwitchCurrent(record, result.viewerBinding, binding, result.snapshot) then
                 m.top.pending = { snapshot: result.snapshot, accountSession: record["session"], switching: true }
                 m.top.hasPending = true
             end if
@@ -180,6 +181,7 @@ sub SessionReady(record as dynamic, session as object, connection as object)
     m.top.error = ""
     m.top.note = ""
     m.top.directStep = ""
+    m.top.pending = invalid
     m.top.hasPending = false
     m.top.hasRecovery = false
     m.top.switching = false

@@ -28,7 +28,7 @@ sub Test_TVSignIn_profilePinCannotCrossAnAccountFamilyServerOrProfileRevision()
     connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
     pending = { snapshot: TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)]), accountSession: TestSessionJson(ctx, "account") }
     captured = TVProfilePickerBinding(connection, pending, "prof_1")
-    for each key in ["origin", "serverId", "publicKey", "accountId", "familyId", "profileId", "revision", "pinRevision"]
+    for each key in ["origin", "serverId", "publicKey", "accountId", "accountRevision", "familyId", "profileId", "revision", "pinRevision"]
         wrong = ParseJson(FormatJson(captured))
         wrong[key] = "changed"
         AssertEqual(TVProfilePickerCurrent(wrong, connection, pending), false, "reject stale " + key)
@@ -40,6 +40,29 @@ sub Test_TVSignIn_profilePinCannotCrossAnAccountFamilyServerOrProfileRevision()
     AssertTrue(TVProfilePickerBinding(connection, pending, "prof_1") <> invalid, "an already signed-in switch retains its captured viewer grant")
     pending.snapshot.twoStepSetupRequired = true
     AssertEqual(TVProfilePickerBinding(connection, pending, "prof_1"), invalid)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_TVSignIn_aLateProfileListCannotAttachToAnotherCurrentViewer()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "owner")
+    connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }
+    AssertTrue(SessionAccept(ctx, connection, session).ok)
+    record = SessionRecord(ctx)
+    viewer = { origin: ctx.base, sessionFamilyId: session.sessionFamilyId, viewer: session.viewer }
+    asked = ViewerRequestBinding(viewer)
+    current = ParseJson(FormatJson(asked))
+    snapshot = TestSnapshot(ctx, [TestProfile("prof_1", "Alex", true, true)])
+    AssertTrue(TVProfileSwitchCurrent(record, asked, current, snapshot))
+    AssertEqual(TVProfileSwitchCurrent(record, invalid, current, snapshot), false)
+    for each key in ["origin", "serverId", "accountId", "profileId", "sessionFamilyId"]
+        wrong = ParseJson(FormatJson(current))
+        wrong[key] = "changed"
+        AssertEqual(TVProfileSwitchCurrent(record, wrong, current, snapshot), false, "reject stale request " + key)
+        AssertEqual(TVProfileSwitchCurrent(record, asked, wrong, snapshot), false, "reject changed current " + key)
+    end for
+    snapshot.account.id = "another-account"
+    AssertEqual(TVProfileSwitchCurrent(record, asked, current, snapshot), false)
     AssertEqual(ctx.transport.requests.count(), 0)
 end sub
 
