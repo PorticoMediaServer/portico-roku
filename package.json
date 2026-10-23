@@ -14,7 +14,8 @@
     "fixtures:generate": "node scripts/golden.mjs",
     "generate:accounts": "node scripts/generate-accounts.mjs",
     "generate:transport": "node scripts/generate-transport.mjs",
-    "generate:tv-signin": "node scripts/generate-tv-signin.mjs"
+    "generate:tv-signin": "node scripts/generate-tv-signin.mjs",
+    "generate:channel-tint": "node scripts/generate-channel-tint.mjs"
   },
   "devDependencies": {
     "@resvg/resvg-js": "2.6.2",

@@ -1,0 +1,10 @@
+import "pkg:/source/core/ChannelTint.bs"
+
+sub Test_ChannelTint_matchesEveryIndependentCanonicalVector()
+    vectors = TestFixture("channel-tint-vectors.json")
+    for each vector in vectors
+        AssertEqual(ChannelSeedHash(vector.seed), vector.hash, "exact canonical UTF-16 signed32 hash")
+        AssertEqual(ChannelTintIndex(vector.seed), vector.index, "INT_MIN absolute value must not overflow")
+        AssertEqual(ChannelTint(vector.seed), vector.tint, "fixed canonical palette order")
+    end for
+end sub

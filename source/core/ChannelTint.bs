@@ -1,0 +1,51 @@
+' MAIN presentation/kit-model/channels.ts channelTint: exact UTF-16 units, signed32 wrap.
+' Roku's ByteArray API exposes the string as UTF-8, so non-BMP scalars become two units.
+import "pkg:/source/core/Bytes.bs"
+import "pkg:/source/core/ChannelTintPalette.bs"
+
+function ChannelTintHashStep(hash as double, unit as integer) as double
+    value = hash * 31# + unit
+    value = value - Int(value / 4294967296#) * 4294967296#
+    if value < 0 then value = value + 4294967296#
+    if value >= 2147483648# then value = value - 4294967296#
+    return value
+end function
+
+function ChannelSeedHash(seed as string) as double
+    bytes = BytesFromText(seed)
+    hash = 0#
+    index = 0
+    while index < bytes.count()
+        scalar = bytes[index]
+        index = index + 1
+        if scalar >= 240 then
+            scalar = (scalar and 7) * 262144 + (bytes[index] and 63) * 4096 + (bytes[index + 1] and 63) * 64 + (bytes[index + 2] and 63)
+            index = index + 3
+        else if scalar >= 224 then
+            scalar = (scalar and 15) * 4096 + (bytes[index] and 63) * 64 + (bytes[index + 1] and 63)
+            index = index + 2
+        else if scalar >= 192 then
+            scalar = (scalar and 31) * 64 + (bytes[index] and 63)
+            index = index + 1
+        end if
+        if scalar > 65535 then
+            rest = scalar - 65536
+            hash = ChannelTintHashStep(hash, 55296 + Int(rest / 1024))
+            hash = ChannelTintHashStep(hash, 56320 + (rest mod 1024))
+        else
+            hash = ChannelTintHashStep(hash, scalar)
+        end if
+    end while
+    return hash
+end function
+
+function ChannelTintIndex(seed as string) as integer
+    magnitude = ChannelSeedHash(seed)
+    ' Keep Double through negation: abs(INT_MIN) must be2147483648, never overflow.
+    if magnitude < 0 then magnitude = -magnitude
+    return Int(magnitude - 8# * Int(magnitude / 8#))
+end function
+
+function ChannelTint(seed as string) as string
+    return ChannelTintPalette()[ChannelTintIndex(seed)]
+end function
