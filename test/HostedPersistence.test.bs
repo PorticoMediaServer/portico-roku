@@ -1,0 +1,170 @@
+import "pkg:/source/core/Hosted.bs"
+
+sub TestHostedFailWrite(ctx as object, key as string, afterWrite = false as boolean, competitor = invalid as dynamic)
+    ctx.store.failKey = key
+    ctx.store.failCount = 1
+    ctx.store.failAfter = afterWrite
+    ctx.store.competitor = competitor
+    ctx.store.write = function(section as string, key as string, value as string) as boolean
+        if section = "portico" and key = m.failKey and m.failCount > 0 then
+            m.failCount = m.failCount - 1
+            if m.competitor <> invalid then
+                m.values[section + "/" + key] = FormatJson(m.competitor)
+            else if m.failAfter then
+                m.values[section + "/" + key] = value
+            end if
+            return false
+        end if
+        m.values[section + "/" + key] = value
+        return true
+    end function
+end sub
+
+function TestHostedNewFamily() as object
+    grant = TestGrant()
+    grant.account.id = "different_account"
+    grant.familyId = "fresh_family"
+    grant.refreshToken = "fresh_refresh"
+    return grant
+end function
+
+sub Test_HostedPersistence_failedSaveKeepsTheOldAccountAndAllServerBindings()
+    for each afterWrite in [false, true]
+        ctx = TestContext()
+        AssertTrue(HostedSave(ctx, TestGrant()))
+        portico = AccountTestBinding(ctx, "portico")
+        local = AccountTestBinding(ctx, "local", true)
+        TestHostedFailWrite(ctx, "hosted", afterWrite)
+        AssertEqual(HostedSave(ctx, TestHostedNewFamily()), false)
+        AssertEqual(HostedLoad(ctx).familyId, TestGrant().familyId)
+        AssertEqual(HostedLoad(ctx).refreshToken, TestGrant().refreshToken)
+        AssertEqual(SessionRecord(ctx, portico.connection.pin.serverId)["session"].sessionFamilyId, portico.session.sessionFamilyId)
+        AssertEqual(SessionRecord(ctx, local.connection.pin.serverId)["session"].sessionFamilyId, local.session.sessionFamilyId)
+        AssertEqual(ctx.transport.requests.count(), 0, "failed persistence cannot revoke another account's bindings")
+    end for
+end sub
+
+sub Test_HostedPersistence_failedWriteNeverRollsBackAConcurrentReplacement()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    competitor = TestHostedNewFamily()
+    competitor.familyId = "newer_family"
+    competitor.refreshToken = "newer_refresh"
+    TestHostedFailWrite(ctx, "hosted", false, competitor)
+    AssertEqual(HostedSave(ctx, TestHostedNewFamily()), false)
+    AssertEqual(HostedLoad(ctx).familyId, "newer_family")
+    AssertEqual(HostedLoad(ctx).refreshToken, "newer_refresh")
+end sub
+
+sub Test_HostedPersistence_unsavedTVGrantIsRetiredAndItsSpentCodeReplaced()
+    ctx = TestContext()
+    TestHostedFailWrite(ctx, "hosted", true)
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/token", 200, TestGrant())
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke", 204)
+    revision = SessionRevision(ctx)
+    result = HostedCodePoll(ctx, TestAuthorization(ctx, ctx.hostedUrl))
+    AssertEqual(result.next, "replace")
+    AssertEqual(result.failure.code, "persistence_error")
+    AssertEqual(result.grant, invalid)
+    AssertEqual(HostedLoad(ctx), invalid)
+    AssertEqual(SessionRevision(ctx), revision)
+    retired = TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke")
+    AssertEqual(retired.count(), 1)
+    AssertEqual(ParseJson(retired[0].body).refreshToken, TestGrant().refreshToken)
+    AssertEqual(retired[0].headers.Authorization, invalid)
+end sub
+
+sub Test_HostedPersistence_activeAccountPreventsAutomaticConsentReplacement()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    result = HostedCodePoll(ctx, TestAuthorization(ctx, ctx.hostedUrl))
+    AssertEqual(result.next, "retired")
+    AssertEqual(result.failure.code, "account_changed")
+    AssertEqual(ctx.transport.requests.count(), 0)
+    AssertEqual(HostedLoad(ctx).familyId, TestGrant().familyId)
+end sub
+
+function TestHostedCompetingPollSend(request as object) as object
+    m.transport.requests.push(request)
+    if Right(request.url, 6) = "/token" then
+        if m.transport.changedOrigin then m.transport.ctx.hostedUrl = "https://different.example.com"
+        if m.transport.competitor <> invalid then StoreWriteJson(m.transport.ctx.store, "portico", "hosted", m.transport.competitor)
+        return { status: 200, headers: {}, body: FormatJson(TestGrant()), failure: "" }
+    end if
+    return { status: 204, headers: {}, body: "", failure: "" }
+end function
+
+sub Test_HostedPersistence_latePollCannotReplaceOrRevokeTheNewAccount()
+    for each sameGrant in [false, true]
+        ctx = TestContext()
+        ctx.send = TestHostedCompetingPollSend
+        ctx.transport.ctx = ctx
+        competitor = TestHostedNewFamily()
+        if sameGrant then competitor = TestGrant()
+        ctx.transport.competitor = competitor
+        result = HostedCodePoll(ctx, TestAuthorization(ctx, ctx.hostedUrl))
+        AssertEqual(result.next, "retired")
+        AssertEqual(HostedLoad(ctx).familyId, competitor.familyId)
+        retired = TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke")
+        if sameGrant then
+            AssertEqual(retired.count(), 0, "an already admitted exact grant is not a late orphan")
+        else
+            AssertEqual(retired.count(), 1)
+            AssertEqual(ParseJson(retired[0].body).refreshToken, TestGrant().refreshToken)
+        end if
+    end for
+end sub
+
+sub Test_HostedPersistence_retirementUsesTheCapturedIssuingOrigin()
+    ctx = TestContext()
+    origin = ctx.hostedUrl
+    ctx.send = TestHostedCompetingPollSend
+    ctx.transport.ctx = ctx
+    ctx.transport.changedOrigin = true
+    result = HostedCodePoll(ctx, TestAuthorization(ctx, origin))
+    AssertEqual(result.next, "retired")
+    AssertEqual(HostedLoad(ctx), invalid)
+    AssertEqual(TestRequests(ctx, "POST", origin + "/v1/sessions/revoke").count(), 1)
+    AssertEqual(TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke").count(), 0)
+end sub
+
+sub Test_HostedPersistence_refreshSaveFailureKeepsTheOriginalReplayRequest()
+    ctx = TestContext()
+    old = TestGrant()
+    old.expiresAt = "2026-10-03T12:00:30Z"
+    HostedSave(ctx, old)
+    fresh = TestGrant()
+    fresh.accessToken = "rotated-access"
+    fresh.refreshToken = "rotated-refresh"
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions/refresh", 200, fresh)
+    TestHostedFailWrite(ctx, "hosted", true)
+    failed = HostedLive(ctx)
+    AssertEqual(failed.ok, false)
+    AssertEqual(failed.signOut, false)
+    AssertEqual(failed.failure.code, "persistence_error")
+    AssertEqual(HostedLoad(ctx).refreshToken, old.refreshToken)
+    AssertEqual(ctx.store.read("portico", "hostedPendingRefresh"), ctx.requestId)
+    AssertTrue(HostedLive(ctx).ok)
+    requests = TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/sessions/refresh")
+    AssertEqual(requests.count(), 2)
+    for each request in requests
+        body = ParseJson(request.body)
+        AssertEqual(body.refreshToken, old.refreshToken)
+        AssertEqual(body.requestId, ctx.requestId)
+    end for
+    AssertEqual(ctx.store.read("portico", "hostedPendingRefresh"), invalid)
+    AssertEqual(HostedLoad(ctx).refreshToken, "rotated-refresh")
+end sub
+
+sub Test_HostedPersistence_refreshRequiresADurableRequestIdBeforeIO()
+    ctx = TestContext()
+    old = TestGrant()
+    old.expiresAt = "2026-10-03T12:00:30Z"
+    HostedSave(ctx, old)
+    TestHostedFailWrite(ctx, "hostedPendingRefresh")
+    failed = HostedLive(ctx)
+    AssertEqual(failed.ok, false)
+    AssertEqual(failed.failure.code, "persistence_error")
+    AssertEqual(ctx.transport.requests.count(), 0)
+    AssertEqual(HostedLoad(ctx).refreshToken, old.refreshToken)
+end sub
