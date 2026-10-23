@@ -61,9 +61,26 @@ async function captureCanvas(page,name){
  if(credentials){
   // This view's canvas buffer may already be cleared while Chromium retains its real
   // composited frame. Capture that visible frame; never paint or alter product pixels.
-  await page.screenshot({path:join(output,name),type:'jpeg',quality:96});
-  if(readFileSync(join(output,name)).length<60000)throw new Error('Blank/incomplete credential screen');
-  return;
+  // Texture/font arrival can leave a partial composited frame after the scene's
+  // BrightScript ready marker. Observe the drawn wordmark, then two identical
+  // visible frames. This never freezes motion or changes the product's pixels.
+  await page.waitForFunction(()=>{
+   const p=document.querySelector('#display').getContext('2d').getImageData(120,72,200,40).data;
+   let bright=0;for(let i=0;i<p.length;i+=4)if(p[i]>180&&p[i+1]>180&&p[i+2]>180)bright++;
+   return bright>400;
+  },{},{timeout:30000});
+  let previous,stable=0;
+  for(let attempt=0;attempt<40;attempt++){
+   const bytes=await page.screenshot({type:'jpeg',quality:96});
+   stable=previous?.equals(bytes)?stable+1:0;
+   if(stable>=2){
+    if(bytes.length<60000)throw new Error('Blank/incomplete credential screen');
+    writeFileSync(join(output,name),bytes);return;
+   }
+   previous=bytes;
+   await page.waitForTimeout(250);
+  }
+  throw new Error('Credential compositor did not reach two unchanged visible frames');
  }
  const url=await page.evaluate(()=>new Promise(resolve=>document.querySelector('#display').toBlob(blob=>{
   const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);
