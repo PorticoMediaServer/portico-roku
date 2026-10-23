@@ -10,7 +10,7 @@ const app=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const build=process.env.PORTICO_BUILD_DIR;
 const output=process.env.PORTICO_RUNNER_OUTPUT;
 const state=process.env.ROKU_VISUAL_STATE??'identity';
-if(!['identity','frontdoor','hosted-form','local-form','factor','recovery'].includes(state))throw new Error('Unknown visual state');
+if(!['identity','frontdoor','hosted-form','local-form','factor','recovery','required-factor','required-password'].includes(state))throw new Error('Unknown visual state');
 const credentials=!['identity','frontdoor'].includes(state);
 const captures=credentials?[state+'.jpg']:state==='identity'?['identity-3.jpg','identity-4.jpg','identity-return.jpg']:['frontdoor-primary.jpg','frontdoor-local.jpg','frontdoor-return.jpg'];
 if(!build||!output)throw new Error('Set owned PORTICO_BUILD_DIR and PORTICO_RUNNER_OUTPUT');

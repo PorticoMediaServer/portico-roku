@@ -6,7 +6,7 @@ from pathlib import Path
 
 source, destination = map(Path, sys.argv[1:3])
 state = sys.argv[3] if len(sys.argv) > 3 else "identity"
-assert state in ("identity", "frontdoor", "hosted-form", "local-form", "factor", "recovery")
+assert state in ("identity", "frontdoor", "hosted-form", "local-form", "factor", "recovery", "required-factor", "required-password")
 main = '''sub main(args as dynamic)
  screen = CreateObject("roSGScreen")
  port = CreateObject("roMessagePort")
@@ -32,7 +32,7 @@ end sub
 '''
 if state == "frontdoor":
     scene = scene.replace('"ScreenServerIdentity"', '"ScreenActivation"')
-credential = state in ("hosted-form", "local-form", "factor", "recovery")
+credential = state in ("hosted-form", "local-form", "factor", "recovery", "required-factor", "required-password")
 if credential:
     scene = '''sub init()
  m.top.backgroundUri = ""
@@ -52,12 +52,18 @@ end sub
     if state in ('factor', 'recovery'):
         extra = 'session.accountCredentialState = { phase: "challenge", expiresAt: "2099-01-01T00:00:00Z" }'
     scene = scene.replace('EXTRA', extra)
+    if state.startswith('required-'):
+        kind = 'password-change' if state == 'required-password' else 'two-step-setup'
+        info = '{ kind: "' + kind + '", serverName: "Portico demo", username: "nana_r", origin: "http://192.168.1.20:32500", url: "http://192.168.1.20:32500/settings/profile", address: "192.168.1.20:32500/settings/profile", portico: false }'
+        scene = scene.replace('screen = m.top.createChild("ScreenTVCredentials")', 'session.requiredSignIn = ' + info + '\n screen = m.top.createChild("ScreenTVRequiredSignIn")')
+        scene = scene.replace('screen.kind = "portico"', '')
     # The capture fixture owns these no-op callbacks. No product component or transport is edited.
     session_xml = '''<component name="VisualCredentialSession" extends="Node"><interface>
 <field id="busy" type="boolean" value="false"/><field id="error" type="string" value=""/>
 <field id="username" type="string" value=""/><field id="phase" type="string" value="signedOut"/>
 <field id="directStep" type="string" value=""/><field id="directFailure" type="assocarray"/>
 <field id="requiresTwoStepSetup" type="boolean" value="false"/>
+<field id="requiredSignIn" type="assocarray"/>
 <field id="connection" type="assocarray"/><field id="accountCredentialState" type="assocarray"/>
 <function name="beginAccountCredentials"/><function name="submitAccountCredentials"/>
 <function name="cancelAccountCredentials"/><function name="cancelStep"/>
