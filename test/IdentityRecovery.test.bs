@@ -1,5 +1,23 @@
 import "pkg:/source/core/IdentityRecovery.bs"
 
+sub Test_IdentityRecovery_confirmationNeverTargetsAChangedProjection()
+    ctx = TestContext()
+    saved = AccountTestBinding(ctx, "local")
+    captured = IdentityRecovery(ctx, saved.record, "changed", "restore")
+    AssertTrue(IdentityRecoveryMatches(captured, ParseJson(FormatJson(captured))))
+    for each key in ["kind", "source", "origin", "savedOrigin", "serverId", "serverName", "familyId"]
+        current = ParseJson(FormatJson(captured))
+        current[key] = "different"
+        AssertEqual(IdentityRecoveryMatches(captured, current), false, "confirmation cannot move to a different " + key)
+    end for
+    current = ParseJson(FormatJson(captured))
+    current.revision = captured.revision + 1
+    AssertEqual(IdentityRecoveryMatches(captured, current), false)
+    AssertEqual(IdentityRecoveryMatches(invalid, captured), false)
+    AssertEqual(IdentityRecoveryMatches({}, {}), false)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
 sub Test_IdentityRecovery_forgetIsLocalAndKeepsOtherServers()
     ctx = TestContext()
     first = AccountTestBinding(ctx, "local")

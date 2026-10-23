@@ -23,6 +23,16 @@ function IdentityRecoveryCurrent(ctx as object, recovery as dynamic) as dynamic
     return record
 end function
 
+' A visible confirmation belongs to the exact safe recovery projection it named.
+function IdentityRecoveryMatches(captured as dynamic, current as dynamic) as boolean
+    if not IsObject(captured) or not IsObject(current) then return false
+    if not IsNatural(captured.revision) or not IsText(captured.serverId, 256) or not IsText(captured.familyId, 256) then return false
+    for each key in ["kind", "source", "origin", "savedOrigin", "serverId", "serverName", "familyId", "revision"]
+        if captured[key] <> current[key] then return false
+    end for
+    return true
+end function
+
 function IdentityRecoveryRetry(ctx as object, recovery as dynamic) as object
     record = IdentityRecoveryCurrent(ctx, recovery)
     if record = invalid then return SessionFailure("stale_continuation")

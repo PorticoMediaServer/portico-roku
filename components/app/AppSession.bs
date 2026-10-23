@@ -559,9 +559,10 @@ sub retryIdentity()
     SessionRun({ kind: "retryIdentity", recovery: m.top.recovery, recoverySerial: m.recoverySerial })
 end sub
 
-sub forgetIdentity()
+sub forgetIdentity(captured as object)
     if m.top.busy or m.top.phase <> "identity" then return
-    SessionRun({ kind: "forgetIdentity", recovery: m.top.recovery, recoverySerial: m.recoverySerial })
+    if not IdentityRecoveryMatches(captured, m.top.recovery) then return
+    SessionRun({ kind: "forgetIdentity", recovery: captured, recoverySerial: m.recoverySerial })
 end sub
 
 
