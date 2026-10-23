@@ -53,7 +53,8 @@ namespace TVSignInMetrics
     const boxHeight = 116
     const boxGap = 18
     const boxRadius = 18
-    const boxBorder = 2
+    const boxBorder = 1
+    const boxFocusBorder = 1.5
     const boxCaretHeight = 52
     const boxDot = 24
     const pinFaceSide = 196
@@ -108,5 +109,5 @@ namespace TVSignInMetrics
     const keyCapMin = 48
     const keyCapBorder = 1.5
     const keyCapBorderAlpha = 0.3
-    const hintGap = 14
+    const hintGap = 12
 end namespace

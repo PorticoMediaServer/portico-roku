@@ -76,7 +76,7 @@ const metrics = {
   padRight: 260, padColumns: 3, padKeyWidth: 148, padKeyHeight: 118, padGap: 20, padRadius: 20, padSize: 48,
   padDeleteSize: 46,
   padFill: '0xEDF5FA12', padFocusFill: '0xEDF5FA2E', padScale: 1.05, padLinkGap: 18, padLinkHeight: 72, padLinkSize: 24,
-  boxWidth: 104, boxHeight: 116, boxGap: 18, boxRadius: 18, boxBorder: 2, boxCaretHeight: 52, boxDot: 24,
+  boxWidth: 104, boxHeight: 116, boxGap: 18, boxRadius: 18, boxBorder: 1, boxFocusBorder: 1.5, boxCaretHeight: 52, boxDot: 24,
   pinFaceSide: 196, pinFaceLeft: 462, pinFaceTop: 292, pinInitialSize: 78,
   pinColumnLeft: 240, pinColumnWidth: 640, pinTitleSize: 52, pinTitleTop: 520, pinTitleHeight: 72, pinTitleTracking: -.04,
   pinNameSize: 28, pinNameTop: 596, pinNameHeight: 40.6, pinBoxLeft: 325, pinBoxTop: 673, pinHintGap: 44,
@@ -87,7 +87,7 @@ const metrics = {
   qrSide: 300, qrPadding: 20, qrRadius: 20, qrGap: 34,
   hostSize: 30, hostLineHeight: 43.5, refSize: 21, refLineHeight: 30.45,
   cardShadowOffset: 60, cardShadowBlur: 120, cardShadowSpread: -40, cardShadowMargin: 240
-  ,hintBottom: 72, keyCapHeight: 40, keyCapRadius: 10, keyCapPadding: 12, keyCapMin: 48, keyCapBorder: 1.5, keyCapBorderAlpha: .3, hintGap: 14
+  ,hintBottom: 72, keyCapHeight: 40, keyCapRadius: 10, keyCapPadding: 12, keyCapMin: 48, keyCapBorder: 1.5, keyCapBorderAlpha: .3, hintGap: 12
 };
 // Verify composed shorthands too; no free redesign when a source rule changes.
 for (const fragment of ['height: 84px', 'padding: 0 28px', 'rgba(7,16,24,.62)']) if (!rule(connect, '.tf').includes(fragment)) throw new Error('Re-read field style');
@@ -99,6 +99,48 @@ const emit = (name, value) => {
 };
 const require = createRequire(process.env.PORTICO_ASSET_TOOLS_ROOT ? join(process.env.PORTICO_ASSET_TOOLS_ROOT, 'package.json') : import.meta.url);
 const {Resvg} = require('@resvg/resvg-js');
+const backdrop = /background:([\s\S]*);/.exec(rule(auth, '.gen.round'))?.[1];
+const ink = /--ink:\s*(#[0-9a-f]{6})/i.exec(load('kit.css'))?.[1];
+if (!backdrop || !ink) throw new Error('Missing auth17 round backdrop');
+const parts = value => {
+  const result = []; let depth = 0, start = 0;
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] === '(') depth++;
+    if (value[i] === ')') depth--;
+    if (value[i] === ',' && depth === 0) { result.push(value.slice(start, i).trim()); start = i + 1; }
+  }
+  return [...result, value.slice(start).trim()];
+};
+const gradients = parts(backdrop).map((value, index) => {
+  if (!value.startsWith('radial-gradient(') || !value.endsWith(')')) throw new Error('Unsupported backdrop layer');
+  const [ellipse, ...stops] = parts(value.slice(16, -1));
+  const axes = /^(\d+)% (\d+)% at (-?\d+)% (-?\d+)%$/.exec(ellipse)?.slice(1).map(Number);
+  if (!axes) throw new Error('Unsupported backdrop ellipse');
+  const [rx, ry, cx, cy] = [axes[0] * 19.2, axes[1] * 10.8, axes[2] * 19.2, axes[3] * 10.8];
+  let previousColor = '#000';
+  const nodes = stops.map(stop => {
+    const match = /^(rgba\((\d+),(\d+),(\d+),([.\d]+)\)|transparent) (\d+)%$/.exec(stop);
+    if (!match) throw new Error('Unsupported backdrop stop');
+    if (match[1] !== 'transparent') previousColor = `rgb(${match[2]},${match[3]},${match[4]})`;
+    // CSS interpolates transparent stops with premultiplied alpha. Keep the prior RGB at alpha0
+    // so SVG does not also darken it towards black before the compositor applies its opacity.
+    return `<stop offset="${match[6]}%" stop-color="${previousColor}" stop-opacity="${match[1] === 'transparent' ? 0 : match[5]}"/>`;
+  }).join('');
+  return `<radialGradient id="g${index}" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="translate(${cx} ${cy}) scale(${rx} ${ry})">${nodes}</radialGradient>`;
+});
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><defs>${gradients.join('')}</defs><rect width="1920" height="1080" fill="${ink}"/>${gradients.map((_, i) => `<rect width="1920" height="1080" fill="url(#g${i})"/>`).reverse().join('')}</svg>`;
+const emitImage = (name, svg) => {
+ const path = join(app, name), bytes = new Resvg(svg).render().asPng();
+ if(process.argv.includes('--check')){if(!readFileSync(path).equals(bytes))throw new Error('Regenerate '+name);}
+ else{writeFileSync(path+'.tmp',bytes);renameSync(path+'.tmp',path);}
+};
+emitImage('images/gradients/auth-round.png', svg);
+// CSS inset shadows are 1px at rest and 1.5px when current, not the unused border-width.
+if (!rule(auth, '.boxes i').includes('inset 0 0 0 1px') || !rule(auth, '.boxes i.cur').includes('inset 0 0 0 1.5px')) throw new Error('Re-read PIN box inset strokes');
+for(const [state,stroke] of [['rest',metrics.boxBorder],['active',metrics.boxFocusBorder]]){
+ const w=metrics.boxWidth,h=metrics.boxHeight,r=metrics.boxRadius;
+ emitImage(`images/shapes/tv-pin-border-${state}.png`, `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect x="${stroke/2}" y="${stroke/2}" width="${w-stroke}" height="${h-stroke}" rx="${r-stroke/2}" fill="none" stroke="#fff" stroke-width="${stroke}"/></svg>`);
+}
 // The profile PIN face uses its actual profile-art name, never a channel hash or palette index.
 const colors = JSON.parse(/function ThemeColorTable\(\) as object\s+return (\{[^\n]+\})/.exec(readFileSync(join(app, 'source/ThemeTables.bs'), 'utf8'))?.[1] ?? 'null');
 if (!colors || !auth.includes('linear-gradient(140deg, color-mix(in srgb, var(--c) 100%, #fff 18%), var(--c) 55%, color-mix(in srgb, var(--c) 60%, #071018))')) throw new Error('Re-read drawn profile gradient');

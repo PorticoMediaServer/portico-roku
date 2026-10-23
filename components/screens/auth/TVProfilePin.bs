@@ -15,7 +15,7 @@ sub init()
     m.active = false
     m.body = m.top.createChild("Group")
     backdrop = m.body.createChild("Poster")
-    backdrop.uri = "pkg:/images/gradients/auth-left.png"
+    backdrop.uri = "pkg:/images/gradients/auth-round.png"
     backdrop.width = Theme.screen.width
     backdrop.height = Theme.screen.height
     mark = m.body.createChild("Poster")
@@ -28,6 +28,7 @@ sub init()
     m.face.height = TVSignInMetrics.pinFaceSide
     Place(m.face, TVSignInMetrics.pinFaceLeft, TVSignInMetrics.pinFaceTop)
     m.initial = MakeText(m.body, "title")
+    m.initial.tint = Theme.colors.white
     m.initial.sizeOverride = TVSignInMetrics.pinInitialSize
     m.initial.lineHeightOverride = TVSignInMetrics.pinFaceSide
     m.initial.maxWidth = TVSignInMetrics.pinFaceSide
@@ -61,7 +62,7 @@ sub init()
     m.pad.observeField("recoveryPressed", "onProfilePinForgot")
     hint = m.body.createChild("Group")
     first = ProfilePinHint(hint, T("next.auth.tv.playPause"), T("next.auth.tv.deleteDigit"), 0)
-    width = ProfilePinHint(hint, T("action.back"), T("web.direct.otherProfiles"), first + TVSignInMetrics.pinHintGap)
+    width = ProfilePinHint(hint, T("accounts.signIn.back"), T("web.direct.otherProfiles"), first + TVSignInMetrics.pinHintGap)
     Place(hint, (Theme.screen.width - width) / 2, Theme.screen.height - TVSignInMetrics.hintBottom - TVSignInMetrics.keyCapHeight)
     for each field in ["pending", "hasPending", "connection", "error", "busy"]
         m.session.observeField(field, "onProfilePinState")
@@ -74,11 +75,15 @@ function ProfilePinHint(parent as object, key as string, value as string, left a
     label.sizeOverride = TVSignInMetrics.termsSize
     label.lineHeightOverride = TVSignInMetrics.keyCapHeight
     label.value = key
+    font = CreateObject("roSGNode", "Font")
+    font.uri = "pkg:/fonts/manrope-800.ttf"
+    font.size = TVSignInMetrics.termsSize
+    label.font = font
     width = Max(TVSignInMetrics.keyCapMin, TextWidth(label) + TVSignInMetrics.keyCapPadding * 2)
     StyleRing(cap, width, TVSignInMetrics.keyCapHeight, TVSignInMetrics.keyCapRadius, TVSignInMetrics.keyCapBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.keyCapBorderAlpha))
     Place(cap, left, 0)
     Place(label, left + TVSignInMetrics.keyCapPadding, 0)
-    text = MakeText(parent, "bodyStrong", "secondary")
+    text = MakeText(parent, "bodyStrong", "tertiary")
     text.sizeOverride = TVSignInMetrics.termsSize
     text.lineHeightOverride = TVSignInMetrics.keyCapHeight
     text.value = value

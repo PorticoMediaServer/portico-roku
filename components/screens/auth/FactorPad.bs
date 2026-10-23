@@ -102,7 +102,7 @@ sub init()
     capWidth = Max(TVSignInMetrics.keyCapMin, TextWidth(capText) + TVSignInMetrics.keyCapPadding * 2)
     StyleRing(cap, capWidth, TVSignInMetrics.keyCapHeight, TVSignInMetrics.keyCapRadius, TVSignInMetrics.keyCapBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.keyCapBorderAlpha))
     Place(capText, TVSignInMetrics.keyCapPadding, 0)
-    explanation = MakeText(hint, "bodyStrong", "secondary")
+    explanation = MakeText(hint, "bodyStrong", "tertiary")
     explanation.value = T("next.auth.tv.deleteDigit")
     explanation.sizeOverride = TVSignInMetrics.termsSize
     explanation.lineHeightOverride = TVSignInMetrics.keyCapHeight
@@ -141,7 +141,12 @@ sub onFactorBoxes()
         active = index = Len(m.top.value) and not m.top.busy
         color = Theme.colors.lineStrong
         if active then color = Theme.colors.accentStrong
-        StyleRing(cell.border, TVSignInMetrics.boxWidth, TVSignInMetrics.boxHeight, TVSignInMetrics.boxRadius, TVSignInMetrics.boxBorder, color)
+        state = "rest"
+        if active then state = "active"
+        cell.border.uri = "pkg:/images/shapes/tv-pin-border-" + state + ".png"
+        cell.border.width = TVSignInMetrics.boxWidth
+        cell.border.height = TVSignInMetrics.boxHeight
+        cell.border.blendColor = color
         cell.text.value = Mid(m.top.value, index + 1, 1)
         cell.text.visible = not m.top.pinMode
         cell.dot.visible = m.top.pinMode and index < Len(m.top.value)
