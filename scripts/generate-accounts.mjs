@@ -76,7 +76,11 @@ for (const locale of readdirSync(join(app, 'locale'))) {
   if (!contents.includes('<xliff version="1.2">') || !contents.includes('    </body>')) throw new Error(`Expected Roku XLIFF: ${name}`);
   contents = contents.replace(/        <trans-unit id="(?:accounts\.[^"]*|connection\.[^"]*|system\.[^"]*|web\.signin\.welcomeHome)">[\s\S]*?<\/trans-unit>\n/g, '');
   const added = Object.entries(messages).map(([id, text]) => `        <trans-unit id="${xml(id)}">\n            <source>${xml(id)}</source>\n            <target>${xml(text)}</target>\n        </trans-unit>\n`).join('');
-  contents = contents.replace('    </body>', added + '    </body>');
+  // Keep the canonical block before the separately generated TV composition block.
+  // Both narrow generators must remain idempotent after the other has run.
+  const tv = contents.indexOf('        <trans-unit id="roku.tvSignIn.');
+  if (tv >= 0) contents = contents.slice(0, tv) + added + contents.slice(tv);
+  else contents = contents.replace('    </body>', added + '    </body>');
   emit(name, contents);
 }
 const route = (file, id) => {
