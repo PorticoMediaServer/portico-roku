@@ -3,6 +3,7 @@
 <component name="ScreenTVProfilePin" extends="Group">
     <interface>
         <field id="profile" type="assocarray" />
+        <field id="pickerBinding" type="assocarray" />
         <field id="closed" type="boolean" value="false" alwaysNotify="true" />
         <function name="enter" />
         <function name="leave" />

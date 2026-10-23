@@ -93,8 +93,12 @@ end function
 
 sub enter()
     if m.top.profile = invalid then return
-    m.binding = TVProfilePickerBinding(m.session.connection, m.session.pending, m.top.profile.id)
-    if m.binding = invalid then
+    m.binding = m.top.pickerBinding
+    if not TVProfilePickerCurrent(m.binding, m.session.connection, m.session.pending) then
+        m.top.closed = true
+        return
+    end if
+    if m.top.profile.id <> m.binding.profileId then
         m.top.closed = true
         return
     end if

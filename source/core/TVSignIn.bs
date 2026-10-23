@@ -30,6 +30,7 @@ function TVProfilePickerBinding(connection as dynamic, pending as dynamic, profi
     if not IsObject(pending.accountSession) or not IsObject(pending.accountSession.viewer) then return invalid
     session = pending.accountSession
     snapshot = pending.snapshot
+    if not IsRevision(snapshot.account.revision) or snapshot.account.disabled = true then return invalid
     if snapshot.twoStepSetupRequired = true then return invalid
     if session.viewer.role <> "account" then
         if pending.switching <> true or not ArrayIncludes(["viewer", "admin", "owner"], session.viewer.role) then return invalid
