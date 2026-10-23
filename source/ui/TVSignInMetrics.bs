@@ -84,4 +84,12 @@ namespace TVSignInMetrics
     const cardShadowBlur = 120
     const cardShadowSpread = -40
     const cardShadowMargin = 240
+    const hintBottom = 72
+    const keyCapHeight = 40
+    const keyCapRadius = 10
+    const keyCapPadding = 12
+    const keyCapMin = 48
+    const keyCapBorder = 1.5
+    const keyCapBorderAlpha = 0.3
+    const hintGap = 14
 end namespace

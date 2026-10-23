@@ -82,11 +82,26 @@ sub init()
     top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) - TVSignInMetrics.padGap + TVSignInMetrics.padLinkGap
     Place(m.recovery, 0, top)
     Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
-    hint = MakeText(m.top, "caption", "secondary")
-    hint.value = T("next.auth.tv.playPause") + "  " + T("next.auth.tv.deleteDigit")
-    hint.sizeOverride = TVSignInMetrics.termsSize
-    hint.lineHeightOverride = TVSignInMetrics.termsLineHeight
-    Place(hint, (Theme.screen.width - TextWidth(hint)) / 2, Theme.screen.height - TVSignInMetrics.wordmarkTop - TVSignInMetrics.termsLineHeight)
+    hint = m.top.createChild("Group")
+    cap = hint.createChild("Poster")
+    capText = MakeText(hint, "title", "secondary")
+    capText.sizeOverride = TVSignInMetrics.termsSize
+    capText.lineHeightOverride = TVSignInMetrics.keyCapHeight
+    capText.value = T("next.auth.tv.playPause")
+    font = CreateObject("roSGNode", "Font")
+    font.uri = "pkg:/fonts/manrope-800.ttf"
+    font.size = TVSignInMetrics.termsSize
+    capText.font = font
+    capWidth = Max(TVSignInMetrics.keyCapMin, TextWidth(capText) + TVSignInMetrics.keyCapPadding * 2)
+    StyleRing(cap, capWidth, TVSignInMetrics.keyCapHeight, TVSignInMetrics.keyCapRadius, TVSignInMetrics.keyCapBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.keyCapBorderAlpha))
+    Place(capText, TVSignInMetrics.keyCapPadding, 0)
+    explanation = MakeText(hint, "body", "secondary")
+    explanation.value = T("next.auth.tv.deleteDigit")
+    explanation.sizeOverride = TVSignInMetrics.termsSize
+    explanation.lineHeightOverride = TVSignInMetrics.keyCapHeight
+    Place(explanation, capWidth + TVSignInMetrics.hintGap, 0)
+    width = capWidth + TVSignInMetrics.hintGap + TextWidth(explanation)
+    Place(hint, (Theme.screen.width - width) / 2, Theme.screen.height - TVSignInMetrics.hintBottom - TVSignInMetrics.keyCapHeight)
     onFactorStyle()
     onFactorBoxes()
 end sub

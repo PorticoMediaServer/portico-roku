@@ -77,6 +77,7 @@ const metrics = {
   qrSide: 300, qrPadding: 20, qrRadius: 20, qrGap: 34,
   hostSize: 30, hostLineHeight: 43.5, refSize: 21, refLineHeight: 30.45,
   cardShadowOffset: 60, cardShadowBlur: 120, cardShadowSpread: -40, cardShadowMargin: 240
+  ,hintBottom: 72, keyCapHeight: 40, keyCapRadius: 10, keyCapPadding: 12, keyCapMin: 48, keyCapBorder: 1.5, keyCapBorderAlpha: .3, hintGap: 14
 };
 // Verify composed shorthands too; no free redesign when a source rule changes.
 for (const fragment of ['height: 84px', 'padding: 0 28px', 'rgba(7,16,24,.62)']) if (!rule(connect, '.tf').includes(fragment)) throw new Error('Re-read field style');
