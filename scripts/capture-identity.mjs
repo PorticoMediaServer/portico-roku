@@ -47,18 +47,10 @@ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 let browser,page,failure;
 const diagnostics=[];
 async function settledCanvas(page){
- let prior='',stable=0;
- for(let attempt=0;attempt<50;attempt++){
-  const digest=await page.evaluate(async()=>{
-   const canvas=document.querySelector('#display');
-   const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
-   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',pixels)),b=>b.toString(16).padStart(2,'0')).join('');
-  });
-  stable=digest===prior?stable+1:0;
-  if(stable>=3)return;
-  prior=digest;await page.waitForTimeout(80);
- }
- throw new Error('Rendered identity state did not settle');
+ // Observe one second after real input, beyond the product's quick focus transition.
+ // Pixel equality is not a readiness signal in this beta renderer. Do not stop animations,
+ // change Group.scale, or paint a replacement; any remaining difference stays visible.
+ await page.waitForTimeout(1000);
 }
 async function captureCanvas(page,name){
  await settledCanvas(page);
@@ -115,7 +107,7 @@ try{
  }
  throw error;
 }finally{
- writeFileSync(join(output,'identity-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nRequested remote sequence: Right, Right, Enter, Back; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
+ writeFileSync(join(output,'identity-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled one second after each real input; animations/scales/pixels unchanged.\nRequested remote sequence: Right, Right, Enter, Back; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
  if(browser)await browser.close();
  await new Promise(resolve=>server.close(resolve));
 }
