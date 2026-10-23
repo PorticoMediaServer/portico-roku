@@ -1,0 +1,130 @@
+' Independent private-queue cases. No fixture is generated from the parser under test.
+import "pkg:/source/core/Music.bs"
+
+function TestMusicISO(seconds as dynamic) as string
+    date = CreateObject("roDateTime")
+    whole& = seconds
+    date.fromSeconds(whole&)
+    return Left(date.toISOString(), 19) + "Z"
+end function
+
+function TestMusicRender() as object
+    return { version: 2, id: "render-next", mode: "converted", url: "https://media.example.com/private/next.flac", container: "flac", codec: "flac", sampleRate: 96000, channels: 2, bitDepth: 24, durationFrames: 960000, trim: { startFrames: 0, endFrames: 0 }, prefetchBytes: 1048576 }
+end function
+
+function TestPreparedMusic(now as dynamic) as object
+    return { token: "private-token", entryId: "entry-next", itemId: "song-next", expiresAt: TestMusicISO(now + 60), presentation: { generation: 2, startPositionMs: 0, audioRender: TestMusicRender() } }
+end function
+
+function TestMusicJob(ctx as object) as object
+    session = TestSessionJson(ctx, "owner")
+    SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx), signIn: "local", serverName: "Den" }, session)
+    return { queueId: "queue-1", queueRevision: "revision-1", sessionId: "playing-old", sessionGeneration: 7, requestId: "prepare-request", epoch: 3, binding: ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId }) }
+end function
+
+function TestMusicCommitAnswer() as object
+    return { queue: { id: "queue-1", revision: "revision-2", total: 2 }, session: { id: "playing-new", revision: "1", kind: "audio", role: "local", state: "playing", itemId: "song-next", presentation: { generation: 2, mode: "stream", url: "https://media.example.com/private/next.flac", audioRender: TestMusicRender(), startPositionMs: 0, subtitles: [] } } }
+end function
+
+sub Test_Music_preparation_is_private_bounded_and_preserves_frames()
+    now = IsoToSeconds("2026-10-23T10:00:00Z")
+    raw = TestPreparedMusic(now)
+    raw.presentation.audioRender.trim = { startFrames: 312, endFrames: 128 }
+    raw.presentation.audioRender.gain = { db: -6 }
+    parsed = ParsePreparedMusic(raw, now)
+    AssertTrue(parsed <> invalid, "a private prepared resource is accepted")
+    AssertEqual(parsed.audio.url, "https://media.example.com/private/next.flac", "the exact private resource survives")
+    AssertEqual(parsed.audio.sampleRate, 96000, "actual rate is retained")
+    AssertSame(parsed.audio.trim, { startFrames: 312, endFrames: 128 }, "frame trims are never guessed from codec")
+    AssertEqual(parsed.audio.gain, invalid, "Roku never applies decoder gain to a baked resource")
+    raw.expiresAt = TestMusicISO(now)
+    AssertEqual(ParsePreparedMusic(raw, now), invalid, "expired preparation cannot be promoted")
+    raw.expiresAt = TestMusicISO(now + 66)
+    AssertEqual(ParsePreparedMusic(raw, now), invalid, "unbounded preparation cannot be held")
+    raw.expiresAt = TestMusicISO(now + 60)
+    raw.presentation.audioRender.delete("prefetchBytes")
+    AssertEqual(ParsePreparedMusic(raw, now), invalid, "no private byte limit is refused")
+    raw.presentation.audioRender.prefetchBytes = 0
+    AssertEqual(ParsePreparedMusic(raw, now), invalid, "zero private byte limit is refused")
+end sub
+
+sub Test_Music_preparation_authority_is_captured_in_every_dimension()
+    now = IsoToSeconds("2026-10-23T10:00:00Z")
+    binding = { origin: "https://media.example.com", serverId: "server-1", accountId: "person-1", profileId: "profile-1", authority: "local", sessionFamilyId: "family-1" }
+    prepared = { binding: binding, epoch: 3, queueId: "queue-1", queueRevision: "r1", sessionId: "playing-old", sessionGeneration: 7, expiresAt: TestMusicISO(now + 60) }
+    session = { id: "playing-old", presentation: { generation: 7 } }
+    queue = { id: "queue-1", revision: "r1" }
+    AssertTrue(MusicPreparationMatches(prepared, session, queue, binding, 3, now), "exact captured authority is current")
+    for each field in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        replacement = {}
+        replacement.append(binding)
+        replacement[field] = "replacement"
+        AssertTrue(not MusicPreparationMatches(prepared, session, queue, replacement, 3, now), "different " + field + " cannot inherit a private render")
+    end for
+    AssertTrue(not MusicPreparationMatches(prepared, session, queue, binding, 4, now), "a superseded player epoch cannot promote")
+    AssertTrue(not MusicPreparationMatches(prepared, session, { id: "queue-1", revision: "r2" }, binding, 3, now), "queue edits retire preparation")
+    AssertTrue(not MusicPreparationMatches(prepared, { id: "playing-old", presentation: { generation: 8 } }, queue, binding, 3, now), "replans retire preparation")
+    AssertTrue(not MusicPreparationMatches(prepared, session, queue, binding, 3, now + 60), "the exact expiration is closed")
+end sub
+
+sub Test_Music_prepare_window_respects_pause_and_passout()
+    session = { kind: "audio" }
+    queue = { upcoming: { available: true }, postPlay: { passoutCheckDue: false } }
+    AssertTrue(MusicPreparationDue(session, queue, "playing", 170, 200), "the thirty-second window is inclusive")
+    AssertTrue(not MusicPreparationDue(session, queue, "playing", 169, 200), "earlier playback does not prepare")
+    AssertTrue(not MusicPreparationDue(session, queue, "playing", 200, 200), "ended playback does not prepare")
+    AssertTrue(not MusicPreparationDue(session, queue, "paused", 190, 200), "pause does not prepare")
+    queue.postPlay.passoutCheckDue = true
+    AssertTrue(not MusicPreparationDue(session, queue, "playing", 190, 200), "a passout check is not bypassed")
+    queue.postPlay.passoutCheckDue = false
+    queue.upcoming.available = false
+    AssertTrue(not MusicPreparationDue(session, queue, "playing", 190, 200), "an unavailable next entry is not prepared")
+    AssertTrue(not MusicPreparationDue({ kind: "vod" }, queue, "playing", 190, 200), "video stays outside music preloading")
+end sub
+
+sub Test_Music_commit_uses_only_the_captured_token_and_never_replays()
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    job.token = "private-token"
+    url = ctx.base + "/v1/queues/queue-1:commit-next"
+    TestAnswer(ctx, "POST", url, 200, TestMusicCommitAnswer())
+    result = MusicCommit(ctx, job)
+    AssertTrue(result.ok, "server commit admits the new playback session")
+    AssertEqual(result.value.session.id, "playing-new")
+    sent = TestRequests(ctx, "POST", url)
+    AssertEqual(sent.count(), 1, "one commit request")
+    AssertSame(ParseJson(sent[0].body), { token: "private-token" }, "no substitute token or local queue advancement")
+    AssertEqual(sent[0].headers["Authorization"], "Bearer access-owner-prof_1", "captured viewer authenticates")
+
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    job.token = "private-token"
+    TestAnswer(ctx, "POST", url, 503, { code: "unavailable" })
+    result = MusicCommit(ctx, job)
+    AssertTrue(not result.ok, "a refusal stays unresolved")
+    AssertEqual(TestRequests(ctx, "POST", url).count(), 1, "the controller never replays a mutation automatically")
+end sub
+
+function TestMusicLateSend(request as object) as object
+    m.recordAnswer = TestSend
+    answer = m.recordAnswer(request)
+    if request.method = "POST" and Instr(1, request.url, ":commit-next") > 0 then m.transport.context.task.command = "stop"
+    return answer
+end function
+
+sub Test_Music_late_commit_retires_only_its_new_session()
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    job.token = "private-token"
+    ctx.task = { command: "commit" }
+    ctx.transport.context = ctx
+    ctx.send = TestMusicLateSend
+    TestAnswer(ctx, "POST", ctx.base + "/v1/queues/queue-1:commit-next", 200, TestMusicCommitAnswer())
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/playback/sessions/playing-new", 204)
+    result = MusicCommit(ctx, job)
+    AssertTrue(not result.ok and result.error.code = "cancelled", "a stopped player never promotes the late resource")
+    AssertEqual(ctx.transport.requests.count(), 2, "one commit and one captured cleanup")
+    AssertEqual(ctx.transport.requests[1].method, "DELETE")
+    AssertEqual(ctx.transport.requests[1].url, ctx.base + "/v1/playback/sessions/playing-new", "cleanup cannot stop the old or replacement session")
+    AssertEqual(ctx.transport.requests[1].headers["Authorization"], "Bearer access-owner-prof_1", "cleanup stays on the captured API")
+end sub

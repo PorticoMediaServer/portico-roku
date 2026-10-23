@@ -4,6 +4,7 @@
 ' asks, plays the URL it is given, and reports the timeline. A queue is the server's: Play,
 ' Shuffle and Next are requests, never a list kept here.
 import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/ContentEntry.bs"
 import "pkg:/source/core/ClientProfileTables.bs"
 import "pkg:/source/core/CapabilityTables.bs"
 

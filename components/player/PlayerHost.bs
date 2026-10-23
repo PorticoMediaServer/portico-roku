@@ -170,7 +170,7 @@ function PlayerOrigin() as string
 end function
 
 ' Ends what is playing (the viewer signed out or is switching server).
-sub stop()
+sub stopPlayback()
     if m.top.active then PlayerLeave()
     ' Sign-out/server-switch work cannot enter the next authentication context.
     PlayerCancelReports()

@@ -7,11 +7,12 @@ import {fileURLToPath} from 'node:url';
 import {rokuDeploy} from 'roku-deploy';
 
 const app = join(dirname(fileURLToPath(import.meta.url)), '..');
-const staging = join(app, 'build', 'staging');
-const zip = join(app, 'build', 'portico-roku.zip');
+const build = process.env.PORTICO_BUILD_DIR ?? join(app, 'build');
+const staging = join(build, 'staging');
+const zip = join(build, 'portico-roku.zip');
 rmSync(staging, {recursive: true, force: true});
 mkdirSync(dirname(zip), {recursive: true});
-execFileSync(join(app, 'node_modules', '.bin', 'bsc'), ['--project', 'bsconfig.json'], {cwd: app, stdio: 'inherit'});
+execFileSync(join(app, 'node_modules', '.bin', 'bsc'), ['--project', 'bsconfig.json', '--staging-dir', staging], {cwd: app, stdio: 'inherit'});
 rmSync(zip, {force: true});
 await rokuDeploy.zipFolder(staging, zip);
-console.log(`package: build/portico-roku.zip, ${(statSync(zip).size / 1024).toFixed(0)} KB`);
+console.log(`package: ${zip}, ${(statSync(zip).size / 1024).toFixed(0)} KB`);
