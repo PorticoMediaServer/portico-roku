@@ -1,0 +1,87 @@
+import "pkg:/source/core/Session.bs"
+
+function Identity38Fixture() as object
+    data = TestFixture("identity-main38.json")
+    for each item in data.digests
+        CryptoRegisterDigest(item.algorithm, item.input, item.digest)
+    end for
+    for each item in data.verdicts
+        CryptoRegisterVerdict(item.publicKey, item.signature, item.digest, item.valid)
+    end for
+    return data
+end function
+
+sub Test_IdentityMain38_signedV2AndStrongerBoundaries()
+    fixture = Identity38Fixture()
+    for each item in fixture.cases
+        result = RouteProofCheck(item.answer, item.origin, item.nonce, item.pin, item.now)
+        AssertEqual(result.ok, item.ok, item.name)
+        if not result.ok then AssertEqual(result.code, item.code, item.name)
+        if result.ok then
+            AssertEqual(result.pin.serverId, fixture.pin.serverId)
+            AssertEqual(result.pin.fingerprint, fixture.pin.fingerprint)
+            AssertEqual(result.observedTLSLeaf, invalid, "signed declarations never fabricate a same-connection TLS fact")
+        end if
+    end for
+end sub
+
+sub Test_IdentityMain38_probeRequestsCanonicalV2WithoutCredentials()
+    ctx = TestContext()
+    fixture = Identity38Fixture()
+    ctx.nonce = fixture.nonce
+    ctx.now = fixture.now
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.cases[0].answer)
+    answer = SessionProbe(ctx, ctx.base, fixture.pin)
+    AssertTrue(answer.ok)
+    request = ctx.transport.requests[0]
+    AssertEqual(request.headers.Accept, "application/json; portico-route-proof=2")
+    AssertEqual(request.headers.Authorization, invalid)
+    AssertEqual(request.headers["X-Portico-Installation-Id"], invalid)
+    AssertEqual(ParseJson(request.body).nonce, fixture.nonce)
+    AssertEqual(ctx.transport.requests.count(), 1)
+end sub
+
+sub Test_IdentityMain38_typedRememberedOriginCannotChangeLocalIdentity()
+    ctx = TestContext()
+    old = AccountTestBinding(ctx, "local")
+    AssertTrue(old.ok)
+    fixture = Identity38Fixture()
+    ctx.nonce = fixture.nonce
+    ctx.now = fixture.now
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.cases[0].answer)
+    result = SessionConnect(ctx, "192.168.1.20:32500")
+    AssertEqual(result.ok, false)
+    if not result.ok then
+        AssertEqual(result.failure.code, "identity_mismatch")
+        AssertEqual(result.failure.savedServerId, old.record["pin"].serverId)
+    end if
+    AssertEqual(ctx.transport.requests.count(), 1, "no system/name/credential request after changed identity")
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, old.record["session"].sessionFamilyId)
+    ' Even an explicit matching new pin/link cannot take over the old saved Local address.
+    again = SessionConnect(ctx, ctx.base, fixture.pin)
+    AssertEqual(again.ok, false)
+    AssertEqual(ctx.transport.requests.count(), 2)
+    ' Forget is local only. It removes that route ownership; a subsequent first contact may work.
+    SessionForget(ctx, old.record["pin"].serverId)
+    AssertEqual(ctx.transport.requests.count(), 2)
+    system = AccountTestSystem(ctx, "local")
+    system.id = fixture.pin.serverId
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, system)
+    connected = SessionConnect(ctx, ctx.base)
+    AssertTrue(connected.ok)
+    AssertEqual(ctx.transport.requests.count(), 4)
+    AssertEqual(TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current").count(), 0, "Forget never sends the old token to this address")
+end sub
+
+sub Test_IdentityMain38_sameSavedIdentityAndOtherOriginsRemainIndependent()
+    ctx = TestContext()
+    saved = AccountTestBinding(ctx, "local")
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, AccountTestSystem(ctx, "local"))
+    AssertTrue(SessionConnect(ctx, ctx.base).ok)
+    otherOrigin = "https://other.example"
+    fixture = Identity38Fixture()
+    AssertTrue(SessionFirstContactIdentity(ctx, otherOrigin, fixture.pin).ok)
+    AssertEqual(SessionFirstContactIdentity(ctx, ctx.base, fixture.pin).ok, false)
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, saved.record["session"].sessionFamilyId)
+end sub

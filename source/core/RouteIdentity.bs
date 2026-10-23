@@ -10,6 +10,7 @@ import "pkg:/source/core/Crypto.bs"
 import "pkg:/source/core/Ed25519.bs"
 import "pkg:/source/core/Time.bs"
 import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/AccountRoutes.bs"
 
 function RouteFailure(code as string, message as string) as object
     return { ok: false, code: code, message: message }
@@ -171,13 +172,30 @@ function RouteProofCheck(answer as dynamic, baseUrl as string, nonce as string, 
     signed = SignedEnvelope(answer)
     if not signed.ok then return signed
     v = signed.document
-    if v.kind <> "portico.route-proof" or v.version <> "1" or v.baseUrl <> baseUrl or v.nonce <> nonce or not IsString(v.serverId) or not IsString(v.publicKey) or not IsString(v.fingerprint) then return RouteFailure("identity_mismatch", "The server did not prove this connection.")
+    if v.kind <> "portico.route-proof" or not ArrayIncludes(RouteProofVersions(), v.version) or v.baseUrl <> baseUrl or v.nonce <> nonce or not IsString(v.serverId) or not IsString(v.publicKey) or not IsString(v.fingerprint) then return RouteFailure("identity_mismatch", "The server did not prove this connection.")
+    for each key in v.keys()
+        if not ArrayIncludes(RouteProofFields(v.version), key) then return RouteFailure("invalid_identity", "Invalid signed connection evidence.")
+    end for
+    if v.doesExist("tlsCertificateFingerprints") then
+        values = v.tlsCertificateFingerprints
+        if not IsArray(values) or values.count() < 1 or values.count() > RouteProofFingerprintLimit() then return RouteFailure("invalid_identity", "Invalid TLS certificate binding.")
+        seen = {}
+        seen.setModeCaseSensitive()
+        for each value in values
+            if Base64UrlDecode(value, 32) = invalid then return RouteFailure("invalid_identity", "Invalid TLS certificate binding.")
+            if seen.doesExist(value) then return RouteFailure("invalid_identity", "Invalid TLS certificate binding.")
+            seen[value] = true
+        end for
+    end if
     actual = ServerPin(v.serverId, v.publicKey, v.fingerprint)
     if not actual.ok then return actual
     if pin <> invalid and not SameServerPin(actual.pin, pin) then return RouteFailure("identity_mismatch", "This address belongs to a different server. No credentials were sent.")
-    if not RouteTimesValid(v, 30, atSeconds, false) then return RouteFailure("route_stale", "The connection evidence is expired or has an invalid clock.")
     if not Ed25519Verify(Base64UrlDecode(actual.pin.publicKey, 32), signed.signature, signed.payload) then return RouteFailure("identity_mismatch", "The server could not prove its identity. No credentials were sent.")
-    return { ok: true, pin: actual.pin }
+    ' Keep Roku's strict UTC/freshness guard. Never report a clock failure for an unsigned body.
+    if not RouteTimesValid(v, 30, atSeconds, false) then return RouteFailure("route_stale", "The connection evidence is expired or has an invalid clock.")
+    ' These are signed server declarations, not this connection's observed TLS leaf. Ruling17
+    ' keeps Roku on normal public CA/host validation and does not grant own-certificate trust.
+    return { ok: true, pin: actual.pin, version: v.version }
 end function
 
 function IsGeneration(value as dynamic) as boolean

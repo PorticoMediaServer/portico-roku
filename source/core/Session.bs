@@ -79,7 +79,7 @@ function SessionProbe(ctx as object, origin as string, pin as dynamic) as object
     if ctx.nonce <> invalid then nonce = ctx.nonce
     api = SessionApi(ctx, origin)
     api.timeoutMs = 3000
-    answer = ApiRequest(api, "/v1/networking/identity-proof", "POST", { "baseUrl": origin, "nonce": nonce })
+    answer = ApiRequest(api, AccountRoutes.routeProof, "POST", { "baseUrl": origin, "nonce": nonce }, { "Accept": RouteProofAccept() })
     if not answer.ok then
         code = "route_unavailable"
         if answer.status = 401 then code = "authentication_required"
@@ -104,12 +104,28 @@ function SessionConnect(ctx as object, typed as string, pin = invalid as dynamic
         if code = "network" or code = "timeout" or code = "route_unavailable" then proof.failure.shown = "apple.connect.unreachable"
         return proof
     end if
+    ' Canonical assertFirstContactIdentity/knownServerRoutes: typing an address (or supplying
+    ' a different link pin) cannot take over any saved Local server's remembered route.
+    owner = SessionFirstContactIdentity(ctx, origin.origin, proof.pin)
+    if not owner.ok then return owner
     system = ApiRequest(SessionApi(ctx, origin.origin), AccountRoutes.system)
     if not system.ok then return { ok: false, failure: system.error }
     if IsObject(system.data) and system.data.setupRequired = true then return SessionFailure("setup_required", "", "apple.connect.setupRequired")
     parsed = ParseServerSignIn(system.data, proof.pin.serverId)
     if not parsed.ok then return parsed
-    return { ok: true, connection: { origin: origin.origin, pin: proof.pin, signIn: parsed.signIn, serverName: parsed.name } }
+    return { ok: true, connection: { origin: origin.origin, pin: proof.pin, signIn: parsed.signIn, serverName: parsed.name, move: parsed.move } }
+end function
+
+function SessionFirstContactIdentity(ctx as object, origin as string, pin as object) as object
+    for each record in SessionRecords(ctx)
+        if record["signIn"] = "local" and record["logicalOrigin"] = origin and not SameServerPin(record["pin"], pin) then
+            failed = SessionFailure("identity_mismatch")
+            failed.failure.savedServerId = record["pin"].serverId
+            failed.failure.serverName = record["serverName"]
+            return failed
+        end if
+    end for
+    return { ok: true }
 end function
 
 
@@ -157,8 +173,8 @@ end sub
 function SessionAdmissionCurrent(ctx as object) as boolean
     if ctx.admissionRevision <> invalid and ctx.admissionRevision <> SessionRevision(ctx) then return false
     if ctx.task <> invalid then
-        ' Some Tasks declare their own cooperative command (SetupCodeTask also projects an
-        ' assocarray state). Preserve that command AND the SDK string state; control is write-only.
+        ' Some Tasks declare their own cooperative command. Preserve that command AND the SDK
+        ' string state; SetupCodeTask's consent projection is codeState. control is write-only.
         command = invalid
         state = invalid
         if IsObject(ctx.task) then

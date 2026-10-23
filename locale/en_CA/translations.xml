@@ -3852,9 +3852,37 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>web.together.yourName</source>
             <target>Your name in the group</target>
         </trans-unit>
+        <trans-unit id="accounts.brand">
+            <source>accounts.brand</source>
+            <target>Portico</target>
+        </trans-unit>
+        <trans-unit id="accounts.provider.google">
+            <source>accounts.provider.google</source>
+            <target>Google</target>
+        </trans-unit>
+        <trans-unit id="accounts.provider.apple">
+            <source>accounts.provider.apple</source>
+            <target>Apple</target>
+        </trans-unit>
+        <trans-unit id="accounts.legal.privacy">
+            <source>accounts.legal.privacy</source>
+            <target>Privacy</target>
+        </trans-unit>
+        <trans-unit id="accounts.legal.termsAddress">
+            <source>accounts.legal.termsAddress</source>
+            <target>getportico.tv/terms</target>
+        </trans-unit>
+        <trans-unit id="accounts.legal.privacyAddress">
+            <source>accounts.legal.privacyAddress</source>
+            <target>getportico.tv/privacy</target>
+        </trans-unit>
         <trans-unit id="accounts.signIn.portico">
             <source>accounts.signIn.portico</source>
             <target>Sign in with Portico Account</target>
+        </trans-unit>
+        <trans-unit id="accounts.signIn.onTV">
+            <source>accounts.signIn.onTV</source>
+            <target>Sign in on this TV</target>
         </trans-unit>
         <trans-unit id="accounts.signIn.local">
             <source>accounts.signIn.local</source>
@@ -3888,9 +3916,25 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>accounts.signIn.anotherServer</source>
             <target>Choose another server</target>
         </trans-unit>
-        <trans-unit id="accounts.signIn.confirmIdentity">
-            <source>accounts.signIn.confirmIdentity</source>
-            <target>Confirm server identity</target>
+        <trans-unit id="accounts.signIn.to">
+            <source>accounts.signIn.to</source>
+            <target>Sign in to</target>
+        </trans-unit>
+        <trans-unit id="accounts.signIn.localBody">
+            <source>accounts.signIn.localBody</source>
+            <target>Use an account that lives on this server.</target>
+        </trans-unit>
+        <trans-unit id="accounts.signIn.handoffBody">
+            <source>accounts.signIn.handoffBody</source>
+            <target>This server uses Portico Accounts. Sign in at web.getportico.tv and you come straight back here.</target>
+        </trans-unit>
+        <trans-unit id="accounts.signIn.handoff">
+            <source>accounts.signIn.handoff</source>
+            <target>Continue to Portico Account</target>
+        </trans-unit>
+        <trans-unit id="accounts.signIn.submit">
+            <source>accounts.signIn.submit</source>
+            <target>Sign in</target>
         </trans-unit>
         <trans-unit id="accounts.signIn.username">
             <source>accounts.signIn.username</source>
@@ -3908,10 +3952,6 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>accounts.signIn.showPassword</source>
             <target>Show</target>
         </trans-unit>
-        <trans-unit id="accounts.signIn.hidePassword">
-            <source>accounts.signIn.hidePassword</source>
-            <target>Hide</target>
-        </trans-unit>
         <trans-unit id="accounts.signIn.continue">
             <source>accounts.signIn.continue</source>
             <target>Continue</target>
@@ -3919,18 +3959,6 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
         <trans-unit id="accounts.signIn.back">
             <source>accounts.signIn.back</source>
             <target>Back</target>
-        </trans-unit>
-        <trans-unit id="accounts.signIn.failed">
-            <source>accounts.signIn.failed</source>
-            <target>Could not sign in. Try again.</target>
-        </trans-unit>
-        <trans-unit id="accounts.signIn.serverUnavailable">
-            <source>accounts.signIn.serverUnavailable</source>
-            <target>The server could not be reached. Check the address and try again.</target>
-        </trans-unit>
-        <trans-unit id="accounts.signIn.verifying">
-            <source>accounts.signIn.verifying</source>
-            <target>Checking the server…</target>
         </trans-unit>
         <trans-unit id="accounts.signIn.passwordsDiffer">
             <source>accounts.signIn.passwordsDiffer</source>
@@ -3946,23 +3974,35 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
         </trans-unit>
         <trans-unit id="accounts.signOut.server">
             <source>accounts.signOut.server</source>
-            <target>Sign out of {server}</target>
+            <target>Sign out</target>
+        </trans-unit>
+        <trans-unit id="accounts.signOut.serverOnDevice">
+            <source>accounts.signOut.serverOnDevice</source>
+            <target>Sign out of {server} on this {device}?</target>
+        </trans-unit>
+        <trans-unit id="accounts.signOut.serverConfirmation">
+            <source>accounts.signOut.serverConfirmation</source>
+            <target>Sign out of {server} on this device? You'll need to sign in again.</target>
         </trans-unit>
         <trans-unit id="accounts.signOut.portico">
             <source>accounts.signOut.portico</source>
-            <target>Sign out of your Portico Account</target>
-        </trans-unit>
-        <trans-unit id="accounts.signOut.porticoBody">
-            <source>accounts.signOut.porticoBody</source>
-            <target>Your Portico Account and Portico server sessions end on this device. Local server sessions stay.</target>
+            <target>Sign out of Portico Account</target>
         </trans-unit>
         <trans-unit id="accounts.profiles.pin">
             <source>accounts.profiles.pin</source>
-            <target>Profile PIN</target>
+            <target>Enter profile PIN</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.pinForProfile">
+            <source>accounts.profiles.pinForProfile</source>
+            <target>Enter {profile}’s PIN</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.pinLabel">
+            <source>accounts.profiles.pinLabel</source>
+            <target>Four-digit PIN</target>
         </trans-unit>
         <trans-unit id="accounts.profiles.pinFailed">
             <source>accounts.profiles.pinFailed</source>
-            <target>The profile could not be opened. Check the PIN and try again.</target>
+            <target>That PIN isn’t right. Try again.</target>
         </trans-unit>
         <trans-unit id="accounts.profiles.continue">
             <source>accounts.profiles.continue</source>
@@ -3974,11 +4014,11 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
         </trans-unit>
         <trans-unit id="accounts.profiles.onServer">
             <source>accounts.profiles.onServer</source>
-            <target>Who’s watching on {server}</target>
+            <target>Who’s watching on {server}?</target>
         </trans-unit>
-        <trans-unit id="accounts.profiles.unavailable">
-            <source>accounts.profiles.unavailable</source>
-            <target>The profiles could not be loaded. Try again.</target>
+        <trans-unit id="accounts.profiles.serverContext">
+            <source>accounts.profiles.serverContext</source>
+            <target>On {server}</target>
         </trans-unit>
         <trans-unit id="accounts.profiles.retry">
             <source>accounts.profiles.retry</source>
@@ -3987,10 +4027,6 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
         <trans-unit id="accounts.servers.title">
             <source>accounts.servers.title</source>
             <target>Your servers</target>
-        </trans-unit>
-        <trans-unit id="accounts.servers.empty">
-            <source>accounts.servers.empty</source>
-            <target>No servers yet.</target>
         </trans-unit>
         <trans-unit id="accounts.move.oldPasswordAction">
             <source>accounts.move.oldPasswordAction</source>
@@ -4132,13 +4168,145 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>accounts.settings.codesOnWeb</source>
             <target>Make their codes on the web.</target>
         </trans-unit>
+        <trans-unit id="accounts.ownerSwitch.secureTitle">
+            <source>accounts.ownerSwitch.secureTitle</source>
+            <target>Switch from a secure page</target>
+        </trans-unit>
+        <trans-unit id="accounts.ownerSwitch.secureBody">
+            <source>accounts.ownerSwitch.secureBody</source>
+            <target>Switching sends sign-in details this page can’t protect. Open Portico at its secure address, or on the server itself at {localUrl}.</target>
+        </trans-unit>
+        <trans-unit id="accounts.ownerSwitch.openSecure">
+            <source>accounts.ownerSwitch.openSecure</source>
+            <target>Open secure address</target>
+        </trans-unit>
         <trans-unit id="accounts.consent.portico">
             <source>accounts.consent.portico</source>
-            <target>Approve with the same Portico Account on any signed-in device or at web.getportico.tv.</target>
+            <target>Scan the QR code, or visit web.getportico.tv/device and enter the code. Sign in with Google, Apple, or your Portico Account in the browser.</target>
         </trans-unit>
         <trans-unit id="accounts.consent.local">
             <source>accounts.consent.local</source>
-            <target>Approve with the same local account on any signed-in device, or enter your username and password.</target>
+            <target>On a phone signed in to {server}, open Portico › Settings › Link a TV, or on a computer open {address}.</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.changedBody">
+            <source>connection.identity.changedBody</source>
+            <target>A different server is answering at its address, so nothing was sent. Check with its owner before you sign in again.</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.forget">
+            <source>connection.identity.forget</source>
+            <target>Forget {server}</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.forgetTitle">
+            <source>connection.identity.forgetTitle</source>
+            <target>Forget {server}?</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.forgetBody">
+            <source>connection.identity.forgetBody</source>
+            <target>You’ll need to sign in again. Only do that if its owner says the server was reset.</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.forgetAction">
+            <source>connection.identity.forgetAction</source>
+            <target>Forget</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.checkTitle">
+            <source>connection.identity.checkTitle</source>
+            <target>Check this is {server}</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.checkBody">
+            <source>connection.identity.checkBody</source>
+            <target>Ask its owner for the identity code in Settings › Remote access.</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.codeLabel">
+            <source>connection.identity.codeLabel</source>
+            <target>Identity code</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.checkHome">
+            <source>connection.identity.checkHome</source>
+            <target>Or connect once at home instead.</target>
+        </trans-unit>
+        <trans-unit id="connection.identity.codeWrong">
+            <source>connection.identity.codeWrong</source>
+            <target>That code doesn’t match this server, so nothing was sent. Check it with its owner.</target>
+        </trans-unit>
+        <trans-unit id="connection.certificate.unsupported">
+            <source>connection.certificate.unsupported</source>
+            <target>If this server uses its own certificate: this TV accepts only certificates from a public authority. Use the server’s http:// address on your home network, or turn on its secure connection.</target>
+        </trans-unit>
+        <trans-unit id="connection.plainHttp.appleRemote">
+            <source>connection.plainHttp.appleRemote</source>
+            <target>On Apple devices, plain HTTP works only on your home network. Use this server’s https:// address.</target>
+        </trans-unit>
+        <trans-unit id="system.siri.resume.title">
+            <source>system.siri.resume.title</source>
+            <target>Resume watching</target>
+        </trans-unit>
+        <trans-unit id="system.siri.resume.description">
+            <source>system.siri.resume.description</source>
+            <target>Picks up where you left off.</target>
+        </trans-unit>
+        <trans-unit id="system.siri.play.title">
+            <source>system.siri.play.title</source>
+            <target>Play a title</target>
+        </trans-unit>
+        <trans-unit id="system.siri.play.description">
+            <source>system.siri.play.description</source>
+            <target>Plays something from Continue Watching or My List.</target>
+        </trans-unit>
+        <trans-unit id="system.siri.play.ask">
+            <source>system.siri.play.ask</source>
+            <target>Which title?</target>
+        </trans-unit>
+        <trans-unit id="system.siri.title">
+            <source>system.siri.title</source>
+            <target>Title</target>
+        </trans-unit>
+        <trans-unit id="system.siri.phrase.resume">
+            <source>system.siri.phrase.resume</source>
+            <target>Resume {app}</target>
+        </trans-unit>
+        <trans-unit id="system.siri.phrase.continue">
+            <source>system.siri.phrase.continue</source>
+            <target>Continue watching in {app}</target>
+        </trans-unit>
+        <trans-unit id="system.siri.phrase.play">
+            <source>system.siri.phrase.play</source>
+            <target>Play {title} in {app}</target>
+        </trans-unit>
+        <trans-unit id="system.siri.phrase.watch">
+            <source>system.siri.phrase.watch</source>
+            <target>Watch {title} in {app}</target>
+        </trans-unit>
+        <trans-unit id="system.spotlight.continueWatching">
+            <source>system.spotlight.continueWatching</source>
+            <target>Continue Watching</target>
+        </trans-unit>
+        <trans-unit id="system.spotlight.myList">
+            <source>system.spotlight.myList</source>
+            <target>My List</target>
+        </trans-unit>
+        <trans-unit id="system.nowPlaying.episodeLine">
+            <source>system.nowPlaying.episodeLine</source>
+            <target>{label}, {title}</target>
+        </trans-unit>
+        <trans-unit id="system.apple.localNetwork.ios">
+            <source>system.apple.localNetwork.ios</source>
+            <target>Portico looks for servers, TVs and Google Cast devices on your network. Without it, addresses and TV codes still work.</target>
+        </trans-unit>
+        <trans-unit id="system.apple.localNetwork.tvos">
+            <source>system.apple.localNetwork.tvos</source>
+            <target>Portico looks for servers and TVs on your network. Without it, addresses and sign-in codes still work.</target>
+        </trans-unit>
+        <trans-unit id="system.android.channel.downloads">
+            <source>system.android.channel.downloads</source>
+            <target>Downloads</target>
+        </trans-unit>
+        <trans-unit id="system.android.channel.playback">
+            <source>system.android.channel.playback</source>
+            <target>Now playing</target>
+        </trans-unit>
+        <trans-unit id="system.android.download.running">
+            <source>system.android.download.running</source>
+            <target>Downloading</target>
         </trans-unit>
         <trans-unit id="web.signin.welcomeHome">
             <source>web.signin.welcomeHome</source>
