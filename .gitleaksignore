@@ -1,0 +1,5 @@
+# Exact historical source-content SHA-256 fingerprints, verified against the
+# canonical Git blobs for credential-format.ts and credentials.ts at 2079119.
+# Keep new findings at this path subject to the unchanged default scanner rules.
+0175cfcb10bf5f68dd730c654e554e497fba2b16:scripts/accounts-source-pins.json:generic-api-key:15
+0175cfcb10bf5f68dd730c654e554e497fba2b16:scripts/accounts-source-pins.json:generic-api-key:16
