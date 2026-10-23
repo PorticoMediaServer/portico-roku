@@ -9,13 +9,16 @@ import "pkg:/source/core/ClientProfile.bs"
 function ViewerRequestBinding(viewer as dynamic) as dynamic
     if viewer = invalid or viewer.viewer = invalid then return invalid
     facts = viewer.viewer
-    return { origin: viewer.origin, serverId: facts.serverId, accountId: facts.accountId, profileId: facts.profileId, authority: facts.authority }
+    binding = { origin: viewer.origin, serverId: facts.serverId, accountId: facts.accountId, profileId: facts.profileId, authority: facts.authority }
+    if IsText(viewer.sessionFamilyId, 128) then binding.sessionFamilyId = viewer.sessionFamilyId
+    return binding
 end function
 
 function ViewerMatchesRequestBinding(record as dynamic, expected as dynamic) as boolean
     if expected = invalid then return true
     if record = invalid then return false
     facts = record["session"].viewer
+    if expected.sessionFamilyId <> invalid and expected.sessionFamilyId <> record["session"].sessionFamilyId then return false
     return record["logicalOrigin"] = expected.origin and facts.serverId = expected.serverId and facts.accountId = expected.accountId and facts.profileId = expected.profileId and facts.authority = expected.authority
 end function
 
@@ -79,7 +82,7 @@ end function
 function PlaybackViewerRequest(ctx as object, path as string, method = "GET" as string, body = invalid as dynamic, extra = invalid as dynamic, expectedViewer = invalid as dynamic) as object
     if expectedViewer = invalid then
         record = SessionRecord(ctx)
-        if record <> invalid then expectedViewer = ViewerRequestBinding({ origin: record["logicalOrigin"], viewer: record["session"].viewer })
+        if record <> invalid then expectedViewer = ViewerRequestBinding({ origin: record["logicalOrigin"], sessionFamilyId: record["session"].sessionFamilyId, viewer: record["session"].viewer })
     end if
     if PlaybackNeedsCapabilities(path, method) or (path = PlaybackRoutes.capabilities and method = "PUT") then
         published = PublishDeviceCapabilities(ctx, expectedViewer, DeviceFacts())

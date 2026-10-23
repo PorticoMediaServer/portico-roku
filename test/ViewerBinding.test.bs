@@ -35,3 +35,16 @@ sub Test_ViewerBinding_refresh_cannot_cross_profile_switch()
     AssertEqual(ctx.transport.requests.count(), before, "stale request does not refresh replacement profile")
     AssertTrue(ViewerApi(ctx) <> invalid, "generic callers remain usable without binding")
 end sub
+
+sub Test_ViewerBinding_same_person_new_family_is_not_old_playback()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "owner")
+    accepted = SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx), signIn: "local", serverName: "Den" }, session)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId })
+    session.sessionFamilyId = "fam_replacement"
+    SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx), signIn: "local", serverName: "Den" }, session)
+    before = ctx.transport.requests.count()
+    result = ViewerRequest(ctx, "/v1/queues/q:commit-next", "POST", { token: "private_token" }, invalid, binding)
+    AssertEqual(result.ok, false)
+    AssertEqual(ctx.transport.requests.count(), before, "the same person signing back in cannot inherit an old queue token")
+end sub

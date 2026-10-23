@@ -5,6 +5,10 @@
     "packages/client-core/src/playback-v1/queue.ts": "3d623b1d85833c2455a2367bde4d3114e651617cef3baacf65603b2b11baae7e",
     "packages/contracts/src/routes.ts": "3872c663f353d9b37ede44f7b5449388bebe86385f80372a93945b88ac6702ab",
     "server/internal/playback/capability_document.go": "581195129d4086df05ae58b0d5b97e00ca034155c8d4e90e8036f6885b1da281",
-    "server/internal/httpapi/playback_v1_routes.go": "f64c8a8adbd2577a44a099f7093fc1f29f30a231165d0c4971af68ff7eb70c71"
+    "server/internal/httpapi/playback_v1_routes.go": "f64c8a8adbd2577a44a099f7093fc1f29f30a231165d0c4971af68ff7eb70c71",
+    "packages/client-core/src/playback-v1/audio-render.ts": "db4818781057c8fe028fba26a8cf8ae5da8bf460307c54cd2673fe2259b5d6dc",
+    "packages/client-core/src/playback-v1/types.ts": "875116f0bf5ab321251b1d156f7d2bf71300caf3d7c35417440a7b6416251c04",
+    "packages/client-core/src/playback-v1/v1-queue-player.ts": "aa63193c396aba01d73bdf1743a6c199f8ed79e302aad23893d617338bc22a9e",
+    "server/internal/playbackv1/transitions.go": "806ce7fb5ae1922c7a81712b8c538b565d6a87b8d9b55104128260334dffd757"
   }
 }

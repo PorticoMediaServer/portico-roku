@@ -25,6 +25,7 @@ import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Format.bs"
 import "pkg:/source/core/Crypto.bs"
 import "pkg:/source/core/Playback.bs"
+import "pkg:/source/core/Music.bs"
 import "pkg:/source/core/TimelineOutbox.bs"
 import "pkg:/source/core/Content.bs"
 import "pkg:/source/core/ClientProfileTables.bs"
@@ -42,6 +43,12 @@ sub init()
     height = Theme.screen.height
     m.ground = MakeRect(m.top, width, height, Theme.colors.black)
     m.video = m.top.createChild("Video")
+    m.mainVideo = m.video
+    m.musicEpoch = 0
+    m.musicTask = invalid
+    m.musicNext = invalid
+    m.musicPrepared = invalid
+    m.musicAttempted = ""
     m.video.width = width
     m.video.height = height
     m.video.enableUI = false
@@ -104,6 +111,8 @@ sub init()
 end sub
 
 sub PlayerReset()
+    PlayerCancelPreparation()
+    m.viewerBinding = invalid
     ' A prompt from the title before never outlives it.
     if m.undo <> invalid then PlayerHideUndo()
     if m.credits <> invalid then PlayerHideCredits()
@@ -169,6 +178,7 @@ end sub
 
 ' Watch Together: the follower keeps this player on the group's clock.
 sub groupDo(action as object)
+    PlayerCancelPreparation()
     if not PlayerReportGestureAllowed() then return
     if m.session = invalid or m.channel <> invalid then return
     if action.kind = "play" then
@@ -250,6 +260,7 @@ sub play(request as object)
     PlayerReset()
     m.generation = m.generation + 1
     m.request = request
+    m.viewerBinding = ViewerRequestBinding(m.global.session.viewer)
     m.channel = request.channel
     if request.itemId <> invalid then m.playingItem = request.itemId
     m.entry = request.entry
@@ -312,6 +323,7 @@ function PlayerSkipForward() as dynamic
 end function
 
 sub PlayerSend(name as string, request as object, handler as string)
+    request.expectedViewer = m.viewerBinding
     task = ApiStart(request, handler)
     task.addFields({ generation: m.generation })
     m.tasks[name] = task
@@ -569,7 +581,27 @@ sub PlayerAdopt(session as object)
     presentation = session.presentation
     content = CreateObject("roSGNode", "ContentNode")
     content.url = PlaybackUrl(PlayerOrigin(), presentation.url)
-    content.streamFormat = StreamFormatFor(presentation)
+    promoted = false
+    if session.kind = "audio" and presentation.audioRender <> invalid then
+        render = presentation.audioRender
+        content.url = PlaybackUrl(PlayerOrigin(), render.url)
+        content.streamFormat = render.container
+        if m.musicNext <> invalid and m.musicPrepared <> invalid then
+            promoted = m.musicPrepared.audio.id = render.id and m.musicPrepared.audio.url = render.url
+        end if
+        if promoted then
+            PlayerUseEngine(m.musicNext)
+            m.musicNext = invalid
+            m.musicPrepared = invalid
+        else
+            PlayerCancelPreparation()
+            PlayerUseEngine(m.top.createChild("Audio"))
+        end if
+    else
+        PlayerCancelPreparation()
+        PlayerUseEngine(m.mainVideo)
+    end if
+    if not (session.kind = "audio" and presentation.audioRender <> invalid) then content.streamFormat = StreamFormatFor(presentation)
     content.title = m.identity.title
     ' The URL carries its own grant: the session's bearer is never sent with it.
     start = presentation.startPositionMs / 1000
@@ -592,14 +624,14 @@ sub PlayerAdopt(session as object)
     for each subtitle in presentation.subtitles
         tracks.push({ "TrackName": PlaybackUrl(PlayerOrigin(), subtitle.url), "Language": "eng", "Description": subtitle.trackId })
     end for
-    if tracks.count() > 0 then
+    if tracks.count() > 0 and m.video.hasField("globalCaptionMode") then
         content.subtitleTracks = tracks
         m.video.globalCaptionMode = "On"
         m.video.subtitleTrack = tracks[0].TrackName
-    else
+    else if m.video.hasField("globalCaptionMode") then
         m.video.globalCaptionMode = "Off"
     end if
-    m.video.content = content
+    if not promoted then m.video.content = content
     m.audio = session.kind = "audio"
     m.phase = "loading"
     m.video.control = "play"
@@ -619,6 +651,7 @@ function PlayerIsSong() as boolean
 end function
 
 sub PlayerFail(failure as dynamic)
+    PlayerCancelPreparation()
     m.channelPoll.control = "stop"
     m.failure = failure
     if m.top.active and not m.top.expanded then
@@ -640,7 +673,8 @@ end function
 
 ' ---- The Video node ----------------------------------------------------------------------------
 
-sub onPlayerVideoState()
+sub onPlayerVideoState(event as object)
+    if not event.getRoSGNode().isSameNode(m.video) then return
     state = m.video.state
     if m.session = invalid or m.phase = "ended" or m.phase = "error" then return
     if state = "playing" then
@@ -674,12 +708,14 @@ function PlayerReportState() as string
     return "buffering"
 end function
 
-sub onPlayerPosition()
+sub onPlayerPosition(event as object)
+    if not event.getRoSGNode().isSameNode(m.video) then return
     if m.session = invalid then return
     if m.video.position > 0 then m.lastPosition = m.video.position
     PlayerTimeline()
     PlayerSkipPrompt()
     LyricsFollow()
+    PlayerPrepareNextAudio()
 end sub
 
 ' ---- The timeline report (spec §6): progress, lease renewal and observation ---------------------
@@ -698,6 +734,7 @@ sub onPlayerReport()
 end sub
 
 sub PlayerSendReport(state as string, failure as dynamic, urgent = true as boolean)
+    if m.advancePending then return
     if m.session = invalid then return
     if m.reportDisabledId = m.session.id then return
     m.report.control = "stop"
@@ -721,7 +758,7 @@ function PlayerReportGestureAllowed() as boolean
 end function
 
 function PlayerQueueReport(item as object) as boolean
-    item.expectedViewer = ViewerRequestBinding(m.global.session.viewer)
+    item.expectedViewer = m.viewerBinding
     if item.expectedViewer = invalid then return false
     if not TimelineOutboxPut(m.reportOutbox, item) then
         ' Bound memory during gesture storms against an offline server. Accepted facts stay
@@ -742,7 +779,7 @@ sub PlayerPumpReports()
         PlayerReportSoon()
         return
     end if
-    if item.action = "advance" and item.playerGeneration <> m.generation then
+    if (item.action = "advance" or item.action = "commitAudio") and item.playerGeneration <> m.generation then
         TimelineOutboxAck(m.reportOutbox)
         PlayerPumpReports()
         return
@@ -750,7 +787,14 @@ sub PlayerPumpReports()
     path = "/v1/playback/sessions/" + item.sessionId
     if item.method = "POST" then path = path + "/timeline"
     if item.path <> invalid then path = item.path
-    m.reportTask = ApiStart({ path: path, method: item.method, body: item.body, headers: item.headers, reader: item.reader, expectedViewer: item.expectedViewer }, "onPlayerReported")
+    if item.action = "commitAudio" then
+        m.reportTask = m.top.createChild("MusicTask")
+        m.reportTask.job = item.job
+        m.reportTask.observeField("result", "onPlayerReported")
+        m.reportTask.control = "RUN"
+    else
+        m.reportTask = ApiStart({ path: path, method: item.method, body: item.body, headers: item.headers, reader: item.reader, expectedViewer: item.expectedViewer }, "onPlayerReported")
+    end if
     if item.playerGeneration <> invalid then m.reportTask.addFields({ generation: item.playerGeneration })
 end sub
 
@@ -762,7 +806,7 @@ sub onPlayerReported(event as object)
     m.reportTask.unobserveField("result")
     m.reportTask = invalid
     result = event.getData()
-    if item.action = "advance" and item.playerGeneration <> m.generation then
+    if (item.action = "advance" or item.action = "commitAudio") and item.playerGeneration <> m.generation then
         TimelineOutboxAck(m.reportOutbox)
         PlayerPumpReports()
         return
@@ -773,7 +817,7 @@ sub onPlayerReported(event as object)
         return
     end if
     if not result.ok then
-        if TimelineOutboxDeadSession(result.status) and item.action <> "advance" then
+        if TimelineOutboxDeadSession(result.status) and item.action <> "advance" and item.action <> "commitAudio" then
             if m.session <> invalid and m.session.id = item.sessionId then m.reportDisabledId = item.sessionId
             TimelineOutboxForget(m.reportOutbox, item.sessionId)
         else
@@ -784,7 +828,7 @@ sub onPlayerReported(event as object)
         TimelineOutboxAck(m.reportOutbox)
     end if
     m.reportOverflow = false
-    if item.action = "advance" then onPlayerAdvanced(event)
+    if item.action = "advance" or item.action = "commitAudio" then onPlayerAdvanced(event)
     PlayerPumpReports()
 end sub
 
@@ -798,7 +842,11 @@ sub PlayerCancelReports()
     m.reportRetry.control = "stop"
     if m.reportTask <> invalid then
         m.reportTask.unobserveField("result")
-        m.reportTask.control = "STOP"
+        if m.reportTask.subtype() = "MusicTask" then
+            m.reportTask.command = "stop"
+        else
+            m.reportTask.control = "STOP"
+        end if
     end if
     m.reportTask = invalid
     m.reportOutbox = TimelineOutboxNew()
@@ -823,6 +871,8 @@ end sub
 ' ---- Seeking, toggling, the queue ---------------------------------------------------------------
 
 sub toggle()
+    if m.advancePending then return
+    PlayerCancelPreparation()
     if not PlayerReportGestureAllowed() then return
     if m.session = invalid then return
     if PlayerGroupTook({ kind: "toggle", playing: m.video.state = "playing" or m.video.state = "buffering" }) then return
@@ -847,6 +897,8 @@ sub toggle()
 end sub
 
 sub PlayerSeekBy(seconds as dynamic)
+    if m.advancePending then return
+    PlayerCancelPreparation()
     if not PlayerReportGestureAllowed() then return
     if m.session = invalid or m.channel <> invalid or m.video.duration <= 0 then return
     target = m.video.position + seconds
@@ -861,6 +913,7 @@ sub PlayerSeekBy(seconds as dynamic)
 end sub
 
 sub PlayerAdvance(reason as string)
+    PlayerCancelPreparation()
     if m.advancePending then return
     if reason <> "completion" and not PlayerReportGestureAllowed() then return
     if m.queue = invalid then return
@@ -962,6 +1015,7 @@ end function
 
 ' "Play next" and "Add to queue" from a card's menu.
 sub enqueue(request as object)
+    PlayerCancelPreparation()
     if m.queue = invalid or request.entry = invalid or request.entry.playback = invalid then return
     placement = "end"
     if request.next = true then placement = "next"
@@ -986,6 +1040,9 @@ end sub
 ' The title ended: the queue's next entry is offered (the server's post-play policy says whether
 ' it counts down), else the player closes.
 sub PlayerFinished()
+    if m.advancePending then return
+    if PlayerCommitPreparedAudio() then return
+    PlayerCancelPreparation()
     PlayerSendReport("ended", invalid)
     m.phase = "ended"
     if not PlayerHasNext() then
@@ -1026,7 +1083,7 @@ sub PlayerExpand()
     m.pill.visible = false
     m.pill.focusable = false
     m.ground.visible = true
-    m.video.visible = true
+    if m.video.hasField("visible") then m.video.visible = true
     m.chromeShown = false
     PlayerShowChrome(true)
 end sub
@@ -1040,7 +1097,7 @@ sub PlayerCollapse()
     m.audioArt.visible = false
     m.lyricsGroup.visible = false
     m.ground.visible = false
-    m.video.visible = false
+    if m.video.hasField("visible") then m.video.visible = false
     PlayerPill()
     PlayerGiveBack()
 end sub
@@ -1059,6 +1116,7 @@ end sub
 
 ' Stops what is playing and closes the player.
 sub PlayerLeave()
+    PlayerCancelPreparation()
     wasExpanded = m.top.expanded
     onPill = m.pill.isInFocusChain()
     PlayerStopSession(m.phase = "ended")
@@ -1888,6 +1946,7 @@ sub onPlayerMenuClosed()
 end sub
 
 sub onPlayerChoice()
+    PlayerCancelPreparation()
     m.menuOpen = false
     chosen = m.menu.chosen
     at = Instr(1, chosen, ":")
@@ -1947,6 +2006,7 @@ sub onPlayerChanged(event as object)
     for each subtitle in session.presentation.subtitles
         tracks.push(PlaybackUrl(PlayerOrigin(), subtitle.url))
     end for
+    if not m.video.hasField("globalCaptionMode") then return
     if m.choices.subtitleId = "off" or tracks.count() = 0 then
         m.video.globalCaptionMode = "Off"
     else
@@ -2030,5 +2090,85 @@ function onKeyEvent(key as string, press as boolean) as boolean
         return true
     end if
     FocusMove(m.top, direction)
+    return true
+end function
+
+' The prebuffer node remains private until the server commits the exact successor.
+sub PlayerUseEngine(engine as object)
+    if m.video.isSameNode(engine) then return
+    old = m.video
+    old.unobserveField("state")
+    old.unobserveField("position")
+    old.unobserveField("duration")
+    old.control = "stop"
+    m.video = engine
+    m.video.notificationInterval = 0.5
+    m.video.observeField("state", "onPlayerVideoState")
+    m.video.observeField("position", "onPlayerPosition")
+    m.video.observeField("duration", "onPlayerPosition")
+    if not old.isSameNode(m.mainVideo) then m.top.removeChild(old)
+end sub
+
+sub PlayerCancelPreparation()
+    m.musicEpoch = m.musicEpoch + 1
+    if m.musicTask <> invalid then
+        m.musicTask.command = "stop"
+        m.musicTask.unobserveField("result")
+        m.musicTask.control = "STOP"
+        m.musicTask = invalid
+    end if
+    if m.musicNext <> invalid then
+        m.musicNext.control = "stop"
+        m.top.removeChild(m.musicNext)
+        m.musicNext = invalid
+    end if
+    m.musicPrepared = invalid
+end sub
+
+sub PlayerPrepareNextAudio()
+    if m.video.duration = invalid or m.video.position = invalid then return
+    if not MusicPreparationDue(m.session, m.queue, m.phase, m.video.position, m.video.duration) then return
+    if m.advancePending or m.seekTo >= 0 or m.musicTask <> invalid or m.musicPrepared <> invalid then return
+    attempt = m.session.id + ":" + m.session.presentation.generation.toStr() + ":" + m.queue.revision
+    if m.musicAttempted = attempt then return
+    m.musicAttempted = attempt
+    m.musicTask = m.top.createChild("MusicTask")
+    m.musicTask.job = { kind: "prepare", queueId: m.queue.id, queueRevision: m.queue.revision, sessionId: m.session.id, sessionGeneration: m.session.presentation.generation, binding: m.viewerBinding, epoch: m.musicEpoch, requestId: NewRequestId() }
+    m.musicTask.generation = m.generation
+    m.musicTask.observeField("result", "onPlayerMusicPrepared")
+    m.musicTask.control = "RUN"
+end sub
+
+sub onPlayerMusicPrepared(event as object)
+    task = event.getRoSGNode()
+    if m.musicTask = invalid or not task.isSameNode(m.musicTask) then return
+    task.unobserveField("result")
+    m.musicTask = invalid
+    result = event.getData()
+    if not result.ok or task.generation <> m.generation then return
+    if not MusicPreparationMatches(result.value, m.session, m.queue, m.viewerBinding, m.musicEpoch, NowSeconds()) then return
+    m.musicPrepared = result.value
+    m.musicNext = m.top.createChild("Audio")
+    content = CreateObject("roSGNode", "ContentNode")
+    content.url = PlaybackUrl(m.viewerBinding.origin, m.musicPrepared.audio.url)
+    content.streamFormat = m.musicPrepared.audio.container
+    m.musicNext.content = content
+    m.musicNext.control = "prebuffer"
+end sub
+
+function PlayerCommitPreparedAudio() as boolean
+    if m.musicNext = invalid or m.musicPrepared = invalid then return false
+    if not MusicPreparationMatches(m.musicPrepared, m.session, m.queue, m.viewerBinding, m.musicEpoch, NowSeconds()) then return false
+    if not MusicBindingCurrent(m.viewerBinding, m.global.session.viewer) then return false
+    if m.musicNext.state = "error" then return false
+    prepared = m.musicPrepared
+    job = { kind: "commit", queueId: prepared.queueId, queueRevision: prepared.queueRevision, sessionId: prepared.sessionId, sessionGeneration: prepared.sessionGeneration, token: prepared.token, binding: prepared.binding, expiresAt: prepared.expiresAt }
+    ' Drain live facts before the transaction. Sending ended first would invalidate the token.
+    item = { sessionId: m.session.id, method: "POST", body: { token: prepared.token }, urgent: true, terminal: true, action: "commitAudio", playerGeneration: m.generation, job: job }
+    if not PlayerQueueReport(item) then return false
+    m.advancePending = true
+    m.report.control = "stop"
+    m.phase = "starting"
+    PlayerDraw()
     return true
 end function

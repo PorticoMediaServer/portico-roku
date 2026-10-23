@@ -1,0 +1,15 @@
+import "pkg:/source/core/Music.bs"
+
+sub init()
+    m.top.functionName = "work"
+end sub
+
+sub work()
+    ctx = SessionContextNew()
+    ctx.task = m.top
+    if m.top.job.kind = "prepare" then
+        m.top.result = MusicPrepare(ctx, m.top.job)
+    else
+        m.top.result = MusicCommit(ctx, m.top.job)
+    end if
+end sub

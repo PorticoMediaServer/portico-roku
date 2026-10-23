@@ -39,6 +39,7 @@ sub Test_Playback_sessions()
         if parsed.ok and item.ok then
             session = parsed.session
             session.presentation.delete("container")
+            session.presentation.delete("audioRender")
             AssertSame(session, item.value, "session " + item.name)
         end if
     end for

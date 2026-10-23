@@ -117,7 +117,7 @@ end sub
 
 sub SessionReady(record as dynamic, session as object, connection as object)
     m.top.accountRequested = connection.signIn = "portico"
-    viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, viewer: session.viewer, profileName: "", serverName: "", username: "", signIn: connection.signIn }
+    viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, sessionFamilyId: session.sessionFamilyId, viewer: session.viewer, profileName: "", serverName: "", username: "", signIn: connection.signIn }
     if record <> invalid then
         if record["profileName"] <> invalid then viewer.profileName = record["profileName"]
         if record["serverName"] <> invalid then viewer.serverName = record["serverName"]

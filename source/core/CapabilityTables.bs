@@ -12,4 +12,6 @@ namespace PlaybackRoutes
     const queueAdvance = "/v1/queues/{id}:advance"
     const queueSegment = "/v1/queues/{id}/segments"
     const queueWindow = "/v1/queues/{id}/window"
+    const queuePrepare = "/v1/queues/{id}:prepare-next"
+    const queueCommit = "/v1/queues/{id}:commit-next"
 end namespace

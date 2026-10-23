@@ -137,6 +137,27 @@ end function
 
 ' types.ts `parsePresentation`: what to play: {generation, mode, url, startPositionMs, subtitles,
 ' decision, container}, or invalid.
+function ParseMusicRender(raw as dynamic) as dynamic
+    if not IsObject(raw) or raw.version <> 2 or not IsText(raw.id, 256) then return invalid
+    if raw.mode <> "direct" and raw.mode <> "converted" then return invalid
+    if not IsPlaybackUrl(raw.url) or not IsText(raw.container, 32) or not IsText(raw.codec, 32) then return invalid
+    if not IsNatural(raw.sampleRate) or raw.sampleRate < 1 or raw.sampleRate > 768000 then return invalid
+    if not IsNatural(raw.channels) or raw.channels < 1 or raw.channels > 32 then return invalid
+    if not IsNatural(raw.durationFrames) or raw.durationFrames < 1 or not IsObject(raw.trim) then return invalid
+    if not IsNatural(raw.trim.startFrames) or not IsNatural(raw.trim.endFrames) then return invalid
+    plan = { version: 2, id: raw.id, mode: raw.mode, url: raw.url, container: raw.container, codec: raw.codec, sampleRate: raw.sampleRate, channels: raw.channels, durationFrames: raw.durationFrames, trim: { startFrames: raw.trim.startFrames, endFrames: raw.trim.endFrames } }
+    if raw.bitDepth <> invalid then
+        if not IsNatural(raw.bitDepth) or raw.bitDepth > 64 then return invalid
+        plan.bitDepth = raw.bitDepth
+    end if
+    if raw.prefetchBytes <> invalid then
+        if not IsNatural(raw.prefetchBytes) or raw.prefetchBytes < 1 then return invalid
+        plan.prefetchBytes = raw.prefetchBytes
+    end if
+    ' Gain is diagnostic metadata for client decoders. This bridge never applies it to Roku.
+    return plan
+end function
+
 function ParsePresentation(p as dynamic) as dynamic
     if not IsObject(p) or not IsNatural(p.generation) or not IsPlaybackUrl(p.url) then return invalid
     presentation = { generation: p.generation, mode: PlaybackOneOf(p.mode, ["direct", "stream"], "stream"), url: p.url, startPositionMs: PlaybackNumber(p.startPositionMs), subtitles: [], decision: {} }
@@ -152,6 +173,10 @@ function ParsePresentation(p as dynamic) as dynamic
     end if
     if PlaybackNumber(p.bitrateKbps, invalid) <> invalid then presentation.bitrateKbps = p.bitrateKbps
     if IsString(p.container) then presentation.container = p.container
+    if p.audioRender <> invalid then
+        presentation.audioRender = ParseMusicRender(p.audioRender)
+        if presentation.audioRender = invalid then presentation.delete("audioRender")
+    end if
     return presentation
 end function
 
