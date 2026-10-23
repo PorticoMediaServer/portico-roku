@@ -111,6 +111,21 @@ try{
    await page.keyboard.press(key);
    await settledCanvas(page);
   }
+  // Match connect36's public example and T-key focus using real remote events.
+  // This is throwaway comparison input; Continue is never pressed.
+  let row=0,column=0;
+  async function moveTo(targetRow,targetColumn){
+   for(const [key,count] of [[targetRow>row?'ArrowDown':'ArrowUp',Math.abs(targetRow-row)],[targetColumn>column?'ArrowRight':'ArrowLeft',Math.abs(targetColumn-column)]]){
+    for(let i=0;i<count;i++){await page.keyboard.press(key);await page.waitForTimeout(250);}
+   }
+   row=targetRow;column=targetColumn;
+  }
+  for(const [targetRow,targetColumn] of [[3,6],[1,1],[1,7],[1,3],[2,8],[3,3]]){
+   await moveTo(targetRow,targetColumn);await page.keyboard.press('Enter');await page.waitForTimeout(250);
+  }
+  await moveTo(2,1);
+ }else if(state==='factor'){
+  for(const key of ['Enter','Enter','ArrowDown','ArrowDown']){await page.keyboard.press(key);await settledCanvas(page);}
  }
  await captureCanvas(page,captures[0]);
  if(!credentials){
@@ -142,7 +157,7 @@ try{
  }
  throw error;
 }finally{
- writeFileSync(join(output,state+'-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled one second after each real input; animations/scales/pixels unchanged.\nRequested real remote sequence: '+(credentials?(state==='recovery'?'Down ×4, Enter, Enter':'entry only'):state==='identity'?'Right, Right, Enter, Back':'Right, Left')+'; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
+ writeFileSync(join(output,state+'-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled after real input and its focus transition; animations/scales/pixels unchanged.\nRequested real remote sequence: '+(credentials?(state==='recovery'?'Down ×4, Enter ×2, D-pad public example 7KQM-4, focus T; no submission':state==='factor'?'Enter ×2, Down ×2 (two digits; focus 7)':'entry only'):state==='identity'?'Right, Right, Enter, Back':'Right, Left')+'; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
  if(browser)await browser.close();
  await new Promise(resolve=>server.close(resolve));
 }
