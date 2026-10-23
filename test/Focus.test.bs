@@ -44,3 +44,29 @@ sub Test_Focus_directions()
     AssertEqual(FocusDirection("left"), "left")
     AssertEqual(FocusDirection("OK"), "")
 end sub
+
+' SDK sceneBoundingRect includes a node's children: a focus glow is not its key surface.
+' These are independently supplied scene rectangles, not a simulation of native SG rendering.
+sub Test_Focus_glowMustNotMoveTheNavigationOrigin()
+    node = {
+        focusWidth: 86
+        focusHeight: 72
+        focusBounds: {
+            sceneBoundingRect: function() as object
+                return { x: 120, y: 600, width: 86, height: 72 }
+            end function
+        }
+        hasField: function(name as string) as boolean
+            return m.doesExist(name)
+        end function
+        sceneBoundingRect: function() as object
+            return { x: -8, y: 498, width: 342, height: 328 }
+        end function
+    }
+    rect = FocusRect(node)
+    AssertEqual(rect.x, 120, "a glow must not shift the control origin")
+    AssertEqual(rect.y, 600, "a glow must not shift the control origin")
+    ' B is beside A, J below A, and Continue above the keyboard. Down must select J.
+    candidates = [TestRect(216, 600, 86, 72), TestRect(120, 682, 86, 72), TestRect(120, 506, 194, 72)]
+    AssertEqual(FocusPick(rect, candidates, "down"), 1)
+end sub
