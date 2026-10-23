@@ -3,10 +3,20 @@ sub main(args as dynamic)
     screen = CreateObject("roSGScreen")
     port = CreateObject("roMessagePort")
     screen.setMessagePort(port)
+    info = CreateObject("roDeviceInfo")
+    info.setMessagePort(port)
+    info.enableCodecCapChangedEvent(true)
     scene = screen.createScene("MainScene")
     screen.show()
     while true
         message = wait(0, port)
-        if Type(message) = "roSGScreenEvent" and message.isScreenClosed() then return
+        if Type(message) = "roSGScreenEvent" and message.isScreenClosed() then
+            info.enableCodecCapChangedEvent(false)
+            return
+        end if
+        if Type(message) = "roDeviceInfoEvent" and message.isStatusMessage() then
+            changed = message.getInfo()
+            if changed.audioCodecCapabilityChanged = true or changed.videoCodecCapabilityChanged = true then scene.codecCapabilitiesChanged = scene.codecCapabilitiesChanged + 1
+        end if
     end while
 end sub

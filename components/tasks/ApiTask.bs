@@ -16,7 +16,7 @@ sub work()
     ctx = SessionContextNew()
     method = "GET"
     if request.method <> invalid then method = request.method
-    answer = ViewerRequest(ctx, request.path, method, request.body, request.headers, request.expectedViewer)
+    answer = PlaybackViewerRequest(ctx, request.path, method, request.body, request.headers, request.expectedViewer)
     ' A request may have renewed the session: the scene's image requests follow the new token.
     record = SessionRecord(ctx)
     session = m.global.session

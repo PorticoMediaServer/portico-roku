@@ -1,0 +1,23 @@
+{
+  "inputs": [
+    {
+      "root": "native",
+      "commit": "fd54cbf3dc869cd39e3d8df6e9b5cf911abb941e",
+      "files": {
+        "apps/native/assets/manrope-800.ttf": "b241008d2b57367e819201720d9e68e3cf424730046dfef9ab6865957f7d0a31",
+        "apps/native/assets/OFL-Manrope-800.txt": "f612090fb72b6dca3e807e66fa0d2b5def163cef86f1a3209b5c897cba5ee4b7",
+        "apps/native/assets/manrope-700.ttf": "b9584e099e0e7f1e1e914c3037aabb9010c50346a3ce8df5eeeeecc0563044d8"
+      }
+    },
+    {
+      "root": "internal",
+      "commit": "69f2d45a972ff9ec1bd8743c760183026c92d555",
+      "files": {
+        "design/ui-v1/connect.html": "a1786d0009fd54a73c56aff5391b544d6dd21e231c39eb0bed7599f981c658ee",
+        "design/ui-v1/kit.css": "82385d5289e9ec193463716b3d39ffb334c5a302a40092a27a119b44231a1fdd"
+      }
+    }
+  ],
+  "nativeMainReadback": "fd54cbf3dc869cd39e3d8df6e9b5cf911abb941e",
+  "designAuthority": "User-assigned immutable final69; frame40 unchanged from14a"
+}

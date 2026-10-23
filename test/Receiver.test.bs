@@ -69,11 +69,12 @@ sub Test_Receiver_inbox()
     AssertEqual(register["supportedCommands"].count(), 5, "what this television can be told")
     ' The digest is the device's own; the off-device run knows the ones registered for it.
     globals = GetGlobalAA()
+    previousDigests = globals.cryptoDigests
     globals.cryptoDigests = {}
     AssertEqual(ReceiverDevice("abc", "TV"), invalid, "no digest, no receiver")
     globals.cryptoDigests["sha256:" + BytesToHex(BytesFromText("portico-receiver:in st/all"))] = "00ff"
     device = ReceiverDevice("in st/all", "Living Room")
     AssertEqual(device.deviceId, "install", "the device id keeps what an id may hold")
     AssertEqual(device.keyFingerprint, Base64UrlEncode(BytesFromHex("00ff")), "the fingerprint is the digest")
-    globals.cryptoDigests = invalid
+    globals.cryptoDigests = previousDigests
 end sub

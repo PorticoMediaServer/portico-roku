@@ -1,0 +1,89 @@
+' MC-4: checked playback-v1 audio-render.ts and queue.ts. Private preparation is memory-only;
+' the server owns trims, loudness, the private byte limit and the commit transaction.
+import "pkg:/source/core/Playback.bs"
+import "pkg:/source/core/Content.bs"
+
+function ParsePreparedMusic(raw as dynamic, now as dynamic) as dynamic
+    if not IsObject(raw) or not IsPlaybackId(raw.token) or not IsPlaybackId(raw.entryId) or not IsPlaybackId(raw.itemId) then return invalid
+    expires = IsoToSeconds(raw.expiresAt)
+    if expires = invalid or expires <= now or expires > now + 65 then return invalid
+    if not IsObject(raw.presentation) or not IsNatural(raw.presentation.generation) then return invalid
+    if raw.presentation.startPositionMs <> invalid and raw.presentation.startPositionMs <> 0 then return invalid
+    audio = ParseMusicRender(raw.presentation.audioRender)
+    if audio = invalid or audio.prefetchBytes = invalid then return invalid
+    return { token: raw.token, expiresAt: raw.expiresAt, entryId: raw.entryId, itemId: raw.itemId, audio: audio }
+end function
+
+function MusicPreparationMatches(prepared as dynamic, session as dynamic, queue as dynamic, binding as dynamic, epoch as integer, now as dynamic) as boolean
+    if not IsObject(prepared) or not IsObject(session) or not IsObject(queue) or not IsObject(binding) then return false
+    if not IsObject(prepared.binding) or not IsObject(session.presentation) then return false
+    if prepared.epoch <> epoch or prepared.queueId <> queue.id or prepared.queueRevision <> queue.revision then return false
+    if prepared.sessionId <> session.id or prepared.sessionGeneration <> session.presentation.generation then return false
+    if IsoToSeconds(prepared.expiresAt) = invalid or IsoToSeconds(prepared.expiresAt) <= now then return false
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        if prepared.binding[key] <> binding[key] then return false
+    end for
+    return true
+end function
+
+function MusicPreparationDue(session as dynamic, queue as dynamic, phase as string, position as dynamic, duration as dynamic) as boolean
+    if not IsObject(session) or session.kind <> "audio" or not IsObject(queue) or phase <> "playing" then return false
+    if not IsObject(queue.upcoming) or queue.upcoming.available <> true then return false
+    if IsObject(queue.postPlay) and queue.postPlay.passoutCheckDue = true then return false
+    remaining = duration - position
+    return remaining > 0 and remaining <= 30
+end function
+
+function MusicPrepare(ctx as object, job as object) as object
+    if not MusicJobValid(ctx, job) or not IsText(job.requestId, 128) then return MusicCancelled()
+    published = PublishDeviceCapabilities(ctx, job.binding, DeviceFacts())
+    if not published.ok then return published
+    api = ViewerApi(ctx, job.binding)
+    if api = invalid then return { ok: false, status: 401, error: { code: "session_expired", status: 401, retryable: false } }
+    answer = ApiRequest(api, PlaybackQueuePath(PlaybackRoutes.queuePrepare, job.queueId), "POST", { sessionId: job.sessionId, sessionGeneration: job.sessionGeneration }, { "If-Match": job.queueRevision, "Idempotency-Key": job.requestId })
+    if not answer.ok then return answer
+    prepared = ParsePreparedMusic(answer.data, SessionNow(ctx))
+    if prepared = invalid then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, retryable: false } }
+    if ctx.task <> invalid and ctx.task.command = "stop" then return { ok: false, status: 0, error: { code: "cancelled", status: 0, retryable: false } }
+    if ViewerApi(ctx, job.binding) = invalid then return { ok: false, status: 401, error: { code: "session_expired", status: 401, retryable: false } }
+    prepared.append({ queueId: job.queueId, queueRevision: job.queueRevision, sessionId: job.sessionId, sessionGeneration: job.sessionGeneration, binding: job.binding, epoch: job.epoch })
+    return { ok: true, status: answer.status, value: prepared }
+end function
+
+function MusicCommit(ctx as object, job as object) as object
+    if not MusicJobValid(ctx, job) or not IsPlaybackId(job.token) then return MusicCancelled()
+    api = ViewerApi(ctx, job.binding)
+    if api = invalid then return { ok: false, status: 401, error: { code: "session_expired", status: 401, retryable: false } }
+    answer = ApiRequest(api, PlaybackQueuePath(PlaybackRoutes.queueCommit, job.queueId), "POST", { token: job.token })
+    if not answer.ok then return answer
+    parsed = ParseQueueResult(answer.data)
+    if not parsed.ok or parsed.session = invalid then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, retryable: true } }
+    if parsed.queue.id <> job.queueId or parsed.session.id = job.sessionId then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, retryable: true } }
+    if (ctx.task <> invalid and ctx.task.command = "stop") or ViewerApi(ctx, job.binding) = invalid then
+        ' Only the captured newly issued playback session is retired; never a replacement viewer.
+        ApiRequest(api, "/v1/playback/sessions/" + parsed.session.id.encodeUriComponent(), "DELETE")
+        return { ok: false, status: 0, error: { code: "cancelled", status: 0, retryable: false } }
+    end if
+    return { ok: true, status: answer.status, value: parsed }
+end function
+
+function MusicBindingCurrent(binding as dynamic, viewer as dynamic) as boolean
+    current = ViewerRequestBinding(viewer)
+    if not IsObject(binding) or not IsObject(current) then return false
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        if current[key] <> binding[key] then return false
+    end for
+    return true
+end function
+
+function MusicJobValid(ctx as object, job as dynamic) as boolean
+    if not IsObject(job) or not IsObject(job.binding) then return false
+    if not IsPlaybackId(job.queueId) or not IsPlaybackId(job.sessionId) then return false
+    if not IsText(job.queueRevision, 256) or not IsNatural(job.sessionGeneration) then return false
+    if ctx.task <> invalid and ctx.task.command = "stop" then return false
+    return ViewerApi(ctx, job.binding) <> invalid
+end function
+
+function MusicCancelled() as object
+    return { ok: false, status: 0, error: { code: "cancelled", status: 0, retryable: false } }
+end function

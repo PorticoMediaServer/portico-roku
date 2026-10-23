@@ -1,0 +1,17 @@
+{
+  "commit": "b5217fdf69695c3c02e69b0da94aa766f17c5d02",
+  "provenance": "checked merged Server MAIN; exact Git objects only",
+  "mainReadback": "b5217fdf69695c3c02e69b0da94aa766f17c5d02",
+  "historicalPin": "677ed8df505a1e12c57c7d9e504e20522b6b7701",
+  "files": {
+    "packages/client-core/src/client-profile.ts": "68518ceded1d4985072731f300ea2c9ab5cf1c01a6da93661e439ab90e79c5e1",
+    "packages/client-core/src/playback-v1/queue.ts": "3d623b1d85833c2455a2367bde4d3114e651617cef3baacf65603b2b11baae7e",
+    "packages/contracts/src/routes.ts": "437f1f2fa360afccf6ef3f02a1ccb0694cc07fd91e386ed9e0734a432e74a3bd",
+    "server/internal/playback/capability_document.go": "581195129d4086df05ae58b0d5b97e00ca034155c8d4e90e8036f6885b1da281",
+    "server/internal/httpapi/playback_v1_routes.go": "184a98d301c315508c6e3e23d2f270180cb47b89a7f8c0c5c5e235803a671180",
+    "packages/client-core/src/playback-v1/audio-render.ts": "db4818781057c8fe028fba26a8cf8ae5da8bf460307c54cd2673fe2259b5d6dc",
+    "packages/client-core/src/playback-v1/types.ts": "bf851fa715ebcde05f4169adcb35f97242be4021ee5c8afbb123a48bb777a420",
+    "packages/client-core/src/playback-v1/v1-queue-player.ts": "aa63193c396aba01d73bdf1743a6c199f8ed79e302aad23893d617338bc22a9e",
+    "server/internal/playbackv1/transitions.go": "806ce7fb5ae1922c7a81712b8c538b565d6a87b8d9b55104128260334dffd757"
+  }
+}

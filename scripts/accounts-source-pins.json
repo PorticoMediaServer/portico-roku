@@ -1,0 +1,30 @@
+{
+  "commit": "b5217fdf69695c3c02e69b0da94aa766f17c5d02",
+  "provenance": "checked merged Server MAIN; exact Git objects only",
+  "mainReadback": "b5217fdf69695c3c02e69b0da94aa766f17c5d02",
+  "historicalPin": "2079119593864335b551692264c579741373ca28",
+  "files": {
+    "packages/client-core/src/app-sessions.ts": "21d6d28b8f3df40f32c3f63f0adb199dd4ff017e72bfcbff41dd65b4853c54a2",
+    "packages/client-core/src/sign-in.ts": "d5d4bc8f511ef81b775fdc2173bb7b953a422f821e1b2eaae4539b3508a0cc53",
+    "packages/client-core/src/tv-consent.ts": "ef3f6fab0017eaeff4fe9629eddd3a186224ae98988846318430fce54ac935d6",
+    "packages/client-core/src/profile-management.ts": "f13941d3ed9d28031220c53068bce0051d97c900d4e3d7e9590db197569b056b",
+    "packages/i18n/src/catalog/en-US/accounts.ts": "e2e8d31ea0d6a855adda36547f7b59beef9d0da6f9093901bca11f11fdc1d58d",
+    "packages/contracts/src/routes.ts": "437f1f2fa360afccf6ef3f02a1ccb0694cc07fd91e386ed9e0734a432e74a3bd",
+    "packages/contracts/src/hosted/routes.ts": "a2927ccf06979645c495630ad79b7327c9c0ece35a2c5f63a9c0e0202d3d3090",
+    "packages/client-core/src/hosted-security.ts": "d3b943ea5cfe92d87dcf766d8721c81a0dde6756c6cb68fa5096fdc89759573e",
+    "packages/client-core/src/credential-format.ts": "ff78f658bc3a667611abb2f923a131f8bbdfe2209b0636d67cee0449097c756c",
+    "packages/client-core/src/credentials.ts": "38dfbc333e379f8dc75d4c7efcce13029bd07da904b404d94ca0a03a55890e98",
+    "packages/client-core/src/device-authorization.ts": "50a09ec7161e1277b8ed4170da7d283a2ce0100860268d6557b593dd071cedcf",
+    "packages/client-core/src/account-notifications.ts": "9c9d513e94ce5cce19426f215d1056703d170e5b5cc54ed080541788f7b288e5",
+    "packages/contracts/src/hosted/types.ts": "33a6717f86ed9c494b090a03611a8aa876347f9448c7e817678dcf33927984ef",
+    "packages/contracts/src/hosted/schemas.ts": "9eb07ed0d26387820a029000d3d29fb798aa6c3e91db18456bcc07b75647c8df",
+    "packages/contracts/src/hosted/decoders.ts": "5ad708f3ebff37b78a680a0176eeca0cb88fed2370d1e5f84e922502cbd5c39e",
+    "packages/i18n/src/catalog/en-US/web.ts": "54ad87187b4180346f5a90ccb72ad3e26f29a524a3b5a7de232bba8a5679a55d",
+    "packages/contracts/src/schemas.ts": "1d0186f24845196066ad150c104062cb62621cead9b20fdad53a83ee63285fbc",
+    "packages/client-core/src/identity-devices.ts": "8d2e8ed97db219d8aaf61c431823b0efee31c75138d6549220b70db627701d21",
+    "packages/client-core/src/index.ts": "7f535d21c420cf63f8a2b05bc7c8fdc2b28fc251f717d0f2eb9a06ed1667d3cd"
+  },
+  "hostedProducer": "27000e033df453ec237b801029204da65105b6d2",
+  "historicalRootIntakeReceipt": "orchestrator-r29/media-dispatch/shared-207-intake.json",
+  "historicalProfileFreeProducer": "212272ed2bf56ffab3e5aa6e4267eeb429548dee"
+}

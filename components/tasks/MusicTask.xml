@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component name="MusicTask" extends="Task">
+    <interface>
+        <field id="job" type="assocarray" />
+        <field id="command" type="string" value="" />
+        <field id="generation" type="integer" value="0" />
+        <field id="result" type="assocarray" alwaysNotify="true" />
+    </interface>
+</component>

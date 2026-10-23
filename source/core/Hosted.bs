@@ -17,7 +17,7 @@ function HostedCodeCreate(ctx as object) as object
     body["requestId"] = NewRequestId()
     if ctx.requestId <> invalid then body["requestId"] = ctx.requestId
     body["platform"] = "roku"
-    answer = ApiRequest(HostedApi(ctx), "/v1/device-authorizations", "POST", body)
+    answer = ApiRequest(HostedApi(ctx), AccountRoutes.porticoCodeCreate, "POST", body)
     if not answer.ok then return { ok: false, failure: answer.error }
     if not SetupCodeValid(answer.data, SessionNow(ctx)) then return { ok: false, failure: { code: "invalid_response", status: 0, message: "The activation response was invalid." } }
     return { ok: true, authorization: answer.data }
@@ -26,29 +26,39 @@ end function
 ' POST /v1/device-authorizations/token. Returns {ok, next}: "approved" (with `grant`, saved), or
 ' SetupCodeAfterPoll's next.
 function HostedCodePoll(ctx as object, authorization as object) as object
-    answer = ApiRequest(HostedApi(ctx), "/v1/device-authorizations/token", "POST", { "deviceCode": authorization.deviceCode })
+    answer = ApiRequest(HostedApi(ctx), AccountRoutes.porticoCodePoll, "POST", { "deviceCode": authorization.deviceCode, "sessionMode": "native" })
     if not answer.ok then
         after = SetupCodeAfterPoll(authorization.interval, answer.error)
         after.ok = true
         return after
     end if
     if not HostedGrantValid(answer.data) then return { ok: true, next: "retry", interval: authorization.interval, waitSeconds: 5, failure: { code: "invalid_response", status: 0, message: "" } }
+    if not SessionAdmissionCurrent(ctx) then
+        ApiRequest(HostedApi(ctx), AccountRoutes.porticoRevoke, "POST", { "refreshToken": answer.data.refreshToken })
+        return { ok: false, next: "retired", failure: { code: "cancelled", status: 0, message: "" } }
+    end if
     HostedSave(ctx, answer.data)
+    SessionAdvance(ctx)
     return { ok: true, next: "approved", grant: answer.data }
 end function
 
 sub HostedCodeCancel(ctx as object, authorization as dynamic)
     if authorization = invalid then return
-    ApiRequest(HostedApi(ctx), "/v1/device-authorizations/cancel", "POST", { "deviceCode": authorization.deviceCode })
+    ApiRequest(HostedApi(ctx), AccountRoutes.porticoCodeCancel, "POST", { "deviceCode": authorization.deviceCode })
 end sub
 
 sub HostedSave(ctx as object, grant as object)
+    for each record in SessionRecords(ctx)
+        if record["signIn"] = "portico" and record["hosted"].origin = ctx.hostedUrl and record["hosted"].accountId <> grant.account.id then
+            HostedDropServerBindings(ctx, { account: { id: record["hosted"].accountId } })
+        end if
+    end for
     StoreWriteJson(ctx.store, "portico", "hosted", grant)
 end sub
 
 function HostedLoad(ctx as object) as dynamic
     grant = StoreReadJson(ctx.store, "portico", "hosted")
-    if not HostedGrantValid(grant) then return invalid
+    if not HostedGrantValid(grant, true) then return invalid
     return grant
 end function
 
@@ -71,25 +81,56 @@ function HostedLive(ctx as object) as object
         if ctx.requestId <> invalid then requestId = ctx.requestId
         ctx.store.write("portico", "hostedPendingRefresh", requestId)
     end if
-    answer = ApiRequest(HostedApi(ctx), "/v1/sessions/refresh", "POST", { "refreshToken": hosted.refreshToken, "requestId": requestId })
+    answer = ApiRequest(HostedApi(ctx), AccountRoutes.porticoRefresh, "POST", { "refreshToken": hosted.refreshToken, "requestId": requestId })
     if not answer.ok then
         if answer.status = 401 or answer.status = 403 then
-            HostedClear(ctx)
+            current = HostedLoad(ctx)
+            if current <> invalid and current.familyId = hosted.familyId and current.refreshToken = hosted.refreshToken then
+                HostedDropServerBindings(ctx, hosted)
+                HostedClear(ctx)
+            end if
+            if current <> invalid and (current.familyId <> hosted.familyId or current.refreshToken <> hosted.refreshToken) then return { ok: false, signOut: false, failure: { code: "session_changed", status: 0, message: "" } }
             return { ok: false, signOut: true, failure: answer.error }
         end if
         return { ok: false, signOut: false, failure: answer.error }
     end if
     if not HostedGrantValid(answer.data) then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    current = HostedLoad(ctx)
+    if current = invalid then return { ok: false, signOut: true, failure: { code: "signed_out", status: 401, message: "" } }
+    if current.familyId <> hosted.familyId or current.refreshToken <> hosted.refreshToken then return { ok: false, signOut: false, failure: { code: "session_changed", status: 0, message: "" } }
     HostedSave(ctx, answer.data)
     ctx.store.remove("portico", "hostedPendingRefresh")
     return { ok: true, hosted: answer.data }
 end function
 
-' Signing the account out: the session is revoked (best effort) and forgotten.
-sub HostedSignOut(ctx as object)
+
+' app-sessions.ts: capture and forget only this account's Portico server families before
+' best-effort revocation. A Local server is never part of account sign-out.
+sub HostedDropServerBindings(ctx as object, hosted as object)
+    captured = []
+    for each record in SessionRecords(ctx)
+        if record["signIn"] = "portico" and IsObject(record["hosted"]) then
+            if record["hosted"].origin = ctx.hostedUrl and record["hosted"].accountId = hosted.account.id then
+                removed = SessionRemoveFamily(ctx, record["pin"].serverId, record["session"].sessionFamilyId)
+                if removed <> invalid then captured.push(removed)
+            end if
+        end if
+    end for
+    for each record in captured
+        SessionRevokeRecord(ctx, record)
+    end for
+end sub
+
+sub HostedSignOut(ctx as object, expectedAccountId = invalid as dynamic)
     hosted = HostedLoad(ctx)
-    if hosted <> invalid then ApiRequest(HostedApi(ctx), "/v1/sessions/revoke", "POST", { "refreshToken": hosted.refreshToken })
+    if hosted = invalid then return
+    if expectedAccountId <> invalid and hosted.account.id <> expectedAccountId then return
+    SessionAdvance(ctx)
+    HostedDropServerBindings(ctx, hosted)
     HostedClear(ctx)
+    api = HostedApi(ctx)
+    api.timeoutMs = 3000
+    ApiRequest(api, AccountRoutes.porticoRevoke, "POST", { "refreshToken": hosted.refreshToken })
 end sub
 
 ' index.ts `parseServerPresence`: anything malformed is unknown (invalid).
@@ -165,7 +206,7 @@ end function
 function HostedServers(ctx as object) as object
     live = HostedLive(ctx)
     if not live.ok then return live
-    answer = ApiRequest(HostedApi(ctx, live.hosted.accessToken), "/v1/servers")
+    answer = ApiRequest(HostedApi(ctx, live.hosted.accessToken), AccountRoutes.porticoServers)
     if not answer.ok then return { ok: false, signOut: false, failure: answer.error }
     if not IsObject(answer.data) or not IsArray(FieldOf(answer.data, "items")) then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
     servers = []
@@ -183,10 +224,26 @@ end function
 ' Opens one of the account's servers. The account service's signed routes for it are verified
 ' (they name the server's key and where it can be reached), the server proves itself at one of
 ' those addresses, it issues a challenge it signs, the account service answers the challenge with
-' an identity assertion, and the server signs the account in exactly as for a password: profiles,
-' PINs and device approval are the server's own. Returns a sign-in outcome
+' an identity assertion, and the server signs the account in exactly as for a password: profiles and
+' PINs are the server's own. Returns a sign-in outcome
 ' (core/Session.bs `SessionSignInOutcome`), with `stage` ("route" or "signIn") on a failure.
 function HostedOpen(ctx as object, server as object) as object
+    ' Reuse this account's server session without asking Hosted Services for a new identity.
+    saved = SessionRecord(ctx, server.id)
+    account = HostedLoad(ctx)
+    if saved <> invalid and account <> invalid and saved["signIn"] = "portico" then
+        if saved["hosted"].origin = ctx.hostedUrl and saved["hosted"].accountId = account.account.id then
+            beforeSelection = SessionRevision(ctx)
+            restored = SessionSelect(ctx, server.id)
+            if restored.state = "ready" then
+                restored.kind = "ready"
+                return restored
+            end if
+            if restored.state <> "ended" then return { ok: false, stage: "route", failure: restored.failure }
+            if SessionRevision(ctx) <> beforeSelection + 1 then return { ok: false, stage: "route", failure: { code: "cancelled", status: 0, message: "" } }
+            ctx.admissionRevision = SessionRevision(ctx)
+        end if
+    end if
     live = HostedLive(ctx)
     if not live.ok then
         live.stage = "route"
@@ -221,9 +278,10 @@ function HostedOpen(ctx as object, server as object) as object
     connection = invalid
     last = { code: "route_unavailable", status: 0, message: "" }
     for each origin in ordered
-        proof = SessionProbe(ctx, origin, pin)
+        proof = SessionConnect(ctx, origin, pin)
         if proof.ok then
-            connection = { origin: origin, pin: proof.pin }
+            if proof.connection.signIn <> "portico" then return { ok: false, stage: "signIn", failure: { code: "sign_in_kind_local", status: 0, message: "" } }
+            connection = proof.connection
             exit for
         end if
         last = proof.failure

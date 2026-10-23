@@ -10,7 +10,8 @@ import zipfile
 import xml.etree.ElementTree as ET
 
 root = Path(__file__).resolve().parent.parent
-archive = root / "build/portico-roku.zip"
+build = Path(os.environ.get("PORTICO_BUILD_DIR", str(root / "build")))
+archive = build / "portico-roku.zip"
 with zipfile.ZipFile(archive) as package:
     names = package.namelist()
     files = {name for name in names if not name.endswith("/")}
@@ -41,6 +42,19 @@ with zipfile.ZipFile(archive) as package:
                     assert uri[5:] in files, f"Missing script in {name}: {uri}"
     assert any(name.startswith("fonts/") for name in files), "Missing fonts"
     assert any(name.startswith("locale/") for name in files), "Missing translations"
+    for name in sorted(files):
+        if not name.startswith("locale/") or not name.endswith("/translations.xml"):
+            continue
+        tree = ET.fromstring(package.read(name))
+        assert tree.tag == "xliff", f"Roku tr() requires XLIFF: {name}"
+        units = tree.findall("./file/body/trans-unit")
+        assert units, f"Empty translations: {name}"
+        keys = set()
+        for unit in units:
+            key = unit.findtext("source")
+            assert key and key not in keys, f"Missing or duplicate translation key: {name}"
+            keys.add(key)
+            assert unit.find("target") is not None, f"Missing translation target: {name}: {key}"
 
 payload = archive.read_bytes()
 digest = hashlib.sha256(payload).hexdigest()
@@ -57,5 +71,5 @@ metadata = {
     "signed": False,
     "hardwareValidated": False,
 }
-(root / "build/metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+(build / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
 print(f"Verified {len(files)} channel files and {xml_count} component XML files; SHA-256 {digest}")

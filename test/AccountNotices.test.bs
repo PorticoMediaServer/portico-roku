@@ -15,9 +15,10 @@ sub Test_AccountNotices_parse()
             AssertSame(copy, item.expected, "what the notices hold, " + item.name)
         end if
     end for
-    for each item in fixture.preferences
-        AssertSame(ParseAccountNoticePreferences(item.document), item.expected, "the account's choices about its notices")
-    end for
+    ' The old three-preference golden is preserved. Hosted now owns only server-index presence.
+    AssertSame(ParseAccountNoticePreferences({ serverOffline: true }), { serverOffline: true })
+    AssertEqual(ParseAccountNoticePreferences({ serverOffline: true, storageNearlyFull: false, invitationAccepted: true }), invalid, "retired preferences are refused")
+    AssertEqual(ParseAccountNoticePreferences({ serverOffline: "yes" }), invalid)
     AssertSame(AccountNoticeKinds(), fixture.kinds, "the kinds this build knows")
     AssertSame(AccountSecurityEvents(), fixture.events, "the security events this build names")
     AssertTrue(not ParseAccountNotices(invalid).ok, "no document")
@@ -41,6 +42,6 @@ sub Test_AccountNotices_words()
     AssertSame(AccountNoticesReadBody(["a"]), { ids: ["a"] }, "marking one")
     AssertSame(AccountNoticesReadBody(invalid), { all: true }, "marking all")
     AssertEqual(AccountNoticesPath("c 2"), "/v1/account/notifications?cursor=c%202", "the page after a cursor")
-    AssertSame(AccountNoticePreferencesBody({ serverOffline: true, storageNearlyFull: false, invitationAccepted: true }), { serverOffline: true, storageNearlyFull: false, invitationAccepted: true }, "the three choices")
+    AssertSame(AccountNoticePreferencesBody({ serverOffline: true }), { serverOffline: true }, "the actual Hosted preference")
     GetGlobalAA().messageCatalogue = invalid
 end sub

@@ -1,0 +1,326 @@
+import "pkg:/source/core/SetupJournal.bs"
+' AC-C1..3: actual session transports, with the same request recorder as Session.test.bs.
+
+sub Test_Accounts_profileFreeFreshAndStoredHostedGrants()
+    ctx = TestContext()
+    grant = TestGrant()
+    AssertTrue(HostedGrantValid(grant))
+    AssertTrue(HostedGrantValid(grant, true))
+    grant["profiles"] = []
+    AssertTrue(not HostedGrantValid(grant), "fresh Hosted grants cannot smuggle server-local profiles")
+    StoreWriteJson(ctx.store, "portico", "hosted", grant)
+    AssertEqual(HostedLoad(ctx), invalid, "retired stored records are refused, never migrated")
+    grant.delete("profiles")
+    grant.account["profiles"] = []
+    AssertTrue(not HostedGrantValid(grant, true))
+    grant = TestGrant()
+    grant.expiresAt = "2027-01-01T00:00:00Z"
+    AssertTrue(not HostedGrantValid(grant), "access must not outlive refresh authority")
+    grant = TestGrant()
+    grant.accessToken = String(16385, "x")
+    AssertTrue(not HostedGrantValid(grant), "tokens remain bounded")
+    AssertEqual(ServerSignInSettingsURL("http://192.168.1.20:32500"), "http://192.168.1.20:32500/settings?scope=server&section=signin")
+    AssertEqual(ServerSignInSettingsURL("https://user:secret@example.com"), invalid)
+end sub
+
+function AccountRestoreRaceSend(request as object) as object
+    m.recordAnswer = TestSend
+    answer = m.recordAnswer(request)
+    if request.method = "GET" and request.url = m.transport.context.base + "/v1/direct" then
+        ctx = m.transport.context
+        record = SessionRecord(ctx)
+        if m.transport.removeDuringRestore = true then
+            SessionRemoveFamily(ctx, record["pin"].serverId, record["session"].sessionFamilyId)
+        else
+            record["session"].tokenGeneration = "2"
+            record["session"].accessToken = "newer-access"
+            record["pendingRefresh"] = "newer-refresh-receipt"
+            StoreWriteJson(ctx.store, SessionRecordSection(record["pin"].serverId), "record", record)
+        end if
+    end if
+    return answer
+end function
+
+sub Test_Accounts_restoreKeepsAConcurrentRenewalAndCannotResurrectLogout()
+    for each remove in [false, true]
+        ctx = TestContext()
+        TestSignedIn(ctx)
+        ctx.transport.context = ctx
+        ctx.transport.removeDuringRestore = remove
+        ctx.send = AccountRestoreRaceSend
+        TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+        TestAnswer(ctx, "GET", ctx.base + "/v1/me", 200, {})
+        TestAnswer(ctx, "GET", ctx.base + "/v1/direct", 200, TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)]))
+        restored = SessionRestore(ctx)
+        if remove then
+            AssertEqual(restored.state, "ended")
+            AssertEqual(SessionRecord(ctx), invalid, "a late read cannot resurrect a signed-out family")
+        else
+            AssertEqual(restored.state, "ready")
+            AssertEqual(restored.session.accessToken, "newer-access")
+            AssertEqual(SessionRecord(ctx)["session"].tokenGeneration, "2")
+            AssertEqual(SessionRecord(ctx)["pendingRefresh"], "newer-refresh-receipt")
+        end if
+    end for
+end sub
+
+function AccountTestSystem(ctx as object, kind as dynamic) as object
+    return { "id": TestPin(ctx).serverId, "name": "Den", "signIn": kind, "move": invalid, "setupRequired": false, "version": "1.0.0", "hostedAttached": false, "hostedConfigured": false }
+end function
+
+sub Test_Accounts_kindProbeNeverGuessesLocal()
+    ctx = TestContext()
+    for each kind in [invalid, "", "hosted", "LOCAL", false, {}]
+        raw = AccountTestSystem(ctx, kind)
+        AssertEqual(ParseServerSignIn(raw, raw.id).ok, false, "unknown kind cannot open a credential form")
+    end for
+    raw = AccountTestSystem(ctx, "portico")
+    AssertEqual(ParseServerSignIn(raw, raw.id).signIn, "portico")
+    AssertEqual(ParseServerSignIn(raw, "another-server").failure.code, "identity_mismatch")
+    raw.name = String(2049, "x")
+    AssertEqual(ParseServerSignIn(raw, raw.id).ok, false)
+
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, AccountTestSystem(ctx, "portico"))
+    connected = SessionConnect(ctx, "192.168.1.20:32500")
+    AssertTrue(connected.ok)
+    AssertEqual(connected.connection.signIn, "portico")
+    AssertEqual(connected.connection.serverName, "Den")
+    count = ctx.transport.requests.count()
+    AssertEqual(SessionSignIn(ctx, connected.connection, "secret-user", "secret-password").failure.code, "sign_in_kind_portico")
+    AssertEqual(QuickConnectCreate(ctx, connected.connection).failure.code, "sign_in_kind_portico")
+    AssertEqual(SessionCompleteChallenge(ctx, connected.connection, "secret-challenge", "123456").failure.code, "sign_in_kind_portico")
+    AssertEqual(ctx.transport.requests.count(), count, "no credential or Local code request leaves the client")
+    AssertEqual(SessionSignIn(ctx, { origin: ctx.base, pin: TestPin(ctx) }, "u", "p").ok, false, "an unprobed connection is refused")
+end sub
+
+sub Test_Accounts_moveDiscriminatorIsRequiredAndCannotChangeKind()
+    ctx = TestContext()
+    for each kind in ["local", "portico"]
+        raw = AccountTestSystem(ctx, kind)
+        AssertTrue(ParseServerSignIn(raw, raw.id).ok, "explicit null means no active move")
+        raw.delete("move")
+        AssertEqual(ParseServerSignIn(raw, raw.id).ok, false, "missing move is not an implicit no-move")
+        for each value in ["", "preview", false, 1, {}, []]
+            raw["move"] = value
+            AssertEqual(ParseServerSignIn(raw, raw.id).ok, false, "unknown move cannot open credentials")
+        end for
+        for each direction in ["to_portico", "to_local"]
+            raw["move"] = direction
+            parsed = ParseServerSignIn(raw, raw.id)
+            matches = (direction = "to_portico" and kind = "portico") or (direction = "to_local" and kind = "local")
+            AssertEqual(parsed.ok, matches, "committed move agrees with the server-owned sign-in kind")
+            if parsed.ok then AssertEqual(parsed.move, direction)
+        end for
+    end for
+end sub
+
+function AccountTestBinding(ctx as object, kind as string, other = false as boolean, accountId = "acct_1" as string) as object
+    pin = TestPin(ctx)
+    if other then
+        raw = ParseJson(BytesToText(Base64UrlDecode(ctx.fixture.proofs[2].answer.payload)))
+        pin = { serverId: raw.serverId, publicKey: raw.publicKey, fingerprint: raw.fingerprint }
+    end if
+    session = TestSessionJson(ctx, "viewer")
+    session.viewer.serverId = pin.serverId
+    session.serverIdentity = { publicKey: pin.publicKey, fingerprint: pin.fingerprint }
+    session.sessionFamilyId = "family_" + kind
+    if other then session.sessionFamilyId = session.sessionFamilyId + "_other"
+    details = { username: "sam", serverName: "Den", profileName: "Sam" }
+    if kind = "portico" then
+        if HostedLoad(ctx) = invalid then HostedSave(ctx, TestGrant())
+        details.hosted = { origin: ctx.hostedUrl, accountId: accountId }
+    end if
+    return SessionAccept(ctx, { origin: ctx.base, pin: pin, signIn: kind, serverName: "Den" }, session, details)
+end function
+
+sub Test_Accounts_manyBindingsAndSelectionWithoutLogout()
+    ctx = TestContext()
+    first = AccountTestBinding(ctx, "local")
+    second = AccountTestBinding(ctx, "local", true)
+    AssertTrue(first.ok and second.ok)
+    AssertEqual(SessionRecords(ctx).count(), 2)
+    AssertEqual(SessionRecord(ctx)["pin"].serverId, second.connection.pin.serverId)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/me", 200, {})
+    chosen = SessionSelect(ctx, first.connection.pin.serverId)
+    AssertEqual(chosen.state, "ready")
+    AssertEqual(SessionRecords(ctx).count(), 2, "selection retains the other server")
+    AssertEqual(TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current").count(), 0)
+    AssertEqual(TestRequests(ctx, "POST", ctx.base + "/v1/direct/sign-in").count(), 0, "selection uses the saved grant")
+    for each request in ctx.transport.requests
+        AssertTrue(Left(request.url, Len(ctx.hostedUrl)) <> ctx.hostedUrl, "local-only switching never calls Hosted")
+    end for
+end sub
+
+sub Test_Accounts_serverLogoutKeepsAccountAndOtherServers()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    portico = AccountTestBinding(ctx, "portico")
+    local = AccountTestBinding(ctx, "local", true)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/sessions/current", 204)
+    result = SessionSignOut(ctx, portico.connection.pin.serverId, portico.session.sessionFamilyId)
+    AssertTrue(result.removed)
+    AssertEqual(SessionRecords(ctx).count(), 1)
+    AssertEqual(SessionRecord(ctx)["signIn"], "local", "selected Local binding stays selected")
+    AssertTrue(HostedLoad(ctx) <> invalid, "server logout never ends the Portico Account")
+    requests = TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current")
+    AssertEqual(requests.count(), 1)
+    AssertEqual(requests[0].headers["Authorization"], "Bearer " + portico.session.accessToken)
+end sub
+
+sub Test_Accounts_accountLogoutRemovesPorticoRetainsLocal()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    portico = AccountTestBinding(ctx, "portico")
+    local = AccountTestBinding(ctx, "local", true)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/sessions/current", 204)
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke", 204)
+    HostedSignOut(ctx)
+    AssertTrue(HostedLoad(ctx) = invalid)
+    AssertTrue(SessionRecord(ctx, portico.connection.pin.serverId) = invalid)
+    AssertEqual(SessionRecord(ctx)["signIn"], "local")
+    AssertEqual(SessionRecords(ctx).count(), 1)
+    AssertEqual(TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current").count(), 1)
+    AssertEqual(TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke").count(), 1)
+end sub
+
+sub Test_Accounts_accountLogoutAllMatchingFamiliesAndScope()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    AccountTestBinding(ctx, "portico")
+    AccountTestBinding(ctx, "portico", true)
+    HostedSignOut(ctx)
+    AssertEqual(SessionRecords(ctx).count(), 0, "all Portico bindings removed even when revocation is unreachable")
+
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    other = AccountTestBinding(ctx, "portico", false, "other-account")
+    HostedSignOut(ctx)
+    AssertEqual(other.ok, false, "a second Portico Account binding is refused")
+    AssertEqual(SessionRecords(ctx).count(), 0, "only one Portico Account can own this app’s bindings")
+end sub
+
+sub Test_Accounts_lateLogoutCannotRemoveReplacementFamily()
+    ctx = TestContext()
+    old = AccountTestBinding(ctx, "local")
+    replacement = TestSessionJson(ctx, "viewer")
+    replacement.sessionFamilyId = "replacement_family"
+    SessionAccept(ctx, old.connection, replacement)
+    count = ctx.transport.requests.count()
+    result = SessionSignOut(ctx, old.connection.pin.serverId, old.session.sessionFamilyId)
+    AssertEqual(result.removed, false)
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, "replacement_family")
+    AssertEqual(ctx.transport.requests.count(), count, "a stale action revokes nothing")
+end sub
+
+sub Test_Accounts_porticoBindingsCannotLoseTheirSignInKind()
+    ctx = TestContext()
+    portico = AccountTestBinding(ctx, "portico")
+    AssertEqual(SessionRecord(ctx)["signIn"], "portico", "server-local viewer authority is not the sign-in kind")
+    AssertEqual(portico.session.viewer.authority, "local")
+    AssertEqual(SessionAccept(ctx, portico.connection, portico.session).failure.code, "account_required")
+    bad = portico.record
+    bad["signIn"] = "local"
+    StoreWriteJson(ctx.store, SessionRecordSection(portico.connection.pin.serverId), "record", bad)
+    AssertTrue(SessionRecord(ctx) = invalid, "a Local record cannot carry a Hosted binding")
+end sub
+
+sub Test_Accounts_managementPowersAreServerOwned()
+    denied = ParseManagementCapabilities(invalid)
+    AssertEqual(denied.manageServer, false, "missing capabilities never confer owner powers")
+    AssertTrue(ParseManagementCapabilities({ manageServer: true }) = invalid, "partial powers are unreadable")
+    ctx = TestContext()
+    raw = TestSnapshot(ctx, [TestProfile("prof_1", "Sam", true)])
+    raw.canManage = false
+    raw.capabilities = { "manageAccount": false, "managePeople": false, "manageServer": false, "manageSignIn": false }
+    parsed = ParseDirectSnapshot(raw)
+    AssertTrue(parsed.ok)
+    AssertEqual(parsed.snapshot.capabilities.manageServer, false, "an owner on another profile has no management powers")
+    raw.capabilities.manageServer = "true"
+    AssertEqual(ParseDirectSnapshot(raw).ok, false, "powers must be booleans")
+end sub
+
+sub Test_Accounts_retiredLocalAdmissionCannotResurrect()
+    ctx = TestContext()
+    issued = AccountTestBinding(ctx, "local")
+    ctx.admissionRevision = SessionRevision(ctx)
+    SessionSignOut(ctx)
+    count = ctx.transport.requests.count()
+    stale = SessionAccept(ctx, issued.connection, issued.session)
+    AssertEqual(stale.ok, false)
+    AssertEqual(stale.failure.code, "cancelled")
+    AssertTrue(SessionRecord(ctx) = invalid)
+    AssertTrue(ctx.transport.requests.count() >= count, "late grant cleanup is attempted without saving it")
+end sub
+
+sub Test_Accounts_cancelledHostedCodeRevokesLateGrant()
+    ctx = TestContext()
+    ctx.admissionRevision = SessionRevision(ctx)
+    SessionAdvance(ctx)
+    tokenUrl = ctx.hostedUrl + "/v1/device-authorizations/token"
+    TestAnswer(ctx, "POST", tokenUrl, 200, TestGrant())
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke", 204)
+    outcome = HostedCodePoll(ctx, TestAuthorization(ctx, ctx.hostedUrl))
+    AssertEqual(outcome.next, "retired")
+    AssertTrue(HostedLoad(ctx) = invalid)
+    AssertEqual(TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/sessions/revoke").count(), 1)
+end sub
+
+sub Test_Accounts_setupCreationAndCancellationSurviveRestart()
+    ctx = TestContext()
+    ctx.setupOrigin = ctx.hostedUrl
+    ctx.nextSetupRequestId = ctx.requestId
+    scope = SetupJournalScope(ctx, true, invalid)
+    first = SetupBeginCreation(ctx, scope)
+    AssertTrue(first.ok)
+    resumed = SetupBeginCreation(ctx, scope)
+    AssertEqual(resumed.entry.requestId, first.entry.requestId, "an uncertain create reuses its durable request id")
+    SetupJournalAbandon(ctx, scope, true, invalid)
+    recovered = SetupBeginCreation(ctx, scope)
+    AssertTrue(recovered.entry.cancelled, "an interrupted cancelled create stays quarantined")
+    committed = SetupCommitCreation(ctx, scope, recovered.entry, TestAuthorization(ctx, ctx.hostedUrl))
+    AssertTrue(committed.retired)
+    AssertTrue(SetupReceipt(ctx, scope, "current") = invalid, "a cancelled code is never displayed")
+    key = "retired." + first.entry.requestId
+    SetupJournalCleanup(ctx, scope, true, invalid)
+    AssertTrue(SetupReceipt(ctx, scope, key) <> invalid, "failed cancellation keeps its receipt")
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/cancel", 204)
+    SetupJournalCleanup(ctx, scope, true, invalid)
+    AssertTrue(SetupReceipt(ctx, scope, key) = invalid, "only acknowledged cancellation forgets its secret")
+end sub
+
+sub Test_Accounts_setupLocalCleanupNeverTouchesHosted()
+    ctx = TestContext()
+    connection = TestConnected(ctx).connection
+    ctx.transport.requests.clear()
+    ctx.setupOrigin = connection.origin
+    scope = SetupJournalScope(ctx, false, connection)
+    ctx.nextSetupRequestId = ctx.requestId
+    started = SetupBeginCreation(ctx, scope)
+    accepted = SetupCommitCreation(ctx, scope, started.entry, TestAuthorization(ctx, ctx.base))
+    AssertTrue(accepted.ok)
+    AssertEqual(SetupReceipt(ctx, scope, "current").authorization.userCode, "ABCD-EFGH", "restart resumes the same code")
+    SetupJournalAbandon(ctx, scope, false, connection)
+    for each request in ctx.transport.requests
+        AssertTrue(Left(request.url, Len(ctx.hostedUrl)) <> ctx.hostedUrl, "local receipt cleanup never contacts Hosted")
+    end for
+end sub
+
+sub Test_Accounts_freshCapabilitiesCannotContradictAccountRole()
+    ctx = TestContext()
+    raw = TestSnapshot(ctx, [TestProfile("prof_1", "Sam", true)])
+    raw.account.role = "member"
+    AssertEqual(ParseDirectSnapshot(raw).ok, false, "member snapshot cannot grant owner powers")
+    raw.account.role = "owner"
+    raw.canManage = false
+    AssertEqual(ParseDirectSnapshot(raw).ok, false, "canManage and capability disagree")
+    raw.capabilities = invalid
+    AssertEqual(ParseDirectSnapshot(raw).ok, false, "fresh snapshots must report main-profile capabilities")
+    raw = TestSnapshot(ctx, [TestProfile("prof_1", "Sam", true)])
+    raw.session = TestSessionJson(ctx, "viewer")
+    raw.deviceApprovalPending = true
+    AssertEqual(ParseDirectSignIn(raw, ctx.now).ok, false, "retired pending field is refused even alongside a valid session")
+end sub

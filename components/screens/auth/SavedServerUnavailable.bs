@@ -91,7 +91,10 @@ sub onSavedLayout()
     width = m.frame.contentWidth
     recovery = m.session.recovery
     host = ""
-    if recovery <> invalid then host = FriendlyHost(recovery.origin)
+    if recovery <> invalid then
+        if IsString(recovery.serverName) then host = recovery.serverName
+        if host = "" then host = FriendlyHost(recovery.origin)
+    end if
     if host <> "" then
         m.frame.title = T("savedServer.title", { host: host })
     else

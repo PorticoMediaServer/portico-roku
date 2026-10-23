@@ -2,6 +2,7 @@
 ' signed in on) and apps/native/src/screens/Security.tsx `DevicesSection` (what each row says and
 ' what can be done about a device).
 import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/AccountRoutes.bs"
 import "pkg:/source/core/ContentEntry.bs"
 import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Time.bs"
@@ -23,10 +24,10 @@ function IsDeviceId(value as dynamic) as boolean
 end function
 
 function DeviceKeys() as object
-    return ["id", "authority", "installationid", "name", "platform", "app", "appversion", "ip", "firstseen", "lastseen", "trusted", "approvalstate", "lastprofileid", "rememberaccount", "current", "sessions"]
+    return DeviceContractKeys()
 end function
 
-' `parseDevice`: {id, name, platform, ip, lastSeen (seconds), trusted, approvalState, current,
+' `parseDevice`: {id, name, platform, ip, lastSeen (seconds), current,
 ' sessions}, or invalid. A field nobody asked for is a defect, as is an address that is not one.
 function ParseDevice(raw as dynamic) as dynamic
     if not IsObject(raw) then return invalid
@@ -34,7 +35,9 @@ function ParseDevice(raw as dynamic) as dynamic
         if not ArrayIncludes(DeviceKeys(), LCase(key)) then return invalid
     end for
     if raw.authority <> invalid and (not IsString(raw.authority) or (raw.authority <> "local" and raw.authority <> "hosted")) then return invalid
-    if not IsDeviceId(raw.id) or not IsString(raw.installationId) or not MatchesPattern(raw.installationId, "^[A-Za-z0-9_-]{32,128}$") then return invalid
+    if not IsDeviceId(raw.id) or not IsString(raw.installationId) then return invalid
+    installationValid = MatchesPattern(raw.installationId, "^[A-Za-z0-9_-]{32,128}$")
+    if not installationValid and not (raw.installationId = "" and raw.current = false) then return invalid
     if not IsDeviceText(raw.name, 120) or raw.name = "" then return invalid
     for each field in ["platform", "app", "appVersion"]
         if not IsDeviceText(raw[field], 64) then return invalid
@@ -44,13 +47,12 @@ function ParseDevice(raw as dynamic) as dynamic
     seen = invalid
     if IsString(raw.lastSeen) and Len(raw.lastSeen) <= 40 then seen = IsoToSeconds(raw.lastSeen)
     if seen = invalid then return invalid
-    if not IsBoolean(raw.trusted) or not IsBoolean(raw.rememberAccount) or not IsBoolean(raw.current) then return invalid
-    if not IsString(raw.approvalState) or not ArrayIncludes(["approved", "pending", "denied"], raw.approvalState) then return invalid
+    if not IsBoolean(raw.rememberAccount) or not IsBoolean(raw.current) then return invalid
     if raw.lastProfileId <> invalid then
         if not IsString(raw.lastProfileId) or (raw.lastProfileId <> "" and not IsDeviceId(raw.lastProfileId)) then return invalid
     end if
     if not IsNatural(raw.sessions) or raw.sessions > 1000 then return invalid
-    return { id: raw.id, name: raw.name, platform: raw.platform, ip: raw.ip, lastSeen: seen, trusted: raw.trusted, approvalState: raw.approvalState, current: raw.current, sessions: raw.sessions }
+    return { id: raw.id, name: raw.name, platform: raw.platform, ip: raw.ip, lastSeen: seen, current: raw.current, sessions: raw.sessions }
 end function
 
 ' `parseDevices`: {ok, devices}, most recently active first as the server sends them. At most one
@@ -73,10 +75,6 @@ function ParseDevices(raw as dynamic) as object
     return { ok: true, devices: out }
 end function
 
-function DeviceAwaitingApproval(device as object) as boolean
-    return device.approvalState = "pending"
-end function
-
 ' Security.tsx `platformLabel`: the platform in words, or as the server names it.
 function DevicePlatformLabel(platform as string) as string
     known = { "web": "device.platform.web", "ios": "device.platform.ios", "tvos": "device.platform.tvos", "android": "device.platform.android", "androidtv": "device.platform.androidtv" }
@@ -94,16 +92,13 @@ function DeviceGlyph(platform as string, name as string) as string
     return "browser"
 end function
 
-' One device's row: {title, subtitle, meta, badge: "" | "this" | "waiting", icon}. `when` is the
+' One device's row: {title, subtitle, meta, badge: "" | "this", icon}. `when` is the
 ' last-seen time in words (the screen's relative time).
 function DeviceRow(device as object, lastSeenWords as string) as object
     row = { title: device.name, subtitle: T("devices.lastSeen", { platform: DevicePlatformLabel(device.platform), when: lastSeenWords }), meta: "", badge: "", icon: DeviceGlyph(device.platform, device.name) }
     if device.current then
         row.badge = "this"
         row.meta = T("device.thisDevice")
-    else if DeviceAwaitingApproval(device) then
-        row.badge = "waiting"
-        row.meta = T("device.waiting")
     else if device.sessions > 0 then
         row.meta = T("device.signedIn")
     else
@@ -115,13 +110,6 @@ end function
 ' What can be done about a device: [{id, label, icon, destructive}].
 function DeviceActions(device as object) as object
     items = []
-    if DeviceAwaitingApproval(device) then
-        items.push({ id: "approve", label: T("device.approve"), icon: "check" })
-        items.push({ id: "deny", label: T("device.deny"), icon: "close" })
-    end if
-    trust = "device.trust"
-    if device.trusted then trust = "device.untrust"
-    items.push({ id: "trust", label: T(trust), icon: "shield" })
     if device.sessions > 0 then
         words = "device.signOutOther"
         if device.current then words = "device.signOutThis"
@@ -140,8 +128,6 @@ end function
 
 ' The request an action makes: {path, method, body}, or invalid for one that asks first.
 function DeviceRequest(device as object, action as string) as dynamic
-    if action = "approve" or action = "deny" then return { path: DevicePath(device.id, "/approval"), method: "POST", body: { "approved": action = "approve" } }
-    if action = "trust" then return { path: DevicePath(device.id), method: "PATCH", body: { "trusted": not device.trusted } }
     if action = "signOutConfirmed" then return { path: DevicePath(device.id, "/sessions"), method: "DELETE", body: invalid }
     if action = "removeConfirmed" then return { path: DevicePath(device.id), method: "DELETE", body: invalid }
     return invalid

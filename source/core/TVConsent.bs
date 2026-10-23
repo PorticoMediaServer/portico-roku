@@ -1,0 +1,98 @@
+' client-core/tv-consent.ts: genuine TV sign-in consent, not device trust or owner approval.
+' Any signed-in device of the same account can consent. Server/main-profile powers grant none
+' of these rights. Authority and one-shot review are captured before the request.
+import "pkg:/source/core/Hosted.bs"
+
+function TVConsentAuthority(ctx as object, kind as string) as object
+    if kind = "portico" then
+        grant = HostedLoad(ctx)
+        if grant = invalid then return SessionFailure("signed_out")
+        return { ok: true, authority: { kind: kind, origin: ctx.hostedUrl, accountId: grant.account.id, sessionFamilyId: grant.familyId } }
+    end if
+    if kind <> "local" then return SessionFailure("invalid_consent_authority")
+    record = SessionRecord(ctx)
+    if record = invalid or record["signIn"] <> "local" then return SessionFailure("invalid_consent_authority")
+    return { ok: true, authority: { kind: kind, origin: record["logicalOrigin"], accountId: record["session"].viewer.accountId, sessionFamilyId: record["session"].sessionFamilyId, serverId: record["pin"].serverId } }
+end function
+
+function TVConsentSame(a as dynamic, b as dynamic) as boolean
+    if not IsObject(a) or not IsObject(b) then return false
+    for each key in ["kind", "origin", "accountId", "sessionFamilyId", "serverId"]
+        if a[key] <> b[key] then return false
+    end for
+    return true
+end function
+
+function TVConsentCurrent(ctx as object, authority as object) as boolean
+    current = TVConsentAuthority(ctx, authority.kind)
+    return current.ok and TVConsentSame(current.authority, authority)
+end function
+
+function TVConsentApi(ctx as object, authority as object) as object
+    if not TVConsentCurrent(ctx, authority) then return SessionFailure("consent_retired")
+    if authority.kind = "portico" then
+        live = HostedLive(ctx)
+        if not live.ok then return live
+        if not TVConsentCurrent(ctx, authority) then return SessionFailure("consent_retired")
+        return { ok: true, api: HostedApi(ctx, live.hosted.accessToken), reviewPath: AccountRoutes.porticoConsentReview, decisionPath: AccountRoutes.porticoConsentDecision }
+    end if
+    record = SessionRecord(ctx, authority.serverId)
+    proof = SessionProbe(ctx, authority.origin, record["pin"])
+    if not proof.ok then return proof
+    renewed = SessionRenew(ctx, record)
+    if not renewed.ok then return renewed
+    if not TVConsentCurrent(ctx, authority) then return SessionFailure("consent_retired")
+    return { ok: true, api: SessionApi(ctx, authority.origin, renewed.session.accessToken), reviewPath: AccountRoutes.localConsentReview, decisionPath: AccountRoutes.localConsentDecision }
+end function
+
+function ParseTVConsentPreview(raw as dynamic, userCode as string, now as dynamic) as dynamic
+    if not IsObject(raw) or not IsText(raw.requestId, 128) or not IsString(raw.userCode) or NormalizeSetupCode(raw.userCode) <> userCode then return invalid
+    if not IsText(raw.deviceName, 100) or not IsText(raw.platform, 32) or not IsText(raw.appVersion, 40) then return invalid
+    expires = IsoToSeconds(raw.expiresAt)
+    if expires = invalid or expires <= now or expires > now + 605 then return invalid
+    return { requestId: raw.requestId, userCode: userCode, deviceName: raw.deviceName, platform: raw.platform, appVersion: raw.appVersion, expiresAt: raw.expiresAt }
+end function
+
+sub TVConsentCancel(ctx as object)
+    ctx.store.remove("portico", "tvConsentPending")
+    ctx.store.remove("portico", "tvConsentReviewed")
+end sub
+
+function TVConsentReview(ctx as object, kind as string, code as string) as object
+    TVConsentCancel(ctx)
+    userCode = NormalizeSetupCode(code)
+    if userCode = invalid then return SessionFailure("invalid_code")
+    captured = TVConsentAuthority(ctx, kind)
+    if not captured.ok then return captured
+    authority = captured.authority
+    transport = TVConsentApi(ctx, authority)
+    if not transport.ok then return transport
+    requestId = NewRequestId()
+    if ctx.requestId <> invalid then requestId = ctx.requestId
+    if not ctx.store.write("portico", "tvConsentPending", requestId) then return SessionFailure("persistence_error")
+    answer = ApiRequest(transport.api, transport.reviewPath, "POST", { "userCode": userCode })
+    if ctx.store.read("portico", "tvConsentPending") <> requestId or not TVConsentCurrent(ctx, authority) then return SessionFailure("consent_retired")
+    ctx.store.remove("portico", "tvConsentPending")
+    if not answer.ok then return { ok: false, failure: answer.error }
+    preview = ParseTVConsentPreview(answer.data, userCode, SessionNow(ctx))
+    if preview = invalid then return SessionFailure("invalid_consent")
+    reviewed = { "authority": authority, "preview": preview, "reviewId": requestId }
+    if not StoreWriteJson(ctx.store, "portico", "tvConsentReviewed", reviewed) then return SessionFailure("persistence_error")
+    return { ok: true, reviewed: reviewed }
+end function
+
+function TVConsentDecide(ctx as object, reviewed as object, decision as string) as object
+    if decision <> "approve" and decision <> "deny" then return SessionFailure("invalid_consent")
+    stored = StoreReadJson(ctx.store, "portico", "tvConsentReviewed")
+    if not IsObject(stored) or stored.reviewId <> reviewed.reviewId or not TVConsentSame(stored.authority, reviewed.authority) then return SessionFailure("consent_retired")
+    preview = ParseTVConsentPreview(stored.preview, stored.preview.userCode, SessionNow(ctx))
+    if preview = invalid or stored.preview.requestId <> reviewed.preview.requestId or stored.preview.userCode <> reviewed.preview.userCode then return SessionFailure("consent_retired")
+    transport = TVConsentApi(ctx, stored.authority)
+    if not transport.ok then return transport
+    ' An uncertain decision is never replayed blindly; enter/review the current code again.
+    ctx.store.remove("portico", "tvConsentReviewed")
+    answer = ApiRequest(transport.api, transport.decisionPath, "POST", { "requestId": preview.requestId, "userCode": preview.userCode, "decision": decision })
+    if not TVConsentCurrent(ctx, stored.authority) then return SessionFailure("consent_retired")
+    if not answer.ok then return { ok: false, failure: answer.error }
+    return { ok: true }
+end function

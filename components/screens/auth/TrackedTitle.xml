@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Frame 40's Manrope 800 title with its drawn -0.045em letter spacing. -->
+<component name="AuthTrackedTitle" extends="Group">
+    <interface>
+        <field id="value" type="string" value="" onChange="onTitleText" />
+    </interface>
+</component>

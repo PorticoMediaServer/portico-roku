@@ -3,6 +3,7 @@
 ' Strict about shapes and lenient about kinds: a newer account service can add one, and it shows
 ' as a generic row.
 import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/AccountRoutes.bs"
 import "pkg:/source/core/ContentEntry.bs"
 import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Format.bs"
@@ -66,14 +67,14 @@ function ParseAccountNotices(v as dynamic) as object
     return { ok: true, items: items, unread: v.unread, nextCursor: cursor }
 end function
 
-' `parseNotificationPreferences`: {serverOffline, storageNearlyFull, invitationAccepted}, or invalid.
+' Checked profile-free Hosted only owns this server-index presence preference.
 function ParseAccountNoticePreferences(v as dynamic) as dynamic
-    if not IsObject(v) or not IsBoolean(v.serverOffline) or not IsBoolean(v.storageNearlyFull) or not IsBoolean(v.invitationAccepted) then return invalid
-    return { serverOffline: v.serverOffline, storageNearlyFull: v.storageNearlyFull, invitationAccepted: v.invitationAccepted }
+    if not IsObject(v) or not HasExactKeys(v, HostedNoticePreferenceKeys()) or not IsBoolean(v.serverOffline) then return invalid
+    return { serverOffline: v.serverOffline }
 end function
 
 function AccountNoticePreferencesBody(prefs as object) as object
-    return { "serverOffline": prefs.serverOffline, "storageNearlyFull": prefs.storageNearlyFull, "invitationAccepted": prefs.invitationAccepted }
+    return { "serverOffline": prefs.serverOffline }
 end function
 
 ' `markRead`: the notices named, or every one (`ids` invalid).

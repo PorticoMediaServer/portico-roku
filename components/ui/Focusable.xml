@@ -14,6 +14,8 @@
         <!-- Overrides the platform focus scale (1 disables). -->
         <field id="focusScale" type="float" value="0" />
         <field id="ring" type="boolean" value="true" />
+        <!-- An immutable frame may draw a different outer ring inset; zero uses the theme. -->
+        <field id="ringInset" type="float" value="0" onChange="onFocusableSize" />
         <field id="isFocused" type="boolean" value="false" />
         <field id="isPressed" type="boolean" value="false" />
         <field id="pressed" type="boolean" value="false" alwaysNotify="true" />

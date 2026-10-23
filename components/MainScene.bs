@@ -64,7 +64,7 @@ sub onScenePhase()
     if wanted = m.shown then return
     ' Leaving the shell (signing out, switching server) ends what is playing and leaves any room.
     if m.shown = "Shell" then
-        if m.player <> invalid then m.player.callFunc("stop")
+        if m.player <> invalid then m.player.callFunc("stopPlayback")
         m.top.findNode("together").callFunc("shutdown")
     end if
     if m.view <> invalid then

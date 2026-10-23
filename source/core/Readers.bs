@@ -40,6 +40,7 @@ function ReadAnswer(reader as dynamic, answer as object, context as dynamic) as 
     if reader = "playbackOptions" then return ReadPlaybackOptions(answer.data)
     if reader = "playbackSession" then return ReadPlaybackSession(answer.data)
     if reader = "playbackQueue" then return ReadPlaybackQueue(answer.data)
+    if reader = "playbackQueueHeader" then return { value: { ok: ParseQueueHeader(answer.data) <> invalid, queue: ParseQueueHeader(answer.data) } }
     if reader = "playbackWindow" then return ReadPlaybackWindow(answer.data)
     if reader = "groupSnapshot" then return { value: ParseGroupSnapshot(answer.data) }
     if reader = "groupList" then return { value: ParseGroupList(answer.data) }

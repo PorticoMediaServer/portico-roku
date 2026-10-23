@@ -6,10 +6,14 @@ import "pkg:/source/Theme.bs"
 import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
 
 sub init()
     m.spec = ThemeSpecTable().button
     m.transportSpec = ThemeSpecTable().transport
+    m.authShadow = m.top.createChild("Poster")
+    m.authShadow.uri = "pkg:/images/shapes/auth-focus.9.png"
+    m.authShadow.visible = false
     m.fill = m.top.createChild("Poster")
     m.border = m.top.createChild("Poster")
     m.iconNode = m.top.createChild("Poster")
@@ -35,6 +39,8 @@ function ButtonVariant() as string
 end function
 
 sub onButtonLayout()
+    m.top.ringInset = 0
+    if m.top.authAppearance then m.top.ringInset = AuthFrameMetrics.ringInset
     size = m.top.size
     if m.spec.height[size] = invalid then size = "md"
     transport = invalid
@@ -50,6 +56,7 @@ sub onButtonLayout()
     label = m.top.label
     iconOnly = label = "" or transport <> invalid
     padX = m.spec.paddingX[size]
+    if m.top.authAppearance then padX = AuthFrameMetrics.buttonPadding
     if iconOnly then padX = 0
     gap = m.spec.gap
 
@@ -59,6 +66,14 @@ sub onButtonLayout()
     m.labelNode.maxWidth = 0
     m.labelNode.width = 0
     m.labelNode.value = label
+    if m.top.authAppearance then
+        m.labelNode.sizeOverride = AuthFrameMetrics.buttonSize
+        m.labelNode.lineHeightOverride = AuthFrameMetrics.buttonLineHeight
+        font = CreateObject("roSGNode", "Font")
+        font.uri = "pkg:/fonts/manrope-700.ttf"
+        font.size = AuthFrameMetrics.buttonSize
+        m.labelNode.font = font
+    end if
     labelWidth = 0
     if not iconOnly then labelWidth = TextWidth(m.labelNode)
 
@@ -85,6 +100,11 @@ sub onButtonLayout()
     end if
 
     m.layout = { width: width, height: height, radius: radius, iconSize: iconSize }
+    if m.top.authAppearance then
+        m.authShadow.width = width + AuthFrameMetrics.shadowMargin * 2
+        m.authShadow.height = height + AuthFrameMetrics.shadowMargin * 2
+        Place(m.authShadow, -AuthFrameMetrics.shadowMargin, AuthFrameMetrics.shadowOffset - AuthFrameMetrics.shadowMargin)
+    end if
     m.top.radius = radius
     m.top.controlWidth = width
     m.top.controlHeight = height
@@ -150,12 +170,27 @@ sub onButtonStyle()
         state = "hover"
     end if
     fill = fills[state]
+    if m.top.authAppearance then
+        fill = { background: "text", foreground: "ink" }
+        if ButtonVariant() <> "primary" then
+            fill = { background: "text", backgroundAlpha: AuthFrameMetrics.glassAlpha, foreground: "text" }
+            if not m.top.isFocused then
+                fill.border = "text"
+                fill.borderAlpha = AuthFrameMetrics.glassBorderAlpha
+            end if
+        end if
+    end if
+    m.authShadow.visible = m.top.authAppearance and m.top.isFocused
     foreground = ThemeColor(fill.foreground)
     layout = m.layout
     StyleShape(m.fill, layout.width, layout.height, layout.radius, ThemeColor(fill.background, fill.backgroundAlpha))
     m.fill.visible = fill.background <> "transparent"
     m.border.visible = fill.border <> invalid
-    if fill.border <> invalid then StyleRing(m.border, layout.width, layout.height, layout.radius, Theme.spec.overlay.border.width, ThemeColor(fill.border, fill.borderAlpha))
+    if fill.border <> invalid then
+        borderWidth = Theme.spec.overlay.border.width
+        if m.top.authAppearance then borderWidth = AuthFrameMetrics.glassBorderWidth
+        StyleRing(m.border, layout.width, layout.height, layout.radius, borderWidth, ThemeColor(fill.border, fill.borderAlpha))
+    end if
     if m.top.icon <> "" then
         m.iconNode.uri = IconUri(m.top.icon, layout.iconSize, m.top.iconNumber >= 0)
         m.iconNode.width = layout.iconSize

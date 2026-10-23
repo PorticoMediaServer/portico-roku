@@ -81,15 +81,10 @@ function LandingButton(variant as string, label as string, handler as string, ic
     return button
 end function
 
-function LandingSignOut() as object
-    return LandingButton("ghost", T("auth.signOutOfAccount"), "onLandingSignOut", "signOut")
-end function
-
 sub onLandingRender()
     landing = m.session.landing
     if landing = invalid then landing = { kind: "deciding" }
     kind = landing.kind
-    if m.session.directStep = "device-pending" then kind = "device-pending"
     key = kind + "|" + m.session.directoryStatus + "|" + m.session.error
     if landing.server <> invalid then key = key + "|" + landing.server.id
     if landing.failure <> invalid then key = key + "|" + landing.failure.kind
@@ -102,20 +97,7 @@ sub onLandingRender()
     nodes = []
     focus = invalid
     server = landing.server
-    if kind = "device-pending" then
-        secondary = ""
-        if LandingOthers(invalid) then secondary = T("portico.landing.chooseAnother")
-        nodes.push(LandingState("lock", T("device.approval.titleThisDevice"), T("device.approval.body"), T("device.approval.checkAgain"), secondary))
-        m.primaryAction = "retry"
-        m.secondaryAction = "pick"
-        if m.session.error <> "" then
-            problem = MakeText(m.holder, "caption", "danger", m.session.error)
-            problem.align = "center"
-            problem.maxWidth = width
-            nodes.push(problem)
-        end if
-        nodes.push(LandingSignOut())
-    else if kind = "deciding" or kind = "opening" then
+    if kind = "deciding" or kind = "opening" then
         title = T("portico.landing.finding")
         if kind = "opening" and server <> invalid then title = T("portico.landing.opening", { server: server.name })
         nodes.push(LandingState("info", title, "", "", "", true))
@@ -126,25 +108,22 @@ sub onLandingRender()
         label = PresenceLabel(server.presence, NowSeconds())
         stale = server.presence <> invalid and not server.presence.online and not (label.kind = "lastSeen" and label.recent)
         if failure = "unreachable" and stale then
-            ' A stale offline server names the problem and offers direct sign-in with its address filled in.
+            ' connect10: a Portico server offers Try again and Choose another server.
             body = T("web.chooser.unreachableBodyNever")
             if label.kind = "lastSeen" then body = T("web.chooser.unreachableBody", { date: FormatDate(label.lastSeenAt, "dayMonth") })
             nodes.push(LandingState("warning", T("web.chooser.unreachableTitle", { server: server.name }), body, "", ""))
             focus = LandingButton("primary", T("web.chooser.tryAgain"), "onLandingRetry", "", "lg")
             nodes.push(focus)
-            nodes.push(LandingButton("secondary", T("web.chooser.signInDirectly"), "onLandingDirectTo"))
-            if LandingOthers(server) then nodes.push(LandingButton("ghost", T("portico.landing.chooseAnother"), "onLandingPick"))
-            nodes.push(LandingSignOut())
+            nodes.push(LandingButton("secondary", T("portico.landing.chooseAnother"), "onLandingPick"))
         else
             titles = {
                 "noAccess": "portico.failure.noAccess.title", "unreachable": "portico.failure.unreachable.title", "clockSkew": "portico.failure.clockSkew.title"
-                "incompatible": "portico.failure.incompatible.title", "identity": "portico.failure.identity.title", "devicePending": "portico.failure.devicePending.title"
-                "deviceDenied": "portico.failure.deviceDenied.title", "other": "portico.failure.other.title"
+                "incompatible": "portico.failure.incompatible.title", "identity": "portico.failure.identity.title"
+                "other": "portico.failure.other.title"
             }
             bodies = {
                 "noAccess": "portico.failure.noAccess.body", "unreachable": "portico.failure.unreachable.body", "clockSkew": "portico.failure.clockSkew.body"
-                "incompatible": "portico.failure.incompatible.body", "identity": "portico.failure.identity.body", "devicePending": "portico.failure.devicePending.body"
-                "deviceDenied": "portico.failure.deviceDenied.body"
+                "incompatible": "portico.failure.incompatible.body", "identity": "portico.failure.identity.body"
             }
             body = T("portico.failure.other.bodyUnknown")
             if failure = "other" then
@@ -155,9 +134,9 @@ sub onLandingRender()
             icon = "warning"
             if failure = "unreachable" then icon = "network"
             if failure = "clockSkew" then icon = "clock"
-            if failure = "noAccess" or failure = "identity" or failure = "deviceDenied" or failure = "devicePending" then icon = "lock"
+            if failure = "noAccess" or failure = "identity" then icon = "lock"
             ' No access: the server is gone from this account; trying it again cannot help.
-            retry = failure <> "noAccess" and failure <> "deviceDenied"
+            retry = failure <> "noAccess"
             action = ""
             secondary = ""
             if retry then
@@ -172,7 +151,6 @@ sub onLandingRender()
                 m.primaryAction = "pick"
             end if
             nodes.push(LandingState(icon, T(titles[failure], { server: server.name }), body, action, secondary))
-            nodes.push(LandingSignOut())
         end if
     else if kind = "none" then
         if m.session.directoryStatus = "error" then
@@ -185,7 +163,6 @@ sub onLandingRender()
             m.primaryAction = "refresh"
             m.secondaryAction = "direct"
         end if
-        nodes.push(LandingSignOut())
     else
         title = MakeText(m.holder, "title", "primary", T("portico.landing.pickTitle"))
         title.align = "center"
@@ -223,7 +200,6 @@ sub onLandingRender()
         nodes.push(lead)
         nodes.push(group)
         nodes.push(LandingButton("ghost", T("web.servers.refresh"), "onLandingRefresh", "refresh"))
-        nodes.push(LandingSignOut())
     end if
     gap = Theme.space.md
     height = StackColumn(nodes, 0, gap, width, "center")
@@ -239,9 +215,7 @@ end sub
 sub LandingAct(action as string)
     landing = m.session.landing
     if action = "retry" then
-        if m.session.directStep = "device-pending" then
-            m.session.callFunc("retrySignIn")
-        else if landing <> invalid and landing.server <> invalid then
+        if landing <> invalid and landing.server <> invalid then
             m.session.callFunc("openServer", landing.server)
         end if
     else if action = "pick" then
@@ -273,12 +247,6 @@ sub onLandingRefresh()
     LandingAct("refresh")
 end sub
 
-sub onLandingDirectTo()
-    landing = m.session.landing
-    if landing <> invalid and landing.server <> invalid then m.session.callFunc("setOrigin", landing.server.baseUrl)
-    m.top.directPressed = true
-end sub
-
 sub onLandingChoose(event as object)
     row = event.getRoSGNode()
     if row = invalid then return
@@ -290,10 +258,6 @@ sub onLandingChoose(event as object)
     end for
 end sub
 
-sub onLandingSignOut()
-    m.session.callFunc("signOutAccount")
-    m.top.signedOut = true
-end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     direction = FocusDirection(key)

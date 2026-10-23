@@ -10,14 +10,22 @@ import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/ui/Focus.bs"
 import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
 import "pkg:/source/core/Messages.bs"
 
 sub init()
+    m.frontBackdrop = m.top.createChild("Poster")
+    m.frontBackdrop.uri = "pkg:/images/gradients/auth-left.png"
+    m.frontBackdrop.width = Theme.screen.width
+    m.frontBackdrop.height = Theme.screen.height
+    m.frontBackdrop.visible = false
     m.wordmark = m.top.createChild("Poster")
     m.wordmark.uri = "pkg:/images/brand/wordmark.png"
     m.wordmark.blendColor = Theme.colors.text
     m.titleNode = MakeText(m.top, "display")
     m.titleNode.lines = 0
+    m.frontTitle = m.top.createChild("AuthTrackedTitle")
+    m.frontTitle.visible = false
     m.leadNode = MakeText(m.top, "body", "secondary")
     m.leadNode.lines = 0
     m.noteNode = MakeText(m.top, "body", "secondary")
@@ -33,6 +41,7 @@ end sub
 function FrameWidth() as float
     width = Theme.apple.authWidth
     if m.top.wide then width = Theme.apple.authWidthWide
+    if m.top.frontDoor then width = AuthFrameMetrics.width
     limit = Theme.screen.width - Theme.space.page * 2
     if width > limit then width = limit
     m.top.contentWidth = width
@@ -49,6 +58,22 @@ end sub
 
 sub onFrameLayout()
     width = FrameWidth()
+    m.frontBackdrop.visible = m.top.frontDoor
+    m.frontTitle.visible = m.top.frontDoor
+    m.titleNode.visible = not m.top.frontDoor
+    if m.top.frontDoor then
+        ' Exact connect.html frame 40: .screen.tv, .tvl, inline h1 and .btns.
+        m.wordmark.width = AuthFrameMetrics.wordmarkHeight * Theme.apple.wordmarkAspect
+        m.wordmark.height = AuthFrameMetrics.wordmarkHeight
+        Place(m.wordmark, AuthFrameMetrics.left, AuthFrameMetrics.wordmarkTop)
+        m.frontTitle.value = m.top.title
+        Place(m.frontTitle, AuthFrameMetrics.left, AuthFrameMetrics.titleTop)
+        m.leadNode.visible = false
+        m.noteNode.visible = false
+        m.notice.visible = false
+        Place(m.holder, AuthFrameMetrics.left, AuthFrameMetrics.buttonTop)
+        return
+    end if
     align = "left"
     if m.top.centered then align = "center"
     left = (Theme.screen.width - width) / 2

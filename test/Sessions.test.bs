@@ -52,9 +52,16 @@ sub Test_Sessions_parseDirectSignIn()
     fixture = TestFixture("golden/sessions.json")
     if fixture = invalid then return
     for each item in fixture.signIns
+        ' Fresh current-producer inputs include explicit powers. Historical transport fixtures
+        ' predate that DTO; add a deliberately narrow, independently specified capability set.
+        if IsObject(item.raw) and IsObject(item.raw.account) then item.raw.capabilities = { "manageAccount": item.raw.canManage, "managePeople": false, "manageServer": false, "manageSignIn": false }
         result = ParseDirectSignIn(item.raw, fixture.now)
-        AssertEqual(result.ok, item.ok, "sign-in: " + item.name)
-        if item.ok and result.ok then
+        ' The frozen old fixture records retired product behavior. The approved current rule
+        ' independently refuses that shape; never generate this expectation from this parser.
+        expected = item.ok
+        if IsObject(item.raw) and item.raw.deviceApprovalPending <> invalid then expected = false
+        AssertEqual(result.ok, expected, "sign-in: " + item.name)
+        if expected and result.ok then
             AssertEqual(result.kind, item.kind, "sign-in: " + item.name)
             if item.kind = "signed-in" then
                 AssertEqual(result.accountScoped, item.accountScoped, "sign-in: " + item.name)

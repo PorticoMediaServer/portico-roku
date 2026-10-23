@@ -10,6 +10,8 @@
         <!-- A television landing that needs the width of the screen. -->
         <field id="wide" type="boolean" value="false" onChange="onFrameLayout" />
         <field id="centered" type="boolean" value="false" onChange="onFrameLayout" />
+        <!-- connect.html frame 40: wordmark at top left, left-aligned TV front door. -->
+        <field id="frontDoor" type="boolean" value="false" onChange="onFrameLayout" />
         <field id="dismissable" type="boolean" value="true" onChange="onFrameLayout" />
         <!-- The width a screen lays its content out in. -->
         <field id="contentWidth" type="float" value="0" />

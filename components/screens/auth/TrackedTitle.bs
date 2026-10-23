@@ -1,0 +1,39 @@
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
+
+sub init()
+    m.font = CreateObject("roSGNode", "Font")
+    m.font.uri = "pkg:/fonts/manrope-800.ttf"
+    m.font.size = AuthFrameMetrics.titleSize
+    m.shadow = m.top.createChild("Poster")
+    m.shadow.uri = "pkg:/images/gradients/auth-title-shadow.png"
+    m.shadow.width = AuthFrameMetrics.width + AuthFrameMetrics.titleShadowPadding * 2
+    m.shadow.height = AuthFrameMetrics.titleHeight + AuthFrameMetrics.titleShadowPadding * 2
+    m.shadow.translation = [-AuthFrameMetrics.titleShadowPadding, -AuthFrameMetrics.titleShadowPadding]
+    m.shadow.visible = false
+    m.measure = m.top.createChild("Label")
+    m.measure.font = m.font
+    m.measure.opacity = 0
+    m.letters = m.top.createChild("Group")
+end sub
+
+sub onTitleText()
+    if m.letters = invalid then return
+    m.letters.removeChildrenIndex(m.letters.getChildCount(), 0)
+    value = m.top.value
+    m.shadow.visible = value = AuthFrameMetrics.titleShadowText
+    prefix = ""
+    for index = 1 to Len(value)
+        letter = Mid(value, index, 1)
+        prefix = prefix + letter
+        m.measure.text = prefix
+        endX = m.measure.boundingRect().width
+        glyph = m.letters.createChild("Label")
+        glyph.font = m.font
+        glyph.text = letter
+        glyph.color = Theme.colors.text
+        glyph.height = AuthFrameMetrics.titleHeight
+        glyph.vertAlign = "center"
+        glyph.translation = [endX - glyph.boundingRect().width + (index - 1) * AuthFrameMetrics.titleTracking, AuthFrameMetrics.titleTextOffset]
+    end for
+end sub

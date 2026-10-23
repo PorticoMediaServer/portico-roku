@@ -7,7 +7,7 @@
         <function name="enqueue" />
         <function name="toggle" />
         <function name="focusPill" />
-        <function name="stop" />
+        <function name="stopPlayback" />
         <!-- {kind: play | pause | seek, seconds}: from the group's follower; never sent back out as a command. -->
         <function name="groupDo" />
         <!-- {itemId, playbackId, playing, positionSeconds} -->

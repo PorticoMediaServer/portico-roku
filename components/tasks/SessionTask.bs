@@ -2,6 +2,7 @@
 ' each returns, are in source/core/Session.bs and source/core/Hosted.bs.
 import "pkg:/source/core/Session.bs"
 import "pkg:/source/core/Hosted.bs"
+import "pkg:/source/core/TVConsent.bs"
 
 sub init()
     m.top.functionName = "work"
@@ -12,7 +13,15 @@ sub work()
     ctx = SessionContextNew()
     result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
     kind = job.kind
-    if kind = "restore" then
+    if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then ctx.admissionRevision = SessionRevision(ctx)
+    if kind = "reviewTVConsent" then
+        result = TVConsentReview(ctx, job.authorityKind, job.code)
+    else if kind = "decideTVConsent" then
+        result = TVConsentDecide(ctx, job.reviewed, job.decision)
+    else if kind = "cancelTVConsent" then
+        TVConsentCancel(ctx)
+        result = { ok: true }
+    else if kind = "restore" then
         result = SessionRestore(ctx)
         result.hosted = HostedLoad(ctx)
     else if kind = "connect" then
@@ -35,17 +44,23 @@ sub work()
     else if kind = "avatars" then
         result = SessionAvatars(ctx, job.connection, job.token)
     else if kind = "signOut" then
-        SessionSignOut(ctx)
-        result = { ok: true }
+        result = SessionSignOut(ctx, job.serverId, job.familyId)
     else if kind = "servers" then
         result = HostedServers(ctx)
         result.lastServer = ctx.store.read("portico", "lastHostedServer")
     else if kind = "openServer" then
         result = HostedOpen(ctx, job.server)
+    else if kind = "selectServer" then
+        result = SessionSelect(ctx, job.serverId)
+    else if kind = "savedServers" then
+        records = []
+        for each record in SessionRecords(ctx)
+            records.push({ serverId: record["pin"].serverId, serverName: record["serverName"], origin: record["logicalOrigin"], signIn: record["signIn"] })
+        end for
+        result = { ok: true, records: records }
     else if kind = "signOutAccount" then
-        SessionSignOut(ctx)
-        HostedSignOut(ctx)
-        result = { ok: true }
+        HostedSignOut(ctx, job.accountId)
+        result = { ok: true, record: SessionRecord(ctx) }
     end if
     result.kindOfJob = kind
     m.top.result = result

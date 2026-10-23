@@ -1,0 +1,81 @@
+' Independent AC-C3 cases: checked canonical paths, captured account and single-use consent.
+import "pkg:/source/core/TVConsent.bs"
+
+function TestConsentPreview(ctx as object) as object
+    return { "requestId": "tv-request", "userCode": "ABCD-EFGH", "deviceName": "Bedroom TV", "platform": "roku", "appVersion": "1.0.0", "expiresAt": TestAuthorization(ctx, ctx.base).expiresAt }
+end function
+
+sub Test_TVConsent_localViewerCanApproveWithoutManagementPower()
+    ctx = TestContext()
+    TestSignedIn(ctx)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/quick-connect/review", 200, TestConsentPreview(ctx))
+    TestAnswer(ctx, "POST", ctx.base + "/v1/quick-connect/decision", 204)
+    reviewed = TVConsentReview(ctx, "local", "abcd efgh")
+    AssertTrue(reviewed.ok)
+    AssertEqual(reviewed.reviewed.authority.accountId, "acct_1")
+    AssertTrue(TVConsentDecide(ctx, reviewed.reviewed, "approve").ok, "a viewer can consent for the same local account")
+    sent = TestRequests(ctx, "POST", ctx.base + "/v1/quick-connect/decision")[0]
+    AssertEqual(sent.headers["Authorization"], "Bearer access-viewer-prof_1")
+    AssertSame(ParseJson(sent.body), { requestId: "tv-request", userCode: "ABCD-EFGH", decision: "approve" })
+    AssertEqual(TVConsentDecide(ctx, reviewed.reviewed, "approve").failure.code, "consent_retired")
+    for each request in ctx.transport.requests
+        AssertTrue(Left(request.url, Len(ctx.hostedUrl)) <> ctx.hostedUrl, "Local consent never calls Hosted")
+    end for
+end sub
+
+sub Test_TVConsent_porticoUsesOnlyItsAccountService()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/review", 200, TestConsentPreview(ctx))
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/decision", 204)
+    reviewed = TVConsentReview(ctx, "portico", "ABCD-EFGH")
+    AssertTrue(reviewed.ok)
+    AssertTrue(reviewed.reviewed.authority.serverId = invalid, "Hosted consent invents no server profile")
+    AssertTrue(TVConsentDecide(ctx, reviewed.reviewed, "deny").ok)
+    request = TestRequests(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/decision")[0]
+    AssertEqual(request.headers["Authorization"], "Bearer hosted-access")
+    AssertEqual(TestRequests(ctx, "POST", ctx.base + "/v1/quick-connect/decision").count(), 0)
+end sub
+
+sub Test_TVConsent_changedAccountOrFamilyRetiresReview()
+    ctx = TestContext()
+    HostedSave(ctx, TestGrant())
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/review", 200, TestConsentPreview(ctx))
+    reviewed = TVConsentReview(ctx, "portico", "ABCD-EFGH")
+    replacement = TestGrant()
+    replacement.account.id = "other-account"
+    HostedSave(ctx, replacement)
+    count = ctx.transport.requests.count()
+    AssertEqual(TVConsentDecide(ctx, reviewed.reviewed, "approve").failure.code, "consent_retired")
+    AssertEqual(ctx.transport.requests.count(), count, "no decision crosses an account change")
+
+    ctx = TestContext()
+    connection = TestSignedIn(ctx)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[1].answer)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/quick-connect/review", 200, TestConsentPreview(ctx))
+    reviewed = TVConsentReview(ctx, "local", "ABCD-EFGH")
+    replacement = TestSessionJson(ctx, "viewer")
+    replacement.sessionFamilyId = "another-family"
+    SessionAccept(ctx, connection, replacement)
+    AssertEqual(TVConsentDecide(ctx, reviewed.reviewed, "approve").failure.code, "consent_retired")
+end sub
+
+sub Test_TVConsent_cancelMalformedAndUnsignedInputs()
+    ctx = TestContext()
+    AssertEqual(TVConsentReview(ctx, "local", "ABCD-EFGH").ok, false)
+    AssertEqual(TVConsentReview(ctx, "portico", "ABCD-EFGH").ok, false)
+    AssertEqual(TVConsentReview(ctx, "local", "1234").failure.code, "invalid_code")
+    AssertEqual(ctx.transport.requests.count(), 0, "no signed-in authority means no request")
+    HostedSave(ctx, TestGrant())
+    TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/device-authorizations/review", 200, TestConsentPreview(ctx))
+    reviewed = TVConsentReview(ctx, "portico", "ABCD-EFGH")
+    TVConsentCancel(ctx)
+    AssertEqual(TVConsentDecide(ctx, reviewed.reviewed, "approve").failure.code, "consent_retired")
+    preview = TestConsentPreview(ctx)
+    AssertTrue(ParseTVConsentPreview(preview, "WXYZ-2345", ctx.now) = invalid)
+    preview.expiresAt = "2000-01-01T00:00:00Z"
+    AssertTrue(ParseTVConsentPreview(preview, "ABCD-EFGH", ctx.now) = invalid)
+    preview.expiresAt = "2099-01-01T00:00:00Z"
+    AssertTrue(ParseTVConsentPreview(preview, "ABCD-EFGH", ctx.now) = invalid)
+end sub

@@ -4,9 +4,10 @@
 ' (POST /v1/quick-connect on the server). The decisions are here; the Task that asks and waits is
 ' components/tasks/SetupCodeTask.
 '
-' What is not carried over: the durable journal that resumes a code after the app is killed. A
-' Roku channel that exits abandons its code (it is cancelled on the way out, and expires on its own).
+' The durable per-operation Registry receipts are in SetupJournal.bs; no device secret is
+' published to a SceneGraph screen.
 import "pkg:/source/core/RouteIdentity.bs"
+import "pkg:/source/core/AccountRoutes.bs"
 import "pkg:/source/core/Time.bs"
 import "pkg:/source/core/Validate.bs"
 
@@ -111,9 +112,13 @@ function ApprovalLink(serverOrigin as string, given as dynamic, code as string) 
 end function
 
 ' The account service's grant (apps/native/src/bridge/setup-codes.ts `hostedGrant`).
-function HostedGrantValid(grant as dynamic) as boolean
-    if not IsObject(grant) or not IsString(grant.accessToken) or grant.accessToken = "" then return false
-    if not IsString(grant.refreshToken) or grant.refreshToken = "" or not IsString(grant.familyId) or grant.familyId = "" then return false
-    if not IsObject(grant.account) or not IsString(grant.account.id) or grant.account.id = "" or not IsArray(grant.profiles) then return false
-    return IsoToSeconds(grant.expiresAt) <> invalid and IsoToSeconds(grant.refreshExpiresAt) <> invalid
+function HostedGrantValid(grant as dynamic, stored = false as boolean) as boolean
+    if not IsObject(grant) or not HasExactKeys(grant, HostedGrantContractKeys()) then return false
+    if not IsText(grant.accessToken, 16384) or not IsText(grant.refreshToken, 16384) then return false
+    if not MatchesPattern(grant.familyId, "^[A-Za-z0-9_-]{1,128}$") then return false
+    if not IsObject(grant.account) or not HasExactKeys(grant.account, HostedGrantAccountKeys()) then return false
+    if not MatchesPattern(grant.account.id, "^[A-Za-z0-9_-]{1,160}$") or not IsText(grant.account.username, 32) or not IsText(grant.account.displayName, 2048) then return false
+    if IsoToSeconds(grant.expiresAt) = invalid or IsoToSeconds(grant.refreshExpiresAt) = invalid then return false
+    if not stored and (Right(grant.expiresAt, 1) <> "Z" or Right(grant.refreshExpiresAt, 1) <> "Z") then return false
+    return UtcOrderKey(grant.expiresAt) <= UtcOrderKey(grant.refreshExpiresAt)
 end function

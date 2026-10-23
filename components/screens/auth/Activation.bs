@@ -2,15 +2,15 @@
 ' done. The code is the Portico Account's (POST /v1/device-authorizations on the account service;
 ' components/tasks/SetupCodeTask). Under the code row, the buttons, then the terms note.
 '
-' Difference from the Apple TV app: there is no "Sign in with a Portico Account" button. On Apple
-' TV it opens a form with the account's password and the providers; a Roku signs in by code or by
-' server address (handoff rule 11), and this code is the account's sign-in. "Sign in directly to a
-' server" keeps its secondary style and takes focus.
+' The front door contacts Portico Services only after its main Portico Account action. The Local
+' action opens the address probe. An existing account may open its directory after that choice;
+' a new account signs in with the genuine same-account consent code.
 import "pkg:/source/Theme.bs"
 import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
 import "pkg:/source/core/Messages.bs"
 
 sub init()
@@ -25,20 +25,25 @@ sub init()
     m.panel.observeField("actionPressed", "onActivationRestart")
     m.buttons = m.content.createChild("Group")
     m.buttons.addFields({ boxWidth: 0, boxHeight: 0 })
+    m.account = m.buttons.createChild("UiButton")
+    m.account.id = "accounts.signIn.portico"
+    m.account.variant = "primary"
+    m.account.size = "lg"
+    m.account.authAppearance = true
+    m.account.label = T("accounts.signIn.portico")
+    m.account.observeField("pressed", "onActivationAccount")
     m.direct = m.buttons.createChild("UiButton")
+    m.direct.id = "accounts.signIn.local"
     m.direct.variant = "secondary"
     m.direct.size = "lg"
-    m.direct.label = T("auth.signInDirectly")
+    m.direct.authAppearance = true
+    m.direct.label = T("accounts.signIn.local")
     m.direct.observeField("pressed", "onActivationDirect")
-    m.saved = m.buttons.createChild("UiButton")
-    m.saved.variant = "ghost"
-    m.saved.size = "lg"
-    m.saved.label = T("auth.backToSavedServer")
-    m.saved.observeField("pressed", "onActivationSaved")
     m.terms = MakeText(m.content, "caption", "tertiary")
     m.terms.lines = 0
     m.terms.align = "center"
-    m.state = { phase: "creating" }
+    m.state = { phase: "idle" }
+    m.started = false
     m.failure = ""
     m.task = invalid
     m.session.observeField("error", "onActivationLayout")
@@ -47,13 +52,13 @@ sub init()
 end sub
 
 sub enter()
-    ActivationStart()
     onActivationLayout()
-    m.frame.callFunc("focusContent", m.direct)
+    m.frame.callFunc("focusContent", m.account)
 end sub
 
 sub ActivationStart()
     leave()
+    m.started = true
     m.task = CreateObject("roSGNode", "SetupCodeTask")
     m.task.mode = "account"
     m.task.observeField("state", "onActivationState")
@@ -72,7 +77,14 @@ sub leave()
 end sub
 
 function back() as boolean
-    return false
+    if not m.started then return false
+    leave()
+    m.started = false
+    m.state = { phase: "idle" }
+    m.failure = ""
+    onActivationLayout()
+    m.frame.callFunc("focusContent", m.account)
+    return true
 end function
 
 sub onActivationState()
@@ -113,13 +125,16 @@ sub onActivationLayout()
     else if state.verificationUri <> invalid then
         link = state.verificationUri
     end if
-    m.frame.title = T("activation.title")
-    m.frame.lead = T("activation.lead", { host: host })
+    m.frame.title = T("web.signin.welcomeHome")
+    if m.started then m.frame.title = T("activation.title")
+    m.frame.lead = ""
+    if m.started then m.frame.lead = T("activation.lead", { host: host })
     m.frame.note = m.session.note
     problem = m.failure
     if problem = "" and state.phase = "error" then problem = T("apple.activation.failed")
     if problem = "" and not m.session.hasRecovery then problem = m.session.error
     m.frame.error = problem
+    m.frame.frontDoor = not m.started and problem = "" and m.session.note = ""
 
     m.panel.panelWidth = width
     m.panel.host = host
@@ -137,14 +152,24 @@ sub onActivationLayout()
     end if
     m.panel.phase = state.phase
 
-    m.saved.visible = m.session.hasRecovery
-    m.saved.focusable = m.session.hasRecovery
-    rowHeight = StackRow([m.direct, m.saved], 0, Theme.space.md, width)
+    m.account.visible = not m.started
+    m.account.focusable = not m.started
+    m.panel.visible = m.started
+    rowGap = Theme.space.md
+    rowAlign = "center"
+    if not m.started then
+        rowGap = AuthFrameMetrics.buttonGap
+        rowAlign = "start"
+    end if
+    rowHeight = StackRow([m.account, m.direct], 0, rowGap, width, 0, rowAlign)
     m.buttons.boxWidth = width
     m.buttons.boxHeight = rowHeight
     m.terms.maxWidth = width
     m.terms.value = T("activation.termsNote")
-    height = StackColumn([m.panel, m.buttons, m.terms], 0, Theme.space.lg, width)
+    m.terms.visible = m.started
+    nodes = [m.buttons]
+    if m.started then nodes = [m.panel, m.buttons, m.terms]
+    height = StackColumn(nodes, 0, Theme.space.lg, width)
     m.frame.callFunc("setContent", m.content, height)
 end sub
 
@@ -154,10 +179,17 @@ sub onActivationDismiss()
     onActivationLayout()
 end sub
 
-sub onActivationDirect()
-    m.top.directPressed = true
+sub onActivationAccount()
+    if m.started then return
+    if m.session.hasAccount then
+        m.session.callFunc("requestAccount")
+        return
+    end if
+    ActivationStart()
+    onActivationLayout()
+    m.frame.callFunc("focusContent", m.direct)
 end sub
 
-sub onActivationSaved()
-    m.top.savedServerPressed = true
+sub onActivationDirect()
+    m.top.directPressed = true
 end sub

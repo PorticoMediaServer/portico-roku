@@ -2,6 +2,7 @@
 <!-- apps/native/App.tsx: the root. The app opens on the brand and a ring, then the shell or sign-in. -->
 <component name="MainScene" extends="Scene">
     <interface>
+        <field id="codecCapabilitiesChanged" type="integer" value="0" />
         <function name="toast" />
         <function name="play" />
         <function name="enqueue" />

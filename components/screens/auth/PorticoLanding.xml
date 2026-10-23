@@ -3,7 +3,6 @@
 <component name="ScreenPorticoLanding" extends="Group">
     <interface>
         <field id="directPressed" type="boolean" value="false" alwaysNotify="true" />
-        <field id="signedOut" type="boolean" value="false" alwaysNotify="true" />
         <function name="enter" />
         <function name="leave" />
         <function name="back" />

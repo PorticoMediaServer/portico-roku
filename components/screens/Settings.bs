@@ -39,6 +39,7 @@ sub init()
     m.right.pageWidth = m.width - m.rightX
     Place(m.right, m.rightX, 0)
     m.session = m.global.session
+    m.session.observeField("hasAccount", "onSettingsAccountChange")
     m.structure = invalid
     m.address = ""
     m.snapshot = invalid
@@ -124,14 +125,28 @@ function SettingsViewer() as object
     return viewer.viewer
 end function
 
+sub onSettingsAccountChange()
+    if m.structure = invalid then return
+    inColumn = m.left.isInFocusChain()
+    SettingsResolve()
+    SettingsColumn()
+    if inColumn then focusEntry()
+    SettingsDraw()
+end sub
+
 sub SettingsResolve()
     viewer = SettingsViewer()
     capabilities = RokuSettingsCapabilities()
-    capabilities.localAccount = viewer.authority = "local"
+    outer = m.session.viewer
+    capabilities.localAccount = outer <> invalid and outer.signIn = "local"
+    capabilities.porticoMember = outer <> invalid and outer.signIn = "portico"
     capabilities.hostedAccount = m.session.hasAccount
     keys = PreferenceKeys(m.snapshot)
     if keys <> invalid then capabilities.preferenceKeys = keys
-    m.structure = SettingsStructureFor({ owner: viewer.role = "owner", capabilities: capabilities })
+    management = invalid
+    if m.session.viewer <> invalid then management = m.session.viewer.capabilities
+    canManageServer = management <> invalid and management.manageServer = true
+    m.structure = SettingsStructureFor({ owner: canManageServer, capabilities: capabilities })
 end sub
 
 function SettingsFirstAddress() as string
@@ -234,6 +249,14 @@ sub SettingsColumn()
     row.accessory = "navigation"
     row.observeField("pressed", "onSettingsShortcut")
     shortcuts.push(row)
+    if m.session.hasAccount then
+        row = CreateObject("roSGNode", "UiListRow")
+        row.rowId = "shortcut:signOutAccount"
+        row.icon = "signOut"
+        row.title = T("accounts.signOut.portico")
+        row.observeField("pressed", "onSettingsShortcut")
+        shortcuts.push(row)
+    end if
     if shortcuts.count() > 0 then
         heading = ""
         more = "settings.more"
@@ -267,10 +290,48 @@ end sub
 
 sub onSettingsShortcut(event as object)
     row = event.getRoSGNode()
+    if row.rowId = "shortcut:signOutAccount" then SettingsConfirm("signOutAccount", invalid)
     if row.rowId = "shortcut:profile" then m.session.callFunc("switchProfile")
-    if row.rowId = "shortcut:server" then m.session.callFunc("switchServer")
+    if row.rowId = "shortcut:server" then
+        task = CreateObject("roSGNode", "SessionTask")
+        task.job = { kind: "savedServers" }
+        task.observeField("result", "onSettingsSavedServers")
+        m.tasks.savedServers = task
+        task.control = "RUN"
+    end if
     if row.rowId = "shortcut:notifications" then NavPush("ScreenNotifications", {})
     if row.rowId = "shortcut:together" then NavPush("ScreenTogether", {})
+end sub
+
+sub onSettingsSavedServers(event as object)
+    result = event.getData()
+    items = []
+    for each record in result.records
+        name = record.serverName
+        if name = invalid or name = "" then name = FriendlyHost(record.origin)
+        items.push({ id: "saved:" + record.serverId, label: name, icon: "server" })
+    end for
+    items.push({ id: "add", label: T("accounts.signIn.local"), icon: "plus" })
+    if m.session.hasAccount then items.push({ id: "portico", label: T("accounts.signIn.portico"), icon: "user" })
+    if m.serverMenu = invalid then
+        m.serverMenu = m.top.createChild("UiMenu")
+        m.serverMenu.observeField("chosen", "onSettingsSavedServerChosen")
+    end if
+    menu = m.serverMenu
+    menu.title = T("settings.switchServer")
+    menu.items = items
+    menu.callFunc("open")
+end sub
+
+sub onSettingsSavedServerChosen(event as object)
+    id = event.getData()
+    if id = "add" or id = "portico" then
+        m.session.callFunc("switchServer")
+    else
+        serverId = Mid(id, Len("saved:") + 1)
+        if m.session.viewer <> invalid and m.session.viewer.serverId = serverId then return
+        m.session.callFunc("selectServer", serverId)
+    end if
 end sub
 
 sub SettingsOpen(address as string)
@@ -374,7 +435,9 @@ function SettingsRowNode(row as object) as dynamic
         if row.id = "signOut" then
             node.icon = "signOut"
             node.tone = "destructive"
-            node.title = T("account.signOutThisTV")
+            server = m.session.viewer.serverName
+            if server = invalid or server = "" then server = T("servers.fallbackName")
+            node.title = T("accounts.signOut.server", { server: server })
         else if row.id = "resetRecommendations" then
             node.title = T("settings.resetRecommendations")
             node.subtitle = T("settings.resetRecommendations.help")
@@ -418,16 +481,8 @@ function SettingsPanel(body as object, id as string, y as dynamic, width as dyna
     if id = "identity" then
         name = T("account.serverAccount")
         if viewer <> invalid and viewer.username <> "" then name = viewer.username
-        account = m.session.account
-        if m.session.hasAccount and account <> invalid then
-            if account.displayName <> invalid and account.displayName <> "" then
-                name = account.displayName
-            else if account.username <> invalid and account.username <> "" then
-                name = account.username
-            end if
-        end if
         using = ""
-        if viewer <> invalid and viewer.profileName <> "" then using = T("account.usingProfile", { name: viewer.profileName })
+        if viewer <> invalid and viewer.profileName <> "" and viewer.profileName <> name then using = T("account.usingProfile", { name: viewer.profileName })
         return { y: SettingsGroup(body, 0, y, width, T("account.signedInAs"), "", [SettingsReadable(name, "", using, "account")]) + Theme.space.xl }
     end if
     if id = "profiles" then
@@ -447,14 +502,14 @@ function SettingsPanel(body as object, id as string, y as dynamic, width as dyna
             if m.system.name <> invalid and m.system.name <> "" then name = m.system.name
             if m.system.version <> invalid and m.system.version <> "" then version = T("servers.version", { version: m.system.version })
         end if
-        how = T("settings.connectedDirectly")
-        if facts.authority = "hosted" then how = T("settings.connectedThroughAccount")
+        how = T("accounts.session.local")
+        if viewer <> invalid and viewer.signIn = "portico" then how = T("accounts.session.portico")
         host = ""
         if viewer <> invalid then host = FriendlyHost(viewer.origin)
         if host = "" then host = how
         line = host
         if version <> "" then line = host + " · " + version
-        return { rows: [SettingsReadable(name, "", line, "server")] }
+        return { rows: [SettingsReadable(name, how, line, "server")] }
     end if
     if id = "deviceName" then
         name = ""
@@ -755,6 +810,10 @@ sub SettingsConfirm(kind as string, subject as dynamic)
         title = T("settings.signOutConfirm.title", { server: server, device: SettingsDeviceNoun() })
         words = T("settings.signOutConfirm.bodyTV")
         action = T("action.signOut")
+    else if kind = "signOutAccount" then
+        title = T("accounts.signOut.portico")
+        words = T("accounts.signOut.porticoBody")
+        action = T("action.signOut")
     else if kind = "deviceSignOut" or kind = "deviceRemove" then
         action = "signOut"
         if kind = "deviceRemove" then action = "remove"
@@ -796,9 +855,13 @@ end function
 sub onSettingsConfirmed()
     asked = m.confirmFor
     if asked = invalid then return
-    if asked.kind = "signOut" then
+    if asked.kind = "signOut" or asked.kind = "signOutAccount" then
         m.confirm.callFunc("close")
-        m.session.callFunc("signOut")
+        if asked.kind = "signOutAccount" then
+            m.session.callFunc("signOutAccount")
+        else
+            m.session.callFunc("signOut")
+        end if
         return
     end if
     m.confirm.primaryLoading = true

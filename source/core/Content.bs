@@ -3,18 +3,22 @@
 ' `HttpLocalApi.exchange`, session-refresh.ts), and the small documents the shell reads
 ' (the library list).
 import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/ClientProfile.bs"
 
 ' The api for the selected server with the viewer's token, or invalid when there is no sign-in.
 function ViewerRequestBinding(viewer as dynamic) as dynamic
     if viewer = invalid or viewer.viewer = invalid then return invalid
     facts = viewer.viewer
-    return { origin: viewer.origin, serverId: facts.serverId, accountId: facts.accountId, profileId: facts.profileId, authority: facts.authority }
+    binding = { origin: viewer.origin, serverId: facts.serverId, accountId: facts.accountId, profileId: facts.profileId, authority: facts.authority }
+    if IsText(viewer.sessionFamilyId, 128) then binding.sessionFamilyId = viewer.sessionFamilyId
+    return binding
 end function
 
 function ViewerMatchesRequestBinding(record as dynamic, expected as dynamic) as boolean
     if expected = invalid then return true
     if record = invalid then return false
     facts = record["session"].viewer
+    if expected.sessionFamilyId <> invalid and expected.sessionFamilyId <> record["session"].sessionFamilyId then return false
     return record["logicalOrigin"] = expected.origin and facts.serverId = expected.serverId and facts.accountId = expected.accountId and facts.profileId = expected.profileId and facts.authority = expected.authority
 end function
 
@@ -41,6 +45,50 @@ function ViewerRequest(ctx as object, path as string, method = "GET" as string, 
     api = ViewerApi(ctx, expectedViewer)
     if api = invalid then return { ok: false, status: 401, error: { status: 401, code: "session_expired", message: "", retryable: false } }
     return ApiRequest(api, path, method, body, extra)
+end function
+
+' Only requests that plan or start playback need a fresh output probe. Timeline acknowledgements,
+' reads and queue edits keep their own transport and ordering.
+function PlaybackNeedsCapabilities(path as string, method as string) as boolean
+    if method = "GET" then return MatchesPattern(path, "^/v1/items/[^/]+/playback-options(?:\\?|$)")
+    if method = "POST" then return path = "/v1/playback/sessions" or path = PlaybackRoutes.queue or MatchesPattern(path, "^/v1/queues/[^/]+:advance$")
+    if method = "PATCH" then return MatchesPattern(path, "^/v1/playback/sessions/[^/]+$")
+    return false
+end function
+
+function PublishDeviceCapabilities(ctx as object, expectedViewer as dynamic, facts as object) as object
+    record = SessionRecord(ctx)
+    api = ViewerApi(ctx, expectedViewer)
+    if api = invalid then return { ok: false, status: 401, error: { code: "session_expired", status: 401, message: "", retryable: false } }
+    family = record["session"].sessionFamilyId
+    document = RokuCapabilityProfile(facts)
+    digest = CryptoDigest("sha256", BytesFromText(FormatJson(document)))
+    section = SessionRecordSection(record["pin"].serverId)
+    fingerprint = ""
+    if digest <> invalid then fingerprint = family + ":" + BytesToHex(digest)
+    if fingerprint <> "" and ctx.store.read(section, "playbackCapabilities") = fingerprint then return { ok: true, status: 204, data: invalid, headers: {}, unchanged: true }
+    answer = ApiRequest(api, PlaybackRoutes.capabilities, "PUT", document)
+    if not answer.ok then return answer
+    receipt = ParseCapabilityReceipt(answer)
+    if receipt = invalid then return { ok: false, status: 0, error: { code: "invalid_response", status: 0, message: "", retryable: false } }
+    current = SessionRecord(ctx)
+    if current = invalid or not ViewerMatchesRequestBinding(current, expectedViewer) or current["session"].sessionFamilyId <> family then return { ok: false, status: 401, error: { code: "session_expired", status: 401, message: "", retryable: false } }
+    if fingerprint <> "" then ctx.store.write(section, "playbackCapabilities", fingerprint)
+    return answer
+end function
+
+' Actual ApiTask entry: publish the current sink facts before any planning request, then recheck
+' the captured viewer. A late publication can never send a queue command as a different viewer.
+function PlaybackViewerRequest(ctx as object, path as string, method = "GET" as string, body = invalid as dynamic, extra = invalid as dynamic, expectedViewer = invalid as dynamic) as object
+    if expectedViewer = invalid then
+        record = SessionRecord(ctx)
+        if record <> invalid then expectedViewer = ViewerRequestBinding({ origin: record["logicalOrigin"], sessionFamilyId: record["session"].sessionFamilyId, viewer: record["session"].viewer })
+    end if
+    if PlaybackNeedsCapabilities(path, method) or (path = PlaybackRoutes.capabilities and method = "PUT") then
+        published = PublishDeviceCapabilities(ctx, expectedViewer, DeviceFacts())
+        if not published.ok or path = PlaybackRoutes.capabilities then return published
+    end if
+    return ViewerRequest(ctx, path, method, body, extra, expectedViewer)
 end function
 
 ' packages/design/src/media-icons.ts `mediaFamilyIcon`: the icon of a library's family. Unknown

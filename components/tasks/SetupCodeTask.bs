@@ -1,9 +1,5 @@
-' packages/client-core/src/setup-code.ts `SetupCodeService`, as a Task: ask for a code, poll at
-' the interval the authority gives, replace the code when under a minute of it remains, back off
-' after failures, stop on a denial until asked for a new code. The decisions are in
-' source/core/SetupCode.bs; the secret (the device code) never leaves this thread.
-import "pkg:/source/core/Session.bs"
-import "pkg:/source/core/Hosted.bs"
+' setup-code.ts: durable TV sign-in consent. Device secrets stay on this Task thread.
+import "pkg:/source/core/SetupJournal.bs"
 
 sub init()
     m.top.functionName = "work"
@@ -11,21 +7,50 @@ end sub
 
 sub work()
     ctx = SessionContextNew()
+    ctx.admissionRevision = SessionRevision(ctx)
+    ctx.task = m.top
     port = CreateObject("roMessagePort")
     m.top.observeField("command", port)
     account = m.top.mode = "account"
     connection = m.top.connection
+    ctx.setupOrigin = ctx.hostedUrl
+    if not account then
+        if not SessionRequiresLocal(connection).ok then return
+        ctx.setupOrigin = connection.origin
+    end if
+    scope = SetupJournalScope(ctx, account, connection)
+    current = SetupReceipt(ctx, scope, "current")
     authorization = invalid
+    nextPoll = 0
+    if current <> invalid then
+        authorization = current.authorization
+        if current.nextPollAt <> invalid then nextPoll = current.nextPollAt
+    end if
     failures = 0
     createAfter = 0
-    nextPoll = 0
+    cleanupAfter = 0
     halted = false
-    m.top.state = { phase: "creating" }
+    m.top.state = SetupTaskState(authorization)
     while true
         now = NowSeconds()
+        if not SessionAdmissionCurrent(ctx) then
+            SetupJournalAbandon(ctx, scope, account, connection)
+            return
+        end if
+        if now >= cleanupAfter then
+            SetupJournalCleanup(ctx, scope, account, connection)
+            cleanupAfter = now + SetupCodeBackoffSeconds(2)
+        end if
         if not halted then
-            if SetupCodeNeedsReplacing(authorization, now) and now >= createAfter then
-                previous = authorization
+            creating = SetupReceipt(ctx, scope, "creating")
+            if (creating <> invalid or SetupCodeNeedsReplacing(authorization, now)) and now >= createAfter then
+                started = SetupBeginCreation(ctx, scope)
+                if not started.ok then
+                    m.top.state = { phase: "error" }
+                    return
+                end if
+                creating = started.entry
+                ctx.requestId = creating.requestId
                 created = invalid
                 if account then
                     created = HostedCodeCreate(ctx)
@@ -33,19 +58,27 @@ sub work()
                     created = QuickConnectCreate(ctx, connection)
                 end if
                 if created.ok then
-                    failures = 0
-                    authorization = created.authorization
-                    nextPoll = NowSeconds() + authorization.interval
-                    m.top.state = { phase: "waiting", userCode: authorization.userCode, verificationUri: authorization.verificationUri, verificationUriComplete: authorization.verificationUriComplete }
-                    SetupCancel(ctx, account, connection, previous)
+                    committed = SetupCommitCreation(ctx, scope, creating, created.authorization)
+                    if not committed.ok then
+                        m.top.state = { phase: "error" }
+                        return
+                    end if
+                    if committed.retired then
+                        SetupJournalCleanup(ctx, scope, account, connection)
+                        if not SessionAdmissionCurrent(ctx) then return
+                    else
+                        current = committed.entry
+                        authorization = current.authorization
+                        nextPoll = current.nextPollAt
+                        failures = 0
+                        m.top.state = SetupTaskState(authorization)
+                    end if
                 else
                     failures = failures + 1
                     delay = SetupCodeBackoffSeconds(failures)
                     if created.failure.retryAfterSeconds <> invalid and created.failure.retryAfterSeconds > delay then delay = created.failure.retryAfterSeconds
                     createAfter = NowSeconds() + delay
-                    ' The code on show stays while a replacement fails; with none, say so.
                     if authorization = invalid or SetupCodeExpired(authorization, NowSeconds()) then
-                        authorization = invalid
                         phase = "creating"
                         if failures >= 2 then phase = "error"
                         m.top.state = { phase: phase }
@@ -58,7 +91,13 @@ sub work()
                 else
                     polled = QuickConnectPoll(ctx, connection, authorization)
                 end if
+                if m.top.command = "stop" or polled.next = "retired" then
+                    SetupJournalAbandon(ctx, scope, account, connection)
+                    SetupRetireAccepted(ctx, account, polled)
+                    return
+                end if
                 if polled.next = "approved" then
+                    SetupJournalAccepted(ctx, scope, account, polled)
                     m.top.state = { phase: "approved" }
                     if account then
                         m.top.outcome = { ok: true, account: polled.grant.account }
@@ -66,16 +105,21 @@ sub work()
                         m.top.outcome = polled.outcome
                     end if
                     return
-                else if polled.next = "denied" then
+                else if polled.next = "denied" or polled.next = "replace" then
+                    SetupRetire(ctx, scope, current)
                     authorization = invalid
-                    halted = true
-                    m.top.state = { phase: "denied" }
-                else if polled.next = "replace" then
-                    authorization = invalid
+                    current = invalid
                     createAfter = 0
+                    if polled.next = "denied" then
+                        halted = true
+                        m.top.state = { phase: "denied" }
+                    end if
                 else
                     authorization.interval = polled.interval
                     nextPoll = NowSeconds() + polled.waitSeconds
+                    current.authorization = authorization
+                    current.nextPollAt = nextPoll
+                    StoreWriteJson(ctx.store, scope, "current", current)
                 end if
             end if
         end if
@@ -83,7 +127,7 @@ sub work()
         if message <> invalid then
             command = message.getData()
             if command = "stop" then
-                SetupCancel(ctx, account, connection, authorization)
+                SetupJournalAbandon(ctx, scope, account, connection)
                 return
             else if command = "restart" then
                 halted = false
@@ -95,11 +139,19 @@ sub work()
     end while
 end sub
 
-sub SetupCancel(ctx as object, account as boolean, connection as dynamic, authorization as dynamic)
-    if authorization = invalid then return
+function SetupTaskState(authorization as dynamic) as object
+    if authorization = invalid then return { phase: "creating" }
+    return { phase: "waiting", userCode: authorization.userCode, verificationUri: authorization.verificationUri, verificationUriComplete: authorization.verificationUriComplete }
+end function
+
+sub SetupRetireAccepted(ctx as object, account as boolean, polled as object)
     if account then
-        HostedCodeCancel(ctx, authorization)
+        if polled.grant = invalid then return
+        current = HostedLoad(ctx)
+        if current <> invalid and current.familyId = polled.grant.familyId then HostedClear(ctx)
     else
-        QuickConnectCancel(ctx, connection, authorization)
+        if polled.outcome = invalid or not polled.outcome.ok then return
+        issued = polled.outcome
+        SessionRemoveFamily(ctx, issued.connection.pin.serverId, issued.session.sessionFamilyId)
     end if
 end sub

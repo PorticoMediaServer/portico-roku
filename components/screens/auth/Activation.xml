@@ -3,7 +3,6 @@
 <component name="ScreenActivation" extends="Group">
     <interface>
         <field id="directPressed" type="boolean" value="false" alwaysNotify="true" />
-        <field id="savedServerPressed" type="boolean" value="false" alwaysNotify="true" />
         <field id="approved" type="boolean" value="false" alwaysNotify="true" />
         <function name="enter" />
         <function name="leave" />

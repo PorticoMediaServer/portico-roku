@@ -1,0 +1,90 @@
+' setup-code.ts: durable create/redeem/cancellation receipts, scoped to the chosen authority.
+' Each receipt is a separate Registry value. Local work never reads or cleans a Hosted receipt.
+import "pkg:/source/core/Hosted.bs"
+
+function SetupJournalScope(ctx as object, account as boolean, connection as dynamic) as string
+    if account then return "portico.setup.account"
+    return "portico.setup.server." + connection.pin.serverId
+end function
+
+function SetupReceipt(ctx as object, scope as string, key as string) as dynamic
+    raw = StoreReadJson(ctx.store, scope, key)
+    if not IsObject(raw) or not IsText(raw.requestId, 128) then return invalid
+    if raw.origin <> ctx.setupOrigin then return invalid
+    if raw.authorization <> invalid and not SetupCodeValid(raw.authorization, SessionNow(ctx)) then return invalid
+    return raw
+end function
+
+function SetupBeginCreation(ctx as object, scope as string) as object
+    creating = SetupReceipt(ctx, scope, "creating")
+    if creating <> invalid then return { ok: true, entry: creating }
+    retired = 0
+    for each key in ctx.store.keys(scope)
+        if Left(key, 8) = "retired." then retired = retired + 1
+    end for
+    if retired >= 7 then return SessionFailure("activation_cleanup_pending")
+    requestId = NewRequestId()
+    if ctx.nextSetupRequestId <> invalid then requestId = ctx.nextSetupRequestId
+    entry = { "requestId": requestId, "origin": ctx.setupOrigin }
+    if not StoreWriteJson(ctx.store, scope, "creating", entry) then return SessionFailure("persistence_error")
+    return { ok: true, entry: entry }
+end function
+
+function SetupRetire(ctx as object, scope as string, entry as dynamic) as boolean
+    if entry = invalid then return true
+    if not StoreWriteJson(ctx.store, scope, "retired." + entry.requestId, entry) then return false
+    current = SetupReceipt(ctx, scope, "current")
+    if current <> invalid and current.requestId = entry.requestId then ctx.store.remove(scope, "current")
+    return true
+end function
+
+function SetupCommitCreation(ctx as object, scope as string, creating as object, authorization as object) as object
+    entry = { "requestId": creating.requestId, "origin": ctx.setupOrigin, "authorization": authorization, "nextPollAt": SessionNow(ctx) + authorization.interval }
+    previous = SetupReceipt(ctx, scope, "current")
+    if not SetupRetire(ctx, scope, previous) then return SessionFailure("persistence_error")
+    key = "current"
+    if creating.cancelled = true or not SessionAdmissionCurrent(ctx) then key = "retired." + entry.requestId
+    if not StoreWriteJson(ctx.store, scope, key, entry) then return SessionFailure("persistence_error")
+    ctx.store.remove(scope, "creating")
+    return { ok: true, entry: entry, retired: key <> "current" }
+end function
+
+function SetupSendCancel(ctx as object, account as boolean, connection as dynamic, authorization as object) as object
+    if account then return ApiRequest(HostedApi(ctx), "/v1/device-authorizations/cancel", "POST", { "deviceCode": authorization.deviceCode })
+    proof = SessionProbe(ctx, connection.origin, connection.pin)
+    if not proof.ok then return proof
+    return ApiRequest(SessionApi(ctx, connection.origin), "/v1/quick-connect/cancel", "POST", { "deviceCode": authorization.deviceCode })
+end function
+
+sub SetupJournalCleanup(ctx as object, scope as string, account as boolean, connection as dynamic)
+    for each key in ctx.store.keys(scope)
+        if Left(key, 8) = "retired." then
+            entry = SetupReceipt(ctx, scope, key)
+            if entry <> invalid and entry.authorization <> invalid then
+                result = SetupSendCancel(ctx, account, connection, entry.authorization)
+                if result.ok then ctx.store.remove(scope, key)
+            end if
+        end if
+    end for
+end sub
+
+sub SetupJournalAbandon(ctx as object, scope as string, account as boolean, connection as dynamic)
+    creating = SetupReceipt(ctx, scope, "creating")
+    if creating <> invalid then
+        creating.cancelled = true
+        StoreWriteJson(ctx.store, scope, "creating", creating)
+    end if
+    SetupRetire(ctx, scope, SetupReceipt(ctx, scope, "current"))
+    SetupJournalCleanup(ctx, scope, account, connection)
+end sub
+
+sub SetupJournalAccepted(ctx as object, scope as string, account as boolean, polled as object)
+    ' Admission and durable session persistence completed before this acknowledgement. A crash
+    ' before it leaves the recoverable device-code receipt, so redemption replays the same grant.
+    if account then
+        if polled.grant = invalid then return
+    else
+        if polled.outcome = invalid or not polled.outcome.ok then return
+    end if
+    ctx.store.remove(scope, "current")
+end sub

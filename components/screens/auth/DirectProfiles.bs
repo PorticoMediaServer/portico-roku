@@ -49,7 +49,10 @@ end function
 sub ProfilesBuild()
     pending = m.session.pending
     width = m.frame.contentWidth
-    m.frame.title = T("auth.whosWatching")
+    server = ""
+    if m.session.connection <> invalid then server = m.session.connection.serverName
+    if server = invalid or server = "" then server = T("servers.fallbackName")
+    m.frame.title = T("accounts.profiles.onServer", { server: server })
     m.frame.error = m.session.error
     m.content.removeChildrenIndex(m.content.getChildCount(), 0)
     m.tiles = []

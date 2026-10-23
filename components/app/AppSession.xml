@@ -15,7 +15,7 @@
         <!-- The server that proved itself at that address: {origin, pin}. -->
         <field id="connection" type="assocarray" />
         <field id="connected" type="boolean" value="false" alwaysNotify="true" />
-        <!-- A step a direct sign-in stopped at: challenge | password-change | device-pending. -->
+        <!-- A step a direct sign-in stopped at: challenge | password-change. -->
         <field id="directStep" type="string" value="" />
         <!-- An account session waiting for a profile: {snapshot, accountSession}. -->
         <field id="pending" type="assocarray" />
@@ -41,12 +41,12 @@
         <function name="signIn" />
         <function name="completeChallenge" />
         <function name="changeRequiredPassword" />
-        <function name="retrySignIn" />
         <function name="cancelStep" />
         <function name="chooseProfile" />
         <function name="cancelPending" />
         <function name="acceptOutcome" />
         <function name="accountApproved" />
+        <function name="requestAccount" />
         <function name="refreshServers" />
         <function name="openServer" />
         <function name="pickServer" />
@@ -54,9 +54,15 @@
         <function name="signOutAccount" />
         <function name="useElsewhere" />
         <function name="clearError" />
+        <field id="tvConsent" type="assocarray" />
+        <function name="reviewTVConsent" />
+        <function name="decideTVConsent" />
+        <function name="cancelTVConsent" />
         <function name="switchProfile" />
         <!-- Settings › Switch server: the sign-in screens over a sign-in that stays until another replaces it. -->
         <function name="switchServer" />
+        <function name="selectServer" />
+        <field id="accountRequested" type="boolean" value="false" alwaysNotify="true" />
         <function name="cancelSwitch" />
         <field id="switching" type="boolean" value="false" />
     </interface>
