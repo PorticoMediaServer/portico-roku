@@ -48,6 +48,77 @@ sub Test_Music_preparation_is_private_bounded_and_preserves_frames()
     AssertEqual(ParsePreparedMusic(raw, now), invalid, "zero private byte limit is refused")
 end sub
 
+function TestMusicTaskStateSend(request as object) as object
+    m.recordAnswer = TestSend
+    answer = m.recordAnswer(request)
+    ctx = m.transport.context
+    stage = m.transport.stopAt
+    if (stage = "capabilities" and request.method = "PUT") or (stage = "prepare" and Instr(1, request.url, ":prepare-next") > 0) or (stage = "commit" and Instr(1, request.url, ":commit-next") > 0) then ctx.task.state = "stop"
+    return answer
+end function
+
+sub Test_Music_realTaskStateStopsBeforeTransport()
+    for each state in ["stop", "STOP"]
+        ctx = TestContext()
+        job = TestMusicJob(ctx)
+        job.token = "private-token"
+        ctx.task = { state: state }
+        AssertEqual(MusicPrepare(ctx, job).error.code, "cancelled")
+        AssertEqual(MusicCommit(ctx, job).error.code, "cancelled")
+        AssertEqual(ctx.transport.requests.count(), 0, "stopped Task emits no capability or queue command")
+    end for
+end sub
+
+sub Test_Music_stopDuringCapabilityPublicationCannotPrepare()
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    ctx.task = { state: "run" }
+    ctx.transport.context = ctx
+    ctx.transport.stopAt = "capabilities"
+    ctx.send = TestMusicTaskStateSend
+    TestAnswer(ctx, "PUT", ctx.base + "/v1/me/devices/current/capabilities", 204, invalid, { etag: Chr(34) + "1" + Chr(34) })
+    TestAnswer(ctx, "POST", ctx.base + "/v1/queues/queue-1:prepare-next", 200, TestPreparedMusic(ctx.now))
+    answer = MusicPrepare(ctx, job)
+    AssertEqual(answer.ok, false)
+    if not answer.ok then AssertEqual(answer.error.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 1, "publication cannot carry a stopped Task into private preparation")
+end sub
+
+sub Test_Music_stoppedPrepareNeverPublishesPrivateResource()
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    ctx.task = { state: "run" }
+    ctx.transport.context = ctx
+    ctx.transport.stopAt = "prepare"
+    ctx.send = TestMusicTaskStateSend
+    TestAnswer(ctx, "PUT", ctx.base + "/v1/me/devices/current/capabilities", 204, invalid, { etag: Chr(34) + "1" + Chr(34) })
+    TestAnswer(ctx, "POST", ctx.base + "/v1/queues/queue-1:prepare-next", 200, TestPreparedMusic(ctx.now))
+    answer = MusicPrepare(ctx, job)
+    AssertEqual(answer.ok, false)
+    if not answer.ok then AssertEqual(answer.error.code, "cancelled")
+    AssertEqual(answer.value, invalid)
+    AssertEqual(ctx.transport.requests.count(), 2, "no prepare replay or invented retirement route")
+end sub
+
+sub Test_Music_stoppedCommitUsesCapturedSessionRetirement()
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    job.token = "private-token"
+    ctx.task = { state: "run" }
+    ctx.transport.context = ctx
+    ctx.transport.stopAt = "commit"
+    ctx.send = TestMusicTaskStateSend
+    TestAnswer(ctx, "POST", ctx.base + "/v1/queues/queue-1:commit-next", 200, TestMusicCommitAnswer())
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/playback/sessions/playing-new", 204)
+    answer = MusicCommit(ctx, job)
+    AssertEqual(answer.ok, false)
+    if not answer.ok then AssertEqual(answer.error.code, "cancelled")
+    deletes = TestRequests(ctx, "DELETE", ctx.base + "/v1/playback/sessions/playing-new")
+    AssertEqual(deletes.count(), 1)
+    if deletes.count() = 1 then AssertEqual(deletes[0].headers.Authorization, "Bearer access-owner-prof_1")
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, "fam_1")
+end sub
+
 sub Test_Music_preparation_authority_is_captured_in_every_dimension()
     now = IsoToSeconds("2026-10-23T10:00:00Z")
     binding = { origin: "https://media.example.com", serverId: "server-1", accountId: "person-1", profileId: "profile-1", authority: "local", sessionFamilyId: "family-1" }
