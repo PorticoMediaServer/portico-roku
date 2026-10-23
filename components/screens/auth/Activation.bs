@@ -34,11 +34,6 @@ sub init()
     m.direct.size = "lg"
     m.direct.label = T("accounts.signIn.local")
     m.direct.observeField("pressed", "onActivationDirect")
-    m.saved = m.buttons.createChild("UiButton")
-    m.saved.variant = "ghost"
-    m.saved.size = "lg"
-    m.saved.label = T("auth.backToSavedServer")
-    m.saved.observeField("pressed", "onActivationSaved")
     m.terms = MakeText(m.content, "caption", "tertiary")
     m.terms.lines = 0
     m.terms.align = "center"
@@ -119,9 +114,9 @@ sub onActivationLayout()
         link = state.verificationUri
     end if
     m.frame.title = T("web.signin.welcomeHome")
-    if m.started then m.frame.title = T("accounts.signIn.portico")
+    if m.started then m.frame.title = T("activation.title")
     m.frame.lead = ""
-    if m.started then m.frame.lead = T("accounts.consent.portico")
+    if m.started then m.frame.lead = T("activation.lead", { host: host })
     m.frame.note = m.session.note
     problem = m.failure
     if problem = "" and state.phase = "error" then problem = T("apple.activation.failed")
@@ -147,9 +142,7 @@ sub onActivationLayout()
     m.account.visible = not m.started
     m.account.focusable = not m.started
     m.panel.visible = m.started
-    m.saved.visible = m.session.hasRecovery
-    m.saved.focusable = m.session.hasRecovery
-    rowHeight = StackRow([m.account, m.direct, m.saved], 0, Theme.space.md, width)
+    rowHeight = StackRow([m.account, m.direct], 0, Theme.space.md, width)
     m.buttons.boxWidth = width
     m.buttons.boxHeight = rowHeight
     m.terms.maxWidth = width
@@ -179,8 +172,4 @@ end sub
 
 sub onActivationDirect()
     m.top.directPressed = true
-end sub
-
-sub onActivationSaved()
-    m.top.savedServerPressed = true
 end sub

@@ -81,10 +81,6 @@ function LandingButton(variant as string, label as string, handler as string, ic
     return button
 end function
 
-function LandingSignOut() as object
-    return LandingButton("ghost", T("accounts.signOut.portico"), "onLandingSignOut", "signOut")
-end function
-
 sub onLandingRender()
     landing = m.session.landing
     if landing = invalid then landing = { kind: "deciding" }
@@ -112,15 +108,13 @@ sub onLandingRender()
         label = PresenceLabel(server.presence, NowSeconds())
         stale = server.presence <> invalid and not server.presence.online and not (label.kind = "lastSeen" and label.recent)
         if failure = "unreachable" and stale then
-            ' A stale offline server names the problem and offers direct sign-in with its address filled in.
+            ' connect10: a Portico server offers Try again and Choose another server.
             body = T("web.chooser.unreachableBodyNever")
             if label.kind = "lastSeen" then body = T("web.chooser.unreachableBody", { date: FormatDate(label.lastSeenAt, "dayMonth") })
             nodes.push(LandingState("warning", T("web.chooser.unreachableTitle", { server: server.name }), body, "", ""))
             focus = LandingButton("primary", T("web.chooser.tryAgain"), "onLandingRetry", "", "lg")
             nodes.push(focus)
-            nodes.push(LandingButton("secondary", T("web.chooser.signInDirectly"), "onLandingDirectTo"))
-            if LandingOthers(server) then nodes.push(LandingButton("ghost", T("portico.landing.chooseAnother"), "onLandingPick"))
-            nodes.push(LandingSignOut())
+            nodes.push(LandingButton("secondary", T("portico.landing.chooseAnother"), "onLandingPick"))
         else
             titles = {
                 "noAccess": "portico.failure.noAccess.title", "unreachable": "portico.failure.unreachable.title", "clockSkew": "portico.failure.clockSkew.title"
@@ -157,7 +151,6 @@ sub onLandingRender()
                 m.primaryAction = "pick"
             end if
             nodes.push(LandingState(icon, T(titles[failure], { server: server.name }), body, action, secondary))
-            nodes.push(LandingSignOut())
         end if
     else if kind = "none" then
         if m.session.directoryStatus = "error" then
@@ -170,7 +163,6 @@ sub onLandingRender()
             m.primaryAction = "refresh"
             m.secondaryAction = "direct"
         end if
-        nodes.push(LandingSignOut())
     else
         title = MakeText(m.holder, "title", "primary", T("portico.landing.pickTitle"))
         title.align = "center"
@@ -208,7 +200,6 @@ sub onLandingRender()
         nodes.push(lead)
         nodes.push(group)
         nodes.push(LandingButton("ghost", T("web.servers.refresh"), "onLandingRefresh", "refresh"))
-        nodes.push(LandingSignOut())
     end if
     gap = Theme.space.md
     height = StackColumn(nodes, 0, gap, width, "center")
@@ -256,12 +247,6 @@ sub onLandingRefresh()
     LandingAct("refresh")
 end sub
 
-sub onLandingDirectTo()
-    landing = m.session.landing
-    if landing <> invalid and landing.server <> invalid then m.session.callFunc("setOrigin", landing.server.baseUrl)
-    m.top.directPressed = true
-end sub
-
 sub onLandingChoose(event as object)
     row = event.getRoSGNode()
     if row = invalid then return
@@ -273,10 +258,6 @@ sub onLandingChoose(event as object)
     end for
 end sub
 
-sub onLandingSignOut()
-    m.session.callFunc("signOutAccount")
-    m.top.signedOut = true
-end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
     direction = FocusDirection(key)

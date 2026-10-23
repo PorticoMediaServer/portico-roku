@@ -97,15 +97,15 @@ sub onQuickLayout()
     connection = m.session.connection
     origin = ""
     if connection <> invalid then origin = connection.origin
-    host = FriendlyHost(origin)
-    if host = "" then host = T("quickConnect.yourServer")
+    server = ""
+    if connection <> invalid then server = connection.serverName
     code = ""
     if state.userCode <> invalid then code = state.userCode
     given = state.verificationUriComplete
     if given = invalid then given = state.verificationUri
     link = ""
     if origin <> "" then link = ApprovalLink(origin, given, code)
-    m.frame.title = T("quickConnect.title", { host: host })
+    m.frame.title = T("quickConnect.title", { host: server })
     m.frame.lead = T("accounts.consent.local")
     problem = m.failure
     failed = state.phase = "error"

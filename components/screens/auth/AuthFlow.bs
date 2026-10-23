@@ -68,7 +68,6 @@ sub onFlowChange()
     m.screen = m.top.createChild(wanted)
     if wanted = "ScreenActivation" then
         m.screen.observeField("directPressed", "onFlowDirect")
-        m.screen.observeField("savedServerPressed", "onFlowSavedServer")
     else if wanted = "ScreenDirectSignIn" then
         m.screen.step = m.directStep
         m.screen.observeField("codeWanted", "onFlowCode")
@@ -94,10 +93,6 @@ sub onFlowDirect()
     m.directView = "form"
     m.directStep = "address"
     onFlowChange()
-end sub
-
-sub onFlowSavedServer()
-    m.session.callFunc("restore")
 end sub
 
 sub onFlowCode()

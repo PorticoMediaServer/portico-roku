@@ -1,5 +1,5 @@
 ' apps/native/src/screens/auth/DirectSignIn.tsx, with its DirectStepScreen. On television only the
-' address is typed first (step "address": the field, Continue, "Use a password instead"); the TV
+' address is typed first (step "address": the field and Continue); the TV
 ' then shows a Local Quick Connect code. A Portico server instead routes to Portico Account
 ' sign-in. Step "password" shows the username and password only after a verified Local probe.
 ' A sign-in can stop at a two-step code or a required new password, each its own form. The server's identity is pinned on
@@ -26,8 +26,6 @@ sub init()
     m.address.observeField("submitted", "onDirectAddress")
     m.user = m.content.createChild("UiField")
     m.user.label = T("auth.username")
-    m.user.placeholder = T("apple.direct.usernameExample")
-    m.user.keyboard = "email"
     m.user.observeField("submitted", "onDirectUser")
     m.secret = m.content.createChild("UiField")
     m.secret.observeField("submitted", "onDirectSecret")
@@ -35,11 +33,6 @@ sub init()
     m.primary.variant = "primary"
     m.primary.size = "lg"
     m.primary.observeField("pressed", "onDirectPrimary")
-    m.alternative = m.content.createChild("UiButton")
-    m.alternative.variant = "ghost"
-    m.alternative.label = T("quickConnect.usePassword")
-    m.alternative.observeField("pressed", "onDirectAlternative")
-    m.wantsPassword = false
     m.entered = ""
     m.shown = ""
     for each name in ["error", "busy", "directStep", "note"]
@@ -83,26 +76,23 @@ sub onDirectLayout()
     width = m.frame.contentWidth
     form = DirectForm()
     busy = m.session.busy
-    for each node in [m.address, m.user, m.secret, m.alternative]
+    for each node in [m.address, m.user, m.secret]
         node.visible = false
     end for
     m.frame.note = m.session.note
     m.frame.error = m.session.error
     m.primary.fillWidth = width
     m.primary.loading = busy
-    m.alternative.fillWidth = width
-    m.alternative.focusable = false
     if form = "address" then
-        m.frame.title = T("auth.signInToServer")
-        m.frame.lead = T("apple.direct.addressLead")
+        m.frame.title = T("accounts.signIn.local")
+        m.frame.lead = ""
         m.address.visible = true
-        m.alternative.visible = true
-        m.alternative.focusable = true
         m.primary.label = T("action.continue")
         m.primary.disabled = m.session.origin.trim() = ""
     else if form = "password" then
-        m.frame.title = T("auth.signInToServer")
-        m.frame.lead = T("apple.direct.passwordLead")
+        server = m.session.connection.serverName
+        m.frame.title = T("quickConnect.title", { host: server })
+        m.frame.lead = ""
         m.user.visible = true
         m.secret.visible = true
         m.secret.label = T("auth.password")
@@ -136,7 +126,7 @@ sub onDirectLayout()
         m.address.fieldWidth = width
         m.user.fieldWidth = width
         m.secret.fieldWidth = width
-        height = StackColumn([m.address, m.user, m.secret, m.primary, m.alternative], 0, Theme.space.lg, width)
+        height = StackColumn([m.address, m.user, m.secret, m.primary], 0, Theme.space.lg, width)
         m.frame.callFunc("setContent", m.content, height)
         DirectEntryFocus()
         return
@@ -144,7 +134,7 @@ sub onDirectLayout()
     m.address.fieldWidth = width
     m.user.fieldWidth = width
     m.secret.fieldWidth = width
-    height = StackColumn([m.address, m.user, m.secret, m.primary, m.alternative], 0, Theme.space.lg, width)
+    height = StackColumn([m.address, m.user, m.secret, m.primary], 0, Theme.space.lg, width)
     m.frame.callFunc("setContent", m.content, height)
 end sub
 
@@ -190,21 +180,9 @@ end sub
 sub onDirectConnected()
     connection = m.session.connection
     if DirectForm() <> "address" or connection = invalid or connection.signIn <> "local" then return
-    if m.wantsPassword then
-        m.wantsPassword = false
-        m.top.step = "password"
-        onDirectLayout()
-    else
-        m.top.codeWanted = true
-    end if
+    m.top.codeWanted = true
 end sub
 
-sub onDirectAlternative()
-    if m.session.busy or m.address.value.trim() = "" then return
-    m.wantsPassword = true
-    m.session.callFunc("setOrigin", m.address.value)
-    m.session.callFunc("connect")
-end sub
 
 sub onDirectDismiss()
     m.session.callFunc("clearError")
