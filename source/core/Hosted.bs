@@ -26,18 +26,27 @@ end function
 ' POST /v1/device-authorizations/token. Returns {ok, next}: "approved" (with `grant`, saved), or
 ' SetupCodeAfterPoll's next.
 function HostedCodePoll(ctx as object, authorization as object) as object
-    answer = ApiRequest(HostedApi(ctx), AccountRoutes.porticoCodePoll, "POST", { "deviceCode": authorization.deviceCode, "sessionMode": "native" })
+    origin = ctx.hostedUrl
+    ' Automatic TV consent cannot replace a family another attempt already admitted.
+    if HostedLoad(ctx) <> invalid then return { ok: false, next: "retired", failure: { code: "account_changed", status: 0, message: "" } }
+    answer = ApiRequest(SessionApi(ctx, origin), AccountRoutes.porticoCodePoll, "POST", { "deviceCode": authorization.deviceCode, "sessionMode": "native" })
     if not answer.ok then
         after = SetupCodeAfterPoll(authorization.interval, answer.error)
         after.ok = true
         return after
     end if
     if not HostedGrantValid(answer.data) then return { ok: true, next: "retry", interval: authorization.interval, waitSeconds: 5, failure: { code: "invalid_response", status: 0, message: "" } }
-    if not SessionAdmissionCurrent(ctx) then
-        ApiRequest(HostedApi(ctx), AccountRoutes.porticoRevoke, "POST", { "refreshToken": answer.data.refreshToken })
+    current = HostedLoad(ctx)
+    if not SessionAdmissionCurrent(ctx) or ctx.hostedUrl <> origin or current <> invalid then
+        if not HostedSameGrant(current, answer.data) then HostedRevokeCapturedGrant(ctx, origin, answer.data)
         return { ok: false, next: "retired", failure: { code: "cancelled", status: 0, message: "" } }
     end if
-    HostedSave(ctx, answer.data)
+    if not HostedSave(ctx, answer.data) then
+        HostedRevokeCapturedGrant(ctx, origin, answer.data)
+        ' This grant was spent and not admitted. The existing durable setup journal retires
+        ' its code and creates a fresh one; it must never publish an approved account.
+        return { ok: false, next: "replace", failure: { code: "persistence_error", status: 0, message: "" } }
+    end if
     SessionAdvance(ctx)
     return { ok: true, next: "approved", grant: answer.data }
 end function
@@ -47,14 +56,39 @@ sub HostedCodeCancel(ctx as object, authorization as dynamic)
     ApiRequest(HostedApi(ctx), AccountRoutes.porticoCodeCancel, "POST", { "deviceCode": authorization.deviceCode })
 end sub
 
-sub HostedSave(ctx as object, grant as object)
+function HostedSameGrant(a as dynamic, b as dynamic) as boolean
+    if not HostedGrantValid(a, true) or not HostedGrantValid(b, true) then return false
+    return a.account.id = b.account.id and a.familyId = b.familyId and a.refreshToken = b.refreshToken
+end function
+
+sub HostedRevokeCapturedGrant(ctx as object, origin as string, grant as object)
+    api = SessionApi(ctx, origin)
+    api.timeoutMs = 3000
+    ApiRequest(api, AccountRoutes.porticoRevoke, "POST", { "refreshToken": grant.refreshToken })
+end sub
+
+function HostedSave(ctx as object, grant as object) as boolean
+    if not HostedGrantValid(grant) then return false
+    previous = ctx.store.read("portico", "hosted")
+    if not StoreWriteJson(ctx.store, "portico", "hosted", grant) then
+        ' A failed flush may have changed this process's value. Restore only this exact
+        ' attempted authority; a concurrent replacement is never overwritten.
+        if HostedSameGrant(HostedLoad(ctx), grant) then
+            if previous = invalid then
+                ctx.store.remove("portico", "hosted")
+            else
+                ctx.store.write("portico", "hosted", previous)
+            end if
+        end if
+        return false
+    end if
     for each record in SessionRecords(ctx)
         if record["signIn"] = "portico" and record["hosted"].origin = ctx.hostedUrl and record["hosted"].accountId <> grant.account.id then
             HostedDropServerBindings(ctx, { account: { id: record["hosted"].accountId } })
         end if
     end for
-    StoreWriteJson(ctx.store, "portico", "hosted", grant)
-end sub
+    return true
+end function
 
 function HostedLoad(ctx as object) as dynamic
     grant = StoreReadJson(ctx.store, "portico", "hosted")
@@ -79,7 +113,7 @@ function HostedLive(ctx as object) as object
     if requestId = invalid or requestId = "" then
         requestId = NewRequestId()
         if ctx.requestId <> invalid then requestId = ctx.requestId
-        ctx.store.write("portico", "hostedPendingRefresh", requestId)
+        if not ctx.store.write("portico", "hostedPendingRefresh", requestId) then return { ok: false, signOut: false, failure: { code: "persistence_error", status: 0, message: "" } }
     end if
     answer = ApiRequest(HostedApi(ctx), AccountRoutes.porticoRefresh, "POST", { "refreshToken": hosted.refreshToken, "requestId": requestId })
     if not answer.ok then
@@ -98,7 +132,7 @@ function HostedLive(ctx as object) as object
     current = HostedLoad(ctx)
     if current = invalid then return { ok: false, signOut: true, failure: { code: "signed_out", status: 401, message: "" } }
     if current.familyId <> hosted.familyId or current.refreshToken <> hosted.refreshToken then return { ok: false, signOut: false, failure: { code: "session_changed", status: 0, message: "" } }
-    HostedSave(ctx, answer.data)
+    if not HostedSave(ctx, answer.data) then return { ok: false, signOut: false, failure: { code: "persistence_error", status: 0, message: "" } }
     ctx.store.remove("portico", "hostedPendingRefresh")
     return { ok: true, hosted: answer.data }
 end function
