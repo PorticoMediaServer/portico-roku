@@ -35,6 +35,23 @@ sub Test_TVSignIn_requiredHandoffHasOnlyTheApprovedAddressAndPublicFacts()
     AssertEqual(ctx.transport.requests.count(), 0, "the handoff never polls or sends credential authority")
 end sub
 
+sub Test_TVSignIn_restrictedCleanupUsesTheCapturedServerAndKeepsTheViewer()
+    ctx = TestContext()
+    active = AccountTestBinding(ctx, "local", true)
+    captured = TestSessionJson(ctx, "account")
+    pin = TestPin(ctx)
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/sessions/current", 204)
+    revision = SessionRevision(ctx)
+    SessionRevokeRecord(ctx, { "logicalOrigin": ctx.base, "pin": pin, "session": captured })
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, active.session.sessionFamilyId)
+    AssertEqual(SessionRevision(ctx), revision)
+    AssertEqual(ctx.transport.requests[0].headers.Authorization, invalid)
+    deleted = TestRequests(ctx, "DELETE", ctx.base + "/v1/sessions/current")
+    AssertEqual(deleted.count(), 1)
+    AssertEqual(deleted[0].headers.Authorization, "Bearer " + captured.accessToken)
+end sub
+
 sub Test_TVSignIn_sixthDigitSubmitsOnceAndPlayPauseCanDelete()
     value = ""
     for each key in ["1", "2", "3", "4", "5"]
