@@ -106,7 +106,7 @@ sub onQuickLayout()
     link = ""
     if origin <> "" then link = ApprovalLink(origin, given, code)
     m.frame.title = T("quickConnect.title", { host: host })
-    m.frame.lead = T("quickConnect.lede", { host: host })
+    m.frame.lead = T("accounts.consent.local")
     problem = m.failure
     failed = state.phase = "error"
     if problem = "" and failed then problem = T("quickConnect.failed")

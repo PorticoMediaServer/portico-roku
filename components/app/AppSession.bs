@@ -4,6 +4,7 @@
 ' source/core/Hosted.bs; the words for a failure come from source/core/Errors.bs.
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Hosted.bs"
+import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/Messages.bs"
 
 sub init()
@@ -34,7 +35,18 @@ sub onSessionResult(event as object)
     m.tasks = kept
     m.top.busy = m.tasks.count() > 0
     kind = result.kindOfJob
-    if kind = "restore" then
+    if kind = "reviewTVConsent" then
+        if result.ok then
+            m.reviewedConsent = result.reviewed
+            m.top.tvConsent = result.reviewed.preview
+        else
+            m.top.error = SignInMessage(result.failure)
+        end if
+    else if kind = "decideTVConsent" then
+        m.reviewedConsent = invalid
+        m.top.tvConsent = invalid
+        if not result.ok then m.top.error = SignInMessage(result.failure)
+    else if kind = "restore" then
         SessionRestored(result)
     else if kind = "connect" then
         SessionConnected(result)
@@ -51,7 +63,15 @@ sub onSessionResult(event as object)
         SessionServers(result)
     else if kind = "openServer" then
         SessionOpened(result)
+    else if kind = "selectServer" then
+        SessionRestored(result)
     else if kind = "signOut" or kind = "signOutAccount" then
+        if kind = "signOutAccount" and result.record <> invalid then
+            m.top.hasAccount = false
+            m.top.account = invalid
+            m.top.servers = []
+            return
+        end if
         SessionSignedOut(kind = "signOutAccount")
     end if
 end sub
@@ -73,6 +93,7 @@ sub SessionRestored(result as object)
     end if
     record = result.record
     if record <> invalid then
+        if record["signIn"] = "local" then m.top.accountRequested = false
         m.top.origin = record["logicalOrigin"]
         if record["username"] <> invalid then m.top.username = record["username"]
     end if
@@ -91,15 +112,17 @@ sub SessionRestored(result as object)
         if m.top.note = "" then m.top.note = T("error.authentication")
     end if
     m.top.phase = "signedOut"
-    if m.top.hasAccount then refreshServers()
+    if m.top.hasAccount and m.top.accountRequested then refreshServers()
 end sub
 
 sub SessionReady(record as dynamic, session as object, connection as object)
-    viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, viewer: session.viewer, profileName: "", serverName: "", username: "" }
+    m.top.accountRequested = connection.signIn = "portico"
+    viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, viewer: session.viewer, profileName: "", serverName: "", username: "", signIn: connection.signIn }
     if record <> invalid then
         if record["profileName"] <> invalid then viewer.profileName = record["profileName"]
         if record["serverName"] <> invalid then viewer.serverName = record["serverName"]
         if record["username"] <> invalid then viewer.username = record["username"]
+        viewer.capabilities = record["capabilities"]
     end if
     m.credentials = invalid
     m.accountSession = invalid
@@ -120,6 +143,7 @@ sub setOrigin(text as string)
     if text = m.top.origin then return
     m.top.origin = text
     m.top.connection = invalid
+    m.top.connected = false
 end sub
 
 ' Proves the server at the typed address (no credential is sent).
@@ -137,6 +161,15 @@ sub SessionConnected(result as object)
         return
     end if
     m.top.connection = result.connection
+    if result.connection.signIn = "portico" then
+        m.afterConnect = invalid
+        m.credentials = invalid
+        m.porticoTarget = result.connection.pin.serverId
+        m.top.note = T("accounts.signIn.usesPortico", { server: result.connection.serverName })
+        m.top.accountRequested = true
+        if m.top.hasAccount then refreshServers()
+        return
+    end if
     if m.afterConnect <> invalid then
         job = m.afterConnect
         m.afterConnect = invalid
@@ -180,8 +213,6 @@ sub SessionOutcome(result as object)
     else if kind = "challenge" then
         m.challengeToken = result.token
         m.top.directStep = "challenge"
-    else if kind = "device-pending" then
-        m.top.directStep = "device-pending"
     end if
 end sub
 
@@ -198,17 +229,6 @@ sub changeRequiredPassword(newPassword as string)
     m.top.error = ""
     SessionRun({ kind: "changePassword", connection: m.top.connection, accountSession: m.accountSession, username: m.credentials.username, currentPassword: m.credentials.password, newPassword: newPassword })
     m.credentials = { username: m.credentials.username, password: newPassword }
-end sub
-
-' "Check again" while the owner approves this device.
-sub retrySignIn()
-    if m.top.busy then return
-    m.top.error = ""
-    if m.pendingServer <> invalid then
-        openServer(m.pendingServer)
-    else if m.credentials <> invalid then
-        SessionRun({ kind: "signIn", connection: m.top.connection, username: m.credentials.username, password: m.credentials.password })
-    end if
 end sub
 
 sub cancelStep()
@@ -241,11 +261,17 @@ sub switchServer()
     m.switchBack = { connection: m.top.connection, origin: m.top.origin }
     m.top.error = ""
     m.top.note = ""
-    if m.top.hasAccount then
+    if m.top.hasAccount and m.top.accountRequested then
         pickServer()
         refreshServers()
     end if
     m.top.switching = true
+end sub
+
+sub selectServer(serverId as string)
+    if m.top.busy then return
+    m.top.switching = true
+    SessionRun({ kind: "selectServer", serverId: serverId })
 end sub
 
 sub cancelSwitch()
@@ -278,8 +304,14 @@ end sub
 sub accountApproved(account as object)
     m.top.account = account
     m.top.hasAccount = true
+    m.top.accountRequested = true
     m.top.landing = { kind: "deciding" }
     refreshServers()
+end sub
+
+sub requestAccount()
+    m.top.accountRequested = true
+    if m.top.hasAccount then refreshServers()
 end sub
 
 sub refreshServers()
@@ -303,6 +335,19 @@ sub SessionServers(result as object)
     end if
     m.top.servers = result.servers
     m.top.directoryStatus = "ready"
+    if m.porticoTarget <> invalid then
+        target = m.porticoTarget
+        m.porticoTarget = invalid
+        for each server in result.servers
+            if server.id = target then
+                openServer(server)
+                return
+            end if
+        end for
+        m.top.landing = { kind: "none" }
+        m.top.error = T("portico.landing.noAccess")
+        return
+    end if
     landing = m.top.landing
     ' Decide once the list is known; again if a list that was empty gains a server.
     if landing = invalid or landing.kind = "deciding" or (landing.kind = "none" and result.servers.count() > 0) then
@@ -333,10 +378,6 @@ sub SessionOpened(result as object)
     if result.ok then
         m.top.connection = result.connection
         m.details = result.details
-        if result.kind = "device-pending" then
-            m.top.directStep = "device-pending"
-            return
-        end if
         m.pendingServer = invalid
         SessionOutcome(result)
         return
@@ -356,14 +397,20 @@ sub SessionOpened(result as object)
 end sub
 
 sub signOut()
-    SessionRun({ kind: "signOut" })
+    if m.top.busy or m.top.viewer = invalid then return
+    record = SessionRecord(SessionContextNew(), m.top.viewer.serverId)
+    if record = invalid then return
+    SessionRun({ kind: "signOut", serverId: record["pin"].serverId, familyId: record["session"].sessionFamilyId })
 end sub
 
 sub signOutAccount()
-    SessionRun({ kind: "signOutAccount" })
+    if m.top.busy then return
+    if m.top.account = invalid then return
+    SessionRun({ kind: "signOutAccount", accountId: m.top.account.id })
 end sub
 
 sub SessionSignedOut(account as boolean)
+    m.top.accountRequested = false
     m.top.viewer = invalid
     m.top.connection = invalid
     m.top.hasPending = false
@@ -371,19 +418,39 @@ sub SessionSignedOut(account as boolean)
     m.top.error = ""
     if account then
         m.top.hasAccount = false
+        m.top.account = invalid
         m.top.servers = []
     end if
     m.top.phase = "signedOut"
-    if m.top.hasAccount then
-        m.top.landing = { kind: "pick" }
-        refreshServers()
-    end if
 end sub
 
 ' "Use another server or account" from the saved-server screen: the sign-in screens open, and the
 ' saved server stays reachable from them.
 sub useElsewhere()
     m.top.phase = "signedOut"
+end sub
+
+
+' Headless seam for the forthcoming code-entry consumer; screens never choose another account
+' or forge review payloads. The current code/confirmation frames remain held.
+sub reviewTVConsent(input as object)
+    if m.top.busy then return
+    m.reviewedConsent = invalid
+    m.top.tvConsent = invalid
+    SessionRun({ kind: "reviewTVConsent", authorityKind: input.kind, code: input.code })
+end sub
+
+sub decideTVConsent(decision as string)
+    if m.top.busy or m.reviewedConsent = invalid then return
+    reviewed = m.reviewedConsent
+    m.reviewedConsent = invalid
+    SessionRun({ kind: "decideTVConsent", reviewed: reviewed, decision: decision })
+end sub
+
+sub cancelTVConsent()
+    m.reviewedConsent = invalid
+    m.top.tvConsent = invalid
+    TVConsentCancel(SessionContextNew())
 end sub
 
 sub clearError()

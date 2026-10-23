@@ -78,6 +78,7 @@ function TestSnapshot(ctx as object, profiles as object) as object
         "authority": "local"
         "serverId": TestPin(ctx).serverId
         "canManage": true
+        "capabilities": { "manageAccount": true, "managePeople": true, "manageServer": true, "manageSignIn": true }
         "account": { "id": "acct_1", "username": "justin", "primaryProfileId": "prof_1", "role": "owner", "revision": 1, "disabled": false, "allowedLibraries": [] }
         "profiles": profiles
     }
@@ -85,7 +86,7 @@ end function
 
 function TestConnected(ctx as object) as object
     TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, ctx.fixture.proofs[0].answer)
-    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "setupRequired": false })
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "setupRequired": false, "id": TestPin(ctx).serverId, "name": "Den", "signIn": "local", "version": "1.0.0", "hostedAttached": false, "hostedConfigured": false })
     return SessionConnect(ctx, "192.168.1.20:32500")
 end function
 
@@ -170,6 +171,7 @@ sub Test_Session_signInWithSeveralProfilesAsksWhoIsWatching()
 
     selectUrl = ctx.base + "/v1/direct/profiles/prof_2/select"
     TestAnswer(ctx, "POST", selectUrl, 200, { "session": TestSessionJson(ctx, "viewer", "prof_2") })
+    TestAnswer(ctx, "GET", ctx.base + "/v1/direct", 200, answer)
     chosen = SessionChooseProfile(ctx, connection, pending, "prof_2", "1234")
     AssertTrue(chosen.ok)
     request = TestRequests(ctx, "POST", selectUrl)[0]
@@ -215,7 +217,7 @@ sub Test_Session_signInRefusals()
     AssertEqual(SessionSignIn(ctx, connection, "justin", "correct horse").failure.code, "missing_server_key")
 end sub
 
-sub Test_Session_twoStepAndDeviceApproval()
+sub Test_Session_twoStepAndRetiredApprovalRefused()
     ctx = TestContext()
     connection = TestConnected(ctx).connection
     TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, { "challenge": { "token": "chal_token", "expiresAt": "2099-01-01T00:00:00Z" } })
@@ -234,7 +236,7 @@ sub Test_Session_twoStepAndDeviceApproval()
     ctx = TestContext()
     connection = TestConnected(ctx).connection
     TestAnswer(ctx, "POST", ctx.base + "/v1/direct/sign-in", 200, { "deviceApprovalPending": true, "deviceId": "dev_1", "installationId": "inst_1" })
-    AssertEqual(SessionSignIn(ctx, connection, "justin", "correct horse").kind, "device-pending")
+    AssertEqual(SessionSignIn(ctx, connection, "justin", "correct horse").ok, false, "retired device approval is not a successful sign-in state")
 end sub
 
 function TestSignedIn(ctx as object, extra = invalid as dynamic) as object
@@ -408,7 +410,7 @@ sub Test_Session_quickConnect()
 end sub
 
 function TestGrant() as object
-    return { "accessToken": "hosted-access", "refreshToken": "hosted-refresh", "familyId": "hfam_1", "expiresAt": "2026-10-03T13:00:00Z", "refreshExpiresAt": "2026-12-31T00:00:00Z", "account": { "id": "acct_1", "username": "justin", "displayName": "Justin" }, "profiles": [] }
+    return { "accessToken": "hosted-access", "refreshToken": "hosted-refresh", "familyId": "hfam_1", "expiresAt": "2026-10-03T13:00:00Z", "refreshExpiresAt": "2026-12-31T00:00:00Z", "account": { "id": "acct_1", "username": "justin", "displayName": "Justin" } }
 end function
 
 sub Test_Hosted_activationCode()
@@ -490,6 +492,7 @@ sub Test_Hosted_openingAServer()
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, routes.value)
     TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.proofs[0].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "id": pin.serverId, "name": "Den", "signIn": "portico", "setupRequired": false, "version": "1.0.0", "hostedAttached": true, "hostedConfigured": true })
     TestAnswer(ctx, "POST", ctx.base + "/v1/direct/portico-challenge", 200, fixture.challenges[0].answer)
     TestAnswer(ctx, "POST", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/identity", 200, { "payload": "assertion-payload", "signature": "assertion-signature", "keyId": "hosted-key-1" })
     answer = TestSnapshot(ctx, [TestProfile("prof_1", "Justin", true)])
@@ -522,6 +525,7 @@ sub Test_Hosted_openingAServer()
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/keys", 200, routes.key)
     TestAnswer(ctx, "GET", ctx.hostedUrl + "/v1/servers/" + pin.serverId + "/routes", 200, routes.value)
     TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.proofs[0].answer)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/system", 200, { "id": pin.serverId, "name": "Den", "signIn": "portico", "setupRequired": false, "version": "1.0.0", "hostedAttached": true, "hostedConfigured": true })
     TestAnswer(ctx, "POST", ctx.base + "/v1/direct/portico-challenge", 200, fixture.challenges[4].answer)
     relay = HostedOpen(ctx, server)
     AssertEqual(relay.failure.code, "challenge_not_proven")

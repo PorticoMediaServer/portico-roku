@@ -164,8 +164,6 @@ function ClassifyPorticoFailure(failure as dynamic, stage as string, category as
     if code = "access_refused" or (stage = "route" and status = 403) then return "noAccess"
     if code = "clock_skew" then return "clockSkew"
     if code = "session_migrated" then return "migrated"
-    if code = "device_approval_pending" then return "devicePending"
-    if code = "device_denied" then return "deviceDenied"
     if code = "challenge_not_proven" or code = "identity_mismatch" or code = "server_mismatch" then return "identity"
     if category = "offline" or category = "unreachable" or category = "timeout" or category = "unavailable" or category = "busy" then return "unreachable"
     if stage = "route" and (code = "server_unavailable" or code = "route_unavailable") then return "unreachable"
@@ -207,10 +205,8 @@ function SignInMessageFacts(failure as dynamic, service = "server" as string, op
         "identity": "portico.failure.identity.title"
         "incompatible": "portico.failure.incompatible.title"
         "unreachable": "portico.failure.unreachable.title"
-        "deviceDenied": "portico.failure.deviceDenied.title"
     }
     if kind = "migrated" then return { messageId: "", values: invalid }
-    if kind = "devicePending" then return { messageId: "device.approval.titleThisDevice", values: invalid }
     if causes[kind] <> invalid then return { messageId: causes[kind], values: server }
     if status <> invalid and status = 401 then return { messageId: "signIn.error.notAccepted", values: invalid }
     if facts.silent then return { messageId: "", values: invalid }

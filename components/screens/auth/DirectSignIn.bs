@@ -1,8 +1,8 @@
 ' apps/native/src/screens/auth/DirectSignIn.tsx, with its DirectStepScreen. On television only the
 ' address is typed first (step "address": the field, Continue, "Use a password instead"); the TV
-' then shows a Quick Connect code. Step "password": the address, the username, the password,
-' Sign in. A sign-in can stop at a two-step code, a required new password, or the owner's approval
-' of this device (the session's directStep), each its own form. The server's identity is pinned on
+' then shows a Local Quick Connect code. A Portico server instead routes to Portico Account
+' sign-in. Step "password" shows the username and password only after a verified Local probe.
+' A sign-in can stop at a two-step code or a required new password, each its own form. The server's identity is pinned on
 ' first contact and checked silently ever after.
 '
 ' One keyboard session (TV-AUTH-03): confirming a field's keyboard moves straight into the next
@@ -39,6 +39,7 @@ sub init()
     m.alternative.variant = "ghost"
     m.alternative.label = T("quickConnect.usePassword")
     m.alternative.observeField("pressed", "onDirectAlternative")
+    m.wantsPassword = false
     m.entered = ""
     m.shown = ""
     for each name in ["error", "busy", "directStep", "note"]
@@ -73,8 +74,6 @@ sub DirectEntryFocus()
         else
             m.frame.callFunc("focusContent", invalid)
         end if
-    else if form = "device-pending" then
-        m.frame.callFunc("focusContent", m.primary)
     else
         m.frame.callFunc("focusContent", invalid)
     end if
@@ -104,7 +103,6 @@ sub onDirectLayout()
     else if form = "password" then
         m.frame.title = T("auth.signInToServer")
         m.frame.lead = T("apple.direct.passwordLead")
-        m.address.visible = true
         m.user.visible = true
         m.secret.visible = true
         m.secret.label = T("auth.password")
@@ -112,11 +110,6 @@ sub onDirectLayout()
         m.secret.hint = ""
         m.primary.label = T("auth.signIn")
         m.primary.disabled = not (m.session.origin.trim() <> "" and m.user.value <> "" and m.secret.value <> "")
-    else if form = "device-pending" then
-        m.frame.title = T("device.approval.titleThisDevice")
-        m.frame.lead = T("device.approval.body")
-        m.primary.label = T("device.approval.checkAgain")
-        m.primary.disabled = false
     else if form = "password-change" then
         m.frame.title = T("web.direct.newPasswordTitle")
         m.frame.lead = T("web.direct.newPasswordLede")
@@ -186,10 +179,7 @@ sub DirectSubmit()
         m.session.callFunc("setOrigin", m.address.value)
         m.session.callFunc("connect")
     else if form = "password" then
-        m.session.callFunc("setOrigin", m.address.value)
         m.session.callFunc("signIn", { username: m.user.value, password: m.secret.value })
-    else if form = "device-pending" then
-        m.session.callFunc("retrySignIn")
     else if form = "password-change" then
         m.session.callFunc("changeRequiredPassword", m.secret.value)
     else
@@ -198,12 +188,22 @@ sub DirectSubmit()
 end sub
 
 sub onDirectConnected()
-    if DirectForm() = "address" then m.top.codeWanted = true
+    connection = m.session.connection
+    if DirectForm() <> "address" or connection = invalid or connection.signIn <> "local" then return
+    if m.wantsPassword then
+        m.wantsPassword = false
+        m.top.step = "password"
+        onDirectLayout()
+    else
+        m.top.codeWanted = true
+    end if
 end sub
 
 sub onDirectAlternative()
-    m.top.step = "password"
-    onDirectLayout()
+    if m.session.busy or m.address.value.trim() = "" then return
+    m.wantsPassword = true
+    m.session.callFunc("setOrigin", m.address.value)
+    m.session.callFunc("connect")
 end sub
 
 sub onDirectDismiss()

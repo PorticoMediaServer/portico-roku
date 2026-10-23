@@ -3,11 +3,12 @@
 ' (server-connections.ts, profile-management.ts, direct-connect.ts), as plain synchronous steps
 ' for a Task thread.
 '
-' A context is {store, send, installation, hostedUrl}. A connection is {origin, pin}: a server
+' A context is {store, send, installation, hostedUrl}. A connection is {origin, pin, signIn, serverName}: a server
 ' whose identity proof was verified at that address. Every step returns {ok: true, …} or
 ' {ok: false, failure}, where failure is {code, status, message} (and `shown`, a catalogue id, for
 ' copy Portico itself wrote for a known situation).
 import "pkg:/source/core/Api.bs"
+import "pkg:/source/core/AccountRoutes.bs"
 import "pkg:/source/core/Bytes.bs"
 import "pkg:/source/core/Crypto.bs"
 import "pkg:/source/core/DirectSignIn.bs"
@@ -30,20 +31,20 @@ function InstallationIdentity(store as object) as object
         store.write("portico", "installationId", id)
     end if
     name = "Roku"
-    transport = ""
+    connectionTransport = ""
     version = "0.1.0"
     info = CreateObject("roDeviceInfo")
     if info <> invalid then
         friendly = info.getFriendlyName()
         if friendly <> invalid and friendly <> "" then name = friendly
-        transport = TransportClassFor(info.getConnectionType())
+        connectionTransport = TransportClassFor(info.getConnectionType())
     end if
     app = CreateObject("roAppInfo")
     if app <> invalid then
         given = app.getVersion()
         if given <> invalid and given <> "" then version = given
     end if
-    return { installationId: id, name: Left(name, 64), platform: "roku", app: "Portico", appVersion: version, transport: transport }
+    return { installationId: id, name: Left(name, 64), platform: "roku", app: "Portico", appVersion: version, transport: connectionTransport }
 end function
 
 function SessionContextNew() as object
@@ -103,10 +104,54 @@ function SessionConnect(ctx as object, typed as string, pin = invalid as dynamic
         if code = "network" or code = "timeout" or code = "route_unavailable" then proof.failure.shown = "apple.connect.unreachable"
         return proof
     end if
-    system = ApiRequest(SessionApi(ctx, origin.origin), "/v1/system")
+    system = ApiRequest(SessionApi(ctx, origin.origin), AccountRoutes.system)
     if not system.ok then return { ok: false, failure: system.error }
     if IsObject(system.data) and system.data.setupRequired = true then return SessionFailure("setup_required", "", "apple.connect.setupRequired")
-    return { ok: true, connection: { origin: origin.origin, pin: proof.pin } }
+    parsed = ParseServerSignIn(system.data, proof.pin.serverId)
+    if not parsed.ok then return parsed
+    return { ok: true, connection: { origin: origin.origin, pin: proof.pin, signIn: parsed.signIn, serverName: parsed.name } }
+end function
+
+
+' sign-in.ts: the server owns this public discriminator; missing/unknown never means Local.
+function ParseServerSignIn(raw as dynamic, serverId as string) as object
+    if not IsObject(raw) or not IsText(raw.id, 256) or not IsText(raw.name, 120) or not IsText(raw.version, 256) then return SessionFailure("invalid_response")
+    if raw.id <> serverId then return SessionFailure("identity_mismatch")
+    if not IsString(raw.signIn) or (raw.signIn <> "portico" and raw.signIn <> "local") then return SessionFailure("invalid_response")
+    if not IsBoolean(raw.setupRequired) or not IsBoolean(raw.hostedAttached) or not IsBoolean(raw.hostedConfigured) then return SessionFailure("invalid_response")
+    return { ok: true, signIn: raw.signIn, name: raw.name }
+end function
+
+' Checked canonical sign-in.ts URL, on this server's own validated origin.
+function ServerSignInSettingsURL(origin as string) as dynamic
+    parsed = RouteOrigin(origin)
+    if not parsed.ok then return invalid
+    return parsed.origin + AccountRoutes.signInSettingsPath
+end function
+
+function SessionRequiresLocal(connection as dynamic) as object
+    if not IsObject(connection) then return SessionFailure("server_not_verified")
+    if connection.signIn = "portico" then return SessionFailure("sign_in_kind_portico")
+    if connection.signIn <> "local" then return SessionFailure("server_not_verified")
+    return { ok: true }
+end function
+
+
+' The canonical app-session revision fences a sign-in that was cancelled or overtaken.
+function SessionRevision(ctx as object) as integer
+    raw = ctx.store.read("portico", "sessionRevision")
+    if raw = invalid or not MatchesPattern(raw, "^[0-9]{1,9}$") then return 0
+    return Val(raw)
+end function
+
+sub SessionAdvance(ctx as object)
+    ctx.store.write("portico", "sessionRevision", (SessionRevision(ctx) + 1).toStr())
+end sub
+
+function SessionAdmissionCurrent(ctx as object) as boolean
+    if ctx.admissionRevision <> invalid and ctx.admissionRevision <> SessionRevision(ctx) then return false
+    if ctx.task <> invalid and ctx.task.command = "stop" then return false
+    return true
 end function
 
 function SessionRecordSection(serverId as string) as string
@@ -117,42 +162,107 @@ end function
 ' the one that proved itself at this address, and a direct sign-in must carry the server's own key.
 function SessionAccept(ctx as object, connection as object, session as object, details = invalid as dynamic) as object
     if details = invalid then details = {}
+    if connection.signIn <> "local" and connection.signIn <> "portico" then return SessionFailure("server_not_verified")
+    if connection.signIn = "portico" then
+        if details.hosted = invalid then return SessionFailure("account_required")
+        account = StoreReadJson(ctx.store, "portico", "hosted")
+        if not HostedGrantValid(account) or details.hosted.accountId <> account.account.id or details.hosted.origin <> ctx.hostedUrl then return SessionFailure("session_mismatch")
+    end if
+    if connection.signIn = "local" and details.hosted <> invalid then return SessionFailure("sign_in_kind_local")
+    if session.viewer.authority <> "local" then return SessionFailure("session_mismatch")
     if session.viewer.serverId <> connection.pin.serverId then return SessionFailure("identity_mismatch", "Verify this server before saving its sign-in.")
     if details.hosted = invalid and session.serverIdentity = invalid then return SessionFailure("missing_server_key", "This server must include its identity key in the sign-in response.")
     if session.serverIdentity <> invalid then
         actual = ServerPin(session.viewer.serverId, session.serverIdentity.publicKey, session.serverIdentity.fingerprint)
         if not actual.ok or not SameServerPin(actual.pin, connection.pin) then return SessionFailure("identity_mismatch", "The native session returned a different server identity.")
     end if
+    if not SessionAdmissionCurrent(ctx) then
+        SessionRevokeRecord(ctx, { "logicalOrigin": connection.origin, "pin": connection.pin, "session": session })
+        return SessionFailure("cancelled")
+    end if
     record = {
-        "version": "1"
+        "version": "2"
+        "signIn": connection.signIn
         "logicalOrigin": connection.origin
         "session": session
         "pin": { "serverId": connection.pin.serverId, "publicKey": connection.pin.publicKey, "fingerprint": connection.pin.fingerprint }
     }
     if IsString(details.username) and details.username <> "" then record["username"] = details.username
+    if IsString(connection.serverName) then record["serverName"] = connection.serverName
     if IsString(details.serverName) and details.serverName <> "" then record["serverName"] = details.serverName
     if details.hosted <> invalid then record["hosted"] = details.hosted
     if details.profileName <> invalid then record["profileName"] = details.profileName
+    record["capabilities"] = ParseManagementCapabilities(details.capabilities)
+    if record["capabilities"] = invalid then return SessionFailure("invalid_response")
     section = SessionRecordSection(connection.pin.serverId)
     if not StoreWriteJson(ctx.store, section, "record", record) then return SessionFailure("persistence_error", "The sign-in could not be saved.")
     ctx.store.write("portico", "selected", connection.pin.serverId)
+    SessionAdvance(ctx)
     return { ok: true, session: session, connection: connection, record: record }
 end function
 
 ' The saved record for the selected server, or invalid. A record that cannot be read is no record.
-function SessionRecord(ctx as object) as dynamic
-    serverId = ctx.store.read("portico", "selected")
+function SessionRecord(ctx as object, serverId = invalid as dynamic) as dynamic
+    if serverId = invalid then serverId = ctx.store.read("portico", "selected")
     if serverId = invalid or serverId = "" then return invalid
     raw = StoreReadJson(ctx.store, SessionRecordSection(serverId), "record")
-    if not IsObject(raw) or raw["version"] <> "1" or not IsObject(raw["pin"]) or not IsString(raw["logicalOrigin"]) then return invalid
-    parsed = ParseLocalSession(raw["session"], invalid, true, SessionNow(ctx))
+    if not IsObject(raw) or raw["version"] <> "2" or not IsObject(raw["pin"]) or not IsString(raw["logicalOrigin"]) then return invalid
+    if raw["signIn"] <> "portico" and raw["signIn"] <> "local" then return invalid
+    if raw["signIn"] = "portico" then
+        if not IsObject(raw["hosted"]) or not IsText(raw["hosted"].accountId, 128) or not IsText(raw["hosted"].origin, 2048) then return invalid
+    else if raw["hosted"] <> invalid then
+        return invalid
+    end if
+    parsed = ParseLocalSession(raw["session"], { authority: "local", serverId: serverId }, true, SessionNow(ctx))
     if not parsed.ok then return invalid
     pin = ServerPin(raw["pin"]["serverId"], raw["pin"]["publicKey"], raw["pin"]["fingerprint"])
     if not pin.ok or parsed.session.viewer.serverId <> pin.pin.serverId then return invalid
+    caps = ParseManagementCapabilities(raw["capabilities"])
+    if caps = invalid then return invalid
+    raw["capabilities"] = caps
     raw["session"] = parsed.session
     raw["pin"] = pin.pin
     return raw
 end function
+
+
+' app-sessions.ts: independent records, selected by server id. Selection sends nothing and
+' never ends another sign-in. Credentials stay in each server's own Registry section.
+function SessionRecords(ctx as object) as object
+    out = []
+    prefix = "portico.server."
+    for each section in ctx.store.sections()
+        if Left(section, Len(prefix)) = prefix then
+            record = SessionRecord(ctx, Mid(section, Len(prefix) + 1))
+            if record <> invalid then out.push(record)
+        end if
+    end for
+    return out
+end function
+
+function SessionSelect(ctx as object, serverId as string) as object
+    record = SessionRecord(ctx, serverId)
+    if record = invalid then return SessionFailure("signed_out")
+    SessionAdvance(ctx)
+    if not ctx.store.write("portico", "selected", serverId) then return SessionFailure("persistence_error")
+    return SessionRestore(ctx)
+end function
+
+' Remove only the captured session family; a late sign-out cannot delete a new sign-in.
+function SessionRemoveFamily(ctx as object, serverId as string, familyId as string) as dynamic
+    current = SessionRecord(ctx, serverId)
+    if current = invalid or current["session"].sessionFamilyId <> familyId then return invalid
+    SessionForget(ctx, serverId)
+    return current
+end function
+
+sub SessionRevokeRecord(ctx as object, record as object)
+    proof = SessionProbe(ctx, record["logicalOrigin"], record["pin"])
+    if not proof.ok then return
+    api = SessionApi(ctx, record["logicalOrigin"], record["session"].accessToken)
+    api.timeoutMs = 3000
+    ApiRequest(api, "/v1/sessions/current", "DELETE")
+end sub
 
 sub SessionForget(ctx as object, serverId as string)
     ctx.store.remove(SessionRecordSection(serverId), "record")
@@ -165,17 +275,16 @@ end sub
 '   "profiles"         snapshot, accountSession (choose a profile)
 '   "password-change"  accountSession (the server requires a new password first)
 '   "challenge"        token (two-step verification)
-'   "device-pending"   (the owner must approve this device)
 function SessionSignInOutcome(ctx as object, connection as object, answer as object, details = invalid as dynamic) as object
     if not answer.ok then return { ok: false, failure: answer.error }
     parsed = ParseDirectSignIn(answer.data, SessionNow(ctx))
     if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } }
     if parsed.kind = "challenge" then return { ok: true, kind: "challenge", token: parsed.token }
-    if parsed.kind = "device-pending" then return { ok: true, kind: "device-pending" }
     if parsed.snapshot.serverId <> connection.pin.serverId then return SessionFailure("server_mismatch", "The server answered as a different server.")
     if parsed.passwordChangeRequired then return { ok: true, kind: "password-change", accountSession: parsed.session, snapshot: parsed.snapshot }
     if parsed.accountScoped then return { ok: true, kind: "profiles", accountSession: parsed.session, snapshot: parsed.snapshot }
     if details = invalid then details = {}
+    details.capabilities = parsed.snapshot.capabilities
     details.profileName = parsed.snapshot.profiles[0].name
     if details.username = invalid then details.username = parsed.snapshot.account.username
     accepted = SessionAccept(ctx, connection, parsed.session, details)
@@ -186,6 +295,8 @@ end function
 
 ' POST /v1/direct/sign-in {username, password}.
 function SessionSignIn(ctx as object, connection as object, username as string, password as string) as object
+    local = SessionRequiresLocal(connection)
+    if not local.ok then return local
     if username.trim() = "" or password = "" then return { ok: false, failure: { code: "credentials_required", status: 0, message: "" } }
     answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/direct/sign-in", "POST", { "username": username, "password": password })
     return SessionSignInOutcome(ctx, connection, answer, { username: username })
@@ -193,6 +304,8 @@ end function
 
 ' POST /v1/auth/two-factor/challenge {token, code}: finishes a two-step sign-in.
 function SessionCompleteChallenge(ctx as object, connection as object, token as string, code as string, username = "" as string) as object
+    local = SessionRequiresLocal(connection)
+    if not local.ok then return local
     entered = code.trim()
     if entered = "" or Len(entered) > 64 then return { ok: false, failure: { code: "invalid_code", status: 0, message: "" } }
     answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/auth/two-factor/challenge", "POST", { "token": token, "code": entered })
@@ -203,6 +316,8 @@ end function
 
 ' POST /v1/direct/password with the account session: a required password change. Sign in again after.
 function SessionChangeRequiredPassword(ctx as object, connection as object, accountSession as object, currentPassword as string, newPassword as string) as object
+    local = SessionRequiresLocal(connection)
+    if not local.ok then return local
     answer = ApiRequest(SessionApi(ctx, connection.origin, accountSession.accessToken), "/v1/direct/password", "POST", { "currentPassword": currentPassword, "newPassword": newPassword })
     if not answer.ok then return { ok: false, failure: answer.error }
     return { ok: true }
@@ -217,11 +332,22 @@ function SessionChooseProfile(ctx as object, connection as object, pending as ob
     if not answer.ok then return { ok: false, failure: answer.error }
     parsed = ParseProfileSelection(answer.data, pending.snapshot.account.id, pending.snapshot.serverId, profileId, SessionNow(ctx))
     if not parsed.ok then return { ok: false, failure: { code: parsed.code, status: 0, message: parsed.message } }
-    if details = invalid then details = {}
+    if details = invalid then
+        details = {}
+        remembered = SessionRecord(ctx, connection.pin.serverId)
+        if remembered <> invalid and remembered["signIn"] = connection.signIn then
+            details.hosted = remembered["hosted"]
+            details.serverName = remembered["serverName"]
+        end if
+    end if
     if details.username = invalid then details.username = pending.snapshot.account.username
     for each profile in pending.snapshot.profiles
         if profile.id = profileId then details.profileName = profile.name
     end for
+    current = SessionProfiles(ctx, connection, parsed.session.accessToken)
+    if not current.ok then return current
+    if current.snapshot.account.id <> pending.snapshot.account.id then return SessionFailure("session_mismatch")
+    details.capabilities = current.snapshot.capabilities
     accepted = SessionAccept(ctx, connection, parsed.session, details)
     if accepted.ok then accepted.kind = "ready"
     return accepted
@@ -269,7 +395,7 @@ function SessionRenew(ctx as object, record as object, rejected = "" as string) 
         status = answer.status
         if status = 401 or status = 403 then
             ' Only a refusal ends the sign-in: revoked, an unknown family, or a reused refresh token.
-            SessionForget(ctx, record["pin"].serverId)
+            SessionRemoveFamily(ctx, record["pin"].serverId, record["session"].sessionFamilyId)
             code = "refresh_refused"
             if status = 401 and answer.error.code = "session_migrated" then code = "session_migrated"
             return { ok: false, signOut: true, failure: { code: code, status: status, message: "" } }
@@ -280,6 +406,9 @@ function SessionRenew(ctx as object, record as object, rejected = "" as string) 
     end if
     parsed = ParseLocalSession(answer.data, { authority: session.viewer.authority, accountId: session.viewer.accountId, serverId: session.viewer.serverId, profileId: session.viewer.profileId }, false, SessionNow(ctx))
     if not parsed.ok or parsed.session.sessionFamilyId <> session.sessionFamilyId then return { ok: false, signOut: false, failure: { code: "invalid_response", status: 0, message: "" } }
+    current = SessionRecord(ctx, record["pin"].serverId)
+    if current = invalid or current["session"].sessionFamilyId <> session.sessionFamilyId then return { ok: false, signOut: true, failure: { code: "signed_out", status: 401, message: "" } }
+    if current["session"].tokenGeneration <> session.tokenGeneration then return { ok: true, session: current["session"] }
     record["session"] = parsed.session
     record.delete("pendingRefresh")
     StoreWriteJson(ctx.store, section, "record", record)
@@ -302,7 +431,7 @@ function SessionRestore(ctx as object) as object
         if probe.failure.code = "identity_mismatch" then return { ok: true, state: "changed", record: record, failure: probe.failure }
         return { ok: true, state: "offline", record: record, failure: probe.failure }
     end if
-    connection = { origin: record["logicalOrigin"], pin: record["pin"] }
+    connection = { origin: record["logicalOrigin"], pin: record["pin"], signIn: record["signIn"], serverName: record["serverName"] }
     renewed = SessionRenew(ctx, record)
     session = record["session"]
     if renewed.ok then
@@ -314,7 +443,7 @@ function SessionRestore(ctx as object) as object
     end if
     expires = IsoToSeconds(session.expiresAt)
     if expires = invalid or expires <= SessionNow(ctx) then
-        SessionForget(ctx, record["pin"].serverId)
+        SessionRemoveFamily(ctx, record["pin"].serverId, record["session"].sessionFamilyId)
         return { ok: true, state: "ended", record: record, failure: { code: "session_expired", status: 401, message: "" } }
     end if
     me = ApiRequest(SessionApi(ctx, connection.origin, session.accessToken), "/v1/me")
@@ -328,23 +457,41 @@ function SessionRestore(ctx as object) as object
         end if
         if not me.ok then
             if me.status = 401 then
-                SessionForget(ctx, record["pin"].serverId)
+                SessionRemoveFamily(ctx, record["pin"].serverId, record["session"].sessionFamilyId)
                 return { ok: true, state: "ended", record: record, failure: me.error }
             end if
             if me.status = 403 then return { ok: true, state: "refused", record: record, failure: me.error }
             return { ok: true, state: "offline", record: record, failure: me.error }
         end if
     end if
+    ' Management is a fresh server decision, not a role inferred from sign-in kind or a cached
+    ' owner label. Viewer playback can continue while an unreadable management response denies it.
+    profiles = SessionProfiles(ctx, connection, session.accessToken)
+    caps = ParseManagementCapabilities(invalid)
+    if profiles.ok and profiles.snapshot.account.id = session.viewer.accountId then caps = profiles.snapshot.capabilities
+    current = SessionRecord(ctx, connection.pin.serverId)
+    if current = invalid or current["session"].sessionFamilyId <> session.sessionFamilyId then return { ok: true, state: "ended", record: record, failure: { code: "signed_out", status: 401, message: "" } }
+    ' A different Task may have renewed or selected a profile while these reads were in flight.
+    ' Keep its token generation and pending refresh receipt. Only this exact viewer's response
+    ' may replace management powers; a response for an earlier profile grants nothing.
+    if current["session"].viewer.profileId = session.viewer.profileId then current["capabilities"] = caps
+    session = current["session"]
+    record = current
+    StoreWriteJson(ctx.store, SessionRecordSection(connection.pin.serverId), "record", record)
     return { ok: true, state: "ready", record: record, session: session, connection: connection }
 end function
 
 ' Signing out: the server ends the session (best effort), and the record is removed.
-sub SessionSignOut(ctx as object)
-    record = SessionRecord(ctx)
-    if record = invalid then return
-    ApiRequest(SessionApi(ctx, record["logicalOrigin"], record["session"].accessToken), "/v1/sessions/current", "DELETE")
-    SessionForget(ctx, record["pin"].serverId)
-end sub
+function SessionSignOut(ctx as object, serverId = invalid as dynamic, familyId = invalid as dynamic) as object
+    SessionAdvance(ctx)
+    record = SessionRecord(ctx, serverId)
+    if record = invalid then return { ok: true, removed: false }
+    if familyId = invalid then familyId = record["session"].sessionFamilyId
+    captured = SessionRemoveFamily(ctx, record["pin"].serverId, familyId)
+    if captured = invalid then return { ok: true, removed: false }
+    SessionRevokeRecord(ctx, captured)
+    return { ok: true, removed: true }
+end function
 
 ' What an approval screen calls this device (apps/native/src/bridge/setup-codes.ts `deviceIdentity`).
 function SessionDeviceIdentity(ctx as object) as object
@@ -353,6 +500,8 @@ end function
 
 ' Quick Connect on a server (bridge/setup-codes.ts `nativeQuickConnect`).
 function QuickConnectCreate(ctx as object, connection as object) as object
+    local = SessionRequiresLocal(connection)
+    if not local.ok then return local
     body = SessionDeviceIdentity(ctx)
     body["requestId"] = NewRequestId()
     if ctx.requestId <> invalid then body["requestId"] = ctx.requestId
@@ -365,6 +514,8 @@ end function
 
 ' Returns {ok, next}: "approved" (with `outcome`, a sign-in outcome), or SetupCodeAfterPoll's next.
 function QuickConnectPoll(ctx as object, connection as object, authorization as object) as object
+    local = SessionRequiresLocal(connection)
+    if not local.ok then return local
     answer = ApiRequest(SessionApi(ctx, connection.origin), "/v1/quick-connect/token", "POST", { "deviceCode": authorization.deviceCode })
     if not answer.ok then
         after = SetupCodeAfterPoll(authorization.interval, answer.error)
@@ -377,7 +528,7 @@ function QuickConnectPoll(ctx as object, connection as object, authorization as 
 end function
 
 sub QuickConnectCancel(ctx as object, connection as object, authorization as dynamic)
-    if authorization = invalid then return
+    if authorization = invalid or not SessionRequiresLocal(connection).ok then return
     ApiRequest(SessionApi(ctx, connection.origin), "/v1/quick-connect/cancel", "POST", { "deviceCode": authorization.deviceCode })
 end sub
 

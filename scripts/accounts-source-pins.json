@@ -1,0 +1,24 @@
+{
+  "commit": "2079119593864335b551692264c579741373ca28",
+  "hostedProducer": "212272ed2bf56ffab3e5aa6e4267eeb429548dee",
+  "rootIntakeReceipt": "orchestrator-r29/media-dispatch/shared-207-intake.json",
+  "previousSharedPin": "677ed8df505a1e12c57c7d9e504e20522b6b7701",
+  "files": {
+    "packages/client-core/src/app-sessions.ts": "21d6d28b8f3df40f32c3f63f0adb199dd4ff017e72bfcbff41dd65b4853c54a2",
+    "packages/client-core/src/sign-in.ts": "70941d7a8593e2c548ce44a8ea37c7861778ec5604a10863a48cf14afbb70e6b",
+    "packages/client-core/src/tv-consent.ts": "ef3f6fab0017eaeff4fe9629eddd3a186224ae98988846318430fce54ac935d6",
+    "packages/client-core/src/profile-management.ts": "f13941d3ed9d28031220c53068bce0051d97c900d4e3d7e9590db197569b056b",
+    "packages/i18n/src/catalog/en-US/accounts.ts": "e2e8d31ea0d6a855adda36547f7b59beef9d0da6f9093901bca11f11fdc1d58d",
+    "packages/contracts/src/routes.ts": "3872c663f353d9b37ede44f7b5449388bebe86385f80372a93945b88ac6702ab",
+    "packages/contracts/src/hosted/routes.ts": "a2927ccf06979645c495630ad79b7327c9c0ece35a2c5f63a9c0e0202d3d3090",
+    "packages/client-core/src/hosted-security.ts": "d3b943ea5cfe92d87dcf766d8721c81a0dde6756c6cb68fa5096fdc89759573e",
+    "packages/client-core/src/credential-format.ts": "ff78f658bc3a667611abb2f923a131f8bbdfe2209b0636d67cee0449097c756c",
+    "packages/client-core/src/credentials.ts": "38dfbc333e379f8dc75d4c7efcce13029bd07da904b404d94ca0a03a55890e98",
+    "packages/client-core/src/device-authorization.ts": "50a09ec7161e1277b8ed4170da7d283a2ce0100860268d6557b593dd071cedcf",
+    "packages/client-core/src/account-notifications.ts": "9c9d513e94ce5cce19426f215d1056703d170e5b5cc54ed080541788f7b288e5",
+    "packages/contracts/src/hosted/types.ts": "48f4527bf5eb6de34c12ac7aba44464056c76ab7890272957014da5d1a352c27",
+    "packages/contracts/src/hosted/schemas.ts": "4d3eec49ca4d9803fc8c0c19b90fe8ec35f3a6be60f41fabea2115bd37ea7f72",
+    "packages/contracts/src/hosted/decoders.ts": "5ad708f3ebff37b78a680a0176eeca0cb88fed2370d1e5f84e922502cbd5c39e",
+    "packages/i18n/src/catalog/en-US/web.ts": "54ad87187b4180346f5a90ccb72ad3e26f29a524a3b5a7de232bba8a5679a55d"
+  }
+}

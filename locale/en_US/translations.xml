@@ -3853,5 +3853,297 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</translation>
             <source>web.together.yourName</source>
             <translation>Your name in the group</translation>
         </message>
+        <message>
+            <source>accounts.signIn.portico</source>
+            <translation>Sign in with Portico Account</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.local</source>
+            <translation>Use a local server</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.usesPortico</source>
+            <translation>{server} uses Portico Accounts</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.porticoNotice</source>
+            <translation>Sign in with yours to continue.</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.continuePortico</source>
+            <translation>Continue with Portico Account</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.cannotUsePortico</source>
+            <translation>Can’t use your Portico Account?</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.address</source>
+            <translation>Server address</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.differentAddress</source>
+            <translation>Use a different address</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.anotherServer</source>
+            <translation>Choose another server</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.confirmIdentity</source>
+            <translation>Confirm server identity</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.username</source>
+            <translation>Username</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.password</source>
+            <translation>Password</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.confirmPassword</source>
+            <translation>Confirm password</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.showPassword</source>
+            <translation>Show</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.hidePassword</source>
+            <translation>Hide</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.continue</source>
+            <translation>Continue</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.back</source>
+            <translation>Back</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.failed</source>
+            <translation>Could not sign in. Try again.</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.serverUnavailable</source>
+            <translation>The server could not be reached. Check the address and try again.</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.verifying</source>
+            <translation>Checking the server…</translation>
+        </message>
+        <message>
+            <source>accounts.signIn.passwordsDiffer</source>
+            <translation>The passwords don’t match.</translation>
+        </message>
+        <message>
+            <source>accounts.session.portico</source>
+            <translation>Signed in with your Portico Account</translation>
+        </message>
+        <message>
+            <source>accounts.session.local</source>
+            <translation>Signed in with a local account</translation>
+        </message>
+        <message>
+            <source>accounts.signOut.server</source>
+            <translation>Sign out of {server}</translation>
+        </message>
+        <message>
+            <source>accounts.signOut.portico</source>
+            <translation>Sign out of your Portico Account</translation>
+        </message>
+        <message>
+            <source>accounts.signOut.porticoBody</source>
+            <translation>Your Portico Account and Portico server sessions end on this device. Local server sessions stay.</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.pin</source>
+            <translation>Profile PIN</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.pinFailed</source>
+            <translation>The profile could not be opened. Check the PIN and try again.</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.continue</source>
+            <translation>Continue</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.cancel</source>
+            <translation>Cancel</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.onServer</source>
+            <translation>Who’s watching on {server}</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.unavailable</source>
+            <translation>The profiles could not be loaded. Try again.</translation>
+        </message>
+        <message>
+            <source>accounts.profiles.retry</source>
+            <translation>Try again</translation>
+        </message>
+        <message>
+            <source>accounts.servers.title</source>
+            <translation>Your servers</translation>
+        </message>
+        <message>
+            <source>accounts.servers.empty</source>
+            <translation>No servers yet.</translation>
+        </message>
+        <message>
+            <source>accounts.move.oldPasswordAction</source>
+            <translation>Use your old username and password</translation>
+        </message>
+        <message>
+            <source>accounts.move.oldSignIn</source>
+            <translation>Your old sign-in</translation>
+        </message>
+        <message>
+            <source>accounts.move.oldSignInBody</source>
+            <translation>The username and password you used on {server}.</translation>
+        </message>
+        <message>
+            <source>accounts.move.oldPasswordHelp</source>
+            <translation>Forgot it, or past 30 days? Ask the owner for a link.</translation>
+        </message>
+        <message>
+            <source>accounts.move.toPortico</source>
+            <translation>{server} now uses Portico Accounts.</translation>
+        </message>
+        <message>
+            <source>accounts.move.linkBody</source>
+            <translation>Sign in or create one to keep your profiles.</translation>
+        </message>
+        <message>
+            <source>accounts.move.createAccount</source>
+            <translation>Create one</translation>
+        </message>
+        <message>
+            <source>accounts.move.linked</source>
+            <translation>You’re back.</translation>
+        </message>
+        <message>
+            <source>accounts.move.linkedBody</source>
+            <translation>Your profiles are here.</translation>
+        </message>
+        <message>
+            <source>accounts.move.chooseProfile</source>
+            <translation>Choose a profile</translation>
+        </message>
+        <message>
+            <source>accounts.move.collision</source>
+            <translation>Can’t link that account</translation>
+        </message>
+        <message>
+            <source>accounts.move.collisionBody</source>
+            <translation>That Portico Account is already on {server} as {username}. Ask the owner, or use a different Portico Account.</translation>
+        </message>
+        <message>
+            <source>accounts.move.differentAccount</source>
+            <translation>Use a different Portico Account</translation>
+        </message>
+        <message>
+            <source>accounts.move.toLocal</source>
+            <translation>{server} now uses local sign-in.</translation>
+        </message>
+        <message>
+            <source>accounts.move.askForCode</source>
+            <translation>Ask the owner for your code.</translation>
+        </message>
+        <message>
+            <source>accounts.move.haveCode</source>
+            <translation>I have a code</translation>
+        </message>
+        <message>
+            <source>accounts.move.enterCode</source>
+            <translation>Enter your code</translation>
+        </message>
+        <message>
+            <source>accounts.move.codeHelp</source>
+            <translation>A link from the owner fills it in for you.</translation>
+        </message>
+        <message>
+            <source>accounts.move.code</source>
+            <translation>Code</translation>
+        </message>
+        <message>
+            <source>accounts.move.chooseSignIn</source>
+            <translation>Choose your sign-in</translation>
+        </message>
+        <message>
+            <source>accounts.move.profilesKept</source>
+            <translation>Your profiles and history are kept.</translation>
+        </message>
+        <message>
+            <source>accounts.move.codeInvalid</source>
+            <translation>That code isn’t right, or it has expired. Ask the owner for a new one.</translation>
+        </message>
+        <message>
+            <source>accounts.settings.title</source>
+            <translation>Sign-in</translation>
+        </message>
+        <message>
+            <source>accounts.settings.method</source>
+            <translation>Method</translation>
+        </message>
+        <message>
+            <source>accounts.settings.owner</source>
+            <translation>Owner</translation>
+        </message>
+        <message>
+            <source>accounts.settings.portico</source>
+            <translation>Portico Accounts</translation>
+        </message>
+        <message>
+            <source>accounts.settings.local</source>
+            <translation>Local accounts</translation>
+        </message>
+        <message>
+            <source>accounts.settings.porticoPrivacy</source>
+            <translation>This server keeps no passwords.</translation>
+        </message>
+        <message>
+            <source>accounts.settings.localPrivacy</source>
+            <translation>This server never contacts Portico Services.</translation>
+        </message>
+        <message>
+            <source>accounts.settings.porticoOwner</source>
+            <translation>Portico Account {email}</translation>
+        </message>
+        <message>
+            <source>accounts.settings.changeOnWeb</source>
+            <translation>Change this on the web</translation>
+        </message>
+        <message>
+            <source>accounts.settings.movingToLocal</source>
+            <translation>Moving to local sign-in</translation>
+        </message>
+        <message>
+            <source>accounts.settings.movingToPortico</source>
+            <translation>Moving to Portico Accounts</translation>
+        </message>
+        <message>
+            <source>accounts.settings.waiting</source>
+            <translation>{waiting} of {total} people waiting</translation>
+        </message>
+        <message>
+            <source>accounts.settings.codesOnWeb</source>
+            <translation>Make their codes on the web.</translation>
+        </message>
+        <message>
+            <source>accounts.consent.portico</source>
+            <translation>Approve with the same Portico Account on any signed-in device or at web.getportico.tv.</translation>
+        </message>
+        <message>
+            <source>accounts.consent.local</source>
+            <translation>Approve with the same local account on any signed-in device, or enter your username and password.</translation>
+        </message>
+        <message>
+            <source>web.signin.welcomeHome</source>
+            <translation>Welcome home.</translation>
+        </message>
     </context>
 </TS>

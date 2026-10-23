@@ -15,14 +15,15 @@ sub init()
     for each name in ["hasPending", "hasAccount", "directStep", "phase", "switching"]
         m.session.observeField(name, "onFlowChange")
     end for
+    m.session.observeField("accountRequested", "onFlowAccount")
 end sub
 
 sub enter()
     ' A sign-in that ended opens where it can be renewed: the direct form with the address filled in.
-    if m.session.note <> "" and m.session.origin <> "" and not m.session.hasAccount then
+    if m.session.note <> "" and m.session.origin <> "" and not m.session.accountRequested then
         m.step = "direct"
         m.directView = "form"
-        m.directStep = "password"
+        m.directStep = "address"
     end if
     onFlowChange()
 end sub
@@ -43,7 +44,7 @@ end sub
 ' Which screen the session's state and this flow's step call for.
 function FlowWanted() as string
     if m.session.hasPending then return "ScreenDirectProfiles"
-    if m.session.hasAccount and m.step <> "landing" and m.step <> "direct" then m.step = "landing"
+    if m.session.hasAccount and m.session.accountRequested and m.step <> "landing" and m.step <> "direct" then m.step = "landing"
     if not m.session.hasAccount and m.step = "landing" then m.step = "welcome"
     if m.step = "landing" then
         ' A two-step code or a new password for this server is its own form.
@@ -77,6 +78,14 @@ sub onFlowChange()
         m.screen.observeField("directPressed", "onFlowDirect")
     end if
     m.screen.callFunc("enter")
+end sub
+
+sub onFlowAccount()
+    m.step = "welcome"
+    m.directView = "form"
+    m.directStep = "address"
+    if m.session.hasAccount and m.session.accountRequested then m.step = "landing"
+    onFlowChange()
 end sub
 
 sub onFlowDirect()
@@ -122,7 +131,7 @@ function back() as boolean
     if m.screen <> invalid and m.screen.callFunc("back") then return true
     m.session.callFunc("clearError")
     m.step = "welcome"
-    if m.session.hasAccount then m.step = "landing"
+    m.session.accountRequested = false
     m.directView = "form"
     m.directStep = "address"
     onFlowChange()

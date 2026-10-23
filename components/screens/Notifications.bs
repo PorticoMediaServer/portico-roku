@@ -220,7 +220,7 @@ function FeedLayout(y as dynamic) as float
     prefs = m.feed.preferences
     if prefs <> invalid then
         rows = []
-        for each pair in [["serverOffline", "web.account.notif.prefServerOffline"], ["storageNearlyFull", "web.account.notif.prefStorage"], ["invitationAccepted", "web.account.notif.prefJoined"]]
+        for each pair in [["serverOffline", "web.account.notif.prefServerOffline"]]
             node = CreateObject("roSGNode", "UiListRow")
             node.addFields({ feedId: "pref:" + pair[0], feedPref: pair[0] })
             node.title = T(pair[1])

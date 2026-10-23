@@ -7,6 +7,12 @@
 
 function StoreRegistry() as object
     return {
+        sections: function() as object
+            return CreateObject("roRegistry").getSectionList()
+        end function
+        keys: function(section as string) as object
+            return CreateObject("roRegistrySection", section).getKeyList()
+        end function
         read: function(section as string, key as string) as dynamic
             registry = CreateObject("roRegistrySection", section)
             if not registry.exists(key) then return invalid
@@ -30,6 +36,25 @@ function StoreInMemory() as object
     values.setModeCaseSensitive()
     return {
         values: values
+        keys: function(section as string) as object
+            out = []
+            prefix = section + "/"
+            for each key in m.values.keys()
+                if Left(key, Len(prefix)) = prefix then out.push(Mid(key, Len(prefix) + 1))
+            end for
+            return out
+        end function
+        sections: function() as object
+            found = {}
+            found.setModeCaseSensitive()
+            out = []
+            for each key in m.values.keys()
+                section = Left(key, Instr(1, key, "/") - 1)
+                if not found.doesExist(section) then out.push(section)
+                found[section] = true
+            end for
+            return out
+        end function
         read: function(section as string, key as string) as dynamic
             return m.values[section + "/" + key]
         end function

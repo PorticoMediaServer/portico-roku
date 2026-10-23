@@ -122,13 +122,32 @@ function ParseDirectSnapshot(raw as dynamic, expected = invalid as dynamic) as o
     if libraries = invalid then return DirectUnreadable()
     account = { id: a.id, username: a.username, primaryProfileId: a.primaryProfileId, role: a.role, revision: a.revision, disabled: a.disabled, allowedLibraries: libraries }
     if a.doesExist("hostedAccountId") then account.hostedAccountId = a.hostedAccountId
-    return { ok: true, snapshot: { authority: "local", serverId: raw.serverId, account: account, profiles: parsed.profiles, canManage: raw.canManage, custodyPending: raw.custodyPending = true } }
+    if raw.capabilities = invalid then return DirectUnreadable()
+    caps = ParseManagementCapabilities(raw.capabilities)
+    if caps = invalid then return DirectUnreadable()
+    if caps.manageAccount <> raw.canManage then return DirectUnreadable()
+    if caps.manageSignIn and a.role <> "owner" then return DirectUnreadable()
+    if (caps.managePeople or caps.manageServer) and a.role <> "owner" and a.role <> "admin" then return DirectUnreadable()
+    if not caps.manageAccount and (caps.managePeople or caps.manageServer or caps.manageSignIn) then return DirectUnreadable()
+    return { ok: true, snapshot: { authority: "local", serverId: raw.serverId, account: account, profiles: parsed.profiles, canManage: raw.canManage, capabilities: caps, custodyPending: raw.custodyPending = true } }
+end function
+
+
+' Server-owned main-profile powers (identity/direct_profiles.go). Missing powers grant nothing.
+function ParseManagementCapabilities(raw as dynamic) as dynamic
+    denied = { manageAccount: false, managePeople: false, manageServer: false, manageSignIn: false }
+    if raw = invalid then return denied
+    if not IsObject(raw) or not HasExactKeys(raw, ["manageAccount", "managePeople", "manageServer", "manageSignIn"]) then return invalid
+    for each key in denied.keys()
+        if not IsBoolean(raw[key]) then return invalid
+        denied[key] = raw[key]
+    end for
+    return denied
 end function
 
 ' Returns {ok, kind, …}:
 '   "signed-in"      snapshot, session, accountScoped, passwordChangeRequired
 '   "challenge"      token, expiresAt (two-step verification; finish with the code)
-'   "device-pending" deviceId, installationId (the owner must approve this device first)
 function ParseDirectSignIn(raw as dynamic, atSeconds = invalid as dynamic) as object
     if not IsObject(raw) then return DirectUnreadable()
     if raw.doesExist("challenge") then
@@ -136,10 +155,7 @@ function ParseDirectSignIn(raw as dynamic, atSeconds = invalid as dynamic) as ob
         if not IsObject(c) or not IsText(c.token, 256) or IsoToSeconds(c.expiresAt) = invalid then return DirectUnreadable()
         return { ok: true, kind: "challenge", token: c.token, expiresAt: c.expiresAt }
     end if
-    if raw.doesExist("deviceApprovalPending") then
-        if not IsBoolean(raw.deviceApprovalPending) or raw.deviceApprovalPending <> true or not IsText(raw.deviceId, 128) or not IsText(raw.installationId, 128) or raw.doesExist("session") then return DirectUnreadable()
-        return { ok: true, kind: "device-pending", deviceId: raw.deviceId, installationId: raw.installationId }
-    end if
+    if raw.doesExist("deviceApprovalPending") then return DirectUnreadable()
     parsed = ParseDirectSnapshot(raw)
     if not parsed.ok then return parsed
     snapshot = parsed.snapshot
