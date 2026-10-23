@@ -13,6 +13,8 @@ namespace AccountRoutes
     const porticoConsentReview = "/v1/device-authorizations/review"
     const porticoConsentDecision = "/v1/device-authorizations/decision"
     const porticoCodeCreate = "/v1/device-authorizations"
+    const porticoLogin = "/v1/sessions"
+    const porticoMFA = "/v1/identity/mfa/complete"
     const porticoCodePoll = "/v1/device-authorizations/token"
     const porticoCodeCancel = "/v1/device-authorizations/cancel"
     const porticoRefresh = "/v1/sessions/refresh"

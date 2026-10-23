@@ -86,7 +86,7 @@ const values = {
   titleTextOffset: -(checkedFontMetrics(checked['apps/native/assets/manrope-800.ttf']) * size - size) / 2,
   titleTop: (1080 - size - titleGap - buttonHeight) / 2,
   buttonTop: (1080 - size - titleGap - buttonHeight) / 2 + size + titleGap,
-  buttonGap: pixels(buttons, 'gap'), buttonPadding: 38, buttonSize,
+  buttonGap: pixels(buttons, 'gap'), buttonPadding: 38, buttonSize, buttonIconGap: pixels(rule('.tv .btn'), 'gap'), buttonIconSize: 28,
   buttonLineHeight: Math.round(buttonSize * hhea), glassAlpha: 0.14,
 };
 // These declarations are read directly from the same immutable frame rules above.
@@ -102,6 +102,9 @@ const buttonRadius = pixels(rule('.tv .btn'), 'border-radius');
 if (!shadow || !glowColor || !ring) throw new Error('Missing TV focus shadow');
 const glassBorder = /inset 0 0 0 (\d+)px rgba\(237,245,250,([.\d]+)\)/.exec(rule('.glass'));
 if (!glassBorder) throw new Error('Missing glass inset edge');
+const danger = /background:\s*rgba\(243,139,136,([.\d]+)\)/.exec(rule('.tv .btn.danger'));
+if (!danger) throw new Error('Missing danger TV button rule');
+values.dangerAlpha = Number(danger[1]);
 values.glassBorderWidth = Number(glassBorder[1]); values.glassBorderAlpha = Number(glassBorder[2]);
 values.ringInset = Number(ring[1]);
 values.shadowMargin = Number(shadow[2]) * 2;
@@ -109,7 +112,9 @@ values.shadowOffset = Number(shadow[1]);
 const spread = Number(shadow[3]);
 // Keep the fixed corner regions narrower than either auth button. A negative stretch span
 // would move the outer-shadow knockout past the translucent button on a real nine-patch.
-const sampleWidth = buttonHeight * 3;
+// Cancel/Forget are narrower than the front-door actions. Keep both fixed regions within
+// the smallest drawn button, so the nine-patch never needs a negative centre span.
+const sampleWidth = buttonHeight;
 const patchWidth = sampleWidth + values.shadowMargin * 2;
 const patchHeight = buttonHeight + values.shadowMargin * 2;
 const shadowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${patchWidth + 2}" height="${patchHeight + 2}"><defs><filter id="b" x="-200%" y="-400%" width="500%" height="900%"><feGaussianBlur stdDeviation="${Number(shadow[2]) / 2}"/></filter><mask id="outside" maskUnits="userSpaceOnUse" x="0" y="0" width="${patchWidth + 2}" height="${patchHeight + 2}"><rect width="100%" height="100%" fill="white"/><rect x="${1 + values.shadowMargin}" y="${1 + values.shadowMargin - values.shadowOffset}" width="${sampleWidth}" height="${buttonHeight}" rx="${buttonRadius}" fill="black"/></mask></defs><rect x="${1 + values.shadowMargin - spread}" y="${1 + values.shadowMargin - spread}" width="${sampleWidth + spread * 2}" height="${buttonHeight + spread * 2}" rx="${Math.max(0, buttonRadius + spread)}" fill="rgb(${glowColor[1]},${glowColor[2]},${glowColor[3]})" fill-opacity="${glowColor[4]}" filter="url(#b)" mask="url(#outside)"/><rect x="${1 + patchWidth / 2}" y="0" width="1" height="1" fill="#000"/><rect x="0" y="${1 + patchHeight / 2}" width="1" height="1" fill="#000"/></svg>`;

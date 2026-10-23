@@ -1,6 +1,7 @@
 ' Run-time access to the generated theme: apps/native/src/ui/theme.ts (alpha, the palette lookup, the
 ' scaled type roles) and ui/Icon.tsx (which drawing an icon id names). Values come from
 ' ThemeTables.bs; nothing here declares a colour or a size.
+import "pkg:/source/ui/IdentityFrameMetrics.bs"
 
 ' theme.ts `alpha('#rrggbb', 0.4)`: the colour with its opacity replaced.
 function ColorAlpha(color as string, opacity as float) as string
@@ -130,7 +131,11 @@ end sub
 function IconUri(name as string, size as dynamic, bare = false as boolean) as string
     if m.styleIconSizes = invalid then m.styleIconSizes = ThemeIconSizes()
     if m.styleIconIds = invalid then m.styleIconIds = ThemeIconIds()
-    if m.styleIconIds[name] = invalid then return ""
+    if m.styleIconIds[name] = invalid then
+        additions = IdentityFrameIconPaths()
+        if additions[name] <> invalid then return additions[name]
+        return ""
+    end if
     chosen = m.styleIconSizes[m.styleIconSizes.count() - 1]
     for each candidate in m.styleIconSizes
         if candidate >= size then

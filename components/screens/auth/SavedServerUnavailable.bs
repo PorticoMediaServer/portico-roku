@@ -112,6 +112,7 @@ sub onSavedLayout()
     end if
     m.help.maxWidth = width - Theme.space.lg * 2
     m.help.value = T("savedServer.help")
+    if recovery <> invalid and recovery.certificateUnsupported = true then m.help.value = T("connection.certificate.unsupported")
     ' The surface: padded by Theme.space.lg, its two lines centred, Theme.space.md apart.
     pad = Theme.space.lg
     statusWidth = TextWidth(m.status)

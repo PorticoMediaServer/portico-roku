@@ -1,0 +1,75 @@
+import "pkg:/source/core/IdentityRecovery.bs"
+
+sub Test_IdentityRecovery_forgetIsLocalAndKeepsOtherServers()
+    ctx = TestContext()
+    first = AccountTestBinding(ctx, "local")
+    other = AccountTestBinding(ctx, "local", true)
+    recovery = IdentityRecovery(ctx, first.record, "changed", "restore")
+    AssertEqual(recovery.accessToken, invalid)
+    AssertEqual(recovery.session, invalid)
+    before = SessionRevision(ctx)
+    forgotten = IdentityRecoveryForget(ctx, recovery)
+    AssertTrue(forgotten.ok)
+    AssertEqual(SessionRecord(ctx, first.connection.pin.serverId), invalid)
+    AssertEqual(SessionRecord(ctx)["pin"].serverId, other.connection.pin.serverId)
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, other.session.sessionFamilyId)
+    AssertEqual(ctx.transport.requests.count(), 0, "Forget never contacts the answering address or Hosted")
+    AssertEqual(SessionRevision(ctx), before + 1, "late admissions are fenced")
+end sub
+
+sub Test_IdentityRecovery_staleFamilyOrSelectionCannotForgetOrRetry()
+    ctx = TestContext()
+    old = AccountTestBinding(ctx, "local")
+    recovery = IdentityRecovery(ctx, old.record, "changed", "restore")
+    replacement = TestSessionJson(ctx, "viewer")
+    replacement.sessionFamilyId = "new-family"
+    AssertTrue(SessionAccept(ctx, old.connection, replacement).ok)
+    AssertEqual(IdentityRecoveryForget(ctx, recovery).ok, false)
+    AssertEqual(IdentityRecoveryRetry(ctx, recovery).ok, false)
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, "new-family")
+    AssertEqual(ctx.transport.requests.count(), 0)
+    recovery = IdentityRecovery(ctx, SessionRecord(ctx), "changed", "restore")
+    SessionAdvance(ctx)
+    AssertEqual(IdentityRecoveryForget(ctx, recovery).ok, false)
+    AssertEqual(IdentityRecoveryRetry(ctx, recovery).ok, false)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_IdentityRecovery_porticoAndUnconfirmedHaveNoForgetAuthority()
+    ctx = TestContext()
+    local = AccountTestBinding(ctx, "local")
+    unconfirmed = IdentityRecovery(ctx, local.record, "unconfirmed", "restore")
+    AssertEqual(IdentityRecoveryForget(ctx, unconfirmed).ok, false)
+    AssertTrue(SessionRecord(ctx) <> invalid)
+    HostedSave(ctx, TestGrant())
+    portico = AccountTestBinding(ctx, "portico", true)
+    recovery = IdentityRecovery(ctx, portico.record, "changed", "restore")
+    AssertEqual(recovery.kind, "unconfirmed")
+    AssertEqual(IdentityRecoveryForget(ctx, recovery).ok, false)
+    AssertTrue(SessionRecord(ctx, portico.connection.pin.serverId) <> invalid)
+    AssertEqual(ctx.transport.requests.count(), 0)
+end sub
+
+sub Test_IdentityRecovery_onlyFreshSignedDifferentIdentityIsChanged()
+    ctx = TestContext()
+    saved = AccountTestBinding(ctx, "local")
+    fixture = Identity38Fixture()
+    ctx.nonce = fixture.nonce
+    ctx.now = fixture.now
+    TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.cases[0].answer)
+    result = SessionRestore(ctx)
+    AssertEqual(result.state, "changed")
+    AssertEqual(result.failure.differentServer, true)
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ctx.transport.requests[0].headers.Authorization, invalid)
+    for each index in [12, 14]
+        ctx.transport.answers.clear()
+        TestAnswer(ctx, "POST", ctx.base + "/v1/networking/identity-proof", 200, fixture.cases[index].answer)
+        ctx.nonce = fixture.cases[index].nonce
+        rejected = SessionRestore(ctx)
+        AssertTrue(rejected.state <> "changed", "a tampered/expired proof cannot claim a different server answered")
+        AssertEqual(rejected.failure.differentServer, false)
+    end for
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, saved.session.sessionFamilyId)
+    AssertEqual(TestRequests(ctx, "GET", ctx.base + "/v1/me").count(), 0)
+end sub

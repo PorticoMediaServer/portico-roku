@@ -59,6 +59,10 @@ sub onButtonLayout()
     if m.top.authAppearance then padX = AuthFrameMetrics.buttonPadding
     if iconOnly then padX = 0
     gap = m.spec.gap
+    if m.top.authAppearance then
+        gap = AuthFrameMetrics.buttonIconGap
+        iconSize = AuthFrameMetrics.buttonIconSize
+    end if
 
     hasIcon = m.top.icon <> "" or m.top.loading
     m.labelNode.visible = not iconOnly
@@ -172,7 +176,9 @@ sub onButtonStyle()
     fill = fills[state]
     if m.top.authAppearance then
         fill = { background: "text", foreground: "ink" }
-        if ButtonVariant() <> "primary" then
+        if ButtonVariant() = "destructive" then
+            fill = { background: "danger", backgroundAlpha: AuthFrameMetrics.dangerAlpha, foreground: "danger" }
+        else if ButtonVariant() <> "primary" then
             fill = { background: "text", backgroundAlpha: AuthFrameMetrics.glassAlpha, foreground: "text" }
             if not m.top.isFocused then
                 fill.border = "text"

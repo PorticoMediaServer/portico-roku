@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Immutable server-identity.html frames3/4, with the unconfirmed state from connect5c. -->
+<component name="ScreenServerIdentity" extends="Group">
+    <interface>
+        <function name="enter" />
+        <function name="leave" />
+        <function name="back" />
+    </interface>
+</component>

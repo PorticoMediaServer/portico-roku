@@ -1,0 +1,42 @@
+' The drawn identity recovery holds an exact saved Local family, never a bearer. Forget is
+' deliberately separate from sign-out: the answering address receives no request at all.
+import "pkg:/source/core/Session.bs"
+
+function IdentityRecovery(ctx as object, record as dynamic, kind as string, source as string, origin = "" as string) as dynamic
+    if not IsObject(record) then return invalid
+    if kind <> "changed" and kind <> "unconfirmed" then return invalid
+    if source <> "connect" and source <> "restore" then return invalid
+    if kind = "changed" and record["signIn"] <> "local" then kind = "unconfirmed"
+    if origin = "" then origin = record["logicalOrigin"]
+    name = ""
+    if IsString(record["serverName"]) then name = record["serverName"]
+    return { kind: kind, source: source, origin: origin, savedOrigin: record["logicalOrigin"], serverId: record["pin"].serverId, serverName: name, familyId: record["session"].sessionFamilyId, revision: SessionRevision(ctx) }
+end function
+
+function IdentityRecoveryCurrent(ctx as object, recovery as dynamic) as dynamic
+    if not IsObject(recovery) or not IsNatural(recovery.revision) then return invalid
+    if not IsText(recovery.serverId, 256) or not IsText(recovery.familyId, 256) or not IsText(recovery.savedOrigin, 2048) or not IsText(recovery.origin, 2048) then return invalid
+    if recovery.revision <> SessionRevision(ctx) then return invalid
+    record = SessionRecord(ctx, recovery.serverId)
+    if record = invalid then return invalid
+    if record["session"].sessionFamilyId <> recovery.familyId or record["logicalOrigin"] <> recovery.savedOrigin then return invalid
+    return record
+end function
+
+function IdentityRecoveryRetry(ctx as object, recovery as dynamic) as object
+    record = IdentityRecoveryCurrent(ctx, recovery)
+    if record = invalid then return SessionFailure("stale_continuation")
+    if recovery.source = "connect" then return SessionConnect(ctx, recovery.origin)
+    if recovery.source = "restore" then return SessionSelect(ctx, recovery.serverId)
+    return SessionFailure("invalid_request")
+end function
+
+function IdentityRecoveryForget(ctx as object, recovery as dynamic) as object
+    record = IdentityRecoveryCurrent(ctx, recovery)
+    if record = invalid then return SessionFailure("stale_continuation")
+    if recovery.kind <> "changed" or record["signIn"] <> "local" then return SessionFailure("invalid_request")
+    SessionAdvance(ctx)
+    SessionForget(ctx, record["pin"].serverId)
+    if SessionRecord(ctx, record["pin"].serverId) <> invalid then return SessionFailure("persistence_error")
+    return { ok: true, serverId: record["pin"].serverId }
+end function

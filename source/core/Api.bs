@@ -119,6 +119,7 @@ function ApiRequest(api as object, path as string, method = "GET" as string, bod
         ' No response: the codes the presentation layer knows a dropped connection and a timeout by.
         code = "network"
         if response.failure = "timeout" then code = "timeout"
+        if response.failure = "certificate_unsupported" then code = "certificate_unsupported"
         return { ok: false, status: 0, error: { status: 0, code: code, message: response.failure, retryable: true } }
     end if
     code = "request_failed"

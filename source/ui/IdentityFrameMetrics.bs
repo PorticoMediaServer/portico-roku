@@ -1,0 +1,59 @@
+' Generated from 69f2d45a972ff9ec1bd8743c760183026c92d555:design/ui-v1/server-identity.html, frames3/4.
+namespace IdentityFrameMetrics
+    const width = 1340
+    const left = 200
+    const circle = 88
+    const circleGap = 34
+    const iconSize = 40
+    const titleSize = 80
+    const titleGap = 24
+    const titleTracking = -0.045
+    const bodyWidth = 900
+    const bodySize = 28
+    const bodyLineHeight = 1.45
+    const bodyGap = 40
+    const actionGap = 28
+    const dialogWidth = 1000
+    const dialogRadius = 30
+    const dialogTop = 56
+    const dialogSide = 60
+    const dialogBottom = 52
+    const dialogTitle = 48
+    const dialogTracking = -0.035
+    const dialogTitleGap = 16
+    const dialogBodyGap = 34
+    const dialogActionGap = 18
+    const scrim = "0x03080CA8"
+    const circleAlpha = 0.1
+    const circleBorderAlpha = 0.12
+    const dialogBorder = 1.5
+    const dialogBorderAlpha = 0.12
+    const railWidth = 260
+    const railLeft = 72
+    const railTop = 58
+    const railBottom = 56
+    const brandInset = 16
+    const brandWidth = 28
+    const brandHeight = 40
+    const brandGap = 64
+    const railItem = 64
+    const railIcon = 30
+    const railIconInset = 17
+    const railBarWidth = 4
+    const railBarHeight = 28
+    const railBarOffset = 16
+    const railBarTop = 18
+    const buttonIcon = 28
+    const titleOffsetRatio = -0.18300000000000005
+    const bodyLineSpacing = 2.3519999999999968
+    const bodyLeading = 1.1759999999999984
+    const shadowOffset = 80
+    const shadowBlur = 160
+    const shadowSpread = -40
+    const shadowMargin = 320
+    const shadowMaxLines = 12
+end namespace
+
+function IdentityFrameIconPaths() as object
+    return {"shieldx":"pkg:/images/icons/identity-shieldx-40.png","retry":"pkg:/images/icons/identity-retry-28.png","identityHome":"pkg:/images/icons/identity-home-30.png","identitySettings":"pkg:/images/icons/identity-settings-30.png","identityServer":"pkg:/images/icons/identity-server-28.png","identityQuestion":"pkg:/images/icons/identity-question-40.png"}
+end function

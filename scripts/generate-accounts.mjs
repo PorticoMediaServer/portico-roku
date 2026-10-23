@@ -98,6 +98,8 @@ const routes = {
   porticoConsentReview: route(hosted, 'device_authorization_review'),
   porticoConsentDecision: route(hosted, 'device_authorization_decide'),
   porticoCodeCreate: route(hosted, 'device_authorization_create'),
+  porticoLogin: route(hosted, 'session_create'),
+  porticoMFA: route(hosted, 'identity_mfa_complete'),
   porticoCodePoll: route(hosted, 'device_authorization_token'),
   porticoCodeCancel: route(hosted, 'device_authorization_cancel'),
   porticoRefresh: route(hosted, 'session_refresh'),

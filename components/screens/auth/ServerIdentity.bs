@@ -1,0 +1,230 @@
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/IdentityFrameMetrics.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/core/Messages.bs"
+
+sub init()
+    m.session = m.global.session
+    backdrop = m.top.createChild("Poster")
+    backdrop.uri = "pkg:/images/gradients/auth-left.png"
+    backdrop.width = Theme.screen.width
+    backdrop.height = Theme.screen.height
+    m.content = m.top.createChild("Group")
+    m.content.id = "identity:content"
+    m.circle = m.content.createChild("Poster")
+    m.circleBorder = m.content.createChild("Poster")
+    m.icon = m.content.createChild("Poster")
+    m.title = m.content.createChild("IdentityHeading")
+    m.title.id = "identity:title"
+    m.title.textSize = IdentityFrameMetrics.titleSize
+    m.title.tracking = IdentityFrameMetrics.titleSize * IdentityFrameMetrics.titleTracking
+    m.title.maxWidth = IdentityFrameMetrics.width
+    m.body = IdentityBody(m.content, IdentityFrameMetrics.bodyWidth)
+    m.body.id = "identity:body"
+    m.actions = m.content.createChild("Group")
+    m.retry = IdentityButton(m.actions, "identity:retry", T("action.tryAgain"), "primary", "retry")
+    m.retry.observeField("pressed", "onIdentityRetry")
+    m.choose = IdentityButton(m.actions, "identity:choose", T("portico.landing.chooseAnother"), "secondary", "identityServer")
+    m.choose.observeField("pressed", "onIdentityChoose")
+    m.forget = IdentityButton(m.actions, "identity:forget", "", "secondary", "")
+    m.forget.observeField("pressed", "onIdentityAskForget")
+    IdentityRail()
+    m.overlay = m.top.createChild("Group")
+    scrim = MakeRect(m.overlay, Theme.screen.width, Theme.screen.height, IdentityFrameMetrics.scrim)
+    m.dialog = m.overlay.createChild("Group")
+    m.dialog.id = "identity:dialog"
+    m.dialogShadow = m.dialog.createChild("Poster")
+    m.dialogFill = m.dialog.createChild("Poster")
+    m.dialogBorder = m.dialog.createChild("Poster")
+    m.dialogTitle = m.dialog.createChild("IdentityHeading")
+    m.dialogTitle.textSize = IdentityFrameMetrics.dialogTitle
+    m.dialogTitle.lineHeight = IdentityFrameMetrics.dialogTitle * (1 - IdentityFrameMetrics.titleOffsetRatio * 2)
+    m.dialogTitle.tracking = IdentityFrameMetrics.dialogTitle * IdentityFrameMetrics.dialogTracking
+    m.dialogTitle.maxWidth = IdentityFrameMetrics.dialogWidth - IdentityFrameMetrics.dialogSide * 2
+    m.dialogBody = IdentityBody(m.dialog, m.dialogTitle.maxWidth)
+    m.dialogActions = m.dialog.createChild("Group")
+    m.confirm = IdentityButton(m.dialogActions, "identity:confirm", T("connection.identity.forgetAction"), "destructive", "")
+    m.confirm.observeField("pressed", "onIdentityForget")
+    m.cancel = IdentityButton(m.dialogActions, "identity:cancel", T("action.cancel"), "secondary", "")
+    m.cancel.observeField("pressed", "onIdentityCancel")
+    m.overlay.visible = false
+    m.session.observeField("busy", "onIdentityBusy")
+    m.session.observeField("recovery", "onIdentityLayout")
+end sub
+
+function IdentityBody(parent as object, width as float) as object
+    node = MakeText(parent, "body", "secondary")
+    node.lines = 0
+    node.maxWidth = width
+    node.sizeOverride = IdentityFrameMetrics.bodySize
+    node.lineHeightOverride = IdentityFrameMetrics.bodySize * IdentityFrameMetrics.bodyLineHeight
+    node.lineSpacing = IdentityFrameMetrics.bodyLineSpacing
+    return node
+end function
+
+function IdentityBodyText(node as object, value as string) as float
+    node.height = 0
+    node.value = value
+    lineHeight = IdentityFrameMetrics.bodySize * IdentityFrameMetrics.bodyLineHeight
+    lines = Int((TextHeight(node) + lineHeight - 1) / lineHeight)
+    if node.hasField("wrappedLines") and node.wrappedLines > 0 then lines = node.wrappedLines
+    node.height = lines * lineHeight
+    return node.height
+end function
+
+function IdentityButton(parent as object, id as string, label as string, variant as string, icon as string) as object
+    node = parent.createChild("UiButton")
+    node.id = id
+    node.authAppearance = true
+    node.size = "lg"
+    node.variant = variant
+    node.label = label
+    node.icon = icon
+    return node
+end function
+
+sub IdentityRail()
+    rail = m.top.createChild("Poster")
+    rail.uri = "pkg:/images/gradients/identity-rail.png"
+    rail.width = IdentityFrameMetrics.railWidth
+    rail.height = Theme.screen.height
+    clip = m.top.createChild("Group")
+    clip.clippingRect = [0, 0, IdentityFrameMetrics.brandWidth, IdentityFrameMetrics.brandHeight]
+    Place(clip, IdentityFrameMetrics.railLeft + IdentityFrameMetrics.brandInset, IdentityFrameMetrics.railTop)
+    mark = clip.createChild("Poster")
+    mark.uri = "pkg:/images/brand/wordmark.png"
+    mark.width = IdentityFrameMetrics.brandHeight * Theme.apple.wordmarkAspect
+    mark.height = IdentityFrameMetrics.brandHeight
+    x = IdentityFrameMetrics.railLeft + IdentityFrameMetrics.railIconInset
+    y = IdentityFrameMetrics.railTop + IdentityFrameMetrics.brandHeight + IdentityFrameMetrics.brandGap
+    home = MakeIcon(m.top, "identityHome", IdentityFrameMetrics.railIcon, Theme.colors.text)
+    Place(home, x, y + IdentityFrameMetrics.railIconInset)
+    bar = MakeShape(m.top, IdentityFrameMetrics.railBarWidth, IdentityFrameMetrics.railBarHeight, IdentityFrameMetrics.railBarWidth / 2, Theme.colors.accent)
+    Place(bar, IdentityFrameMetrics.railLeft - IdentityFrameMetrics.railBarOffset, y + IdentityFrameMetrics.railBarTop)
+    settings = MakeIcon(m.top, "identitySettings", IdentityFrameMetrics.railIcon, Theme.colors.textTertiary)
+    Place(settings, x, Theme.screen.height - IdentityFrameMetrics.railBottom - IdentityFrameMetrics.railItem + IdentityFrameMetrics.railIconInset)
+end sub
+
+sub enter()
+    onIdentityLayout()
+    FocusOn(m.retry)
+end sub
+
+sub leave()
+    m.overlay.visible = false
+end sub
+
+sub onIdentityLayout()
+    recovery = m.session.recovery
+    if recovery = invalid then return
+    changed = recovery.kind = "changed"
+    name = recovery.serverName
+    m.title.value = T("portico.failure.identity.title", { server: name })
+    body = T("portico.failure.identity.body")
+    if changed then body = T("connection.identity.changedBody")
+    bodyHeight = IdentityBodyText(m.body, body)
+    m.forget.label = T("connection.identity.forget", { server: name })
+    m.forget.visible = changed
+    m.forget.focusable = changed
+    StyleShape(m.circle, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle / 2, ColorAlpha(Theme.colors.text, IdentityFrameMetrics.circleAlpha))
+    StyleRing(m.circleBorder, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle / 2, 1, ColorAlpha(Theme.colors.text, IdentityFrameMetrics.circleBorderAlpha))
+    icon = "shieldx"
+    tone = Theme.colors.record
+    if not changed then
+        icon = "identityQuestion"
+        tone = Theme.colors.text
+    end if
+    StyleIcon(m.icon, icon, IdentityFrameMetrics.iconSize, tone)
+    Place(m.icon, (IdentityFrameMetrics.circle - IdentityFrameMetrics.iconSize) / 2, (IdentityFrameMetrics.circle - IdentityFrameMetrics.iconSize) / 2)
+    y = IdentityFrameMetrics.circle + IdentityFrameMetrics.circleGap
+    Place(m.title, 0, y)
+    y = y + m.title.contentHeight + IdentityFrameMetrics.titleGap
+    Place(m.body, 0, y + IdentityFrameMetrics.bodyLeading)
+    y = y + bodyHeight + IdentityFrameMetrics.bodyGap
+    Place(m.actions, 0, y)
+    x = m.retry.controlWidth + IdentityFrameMetrics.actionGap
+    Place(m.choose, x, 0)
+    x = x + m.choose.controlWidth + IdentityFrameMetrics.actionGap
+    Place(m.forget, x, 0)
+    Place(m.content, IdentityFrameMetrics.left, (Theme.screen.height - y - m.retry.controlHeight) / 2)
+    onIdentityBusy()
+end sub
+
+sub onIdentityBusy()
+    if m.retry = invalid then return
+    m.retry.busy = m.session.busy
+    m.confirm.busy = m.session.busy
+end sub
+
+sub onIdentityRetry()
+    m.session.callFunc("retryIdentity")
+end sub
+
+sub onIdentityChoose()
+    m.session.callFunc("useElsewhere")
+end sub
+
+sub onIdentityAskForget()
+    recovery = m.session.recovery
+    if recovery = invalid or recovery.kind <> "changed" then return
+    m.dialogTitle.value = T("connection.identity.forgetTitle", { server: recovery.serverName })
+    bodyHeight = IdentityBodyText(m.dialogBody, T("connection.identity.forgetBody"))
+    y = IdentityFrameMetrics.dialogTop
+    Place(m.dialogTitle, IdentityFrameMetrics.dialogSide, y)
+    y = y + m.dialogTitle.contentHeight + IdentityFrameMetrics.dialogTitleGap
+    Place(m.dialogBody, IdentityFrameMetrics.dialogSide, y + IdentityFrameMetrics.bodyLeading)
+    y = y + bodyHeight + IdentityFrameMetrics.dialogBodyGap
+    Place(m.dialogActions, IdentityFrameMetrics.dialogSide, y)
+    Place(m.cancel, m.confirm.controlWidth + IdentityFrameMetrics.dialogActionGap, 0)
+    height = y + m.confirm.controlHeight + IdentityFrameMetrics.dialogBottom
+    StyleShape(m.dialogFill, IdentityFrameMetrics.dialogWidth, height, IdentityFrameMetrics.dialogRadius, Theme.colors.raised)
+    m.dialogBorder.uri = "pkg:/images/shapes/identity-dialog-border.9.png"
+    m.dialogBorder.width = IdentityFrameMetrics.dialogWidth
+    m.dialogBorder.height = height
+    m.dialogBorder.blendColor = ColorAlpha(Theme.colors.text, IdentityFrameMetrics.dialogBorderAlpha)
+    titleLines = Int(m.dialogTitle.contentHeight / m.dialogTitle.lineHeight + 0.5)
+    titleLines = Min(IdentityFrameMetrics.shadowMaxLines, Max(1, titleLines))
+    m.dialogShadow.uri = "pkg:/images/shapes/identity-dialog-shadow-" + titleLines.toStr() + ".png"
+    m.dialogShadow.width = IdentityFrameMetrics.dialogWidth + IdentityFrameMetrics.shadowMargin * 2
+    m.dialogShadow.height = height + IdentityFrameMetrics.shadowMargin * 2
+    Place(m.dialogShadow, -IdentityFrameMetrics.shadowMargin, -IdentityFrameMetrics.shadowMargin)
+    Place(m.dialog, (Theme.screen.width - IdentityFrameMetrics.dialogWidth) / 2, (Theme.screen.height - height) / 2)
+    m.actions.visible = true
+    m.overlay.visible = true
+    FocusOn(m.cancel)
+end sub
+
+sub onIdentityCancel()
+    m.overlay.visible = false
+    FocusOn(m.forget)
+end sub
+
+sub onIdentityForget()
+    m.session.callFunc("forgetIdentity")
+end sub
+
+function back() as boolean
+    if m.overlay.visible then
+        onIdentityCancel()
+        return true
+    end if
+    return false
+end function
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if key = "back" then
+        if press then return back()
+        return m.overlay.visible
+    end if
+    direction = FocusDirection(key)
+    if direction = "" then return false
+    if press then
+        root = m.actions
+        if m.overlay.visible then root = m.dialogActions
+        FocusMove(root, direction)
+    end if
+    return true
+end function

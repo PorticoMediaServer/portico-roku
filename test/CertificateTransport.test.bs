@@ -1,0 +1,58 @@
+import "pkg:/source/core/Http.bs"
+import "pkg:/source/core/Session.bs"
+import "pkg:/source/core/Errors.bs"
+
+' Independently authored against the SDK's numeric roUrlEvent table. Generic SSL errors
+' and local CA-file failures must not claim to identify an owner's self-signed certificate.
+sub Test_CertificateTransport_sdkCodesKeepThePlatformBoundary()
+    for each status in [-51, -60]
+        AssertEqual(HttpFailureCode("https://media.example.com", status), "certificate_unsupported")
+        AssertEqual(HttpFailureCode("HTTPS://media.example.com", status), "certificate_unsupported")
+        AssertEqual(HttpFailureCode("http://192.168.1.20:32500", status), "network")
+    end for
+    AssertEqual(HttpFailureCode("https://media.example.com", -28), "timeout")
+    for each status in [-7, -35, -58, -77, -80]
+        AssertEqual(HttpFailureCode("https://media.example.com", status), "network")
+    end for
+end sub
+
+function TestCertificateTransportSend(request as object) as object
+    m.transport.requests.push(request)
+    return { status: 0, headers: {}, body: "", failure: "certificate_unsupported" }
+end function
+
+sub Test_CertificateTransport_firstContactSendsOnlyTheProofAndNoFallback()
+    ctx = TestContext()
+    ctx.send = TestCertificateTransportSend
+    result = SessionConnect(ctx, "https://media.example.com")
+    AssertEqual(result.ok, false)
+    AssertEqual(result.failure.code, "certificate_unsupported")
+    AssertEqual(result.failure.shown, "connection.certificate.unsupported")
+    AssertEqual(ctx.transport.requests.count(), 1)
+    sent = ctx.transport.requests[0]
+    AssertEqual(sent.url, "https://media.example.com/v1/networking/identity-proof")
+    AssertEqual(sent.method, "POST")
+    AssertEqual(sent.headers.Authorization, invalid)
+    AssertEqual(SessionRecords(ctx).count(), 0)
+    AssertEqual(SignInMessageFacts(result.failure).messageId, "connection.certificate.unsupported")
+end sub
+
+sub Test_CertificateTransport_savedFamilyIsRetainedWithoutARequestWithCredentials()
+    ctx = TestContext()
+    bound = AccountTestBinding(ctx, "local")
+    record = bound.record
+    record["logicalOrigin"] = "https://media.example.com"
+    StoreWriteJson(ctx.store, SessionRecordSection(record["pin"].serverId), "record", record)
+    ctx.transport.requests.clear()
+    ctx.send = TestCertificateTransportSend
+    result = SessionRestore(ctx)
+    AssertEqual(result.state, "offline")
+    AssertEqual(result.failure.code, "certificate_unsupported")
+    AssertEqual(result.failure.shown, "connection.certificate.unsupported")
+    AssertEqual(result.failure.differentServer, invalid, "TLS rejection cannot claim a verified changed identity")
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, bound.session.sessionFamilyId)
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ctx.transport.requests[0].headers.Authorization, invalid)
+    AssertEqual(ctx.transport.requests[0].url, "https://media.example.com/v1/networking/identity-proof")
+    AssertEqual(ClassifyPorticoFailure(result.failure, "route", ErrorCategory(result.failure.code, 0)), "unreachable")
+end sub

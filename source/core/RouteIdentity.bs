@@ -189,10 +189,14 @@ function RouteProofCheck(answer as dynamic, baseUrl as string, nonce as string, 
     end if
     actual = ServerPin(v.serverId, v.publicKey, v.fingerprint)
     if not actual.ok then return actual
-    if pin <> invalid and not SameServerPin(actual.pin, pin) then return RouteFailure("identity_mismatch", "This address belongs to a different server. No credentials were sent.")
     if not Ed25519Verify(Base64UrlDecode(actual.pin.publicKey, 32), signed.signature, signed.payload) then return RouteFailure("identity_mismatch", "The server could not prove its identity. No credentials were sent.")
     ' Keep Roku's strict UTC/freshness guard. Never report a clock failure for an unsigned body.
     if not RouteTimesValid(v, 30, atSeconds, false) then return RouteFailure("route_stale", "The connection evidence is expired or has an invalid clock.")
+    if pin <> invalid and not SameServerPin(actual.pin, pin) then
+        changed = RouteFailure("identity_mismatch", "This address belongs to a different server. No credentials were sent.")
+        changed.differentServer = true
+        return changed
+    end if
     ' These are signed server declarations, not this connection's observed TLS leaf. Ruling17
     ' keeps Roku on normal public CA/host validation and does not grant own-certificate trust.
     return { ok: true, pin: actual.pin, version: v.version }

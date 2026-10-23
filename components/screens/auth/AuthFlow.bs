@@ -19,6 +19,11 @@ sub init()
 end sub
 
 sub enter()
+    if m.session.connected and m.session.connection <> invalid and m.session.connection.signIn = "local" then
+        m.step = "direct"
+        m.directView = "code"
+        m.directStep = "address"
+    end if
     ' A sign-in that ended opens where it can be renewed: the direct form with the address filled in.
     if m.session.note <> "" and m.session.origin <> "" and not m.session.accountRequested then
         m.step = "direct"

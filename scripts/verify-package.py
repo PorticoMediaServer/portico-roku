@@ -60,10 +60,14 @@ payload = archive.read_bytes()
 digest = hashlib.sha256(payload).hexdigest()
 archive.with_suffix(".zip.sha256").write_text(f"{digest}  {archive.name}\n")
 lock = json.loads((root / "package-lock.json").read_text())
+source_commit = os.environ.get("PORTICO_SOURCE_COMMIT")
+if source_commit is None:
+    source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+assert re.fullmatch(r"[0-9a-f]{40}", source_commit), "Invalid exact source commit"
 metadata = {
     "format": "unsigned-roku-sideload-zip",
     "repository": os.environ.get("GITHUB_REPOSITORY", "PorticoMediaServer/portico-roku"),
-    "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
+    "commit": source_commit,
     "runUrl": f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}" if "GITHUB_RUN_ID" in os.environ else None,
     "node": subprocess.check_output(["node", "--version"], text=True).strip(),
     "tools": {name: lock["packages"][f"node_modules/{name}"]["version"] for name in ("brighterscript", "@rokucommunity/brs", "roku-deploy")},
