@@ -18,6 +18,7 @@ sub init()
     m.fill = m.control.createChild("Poster")
     m.border = m.control.createChild("Poster")
     m.valueNode = MakeText(m.control, Theme.spec.field.text)
+    m.valueMeasure = CreateObject("roSGNode", "Label")
     m.caret = m.control.createChild("Poster")
     m.caret.visible = false
     m.errorIcon = m.top.createChild("Poster")
@@ -48,7 +49,8 @@ sub onFieldLayout()
     m.control.ring = not m.top.tvAuth
     m.control.focusScale = Theme.apple.fieldFocusScale
     if m.top.tvAuth then
-        y = TVSignInMetrics.fieldLabelOffset
+        y = 0
+        if label <> "" then y = TVSignInMetrics.fieldLabelOffset
         height = TVSignInMetrics.fieldHeight
         radius = TVSignInMetrics.fieldRadius
         padding = TVSignInMetrics.fieldPadding
@@ -93,6 +95,15 @@ sub onFieldLayout()
         if m.top.secure then shown = String(Min(Len(value), Theme.apple.fieldSecureMax), "•")
         m.valueNode.tint = Theme.colors.text
     end if
+    if m.top.tvAuth then
+        font = CreateObject("roSGNode", "Font")
+        font.uri = "pkg:/fonts/manrope-600.ttf"
+        if value = "" then font.uri = "pkg:/fonts/manrope-500.ttf"
+        font.size = TVSignInMetrics.fieldSize
+        m.valueNode.font = font
+        m.valueMeasure.font = font
+        m.valueMeasure.text = shown
+    end if
     m.valueNode.maxWidth = width - padding * 2
     m.valueNode.value = shown
     Place(m.valueNode, padding, (height - m.valueNode.height) / 2)
@@ -101,7 +112,9 @@ sub onFieldLayout()
     if showCaret then
         StyleShape(m.caret, TVSignInMetrics.caretWidth, TVSignInMetrics.caretHeight, TVSignInMetrics.caretRadius, Theme.colors.accentStrong)
         valueWidth = 0
-        if value <> "" then valueWidth = TextWidth(m.valueNode)
+        ' The displayed label has a fixed clipping width. The caret follows the actual
+        ' live glyphs, not that box's right edge (including secure bullet metrics).
+        if value <> "" then valueWidth = TextWidth(m.valueMeasure)
         Place(m.caret, Min(width - padding, padding + valueWidth + TVSignInMetrics.caretGap), (height - TVSignInMetrics.caretHeight) / 2)
     end if
     y = y + height

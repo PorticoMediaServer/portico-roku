@@ -64,7 +64,7 @@ const metrics = {
   fieldLabelOffset: 34, fieldGap: 22, fieldBorder: 1.5, fieldFill: '0x0710189E',
   caretWidth: 3, caretHeight: 40, caretGap: 3, caretRadius: 2,
   actionGap: px(rule(auth, '.tvl .btns'), 'gap'), actionTop: 48,
-  termsBottom: 64, termsSize: 20, termsLineHeight: 30,
+  termsBottom: 64, termsSize: 20, termsLineHeight: 30, termsMarginBottom: 20,
   legalGap: 28,
   padRight: 260, padColumns: 3, padKeyWidth: 148, padKeyHeight: 118, padGap: 20, padRadius: 20, padSize: 48,
   padDeleteSize: 46,

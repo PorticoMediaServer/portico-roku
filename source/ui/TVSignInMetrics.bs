@@ -33,6 +33,7 @@ namespace TVSignInMetrics
     const termsBottom = 64
     const termsSize = 20
     const termsLineHeight = 30
+    const termsMarginBottom = 20
     const legalGap = 28
     const padRight = 260
     const padColumns = 3

@@ -19,7 +19,7 @@ sub init()
     mark.width = TVSignInMetrics.wordmarkHeight * Theme.apple.wordmarkAspect
     Place(mark, TVSignInMetrics.left, TVSignInMetrics.wordmarkTop)
     m.column = m.top.createChild("Group")
-    m.why = MakeText(m.column, "body")
+    m.why = MakeText(m.column, "bodyStrong")
     m.why.tint = Theme.colors.accentStrong
     m.why.sizeOverride = TVSignInMetrics.whySize
     m.why.lineHeightOverride = TVSignInMetrics.whyHeight

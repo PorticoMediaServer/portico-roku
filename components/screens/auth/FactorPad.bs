@@ -95,7 +95,7 @@ sub init()
     capWidth = Max(TVSignInMetrics.keyCapMin, TextWidth(capText) + TVSignInMetrics.keyCapPadding * 2)
     StyleRing(cap, capWidth, TVSignInMetrics.keyCapHeight, TVSignInMetrics.keyCapRadius, TVSignInMetrics.keyCapBorder, ColorAlpha(Theme.colors.text, TVSignInMetrics.keyCapBorderAlpha))
     Place(capText, TVSignInMetrics.keyCapPadding, 0)
-    explanation = MakeText(hint, "body", "secondary")
+    explanation = MakeText(hint, "bodyStrong", "secondary")
     explanation.value = T("next.auth.tv.deleteDigit")
     explanation.sizeOverride = TVSignInMetrics.termsSize
     explanation.lineHeightOverride = TVSignInMetrics.keyCapHeight
