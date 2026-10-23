@@ -38,6 +38,7 @@ const server=createServer((req,res)=>{
  res.setHeader('Cache-Control','no-store');
  const path=new URL(req.url,'http://127.0.0.1').pathname;
  if(path==='/'){res.setHeader('Content-Type','text/html');res.end(html);return;}
+ if(path==='/favicon.ico'){res.writeHead(204);res.end();return;}
  const file=files.get(path);
  if(!file){diagnostics.push('HTTP404 '+req.url);res.writeHead(404);res.end();return;}
  res.setHeader('Content-Type',file[1]);res.end(readFileSync(file[0]));
@@ -45,6 +46,29 @@ const server=createServer((req,res)=>{
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 let browser,page,failure;
 const diagnostics=[];
+async function settledCanvas(page){
+ let prior='',stable=0;
+ for(let attempt=0;attempt<50;attempt++){
+  const digest=await page.evaluate(async()=>{
+   const canvas=document.querySelector('#display');
+   const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',pixels)),b=>b.toString(16).padStart(2,'0')).join('');
+  });
+  stable=digest===prior?stable+1:0;
+  if(stable>=3)return;
+  prior=digest;await page.waitForTimeout(80);
+ }
+ throw new Error('Rendered identity state did not settle');
+}
+async function captureCanvas(page,name){
+ await settledCanvas(page);
+ const url=await page.evaluate(()=>new Promise(resolve=>document.querySelector('#display').toBlob(blob=>{
+  const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);
+ },'image/jpeg',.96)));
+ const bytes=Buffer.from(url.split(',')[1],'base64');
+ if(bytes.length<60000)throw new Error('Blank/incomplete identity framebuffer: '+bytes.length);
+ writeFileSync(join(output,name),bytes);
+}
 try{
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,headless:true,args:['--disable-dev-shm-usage']});
  const context=await browser.newContext({viewport:{width:1920,height:1080},deviceScaleFactor:1,locale:'en-US',colorScheme:'dark'});
@@ -63,20 +87,19 @@ try{
   for(let i=0;i<p.length;i+=4)if(p[i]>180&&p[i+1]>180&&p[i+2]>180)bright++;
   return bright>4000;
  },{},{timeout:60000});
- await page.screenshot({path:join(output,'identity-3.jpg'),type:'jpeg',quality:96});
+ await captureCanvas(page,'identity-3.jpg');
  for(const key of ['ArrowRight','ArrowRight','Enter']){
   await page.keyboard.press(key);
-  // Allow the worker's real remote-control queue and focus animation to complete a frame.
-  await page.waitForTimeout(180);
+  await settledCanvas(page);
  }
  await page.waitForFunction(()=>{
   const p=document.querySelector('#display').getContext('2d').getImageData(480,400,1,1).data;
   return p[1]>25&&p[2]>30;
  },{},{timeout:15000});
- await page.screenshot({path:join(output,'identity-4.jpg'),type:'jpeg',quality:96});
+ await captureCanvas(page,'identity-4.jpg');
  await page.keyboard.press('Escape');
  await page.waitForFunction(()=>document.querySelector('#display').getContext('2d').getImageData(480,400,1,1).data[1]<25,{},{timeout:15000});
- await page.screenshot({path:join(output,'identity-return.jpg'),type:'jpeg',quality:96});
+ await captureCanvas(page,'identity-return.jpg');
  const events=await page.evaluate(()=>window.engineEvents);
  for(const e of events)if(e.event==='debug'||e.setupError)diagnostics.push(JSON.stringify(e));
  console.log(fixtureLog+'Captured identity3/4/Back at1920x1080 in VPS Chromium; COMPONENT-ONLY, comparison still required.');
