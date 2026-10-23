@@ -1,5 +1,20 @@
 import "pkg:/source/core/TVSignIn.bs"
 
+sub Test_TVSignIn_sharedErrorsKeepLocalAndHostedAccountWordsSeparate()
+    globals = GetGlobalAA()
+    previous = globals.messageCatalogue
+    globals.messageCatalogue = {
+        "services.signin.credentials": "That username or email and password didn’t match a Portico Account. Check them and try again."
+        "web.signIn.error.credentials": "That username and password didn’t match an account on {server}. Check them and try again."
+        "web.signIn.error.code": "That code didn’t work. Enter the current code from your authenticator app, or a recovery code."
+    }
+    refused = { code: "invalid_credentials", status: 401 }
+    AssertEqual(TVSignInFailure(refused, "local", "Portico demo"), "That username and password didn’t match an account on Portico demo. Check them and try again.")
+    AssertEqual(TVSignInFailure(refused, "portico"), "That username or email and password didn’t match a Portico Account. Check them and try again.")
+    AssertEqual(TVSignInFailure({ code: "mfa_invalid", status: 401 }, "local", "Portico demo"), "That code didn’t work. Enter the current code from your authenticator app, or a recovery code.")
+    globals.messageCatalogue = previous
+end sub
+
 sub Test_TVSignIn_sixthDigitSubmitsOnceAndPlayPauseCanDelete()
     value = ""
     for each key in ["1", "2", "3", "4", "5"]
