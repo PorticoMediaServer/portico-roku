@@ -1,0 +1,226 @@
+import "pkg:/source/core/SignInStatus.bs"
+
+' Authored independently from the producer contract: no parser-generated golden.
+function StatusTestDocument() as object
+    return { "signIn": "local", "owner": { "accountId": "owner_1", "username": "justin", "displayName": "Justin" }, "move": invalid, "webPath": "/settings?scope=server&section=signin" }
+end function
+
+function StatusTestMove() as object
+    return { "id": "move_1", "from": "portico", "to": "local", "startOver": false, "stage": "moving_to_local", "revision": 2, "people": 4, "profiles": 7, "invitations": 1, "waiting": 3, "devices": 6, "serverName": "Den", "ownAddressRequired": true }
+end function
+
+sub Test_SignInStatus_validCopyAndExplicitNoMove()
+    raw = StatusTestDocument()
+    parsed = ParseSignInStatus(raw)
+    AssertTrue(parsed.ok)
+    AssertEqual(parsed.settings.owner.username, "justin")
+    AssertEqual(parsed.settings.move, invalid)
+    raw.owner.username = "changed"
+    AssertEqual(parsed.settings.owner.username, "justin", "the result does not retain a mutable response object")
+    raw = StatusTestDocument()
+    raw.owner.displayName = ""
+    raw.owner.email = "justin@example.com"
+    raw.move = StatusTestMove()
+    parsed = ParseSignInStatus(raw)
+    AssertTrue(parsed.ok)
+    AssertEqual(parsed.settings.move.waiting, 3)
+    AssertEqual(parsed.settings.move.devices, 6)
+    AssertEqual(parsed.settings.owner.email, "justin@example.com")
+    raw.move.waiting = 0
+    AssertEqual(parsed.settings.move.waiting, 3)
+end sub
+
+sub Test_SignInStatus_exactWebPathAndOwnerFields()
+    for each field in ["signIn", "owner", "move", "webPath"]
+        raw = StatusTestDocument()
+        raw.delete(field)
+        AssertEqual(ParseSignInStatus(raw).ok, false, "missing " + field)
+    end for
+    for each path in ["/settings", "/settings?section=signin&scope=server", "https://other.example/settings?scope=server&section=signin", "/settings?scope=server&section=signin#code"]
+        raw = StatusTestDocument()
+        raw.webPath = path
+        AssertEqual(ParseSignInStatus(raw).ok, false, "producer path is not a redirect or a guessed URL")
+    end for
+    for each kind in ["hosted", "LOCAL", false, {}]
+        raw = StatusTestDocument()
+        raw.signIn = kind
+        AssertEqual(ParseSignInStatus(raw).ok, false)
+    end for
+    for each field in ["accountId", "username", "displayName", "email"]
+        raw = StatusTestDocument()
+        raw.owner[field] = invalid
+        AssertEqual(ParseSignInStatus(raw).ok, false)
+        raw.owner[field] = String(255, "x")
+        AssertEqual(ParseSignInStatus(raw).ok, false)
+    end for
+end sub
+
+sub Test_SignInStatus_unicodeNamesWithoutControlOrFormatCharacters()
+    for each name in ["Élodie", "王", "أحمد", "Sam 😀"]
+        raw = StatusTestDocument()
+        raw.owner.displayName = name
+        AssertTrue(ParseSignInStatus(raw).ok, "ordinary Unicode remains allowed")
+    end for
+    for each point in [8, 31, 127, 159, 173, 1564, 8207, 8238, 65279]
+        raw = StatusTestDocument()
+        raw.owner.displayName = "Sam" + Chr(point)
+        AssertEqual(ParseSignInStatus(raw).ok, false, "canonical Cc/Cf rejection")
+    end for
+end sub
+
+sub Test_SignInStatus_moveStageCountAndStartOverBoundaries()
+    for each stage in ["preview", "moving_to_local", "complete", "cancelled"]
+        raw = StatusTestDocument()
+        raw.move = StatusTestMove()
+        raw.move.stage = stage
+        AssertTrue(ParseSignInStatus(raw).ok)
+    end for
+    raw = StatusTestDocument()
+    raw.signIn = "portico"
+    raw.move = StatusTestMove()
+    AssertEqual(ParseSignInStatus(raw).ok, false, "committed kind agrees with active move")
+    raw.move.from = "local"
+    raw.move.to = "portico"
+    raw.move.stage = "moving_to_portico"
+    raw.move.ownAddressRequired = false
+    AssertTrue(ParseSignInStatus(raw).ok)
+    raw.move.stage = "moving_to_local"
+    AssertEqual(ParseSignInStatus(raw).ok, false)
+    for each field in ["people", "profiles", "invitations", "waiting", "devices", "revision"]
+        for each value in [-1, 1.5, "2", true, invalid, 9007199254740992#]
+            raw = StatusTestDocument()
+            raw.move = StatusTestMove()
+            raw.move[field] = value
+            AssertEqual(ParseSignInStatus(raw).ok, false, "invalid " + field)
+        end for
+    end for
+    raw = StatusTestDocument()
+    raw.move = StatusTestMove()
+    raw.move.waiting = 5
+    AssertEqual(ParseSignInStatus(raw).ok, false)
+    raw.move = StatusTestMove()
+    raw.move.revision = 0
+    AssertEqual(ParseSignInStatus(raw).ok, false)
+    raw.move = StatusTestMove()
+    raw.move.startOver = true
+    AssertEqual(ParseSignInStatus(raw).ok, false, "start over must omit device count")
+    raw.move.delete("devices")
+    AssertTrue(ParseSignInStatus(raw).ok)
+    raw.move.startOver = false
+    AssertEqual(ParseSignInStatus(raw).ok, false, "guided move must report real device count")
+end sub
+
+function StatusTestReader(ctx as object) as object
+    session = TestSessionJson(ctx, "owner")
+    caps = { manageAccount: true, managePeople: true, manageServer: true, manageSignIn: true }
+    accepted = SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx), signIn: "local", serverName: "Den" }, session, { capabilities: caps })
+    AssertTrue(accepted.ok)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId })
+    return ReadOnlySignInNew(ctx, binding)
+end function
+
+sub Test_SignInStatus_transportCapturedReadOnlyRoute()
+    ctx = TestContext()
+    reader = StatusTestReader(ctx)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/admin/sign-in", 200, StatusTestDocument())
+    AssertTrue(reader.read().ok)
+    AssertEqual(ctx.transport.requests.count(), 1)
+    request = ctx.transport.requests[0]
+    AssertEqual(request.method, "GET")
+    AssertEqual(request.url, ctx.base + "/v1/admin/sign-in")
+    AssertEqual(request.body, invalid, "read-only request has no mutation body")
+    AssertEqual(request.headers.Authorization, "Bearer access-owner-prof_1")
+    AssertEqual(ReadOnlySignInNew(ctx, invalid), invalid)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: TestSessionJson(ctx, "owner").viewer })
+    AssertEqual(ReadOnlySignInNew(ctx, binding), invalid, "a session family is mandatory")
+end sub
+
+sub Test_SignInStatus_liveCapabilityAndCurrentBindingBeforeIO()
+    for each field in ["capability", "origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId", "dispose", "revision", "stopped"]
+        ctx = TestContext()
+        reader = StatusTestReader(ctx)
+        if field = "capability" then
+            record = SessionRecord(ctx)
+            record["capabilities"].manageSignIn = false
+            StoreWriteJson(ctx.store, SessionRecordSection(record["pin"].serverId), "record", record)
+        else if field = "dispose" then
+            reader.dispose()
+        else if field = "revision" then
+            SessionAdvance(ctx)
+        else if field = "stopped" then
+            ctx.task = { command: "stop" }
+        else
+            reader.binding[field] = "other"
+        end if
+        answer = reader.read()
+        AssertEqual(answer.ok, false, field + " denied before request")
+        AssertEqual(ctx.transport.requests.count(), 0)
+    end for
+end sub
+
+function StatusRaceSend(request as object) as object
+    m.recordAnswer = TestSend
+    answer = m.recordAnswer(request)
+    ctx = m.transport.context
+    reader = m.transport.reader
+    action = m.transport.action
+    record = SessionRecord(ctx)
+    if action = "cancel" then
+        reader.cancel()
+    else if action = "dispose" then
+        reader.dispose()
+    else if action = "revision" then
+        SessionAdvance(ctx)
+    else if action = "stopped" then
+        ctx.task = { command: "stop" }
+    else if action = "signedOut" then
+        SessionRemoveFamily(ctx, record["pin"].serverId, record["session"].sessionFamilyId)
+    else if action = "capability" then
+        record["capabilities"].manageSignIn = false
+        StoreWriteJson(ctx.store, SessionRecordSection(record["pin"].serverId), "record", record)
+    else
+        if action = "origin" then
+            record["logicalOrigin"] = "https://other.example"
+        else
+            record["session"][action] = "replacement"
+            if action = "profileId" or action = "accountId" then
+                record["session"].delete(action)
+                record["session"].viewer[action] = "replacement"
+            end if
+        end if
+        StoreWriteJson(ctx.store, SessionRecordSection(record["pin"].serverId), "record", record)
+    end if
+    return answer
+end function
+
+sub Test_SignInStatus_lateAnswersCannotCrossAuthorityOrCancel()
+    for each action in ["cancel", "dispose", "revision", "stopped", "signedOut", "capability", "origin", "sessionFamilyId", "profileId", "accountId"]
+        ctx = TestContext()
+        reader = StatusTestReader(ctx)
+        ctx.send = StatusRaceSend
+        ctx.transport.context = ctx
+        ctx.transport.reader = reader
+        ctx.transport.action = action
+        TestAnswer(ctx, "GET", ctx.base + "/v1/admin/sign-in", 200, StatusTestDocument())
+        answer = reader.read()
+        AssertEqual(answer.ok, false, action + " retires late response")
+        AssertEqual(answer.failure.code, "cancelled")
+        AssertEqual(ctx.transport.requests.count(), 1, "no mutation, cleanup grant or replay")
+    end for
+end sub
+
+sub Test_SignInStatus_transportErrorsAndCancelAllowsFreshRead()
+    ctx = TestContext()
+    reader = StatusTestReader(ctx)
+    TestAnswer(ctx, "GET", ctx.base + "/v1/admin/sign-in", 403, { "code": "forbidden", "message": "", "status": 403 })
+    answer = reader.read()
+    AssertEqual(answer.ok, false)
+    AssertEqual(ctx.transport.requests.count(), 1, "403 is not retried or converted into owner authority")
+    reader.cancel()
+    ctx.transport.answers["GET " + ctx.base + "/v1/admin/sign-in"] = []
+    TestAnswer(ctx, "GET", ctx.base + "/v1/admin/sign-in", 200, StatusTestDocument())
+    AssertTrue(reader.read().ok, "explicit fresh read remains possible after cancellation")
+    reader.dispose()
+    AssertEqual(reader.read().ok, false)
+    AssertEqual(ctx.transport.requests.count(), 2)
+end sub

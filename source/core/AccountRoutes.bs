@@ -2,6 +2,7 @@
 ' Do not edit; verified source hashes are in scripts/accounts-source-pins.json.
 namespace AccountRoutes
     const system = "/v1/system"
+    const signInStatus = "/v1/admin/sign-in"
     const localConsentReview = "/v1/quick-connect/review"
     const localConsentDecision = "/v1/quick-connect/decision"
     const porticoConsentReview = "/v1/device-authorizations/review"
@@ -18,6 +19,14 @@ end namespace
 
 function ServerSignInMoveKinds() as object
     return ["to_portico","to_local"]
+end function
+
+function SignInMoveStages() as object
+    return ["preview","moving_to_portico","moving_to_local","complete","cancelled"]
+end function
+
+function SignInTextControlRanges() as object
+    return [[0,31],[127,159],[173,173],[1536,1541],[1564,1564],[1757,1757],[1807,1807],[2192,2193],[2274,2274],[6158,6158],[8203,8207],[8234,8238],[8288,8292],[8294,8303],[65279,65279],[65529,65531],[69821,69821],[69837,69837],[78896,78911],[113824,113827],[119155,119162],[917505,917505],[917536,917631]]
 end function
 
 function DeviceContractKeys() as object
