@@ -111,6 +111,7 @@ sub onLandingRender()
             ' connect10: a Portico server offers Try again and Choose another server.
             body = T("web.chooser.unreachableBodyNever")
             if label.kind = "lastSeen" then body = T("web.chooser.unreachableBody", { date: FormatDate(label.lastSeenAt, "dayMonth") })
+            if landing.failure.code = "certificate_unsupported" then body = T("connection.certificate.unsupported")
             nodes.push(LandingState("warning", T("web.chooser.unreachableTitle", { server: server.name }), body, "", ""))
             focus = LandingButton("primary", T("web.chooser.tryAgain"), "onLandingRetry", "", "lg")
             nodes.push(focus)
@@ -131,6 +132,7 @@ sub onLandingRender()
             else
                 body = T(bodies[failure])
             end if
+            if landing.failure.code = "certificate_unsupported" then body = T("connection.certificate.unsupported")
             icon = "warning"
             if failure = "unreachable" then icon = "network"
             if failure = "clockSkew" then icon = "clock"

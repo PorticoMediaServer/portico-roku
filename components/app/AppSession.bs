@@ -130,6 +130,7 @@ sub SessionRestored(result as object)
         name = ""
         if record["serverName"] <> invalid then name = record["serverName"]
         m.top.recovery = { origin: record["logicalOrigin"], serverName: name }
+        if result.failure <> invalid and result.failure.code = "certificate_unsupported" then m.top.recovery = { origin: record["logicalOrigin"], serverName: name, certificateUnsupported: true }
         m.top.hasRecovery = true
         m.top.phase = "unavailable"
         return

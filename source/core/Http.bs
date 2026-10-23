@@ -43,7 +43,7 @@ function HttpSend(request as object) as object
         return { status: 0, headers: {}, body: "", failure: "timeout" }
     end if
     status = event.getResponseCode()
-    if status < 0 then return { status: 0, headers: {}, body: "", failure: event.getFailureReason() }
+    if status < 0 then return { status: 0, headers: {}, body: "", failure: HttpFailureCode(request.url, status), diagnostic: event.getFailureReason() }
     headers = {}
     given = event.getResponseHeaders()
     if given <> invalid then
@@ -52,4 +52,12 @@ function HttpSend(request as object) as object
         end for
     end if
     return { status: status, headers: headers, body: event.getString(), failure: "" }
+end function
+
+' roUrlEvent SDK response codes, not localized failure text. This only describes a failed
+' normal CA/host check; it never identifies a leaf or permits another TLS configuration.
+function HttpFailureCode(url as string, status as integer) as string
+    if status = -28 then return "timeout"
+    if LCase(Left(url, 6)) = "https:" and (status = -51 or status = -60) then return "certificate_unsupported"
+    return "network"
 end function

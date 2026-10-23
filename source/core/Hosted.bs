@@ -289,7 +289,7 @@ function HostedOpen(ctx as object, server as object) as object
         if proof.failure.code = "identity_mismatch" then return { ok: false, stage: "route", failure: proof.failure }
     end for
     if connection = invalid then
-        if last.code <> "network" and last.code <> "timeout" then last.code = "route_unavailable"
+        if last.code <> "network" and last.code <> "timeout" and last.code <> "certificate_unsupported" then last.code = "route_unavailable"
         return { ok: false, stage: "route", failure: last }
     end if
 

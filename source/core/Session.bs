@@ -86,7 +86,9 @@ function SessionProbe(ctx as object, origin as string, pin as dynamic) as object
         if answer.status = 403 then code = "access_denied"
         if answer.status = 429 then code = "rate_limited"
         if answer.status = 0 then code = answer.error.code
-        return { ok: false, failure: { code: code, status: answer.status, message: "The connection could not be verified." } }
+        failed = { code: code, status: answer.status, message: "The connection could not be verified." }
+        if code = "certificate_unsupported" then failed.shown = "connection.certificate.unsupported"
+        return { ok: false, failure: failed }
     end if
     checked = RouteProofCheck(answer.data, origin, nonce, pin, SessionNow(ctx))
     if not checked.ok then return { ok: false, failure: { code: checked.code, status: 0, message: checked.message, differentServer: checked.differentServer = true } }

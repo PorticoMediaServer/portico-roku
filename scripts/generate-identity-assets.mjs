@@ -1,4 +1,4 @@
-// Exact immutable identity frames3/4; canonical symbols are read only from checked Server MAIN.
+// Exact immutable identity frames3/4, including their drawn symbol geometry.
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,renameSync} from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -8,13 +8,9 @@ import {Resvg} from '@resvg/resvg-js';
 import {deflateSync,crc32} from 'node:zlib';
 const app=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const assets=JSON.parse(readFileSync(join(app,'scripts/auth-assets-source-pins.json')));
-const accounts=JSON.parse(readFileSync(join(app,'scripts/accounts-source-pins.json')));
 const load=(root,commit,path,hash)=>{const bytes=execFileSync('git',['show',commit+':'+path],{cwd:root});if(createHash('sha256').update(bytes).digest('hex')!==hash)throw new Error('Source mismatch '+path);return bytes.toString();};
 const internal=assets.inputs.find(x=>x.root==='internal'),path='design/ui-v1/server-identity.html';
 const html=load(process.env.PORTICO_INTERNAL_ROOT,internal.commit,path,internal.files[path]);
-execFileSync('git',['merge-base','--is-ancestor',accounts.commit,'origin/main'],{cwd:process.env.PORTICO_SERVER_ROOT});
-const iconsPath='packages/design/src/next-icons.svg';
-const icons=load(process.env.PORTICO_SERVER_ROOT,accounts.commit,iconsPath,accounts.files[iconsPath]);
 const rule=selector=>[...html.matchAll(new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+' \\{([^}]+)\\}','g'))].map(x=>x[1]).join(';');
 const px=(css,key)=>{const v=[...css.matchAll(new RegExp('(?:^|;)\\s*'+key+':\\s*(-?[.\\d]+)px','g'))].at(-1)?.[1];if(v===undefined)throw new Error('Missing '+key);return Number(v);};
 const frame=/data-f="3"[\s\S]*?<\/div><\/div>/.exec(html)?.[0];if(!frame)throw new Error('Missing frame3');
@@ -26,12 +22,23 @@ for(const [s,fragment]of [['.tst h1','margin: 0 0 24px'],['.tst h1','letter-spac
 const font=readFileSync(join(app,'fonts/manrope-800.ttf'));const tables={};for(let i=0;i<font.readUInt16BE(4);i++){const at=12+i*16;tables[font.toString('ascii',at,at+4)]=font.readUInt32BE(at+8);}const units=font.readUInt16BE(tables.head+18);m.titleOffsetRatio=-((font.readInt16BE(tables.hhea+4)-font.readInt16BE(tables.hhea+6)+font.readInt16BE(tables.hhea+8))/units-1)/2;
 m.bodyLineSpacing=m.bodySize*m.bodyLineHeight-m.bodySize*(1-m.titleOffsetRatio*2);m.bodyLeading=m.bodyLineSpacing/2;
 const shadow=/0 (\d+)px (\d+)px (-?\d+)px #000/.exec(rule('.tdlg'));if(!shadow)throw new Error('Missing dialog shadow');m.shadowOffset=Number(shadow[1]);m.shadowBlur=Number(shadow[2]);m.shadowSpread=Number(shadow[3]);m.shadowMargin=m.shadowBlur*2;m.shadowMaxLines=12;
-emit('source/ui/IdentityFrameMetrics.bs',`' Generated from ${internal.commit}:${path}, frames3/4.\nnamespace IdentityFrameMetrics\n${Object.entries(m).map(([k,v])=>'    const '+k+' = '+JSON.stringify(v)).join('\n')}\nend namespace\n\nfunction IdentityFrameIconPaths() as object\n    return { identityHome: \"pkg:/images/icons/identity-home-${m.railIcon}.png\", shieldx: \"pkg:/images/icons/identity-shieldx-${m.iconSize}.png\", retry: \"pkg:/images/icons/identity-retry-${m.buttonIcon}.png\" }\nend function\n`);
-for(const[name,size]of [['shieldx',m.iconSize],['retry',m.buttonIcon],['home',m.railIcon]]){const body=new RegExp('<symbol id="i-'+name+'"[^>]*>([\\s\\S]*?)</symbol>').exec(icons)?.[1];if(!body)throw new Error('Missing canonical '+name);const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">${body.replaceAll('currentColor','#fff')}</svg>`;emit(`images/icons/identity-${name}-${size}.png`,new Resvg(svg).render().asPng());}
+const iconSpecs=[['shieldx',m.iconSize,'shieldx'],['retry',m.buttonIcon,'retry'],['home',m.railIcon,'identityHome'],['settings',m.railIcon,'identitySettings'],['server',m.buttonIcon,'identityServer'],['question',m.iconSize,'identityQuestion']];
+const iconPaths=Object.fromEntries(iconSpecs.map(([name,size,id])=>[id,`pkg:/images/icons/identity-${name}-${size}.png`]));
+emit('source/ui/IdentityFrameMetrics.bs',`' Generated from ${internal.commit}:${path}, frames3/4.\nnamespace IdentityFrameMetrics\n${Object.entries(m).map(([k,v])=>'    const '+k+' = '+JSON.stringify(v)).join('\n')}\nend namespace\n\nfunction IdentityFrameIconPaths() as object\n    return ${JSON.stringify(iconPaths)}\nend function\n`);
+for(const[name,size]of iconSpecs){
+ // Use the frame's symbols: the shared kit has different server/settings/retry paths.
+ const body=new RegExp('<symbol id="i-'+name+'"[^>]*>([\\s\\S]*?)</symbol>').exec(html)?.[1];
+ if(!body)throw new Error('Missing canonical '+name);
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">${body.replaceAll('currentColor','#fff')}</svg>`;
+ emit(`images/icons/identity-${name}-${size}.png`,new Resvg(svg).render().asPng());
+}
+console.log('identity metrics/icons verified: immutable69 frames, six exact drawn symbols');
+// A bounded check for icon-only changes; the default still verifies every generated asset.
+if(process.argv.includes('--icons-only'))process.exit(0);
 const rail=`<svg xmlns="http://www.w3.org/2000/svg" width="${m.railWidth}" height="1080"><defs><linearGradient id="r"><stop stop-color="#071018" stop-opacity=".78"/><stop offset="45%" stop-color="#071018" stop-opacity=".42"/><stop offset="100%" stop-color="#071018" stop-opacity="0"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#r)"/></svg>`;
 if(!rule('.rail').includes('rgba(7,16,24,.78) 0, rgba(7,16,24,.42) 45%, rgba(7,16,24,0) 100%'))throw new Error('Re-read rail gradient');
 emit('images/gradients/identity-rail.png',new Resvg(rail).render().asPng());
-console.log('identity assets/metrics verified: immutable69 frames3/4; checked Server MAIN symbols');
+console.log('identity rail/shadows: immutable69 frames3/4');
 
 for(let lines=1;lines<=m.shadowMaxLines;lines++){
  const height=m.dialogTop+lines*m.dialogTitle*(1-m.titleOffsetRatio*2)+m.dialogTitleGap+2*m.bodySize*m.bodyLineHeight+m.dialogBodyGap+72+m.dialogBottom;

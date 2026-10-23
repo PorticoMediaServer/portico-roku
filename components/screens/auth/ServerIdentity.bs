@@ -27,7 +27,7 @@ sub init()
     m.actions = m.content.createChild("Group")
     m.retry = IdentityButton(m.actions, "identity:retry", T("action.tryAgain"), "primary", "retry")
     m.retry.observeField("pressed", "onIdentityRetry")
-    m.choose = IdentityButton(m.actions, "identity:choose", T("portico.landing.chooseAnother"), "secondary", "server")
+    m.choose = IdentityButton(m.actions, "identity:choose", T("portico.landing.chooseAnother"), "secondary", "identityServer")
     m.choose.observeField("pressed", "onIdentityChoose")
     m.forget = IdentityButton(m.actions, "identity:forget", "", "secondary", "")
     m.forget.observeField("pressed", "onIdentityAskForget")
@@ -104,7 +104,7 @@ sub IdentityRail()
     Place(home, x, y + IdentityFrameMetrics.railIconInset)
     bar = MakeShape(m.top, IdentityFrameMetrics.railBarWidth, IdentityFrameMetrics.railBarHeight, IdentityFrameMetrics.railBarWidth / 2, Theme.colors.accent)
     Place(bar, IdentityFrameMetrics.railLeft - IdentityFrameMetrics.railBarOffset, y + IdentityFrameMetrics.railBarTop)
-    settings = MakeIcon(m.top, "settings", IdentityFrameMetrics.railIcon, Theme.colors.textTertiary)
+    settings = MakeIcon(m.top, "identitySettings", IdentityFrameMetrics.railIcon, Theme.colors.textTertiary)
     Place(settings, x, Theme.screen.height - IdentityFrameMetrics.railBottom - IdentityFrameMetrics.railItem + IdentityFrameMetrics.railIconInset)
 end sub
 
@@ -132,8 +132,12 @@ sub onIdentityLayout()
     StyleShape(m.circle, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle / 2, ColorAlpha(Theme.colors.text, IdentityFrameMetrics.circleAlpha))
     StyleRing(m.circleBorder, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle, IdentityFrameMetrics.circle / 2, 1, ColorAlpha(Theme.colors.text, IdentityFrameMetrics.circleBorderAlpha))
     icon = "shieldx"
-    if not changed then icon = "shield"
-    StyleIcon(m.icon, icon, IdentityFrameMetrics.iconSize, Theme.colors.record)
+    tone = Theme.colors.record
+    if not changed then
+        icon = "identityQuestion"
+        tone = Theme.colors.text
+    end if
+    StyleIcon(m.icon, icon, IdentityFrameMetrics.iconSize, tone)
     Place(m.icon, (IdentityFrameMetrics.circle - IdentityFrameMetrics.iconSize) / 2, (IdentityFrameMetrics.circle - IdentityFrameMetrics.iconSize) / 2)
     y = IdentityFrameMetrics.circle + IdentityFrameMetrics.circleGap
     Place(m.title, 0, y)

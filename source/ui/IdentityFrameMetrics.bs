@@ -55,5 +55,5 @@ namespace IdentityFrameMetrics
 end namespace
 
 function IdentityFrameIconPaths() as object
-    return { identityHome: "pkg:/images/icons/identity-home-30.png", shieldx: "pkg:/images/icons/identity-shieldx-40.png", retry: "pkg:/images/icons/identity-retry-28.png" }
+    return {"shieldx":"pkg:/images/icons/identity-shieldx-40.png","retry":"pkg:/images/icons/identity-retry-28.png","identityHome":"pkg:/images/icons/identity-home-30.png","identitySettings":"pkg:/images/icons/identity-settings-30.png","identityServer":"pkg:/images/icons/identity-server-28.png","identityQuestion":"pkg:/images/icons/identity-question-40.png"}
 end function
