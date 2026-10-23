@@ -4,6 +4,7 @@
 ' source/core/Hosted.bs; the words for a failure come from source/core/Errors.bs.
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Hosted.bs"
+import "pkg:/source/core/HostedCredentialOwner.bs"
 import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/IdentityRecovery.bs"
 import "pkg:/source/core/Messages.bs"
@@ -410,6 +411,11 @@ sub onAccountCredentialOutcome(event as object)
     end if
     m.accountCredentialTask = invalid
     if result.ok and result.kind = "signed-in" then
+        if not HostedCredentialAcceptancePending(task.credentialState, NowSeconds()) then
+            task.command = "stop"
+            m.top.accountCredentialState = { phase: "error", failure: { code: "cancelled", status: 0, message: "" } }
+            return
+        end if
         task.command = "accept"
         m.top.accountCredentialState = invalid
         accountApproved(result.account)
