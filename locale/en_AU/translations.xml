@@ -3260,10 +3260,6 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>web.direct.newPasswordLede</source>
             <target>The server’s owner asked you to choose a new password before you continue.</target>
         </trans-unit>
-        <trans-unit id="web.direct.newPasswordTitle">
-            <source>web.direct.newPasswordTitle</source>
-            <target>Choose a new password</target>
-        </trans-unit>
         <trans-unit id="web.empty.homeMemberBody">
             <source>web.empty.homeMemberBody</source>
             <target>Titles appear here once the owner adds media to the libraries you can see.</target>
@@ -4188,6 +4184,182 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>accounts.consent.local</source>
             <target>On a phone signed in to {server}, open Portico › Settings › Link a TV, or on a computer open {address}.</target>
         </trans-unit>
+        <trans-unit id="accounts.signIn.confirm">
+            <source>accounts.signIn.confirm</source>
+            <target>Confirm</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.pinLocked">
+            <source>accounts.profiles.pinLocked</source>
+            <target>That PIN isn’t right. Try again in {seconds} seconds.</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.forgotTitle">
+            <source>accounts.profiles.forgotTitle</source>
+            <target>Forgot {profile}’s PIN?</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.forgotBody">
+            <source>accounts.profiles.forgotBody</source>
+            <target>A new PIN needs the password for this account, so only the people who manage it can set one.</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.accountPassword">
+            <source>accounts.profiles.accountPassword</source>
+            <target>Password for {username}</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.porticoInstead">
+            <source>accounts.profiles.porticoInstead</source>
+            <target>Using a Portico Account? You'll sign in to it instead.</target>
+        </trans-unit>
+        <trans-unit id="accounts.profiles.open">
+            <source>accounts.profiles.open</source>
+            <target>Open {profile}</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.to">
+            <source>accounts.invitation.to</source>
+            <target>You’ve been invited to</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.localBody">
+            <source>accounts.invitation.localBody</source>
+            <target>Choose a username and password to create your account.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.localPhoneBody">
+            <source>accounts.invitation.localPhoneBody</source>
+            <target>{server} invited you. Choose a username and password to create your account on it.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.invitedYou">
+            <source>accounts.invitation.invitedYou</source>
+            <target>invited you</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.libraryList">
+            <source>accounts.invitation.libraryList</source>
+            <target>{head} and {last}</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.porticoBody">
+            <source>accounts.invitation.porticoBody</source>
+            <target>{server} invited you. Join with your Portico Account and it’s on all your devices.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.libraries">
+            <source>accounts.invitation.libraries</source>
+            <target>What you’ll see</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.member">
+            <source>accounts.invitation.member</source>
+            <target>You’ll join as a member.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.joinAs">
+            <source>accounts.invitation.joinAs</source>
+            <target>Join as {username}</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.account">
+            <source>accounts.invitation.account</source>
+            <target>Your Portico Account</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.notYou">
+            <source>accounts.invitation.notYou</source>
+            <target>Not you?</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.join">
+            <source>accounts.invitation.join</source>
+            <target>Join {server}</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.porticoJoinedHelp">
+            <source>accounts.invitation.porticoJoinedHelp</source>
+            <target>{server} is added to your Portico Account, so you can open it from any of your devices. You can leave it any time.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.expiredTitle">
+            <source>accounts.invitation.expiredTitle</source>
+            <target>This invitation can’t be used</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.expiredBody">
+            <source>accounts.invitation.expiredBody</source>
+            <target>It has expired or was already used. Ask the owner for a new one.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.expiryHelp">
+            <source>accounts.invitation.expiryHelp</source>
+            <target>Invitations work once and expire after 7 days.</target>
+        </trans-unit>
+        <trans-unit id="accounts.invitation.otherAccountTitle">
+            <source>accounts.invitation.otherAccountTitle</source>
+            <target>This invitation is for a different account</target>
+        </trans-unit>
+        <trans-unit id="accounts.password.good">
+            <source>accounts.password.good</source>
+            <target>Good</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.title">
+            <source>accounts.recovery.title</source>
+            <target>Get back in</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.body">
+            <source>accounts.recovery.body</source>
+            <target>Portico doesn’t send email from your server, so a forgotten password is reset with a one-time code. Which one fits you?</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.owner">
+            <source>accounts.recovery.owner</source>
+            <target>You’re the server owner</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.ownerBody">
+            <source>accounts.recovery.ownerBody</source>
+            <target>Portico writes a one-time code to a file on this server’s computer. You open the file there and type the code here.</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.writeFile">
+            <source>accounts.recovery.writeFile</source>
+            <target>Write the reset file</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.ownerHelp">
+            <source>accounts.recovery.ownerHelp</source>
+            <target>It works from anywhere, as long as you can open that computer. Only the owner can use it.</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.member">
+            <source>accounts.recovery.member</source>
+            <target>You’re a member or an administrator</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.memberBody">
+            <source>accounts.recovery.memberBody</source>
+            <target>Ask the server owner for a one-time reset code. They make it in Server › People and give it to you, in person or however you like.</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.code">
+            <source>accounts.recovery.code</source>
+            <target>Reset code</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.codePlaceholder">
+            <source>accounts.recovery.codePlaceholder</source>
+            <target>XXXX-XXXX</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.newPassword">
+            <source>accounts.recovery.newPassword</source>
+            <target>New password</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.resetSignIn">
+            <source>accounts.recovery.resetSignIn</source>
+            <target>Reset and sign in</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.memberHelp">
+            <source>accounts.recovery.memberHelp</source>
+            <target>The code works once and expires in an hour. Nothing is emailed.</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.back">
+            <source>accounts.recovery.back</source>
+            <target>Back to sign in</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.phoneBody">
+            <source>accounts.recovery.phoneBody</source>
+            <target>A forgotten password is reset with a one-time code. Nothing is emailed.</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.phoneOwnerBody">
+            <source>accounts.recovery.phoneOwnerBody</source>
+            <target>Portico writes a one-time code to a file on this server’s computer. Open it there and type it here.</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.phoneMember">
+            <source>accounts.recovery.phoneMember</source>
+            <target>Member or administrator?</target>
+        </trans-unit>
+        <trans-unit id="accounts.recovery.phoneMemberHelp">
+            <source>accounts.recovery.phoneMemberHelp</source>
+            <target>Ask the server owner for a reset code</target>
+        </trans-unit>
+        <trans-unit id="accounts.signOut.namedServer">
+            <source>accounts.signOut.namedServer</source>
+            <target>Sign out of {server}</target>
+        </trans-unit>
         <trans-unit id="connection.identity.changedBody">
             <source>connection.identity.changedBody</source>
             <target>A different server is answering at its address, so nothing was sent. Check with its owner before you sign in again.</target>
@@ -4363,6 +4535,38 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
         <trans-unit id="web.signIn.error.tooMany">
             <source>web.signIn.error.tooMany</source>
             <target>Too many sign-in attempts. Wait a minute, then try again.</target>
+        </trans-unit>
+        <trans-unit id="web.twoStep.turnOnTitle">
+            <source>web.twoStep.turnOnTitle</source>
+            <target>Turn on two-step verification</target>
+        </trans-unit>
+        <trans-unit id="web.direct.newPasswordTitle">
+            <source>web.direct.newPasswordTitle</source>
+            <target>Choose a new password</target>
+        </trans-unit>
+        <trans-unit id="web.hostedAccount.signInAgain">
+            <source>web.hostedAccount.signInAgain</source>
+            <target>Sign in again</target>
+        </trans-unit>
+        <trans-unit id="next.auth.tv.requiredTwoStepBody">
+            <source>next.auth.tv.requiredTwoStepBody</source>
+            <target>{server} asks for two-step verification on this account. Turn it on from your phone or computer, then sign in again.</target>
+        </trans-unit>
+        <trans-unit id="next.auth.tv.requiredPasswordBody">
+            <source>next.auth.tv.requiredPasswordBody</source>
+            <target>{server} asks for a new password on this account. Choose one from your phone or computer, then sign in again.</target>
+        </trans-unit>
+        <trans-unit id="next.auth.tv.handoffHint">
+            <source>next.auth.tv.handoffHint</source>
+            <target>Scan the code with your phone, or go to this address on a computer.</target>
+        </trans-unit>
+        <trans-unit id="next.auth.tv.playPause">
+            <source>next.auth.tv.playPause</source>
+            <target>Play/Pause</target>
+        </trans-unit>
+        <trans-unit id="next.auth.tv.deleteDigit">
+            <source>next.auth.tv.deleteDigit</source>
+            <target>Delete a digit</target>
         </trans-unit>
     </body>
   </file>

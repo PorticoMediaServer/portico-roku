@@ -4,6 +4,7 @@ import {readFileSync, writeFileSync, renameSync, readdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, resolve, join} from 'node:path';
 import {stripTypeScriptTypes, createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
 const app = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = process.env.PORTICO_INTERNAL_ROOT;
 if (!root) throw new Error('Set PORTICO_INTERNAL_ROOT to the immutable design Git repository');
@@ -12,16 +13,20 @@ const load = name => execFileSync('git', ['show', `${commit}:design/ui-v1/${name
 const auth = load('auth.html'), connect = load('connect.html');
 const serverRoot = process.env.PORTICO_SERVER_ROOT;
 if (!serverRoot) throw new Error('Set PORTICO_SERVER_ROOT for checked MAIN sign-in error copy');
-const serverCommit = JSON.parse(readFileSync(join(app, 'scripts/accounts-source-pins.json'))).commit;
+const serverPins = JSON.parse(readFileSync(join(app, 'scripts/accounts-source-pins.json')));
+const serverCommit = serverPins.commit;
 execFileSync('git', ['merge-base', '--is-ancestor', serverCommit, 'origin/main'], {cwd: serverRoot});
 const catalogue = async name => {
-  const bytes = execFileSync('git', ['show', `${serverCommit}:packages/i18n/src/catalog/en-US/${name}.ts`], {cwd: serverRoot});
+  const path = `packages/i18n/src/catalog/en-US/${name}.ts`;
+  const bytes = execFileSync('git', ['show', `${serverCommit}:${path}`], {cwd: serverRoot});
+  if (createHash('sha256').update(bytes).digest('hex') !== serverPins.files[path]) throw new Error('Pinned catalogue mismatch: ' + path);
   return import('data:text/javascript;base64,' + Buffer.from(stripTypeScriptTypes(bytes.toString())).toString('base64'));
 };
 const {servicesMessages} = await catalogue('services');
 const {webMessages} = await catalogue('web');
-const sharedIds = ['services.signin.credentials', 'services.signin.unavailable', 'services.signin.tooMany', 'web.signIn.error.credentials', 'web.signIn.error.code', 'web.signIn.error.tooMany'];
-const shared = {...servicesMessages, ...webMessages};
+const {shared: nextSharedMessages} = await catalogue('next/shared');
+const sharedIds = ['services.signin.credentials', 'services.signin.unavailable', 'services.signin.tooMany', 'web.signIn.error.credentials', 'web.signIn.error.code', 'web.signIn.error.tooMany', 'web.twoStep.turnOnTitle', 'web.direct.newPasswordTitle', 'web.hostedAccount.signInAgain', 'next.auth.tv.requiredTwoStepBody', 'next.auth.tv.requiredPasswordBody', 'next.auth.tv.handoffHint', 'next.auth.tv.playPause', 'next.auth.tv.deleteDigit'];
+const shared = {...servicesMessages, ...webMessages, ...nextSharedMessages};
 for (const id of sharedIds) if (typeof shared[id] !== 'string') throw new Error('Missing canonical sign-in error: ' + id);
 const messages = {
   'roku.tvSignIn.hostedLead': 'Sign in with your Portico Account to access servers shared with you.',
@@ -67,6 +72,11 @@ const metrics = {
   boxWidth: 104, boxHeight: 116, boxGap: 18, boxRadius: 18, boxBorder: 2, boxCaretHeight: 52, boxDot: 24,
   keyboardColumns: 9, keyboardGap: 10, keyboardKeyHeight: 72, keyboardRadius: 14, keyboardSize: 28,
   keyboardSpaceSpan: 3, keyboardClearSpan: 2, keyboardFill: '0xEDF5FA0D'
+  ,cardRight: 140, cardWidth: 720, cardTop: 52, cardSide: 56, cardBottom: 48, cardRadius: 28,
+  cardFill: '0x0D1B25C7', cardBorder: 1.5, cardBorderAlpha: .1,
+  qrSide: 300, qrPadding: 20, qrRadius: 20, qrGap: 34,
+  hostSize: 30, hostLineHeight: 43.5, refSize: 21, refLineHeight: 30.45,
+  cardShadowOffset: 60, cardShadowBlur: 120, cardShadowSpread: -40, cardShadowMargin: 240
 };
 // Verify composed shorthands too; no free redesign when a source rule changes.
 for (const fragment of ['height: 84px', 'padding: 0 28px', 'rgba(7,16,24,.62)']) if (!rule(connect, '.tf').includes(fragment)) throw new Error('Re-read field style');
@@ -85,6 +95,15 @@ for (const size of [metrics.padDeleteSize, metrics.fieldSize]) {
   const bytes = new Resvg(svg).render().asPng();
   const path = join(app, `images/icons/tv-auth-backspace-${size}.png`);
   if (process.argv.includes('--check')) { if (!readFileSync(path).equals(bytes)) throw new Error('Regenerate drawn backspace'); }
+  else { writeFileSync(path + '.tmp', bytes); renameSync(path + '.tmp', path); }
+}
+for (let lines = 1; lines <= 4; lines++) {
+  const height = metrics.cardTop + metrics.qrSide + metrics.qrGap + lines * metrics.hostLineHeight + 2 * metrics.refLineHeight + metrics.cardBottom;
+  const margin = metrics.cardShadowMargin, spread = metrics.cardShadowSpread;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${metrics.cardWidth+margin*2}" height="${Math.ceil(height+margin*2)}"><defs><filter id="b" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="${metrics.cardShadowBlur/2}"/></filter></defs><rect x="${margin-spread}" y="${margin+metrics.cardShadowOffset-spread}" width="${metrics.cardWidth+spread*2}" height="${height+spread*2}" rx="${Math.max(0,metrics.cardRadius+spread)}" fill="#000" fill-opacity=".9" filter="url(#b)"/></svg>`;
+  const bytes = new Resvg(svg).render().asPng();
+  const path = join(app, `images/shapes/tv-handoff-shadow-${lines}.png`);
+  if (process.argv.includes('--check')) { if (!readFileSync(path).equals(bytes)) throw new Error('Regenerate handoff shadow'); }
   else { writeFileSync(path + '.tmp', bytes); renameSync(path + '.tmp', path); }
 }
 emit('source/ui/TVSignInMetrics.bs', `' Composed by ruling 28: immutable ${commit}, auth8/9/17 + connect36.\nnamespace TVSignInMetrics\n${Object.entries(metrics).map(([key,value]) => '    const ' + key + ' = ' + JSON.stringify(value)).join('\n')}\nend namespace\n`);

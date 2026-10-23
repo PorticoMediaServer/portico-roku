@@ -82,6 +82,11 @@ sub init()
     top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) - TVSignInMetrics.padGap + TVSignInMetrics.padLinkGap
     Place(m.recovery, 0, top)
     Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
+    hint = MakeText(m.top, "caption", "secondary")
+    hint.value = T("next.auth.tv.playPause") + "  " + T("next.auth.tv.deleteDigit")
+    hint.sizeOverride = TVSignInMetrics.termsSize
+    hint.lineHeightOverride = TVSignInMetrics.termsLineHeight
+    Place(hint, (Theme.screen.width - TextWidth(hint)) / 2, Theme.screen.height - TVSignInMetrics.wordmarkTop - TVSignInMetrics.termsLineHeight)
     onFactorStyle()
     onFactorBoxes()
 end sub

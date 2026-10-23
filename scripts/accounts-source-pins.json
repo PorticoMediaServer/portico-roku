@@ -1,17 +1,17 @@
 {
-  "commit": "65df212ea6e2826ad67b860620c19293c2c5ef48",
-  "provenance": "checked merged Server MAIN65; exact Git objects; strict two-step continuation; other producer pins preserved",
-  "mainReadback": "65df212ea6e2826ad67b860620c19293c2c5ef48",
+  "commit": "dba07b9156a2355f297d8793a0cdf4b6f891bb80",
+  "provenance": "checked merged Server MAIN dba07b91; standard exact-object account and ruling31 copy intake; other producer pins preserved",
+  "mainReadback": "dba07b9156a2355f297d8793a0cdf4b6f891bb80",
   "historicalPin": "2079119593864335b551692264c579741373ca28",
   "files": {
     "packages/client-core/src/app-sessions.ts": "f0aabb31ae01c2090e0618b8146074ed01dad3d14ade10abc10fe0315ddf4de8",
     "packages/client-core/src/sign-in.ts": "d5d4bc8f511ef81b775fdc2173bb7b953a422f821e1b2eaae4539b3508a0cc53",
     "packages/client-core/src/tv-consent.ts": "ef3f6fab0017eaeff4fe9629eddd3a186224ae98988846318430fce54ac935d6",
     "packages/client-core/src/profile-management.ts": "9790810726bf25dc538f10621fd82a7026cbddecaad2fd06f383683c35fb13ad",
-    "packages/i18n/src/catalog/en-US/accounts.ts": "247b2f31c6e93e28e832ec6eb92a9f71042799bc0e3e698d1d838dc2aeef5347",
-    "packages/contracts/src/routes.ts": "9098a2fb82fa35770b618bfe1edfc4732567f8712739a518c6aa5c1f75a388d5",
+    "packages/i18n/src/catalog/en-US/accounts.ts": "e17afff47c06f1a7c8e81e18e66d7a730d8548009d08f49ba47818c2aca55463",
+    "packages/contracts/src/routes.ts": "7ddc1f1caefd27e2c1f1753eaa98dfadd1ff3442de7df65b1cfc972344749f76",
     "packages/contracts/src/hosted/routes.ts": "7439537db1e860aae5095ca88057b0c15cf68f426b9fb8225b65c6db62565059",
-    "packages/client-core/src/hosted-security.ts": "d3b943ea5cfe92d87dcf766d8721c81a0dde6756c6cb68fa5096fdc89759573e",
+    "packages/client-core/src/hosted-security.ts": "10e008ecf6dba44ba6e4f22c55c195a506a24db94d19820d619f9a3e7cf4c85e",
     "packages/client-core/src/credential-format.ts": "ff78f658bc3a667611abb2f923a131f8bbdfe2209b0636d67cee0449097c756c",
     "packages/client-core/src/credentials.ts": "38dfbc333e379f8dc75d4c7efcce13029bd07da904b404d94ca0a03a55890e98",
     "packages/client-core/src/device-authorization.ts": "50a09ec7161e1277b8ed4170da7d283a2ce0100860268d6557b593dd071cedcf",
@@ -20,7 +20,7 @@
     "packages/contracts/src/hosted/schemas.ts": "782c1ad395294d608324175d63fbd6e766663799cf0c41c5fed360ff10d84aa4",
     "packages/contracts/src/hosted/decoders.ts": "090cf4916dd4335451bfc5d15bcaa6e0dd71a99c01717b8d2480b6e5ecd243bd",
     "packages/i18n/src/catalog/en-US/web.ts": "f0e1c60d4b1335b9d4feafa0a2f4cd9ca3505e64b9b54f84f2f580ccffd2d624",
-    "packages/contracts/src/schemas.ts": "3131a01c462f1853d15532f13ea818b68f4089fcf952a8fc06ac34e483e0bf91",
+    "packages/contracts/src/schemas.ts": "5bb99221376e01c62c34f55ccfd3e0bd7ede19236af7751519da2716706a9cbc",
     "packages/client-core/src/identity-devices.ts": "8d2e8ed97db219d8aaf61c431823b0efee31c75138d6549220b70db627701d21",
     "packages/client-core/src/index.ts": "ee6552dacd250877ce25093b205812d3d31cb3785adf890a20556802fed363c8",
     "packages/client-core/src/account-move.ts": "1300b608194dab6f9f96d31b7eca67b1ae4dd75cfa438391f50835627db7af0b",
@@ -30,10 +30,12 @@
     "packages/i18n/src/catalog/en-US/connection-trust.ts": "f3f76839efa97d9e8efbca78722a7127e55502e8d0297c1cd79d978d1b1126b4",
     "packages/i18n/src/catalog/en-US/system.ts": "03f8654010a76718ca68f4579faa2e92dd993f92c17bf778c0b61d2d9c7bfbea",
     "packages/i18n/scripts/native-strings.mjs": "7e603831469dbc087a6c29b1763fd4ce33ae3f0a528ee0de20dc2303edf23c55",
-    "packages/design/src/next-icons.svg": "cae0ba12a9a097a012ad19d2183b81faee15dd2d8df85586a290825dd59cc41c"
+    "packages/design/src/next-icons.svg": "2f2098c8f4c2976442c987919c2bc0cf8c2971bc6da07bc24c1c958cb1421864",
+    "packages/i18n/src/catalog/en-US/next/shared.ts": "1605ea0e5f1de0dfe8b30336960c9d5868d1e3bfbf07939f7cda96bf5743b47c",
+    "packages/i18n/src/catalog/en-US/services.ts": "61d3528e95d9617ceea652dbac022c3eff21d9f99322384c5d2977bed3254ee3"
   },
   "hostedProducer": "27000e033df453ec237b801029204da65105b6d2",
   "historicalRootIntakeReceipt": "orchestrator-r29/media-dispatch/shared-207-intake.json",
   "historicalProfileFreeProducer": "212272ed2bf56ffab3e5aa6e4267eeb429548dee",
-  "previousMainPin": "38aed598ddd76d8b6dc4907871870482b85c191c"
+  "previousMainPin": "65df212ea6e2826ad67b860620c19293c2c5ef48"
 }

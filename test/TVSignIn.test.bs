@@ -15,6 +15,26 @@ sub Test_TVSignIn_sharedErrorsKeepLocalAndHostedAccountWordsSeparate()
     globals.messageCatalogue = previous
 end sub
 
+sub Test_TVSignIn_requiredHandoffHasOnlyTheApprovedAddressAndPublicFacts()
+    ctx = TestContext()
+    connection = { signIn: "local", origin: ctx.base, pin: TestPin(ctx), serverName: "Portico demo" }
+    info = TVRequiredSignInInfo(connection, "two-step-setup", "nana_r")
+    AssertTrue(HasExactKeys(info, ["kind", "serverName", "username", "origin", "url", "address", "portico"]))
+    AssertEqual(info.url, ctx.base + "/settings/profile")
+    AssertEqual(info.address, "192.168.1.20:32500/settings/profile")
+    AssertEqual(info.username, "nana_r")
+    AssertEqual(info.kind, "two-step-setup")
+    AssertEqual(Instr(1, info.url, "?"), 0)
+    AssertEqual(Instr(1, info.url, "#"), 0)
+    AssertEqual(TVRequiredSignInInfo(connection, "password-change", "nana_r").kind, "password-change")
+    connection.signIn = "portico"
+    AssertEqual(TVRequiredSignInInfo(connection, "two-step-setup", "nana_r"), invalid, "a media server cannot issue a Services account setup handoff")
+    connection.signIn = "local"
+    connection.origin = "https://demo.example.com/a-path"
+    AssertEqual(TVRequiredSignInInfo(connection, "two-step-setup", "nana_r"), invalid)
+    AssertEqual(ctx.transport.requests.count(), 0, "the handoff never polls or sends credential authority")
+end sub
+
 sub Test_TVSignIn_sixthDigitSubmitsOnceAndPlayPauseCanDelete()
     value = ""
     for each key in ["1", "2", "3", "4", "5"]

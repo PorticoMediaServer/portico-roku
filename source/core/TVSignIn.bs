@@ -41,6 +41,18 @@ function TVSignInLocalCurrent(captured as dynamic, current as dynamic) as boolea
     return captured.origin = current.origin and captured.pin.serverId = current.pin.serverId and captured.pin.publicKey = current.pin.publicKey
 end function
 
+' Ruling31 has one approved server address. No credential, operation ID or token crosses it.
+function TVRequiredSignInInfo(connection as dynamic, kind as string, username as string) as dynamic
+    if not SessionRequiresLocal(connection).ok then return invalid
+    if kind <> "password-change" and kind <> "two-step-setup" then return invalid
+    if not IsText(connection.serverName, 2048) or not IsText(username, 64) then return invalid
+    origin = RouteOrigin(connection.origin)
+    if not origin.ok or origin.origin <> connection.origin then return invalid
+    target = origin.origin + "/settings/profile"
+    address = CreateObject("roRegex", "^https?://", "i").replace(target, "")
+    return { kind: kind, serverName: connection.serverName, username: username, origin: origin.origin, url: target, address: address, portico: false }
+end function
+
 function TVSignInRecoveryKeys() as object
     keys = []
     for index = 0 to 25

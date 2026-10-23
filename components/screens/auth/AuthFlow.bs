@@ -16,6 +16,7 @@ sub init()
         m.session.observeField(name, "onFlowChange")
     end for
     m.session.observeField("accountRequested", "onFlowAccount")
+    m.session.observeField("requiredSignIn", "onFlowChange")
 end sub
 
 sub enter()
@@ -48,6 +49,7 @@ end sub
 
 ' Which screen the session's state and this flow's step call for.
 function FlowWanted() as string
+    if m.session.requiredSignIn <> invalid then return "ScreenTVRequiredSignIn"
     if m.session.hasPending then return "ScreenDirectProfiles"
     if m.session.hasAccount and m.session.accountRequested and m.step <> "landing" and m.step <> "direct" then m.step = "landing"
     if not m.session.hasAccount and m.step = "landing" then m.step = "welcome"
@@ -81,6 +83,9 @@ sub onFlowChange()
         m.screen.kind = "portico"
         if m.step = "direct" then m.screen.kind = "local"
         m.screen.observeField("backPressed", "onFlowCredentialBack")
+    else if wanted = "ScreenTVRequiredSignIn" then
+        m.screen.observeField("retryPressed", "onFlowRequiredRetry")
+        m.screen.observeField("backPressed", "onFlowRequiredBack")
     else if wanted = "ScreenDirectSignIn" then
         m.screen.step = m.directStep
         m.screen.observeField("codeWanted", "onFlowCode")
@@ -133,12 +138,28 @@ sub onFlowCredentialBack()
     onFlowChange()
 end sub
 
+sub onFlowRequiredRetry()
+    m.step = "direct"
+    m.directView = "password"
+    m.directStep = "password"
+    m.session.callFunc("retryRequiredSignIn")
+    onFlowChange()
+end sub
+
+sub onFlowRequiredBack()
+    m.step = "direct"
+    m.directView = "code"
+    m.directStep = "address"
+    m.session.callFunc("cancelRequiredSignIn")
+    onFlowChange()
+end sub
+
 function back() as boolean
     if m.session.hasPending then
         m.session.callFunc("cancelPending")
         return true
     end if
-    if m.shown = "ScreenTVCredentials" then return m.screen.callFunc("back")
+    if m.shown = "ScreenTVCredentials" or m.shown = "ScreenTVRequiredSignIn" then return m.screen.callFunc("back")
     if m.step = "welcome" or m.step = "account-code" then
         if m.screen <> invalid then return m.screen.callFunc("back")
         return false

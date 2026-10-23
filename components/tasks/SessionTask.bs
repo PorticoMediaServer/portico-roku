@@ -33,7 +33,16 @@ sub work()
             return
         end if
     end if
-    if kind = "retryIdentity" then
+    if kind = "retireRestricted" then
+        ' Cleanup uses only this captured account family at its proved issuing server.
+        ' Failure still drops the TV's copy: ruling31 never polls or auto-continues.
+        if IsObject(job.session) and IsObject(job.connection) and IsObject(job.session.viewer) then
+          if job.session.viewer.role = "account" then
+            SessionRevokeRecord(ctx, { "logicalOrigin": job.connection.origin, "pin": job.connection.pin, "session": job.session })
+          end if
+        end if
+        result = { ok: true }
+    else if kind = "retryIdentity" then
         result = IdentityRecoveryRetry(ctx, job.recovery)
         result.source = job.recovery.source
         result.recovery = job.recovery
@@ -119,5 +128,6 @@ sub work()
     result.kindOfJob = kind
     if kind = "signIn" or kind = "challenge" or kind = "changePassword" then m.top.job = { kind: kind }
     if job.doesExist("recoverySerial") then result.recoverySerial = job.recoverySerial
+    m.top.job = { kind: kind }
     m.top.result = result
 end sub

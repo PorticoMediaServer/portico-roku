@@ -5,6 +5,8 @@
         <field id="value" type="string" value="" onChange="onQrDraw" />
         <!-- The side of the code itself; the plate adds its padding. -->
         <field id="qrSize" type="float" value="0" onChange="onQrDraw" />
+        <field id="paddingOverride" type="float" value="0" onChange="onQrDraw" />
+        <field id="radiusOverride" type="float" value="0" onChange="onQrDraw" />
         <field id="boxWidth" type="float" value="0" />
         <field id="boxHeight" type="float" value="0" />
     </interface>
