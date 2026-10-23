@@ -13,7 +13,12 @@ function HttpSend(request as object) as object
     transfer.retainBodyOnError(true)
     transfer.enableEncodings(true)
     if LCase(Left(request.url, 6)) = "https:" then
-        transfer.setCertificatesFile("common:/certs/ca-bundle.crt")
+        ' Ruling17: normal public CA and hostname validation. Configuration failure stops
+        ' before any request; there is no own-certificate or unsafe-TLS fallback.
+        caReady = transfer.setCertificatesFile("common:/certs/ca-bundle.crt")
+        peerReady = transfer.enablePeerVerification(true)
+        hostReady = transfer.enableHostVerification(true)
+        if not caReady or not peerReady or not hostReady then return { status: 0, headers: {}, body: "", failure: "network" }
         transfer.initClientCertificates()
     end if
     if request.headers <> invalid then
