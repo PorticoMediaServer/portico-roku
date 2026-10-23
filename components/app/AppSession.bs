@@ -19,6 +19,7 @@ sub init()
 end sub
 
 sub SessionRun(job as object)
+    if job.kind = "restore" or job.kind = "connect" or job.kind = "selectServer" then job.recoverySerial = m.recoverySerial
     task = CreateObject("roSGNode", "SessionTask")
     task.job = job
     task.observeField("result", "onSessionResult")
@@ -37,6 +38,9 @@ sub onSessionResult(event as object)
     m.tasks = kept
     m.top.busy = m.tasks.count() > 0
     kind = result.kindOfJob
+    if kind = "restore" or kind = "connect" or kind = "selectServer" then
+        if result.recoverySerial <> m.recoverySerial then return
+    end if
     if kind = "retryIdentity" or kind = "forgetIdentity" then
         if result.recoverySerial <> m.recoverySerial or m.top.phase <> "identity" then return
         if kind = "forgetIdentity" then
@@ -465,6 +469,7 @@ end sub
 ' "Use another server or account" from the saved-server screen: the sign-in screens open, and the
 ' saved server stays reachable from them.
 sub useElsewhere()
+    SessionAdvance(SessionContextNew())
     m.recoverySerial = m.recoverySerial + 1
     m.top.hasRecovery = false
     m.top.recovery = invalid

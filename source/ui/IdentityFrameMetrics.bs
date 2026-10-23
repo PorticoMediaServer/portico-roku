@@ -46,6 +46,12 @@ namespace IdentityFrameMetrics
     const buttonIcon = 28
     const titleOffsetRatio = -0.18300000000000005
     const bodyLineSpacing = 2.3519999999999968
+    const bodyLeading = 1.1759999999999984
+    const shadowOffset = 80
+    const shadowBlur = 160
+    const shadowSpread = -40
+    const shadowMargin = 320
+    const shadowMaxLines = 12
 end namespace
 
 function IdentityFrameIconPaths() as object

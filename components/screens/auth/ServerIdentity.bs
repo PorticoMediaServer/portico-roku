@@ -36,6 +36,7 @@ sub init()
     scrim = MakeRect(m.overlay, Theme.screen.width, Theme.screen.height, IdentityFrameMetrics.scrim)
     m.dialog = m.overlay.createChild("Group")
     m.dialog.id = "identity:dialog"
+    m.dialogShadow = m.dialog.createChild("Poster")
     m.dialogFill = m.dialog.createChild("Poster")
     m.dialogBorder = m.dialog.createChild("Poster")
     m.dialogTitle = m.dialog.createChild("IdentityHeading")
@@ -62,6 +63,16 @@ function IdentityBody(parent as object, width as float) as object
     node.lineHeightOverride = IdentityFrameMetrics.bodySize * IdentityFrameMetrics.bodyLineHeight
     node.lineSpacing = IdentityFrameMetrics.bodyLineSpacing
     return node
+end function
+
+function IdentityBodyText(node as object, value as string) as float
+    node.height = 0
+    node.value = value
+    lineHeight = IdentityFrameMetrics.bodySize * IdentityFrameMetrics.bodyLineHeight
+    lines = Int((TextHeight(node) + lineHeight - 1) / lineHeight)
+    if node.hasField("wrappedLines") and node.wrappedLines > 0 then lines = node.wrappedLines
+    node.height = lines * lineHeight
+    return node.height
 end function
 
 function IdentityButton(parent as object, id as string, label as string, variant as string, icon as string) as object
@@ -112,8 +123,9 @@ sub onIdentityLayout()
     changed = recovery.kind = "changed"
     name = recovery.serverName
     m.title.value = T("portico.failure.identity.title", { server: name })
-    m.body.value = T("portico.failure.identity.body")
-    if changed then m.body.value = T("connection.identity.changedBody")
+    body = T("portico.failure.identity.body")
+    if changed then body = T("connection.identity.changedBody")
+    bodyHeight = IdentityBodyText(m.body, body)
     m.forget.label = T("connection.identity.forget", { server: name })
     m.forget.visible = changed
     m.forget.focusable = changed
@@ -126,8 +138,8 @@ sub onIdentityLayout()
     y = IdentityFrameMetrics.circle + IdentityFrameMetrics.circleGap
     Place(m.title, 0, y)
     y = y + m.title.contentHeight + IdentityFrameMetrics.titleGap
-    Place(m.body, 0, y)
-    y = y + TextHeight(m.body) + IdentityFrameMetrics.bodyGap
+    Place(m.body, 0, y + IdentityFrameMetrics.bodyLeading)
+    y = y + bodyHeight + IdentityFrameMetrics.bodyGap
     Place(m.actions, 0, y)
     x = m.retry.controlWidth + IdentityFrameMetrics.actionGap
     Place(m.choose, x, 0)
@@ -155,17 +167,26 @@ sub onIdentityAskForget()
     recovery = m.session.recovery
     if recovery = invalid or recovery.kind <> "changed" then return
     m.dialogTitle.value = T("connection.identity.forgetTitle", { server: recovery.serverName })
-    m.dialogBody.value = T("connection.identity.forgetBody")
+    bodyHeight = IdentityBodyText(m.dialogBody, T("connection.identity.forgetBody"))
     y = IdentityFrameMetrics.dialogTop
     Place(m.dialogTitle, IdentityFrameMetrics.dialogSide, y)
     y = y + m.dialogTitle.contentHeight + IdentityFrameMetrics.dialogTitleGap
-    Place(m.dialogBody, IdentityFrameMetrics.dialogSide, y)
-    y = y + TextHeight(m.dialogBody) + IdentityFrameMetrics.dialogBodyGap
+    Place(m.dialogBody, IdentityFrameMetrics.dialogSide, y + IdentityFrameMetrics.bodyLeading)
+    y = y + bodyHeight + IdentityFrameMetrics.dialogBodyGap
     Place(m.dialogActions, IdentityFrameMetrics.dialogSide, y)
     Place(m.cancel, m.confirm.controlWidth + IdentityFrameMetrics.dialogActionGap, 0)
     height = y + m.confirm.controlHeight + IdentityFrameMetrics.dialogBottom
     StyleShape(m.dialogFill, IdentityFrameMetrics.dialogWidth, height, IdentityFrameMetrics.dialogRadius, Theme.colors.raised)
-    StyleRing(m.dialogBorder, IdentityFrameMetrics.dialogWidth, height, IdentityFrameMetrics.dialogRadius, IdentityFrameMetrics.dialogBorder, ColorAlpha(Theme.colors.text, IdentityFrameMetrics.dialogBorderAlpha))
+    m.dialogBorder.uri = "pkg:/images/shapes/identity-dialog-border.9.png"
+    m.dialogBorder.width = IdentityFrameMetrics.dialogWidth
+    m.dialogBorder.height = height
+    m.dialogBorder.blendColor = ColorAlpha(Theme.colors.text, IdentityFrameMetrics.dialogBorderAlpha)
+    titleLines = Int(m.dialogTitle.contentHeight / m.dialogTitle.lineHeight + 0.5)
+    titleLines = Min(IdentityFrameMetrics.shadowMaxLines, Max(1, titleLines))
+    m.dialogShadow.uri = "pkg:/images/shapes/identity-dialog-shadow-" + titleLines.toStr() + ".png"
+    m.dialogShadow.width = IdentityFrameMetrics.dialogWidth + IdentityFrameMetrics.shadowMargin * 2
+    m.dialogShadow.height = height + IdentityFrameMetrics.shadowMargin * 2
+    Place(m.dialogShadow, -IdentityFrameMetrics.shadowMargin, -IdentityFrameMetrics.shadowMargin)
     Place(m.dialog, (Theme.screen.width - IdentityFrameMetrics.dialogWidth) / 2, (Theme.screen.height - height) / 2)
     m.actions.visible = true
     m.overlay.visible = true

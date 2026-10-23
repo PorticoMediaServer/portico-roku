@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto';
 import {resolve,dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {Resvg} from '@resvg/resvg-js';
+import {deflateSync,crc32} from 'node:zlib';
 const app=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const assets=JSON.parse(readFileSync(join(app,'scripts/auth-assets-source-pins.json')));
 const accounts=JSON.parse(readFileSync(join(app,'scripts/accounts-source-pins.json')));
@@ -23,10 +24,31 @@ const m={width,left:px(rule('.screen.tv'),'--gutter'),circle:px(rule('.tst .st-i
 // Verify the shorthands/ratios rather than silently accepting a changed design declaration.
 for(const [s,fragment]of [['.tst h1','margin: 0 0 24px'],['.tst h1','letter-spacing: -.045em'],['.tst .body','line-height: 1.45'],['.tst .body','margin: 0 0 40px'],['.tdlg','padding: 56px 60px 52px'],['.tdlg h2','letter-spacing: -.035em'],['.tdlg h2','margin: 0 0 16px'],['.tdlg p','margin: 0 0 34px'],['.scrim-t','rgba(3,8,12,.66)'],['.rail','padding: 58px 0 56px 72px'],['.rail .brand','margin: 0 0 64px 16px']])if(!rule(s).includes(fragment))throw new Error('Re-read '+s+' '+fragment);
 const font=readFileSync(join(app,'fonts/manrope-800.ttf'));const tables={};for(let i=0;i<font.readUInt16BE(4);i++){const at=12+i*16;tables[font.toString('ascii',at,at+4)]=font.readUInt32BE(at+8);}const units=font.readUInt16BE(tables.head+18);m.titleOffsetRatio=-((font.readInt16BE(tables.hhea+4)-font.readInt16BE(tables.hhea+6)+font.readInt16BE(tables.hhea+8))/units-1)/2;
-m.bodyLineSpacing=m.bodySize*m.bodyLineHeight-m.bodySize*(1-m.titleOffsetRatio*2);
+m.bodyLineSpacing=m.bodySize*m.bodyLineHeight-m.bodySize*(1-m.titleOffsetRatio*2);m.bodyLeading=m.bodyLineSpacing/2;
+const shadow=/0 (\d+)px (\d+)px (-?\d+)px #000/.exec(rule('.tdlg'));if(!shadow)throw new Error('Missing dialog shadow');m.shadowOffset=Number(shadow[1]);m.shadowBlur=Number(shadow[2]);m.shadowSpread=Number(shadow[3]);m.shadowMargin=m.shadowBlur*2;m.shadowMaxLines=12;
 emit('source/ui/IdentityFrameMetrics.bs',`' Generated from ${internal.commit}:${path}, frames3/4.\nnamespace IdentityFrameMetrics\n${Object.entries(m).map(([k,v])=>'    const '+k+' = '+JSON.stringify(v)).join('\n')}\nend namespace\n\nfunction IdentityFrameIconPaths() as object\n    return { identityHome: \"pkg:/images/icons/identity-home-${m.railIcon}.png\", shieldx: \"pkg:/images/icons/identity-shieldx-${m.iconSize}.png\", retry: \"pkg:/images/icons/identity-retry-${m.buttonIcon}.png\" }\nend function\n`);
 for(const[name,size]of [['shieldx',m.iconSize],['retry',m.buttonIcon],['home',m.railIcon]]){const body=new RegExp('<symbol id="i-'+name+'"[^>]*>([\\s\\S]*?)</symbol>').exec(icons)?.[1];if(!body)throw new Error('Missing canonical '+name);const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">${body.replaceAll('currentColor','#fff')}</svg>`;emit(`images/icons/identity-${name}-${size}.png`,new Resvg(svg).render().asPng());}
 const rail=`<svg xmlns="http://www.w3.org/2000/svg" width="${m.railWidth}" height="1080"><defs><linearGradient id="r"><stop stop-color="#071018" stop-opacity=".78"/><stop offset="45%" stop-color="#071018" stop-opacity=".42"/><stop offset="100%" stop-color="#071018" stop-opacity="0"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#r)"/></svg>`;
 if(!rule('.rail').includes('rgba(7,16,24,.78) 0, rgba(7,16,24,.42) 45%, rgba(7,16,24,0) 100%'))throw new Error('Re-read rail gradient');
 emit('images/gradients/identity-rail.png',new Resvg(rail).render().asPng());
 console.log('identity assets/metrics verified: immutable69 frames3/4; checked Server MAIN symbols');
+
+for(let lines=1;lines<=m.shadowMaxLines;lines++){
+ const height=m.dialogTop+lines*m.dialogTitle*(1-m.titleOffsetRatio*2)+m.dialogTitleGap+2*m.bodySize*m.bodyLineHeight+m.dialogBodyGap+72+m.dialogBottom;
+ const margin=m.shadowMargin,spread=m.shadowSpread;
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${m.dialogWidth+margin*2}" height="${Math.ceil(height+margin*2)}"><defs><filter id="blur" x="-100%" y="-300%" width="300%" height="700%"><feGaussianBlur stdDeviation="${m.shadowBlur/2}"/></filter></defs><rect x="${margin-spread}" y="${margin+m.shadowOffset-spread}" width="${m.dialogWidth+spread*2}" height="${height+spread*2}" rx="${Math.max(0,m.dialogRadius+spread)}" fill="#000" filter="url(#blur)"/></svg>`;
+ emit(`images/shapes/identity-dialog-shadow-${lines}.png`,blackAlphaPng(new Resvg(svg).render()));
+}
+const radius=m.dialogRadius,side=radius*2+2,stroke=m.dialogBorder;
+const border=`<svg xmlns="http://www.w3.org/2000/svg" width="${side+2}" height="${side+2}"><rect x="${1+stroke/2}" y="${1+stroke/2}" width="${side-stroke}" height="${side-stroke}" rx="${radius-stroke/2}" fill="none" stroke="white" stroke-width="${stroke}"/><rect x="${1+side/2}" y="0" width="1" height="1" fill="black"/><rect x="0" y="${1+side/2}" width="1" height="1" fill="black"/></svg>`;
+emit('images/shapes/identity-dialog-border.9.png',new Resvg(border).render().asPng());
+
+// The shadow has one colour and 256 alpha values. Indexed PNG preserves every rendered
+// pixel while keeping all bounded heading heights inside Roku's package budget.
+function blackAlphaPng(image){
+ const {width,height,pixels}=image,raw=Buffer.alloc((width+1)*height);
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){const i=(y*width+x)*4;if(pixels[i]||pixels[i+1]||pixels[i+2])throw new Error('Shadow is not black');raw[y*(width+1)+1+x]=pixels[i+3];}
+ const chunk=(name,body)=>{const type=Buffer.from(name),size=Buffer.alloc(4),crc=Buffer.alloc(4);size.writeUInt32BE(body.length);crc.writeUInt32BE(crc32(Buffer.concat([type,body])));return Buffer.concat([size,type,body,crc]);};
+ const header=Buffer.alloc(13);header.writeUInt32BE(width);header.writeUInt32BE(height,4);header[8]=8;header[9]=3;
+ return Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('PLTE',Buffer.alloc(256*3)),chunk('tRNS',Buffer.from(Array.from({length:256},(_,i)=>i))),chunk('IDAT',deflateSync(raw,{level:9})),chunk('IEND',Buffer.alloc(0))]);
+}

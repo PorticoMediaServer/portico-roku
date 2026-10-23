@@ -101,5 +101,6 @@ sub work()
         result = { ok: true, record: SessionRecord(ctx) }
     end if
     result.kindOfJob = kind
+    if job.doesExist("recoverySerial") then result.recoverySerial = job.recoverySerial
     m.top.result = result
 end sub
