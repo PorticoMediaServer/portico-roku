@@ -1,5 +1,14 @@
 import "pkg:/source/core/TVSignIn.bs"
 
+sub Test_TVSignIn_recoveryEntrySurvivesNotificationsForTheSameChallenge()
+    AssertEqual(TVSignInChallengeStage("credentials", true), "factor", "a new challenge opens its six boxes")
+    AssertEqual(TVSignInChallengeStage("credentials", false), "credentials")
+    for each stage in ["factor", "recovery"]
+        AssertEqual(TVSignInChallengeStage(stage, true), stage, "a retained challenge never replaces the chosen factor entry")
+        AssertEqual(TVSignInChallengeStage(stage, false), stage, "working/error notifications keep the chosen factor entry")
+    end for
+end sub
+
 sub Test_TVSignIn_forgotPinKeepsThePickerAccountWithoutAuthorityInTheAddress()
     ctx = TestContext()
     connection = { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }

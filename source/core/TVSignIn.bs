@@ -7,6 +7,12 @@ function TVSignInFactorDigits() as integer
     return 6
 end function
 
+' Busy/error notifications for an existing challenge must not close recovery-code entry.
+function TVSignInChallengeStage(stage as string, challenged as boolean) as string
+    if challenged and stage = "credentials" then return "factor"
+    return stage
+end function
+
 function TVProfilePinDigits() as integer
     return 4
 end function

@@ -41,6 +41,9 @@ end sub
 
 sub leave()
     m.activeProfiles = false
+    for each field in ["error", "busy", "pending", "connection"]
+        m.session.unobserveField(field)
+    end for
     ProfilesClosePin()
 end sub
 
