@@ -108,7 +108,17 @@ end sub
 function TestMusicLateSend(request as object) as object
     m.recordAnswer = TestSend
     answer = m.recordAnswer(request)
-    if request.method = "POST" and Instr(1, request.url, ":commit-next") > 0 then m.transport.context.task.command = "stop"
+    if request.method = "POST" and Instr(1, request.url, ":commit-next") > 0 then
+        ctx = m.transport.context
+        if m.transport.replaceDuringCommit = true then
+            replacement = TestSessionJson(ctx, "owner")
+            replacement.sessionFamilyId = "replacement-family"
+            replacement.accessToken = "replacement-access"
+            SessionAccept(ctx, { origin: ctx.base, pin: TestPin(ctx), signIn: "local", serverName: "Den" }, replacement)
+        else
+            ctx.task.command = "stop"
+        end if
+    end if
     return answer
 end function
 
@@ -127,4 +137,24 @@ sub Test_Music_late_commit_retires_only_its_new_session()
     AssertEqual(ctx.transport.requests[1].method, "DELETE")
     AssertEqual(ctx.transport.requests[1].url, ctx.base + "/v1/playback/sessions/playing-new", "cleanup cannot stop the old or replacement session")
     AssertEqual(ctx.transport.requests[1].headers["Authorization"], "Bearer access-owner-prof_1", "cleanup stays on the captured API")
+end sub
+
+sub Test_Music_late_commit_cannot_enter_the_same_person_new_family()
+    ctx = TestContext()
+    job = TestMusicJob(ctx)
+    job.token = "private-token"
+    ctx.task = { command: "commit" }
+    ctx.transport.context = ctx
+    ctx.transport.replaceDuringCommit = true
+    ctx.send = TestMusicLateSend
+    TestAnswer(ctx, "POST", ctx.base + "/v1/queues/queue-1:commit-next", 200, TestMusicCommitAnswer())
+    TestAnswer(ctx, "DELETE", ctx.base + "/v1/playback/sessions/playing-new", 204)
+    result = MusicCommit(ctx, job)
+    AssertTrue(not result.ok and result.error.code = "cancelled", "late grant is not published into a new family")
+    AssertEqual(ctx.transport.requests.count(), 2, "one commit and one exact retirement")
+    AssertEqual(ctx.transport.requests[1].url, ctx.base + "/v1/playback/sessions/playing-new")
+    AssertEqual(ctx.transport.requests[1].headers["Authorization"], "Bearer access-owner-prof_1", "retirement never borrows replacement authority")
+    record = SessionRecord(ctx)
+    AssertEqual(record["session"].sessionFamilyId, "replacement-family", "replacement session survives cleanup")
+    AssertEqual(record["session"].accessToken, "replacement-access")
 end sub

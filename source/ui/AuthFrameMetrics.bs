@@ -1,0 +1,22 @@
+' Generated from immutable connect.html frame40 at 69f2d45a972ff9ec1bd8743c760183026c92d555.
+' No shared theme source or draft is mirrored.
+namespace AuthFrameMetrics
+    const width = 900
+    const left = 200
+    const wordmarkHeight = 40
+    const wordmarkTop = 72
+    const titleSize = 88
+    const titleHeight = 88
+    const titleTracking = -3.96
+    const titleTextOffset = -16.104000000000006
+    const titleTop = 432
+    const buttonTop = 576
+    const buttonGap = 36
+    const buttonPadding = 38
+    const buttonSize = 26
+    const buttonLineHeight = 36
+    const glassAlpha = 0.14
+    const ringInset = 8
+    const shadowMargin = 128
+    const shadowOffset = 26
+end namespace

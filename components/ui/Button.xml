@@ -10,6 +10,8 @@
         <!-- primary | secondary | ghost | destructive | link (outline and danger are the legacy names). -->
         <field id="variant" type="string" value="secondary" onChange="onButtonLayout" />
         <field id="size" type="string" value="md" onChange="onButtonLayout" />
+        <!-- The white/glass buttons drawn in the authentication TV frames. -->
+        <field id="authAppearance" type="boolean" value="false" onChange="onButtonLayout" />
         <!-- Player transport: "control" or "primary"; round and icon-only at the transport sizes. -->
         <field id="transport" type="string" value="" onChange="onButtonLayout" />
         <field id="selected" type="boolean" value="false" onChange="onButtonStyle" />

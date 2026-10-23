@@ -37,9 +37,11 @@ const emit = (name, content) => {
 const xml = s => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 for (const locale of readdirSync(join(app, 'locale'))) {
   const name = `locale/${locale}/translations.xml`;
-  let contents = readFileSync(join(app, name), 'utf8').replace(/        <message>\n            <source>(?:accounts\.[^<]*|web\.signin\.welcomeHome)<\/source>[\s\S]*?<\/message>\n/g, '');
-  const added = Object.entries(messages).map(([id, text]) => `        <message>\n            <source>${xml(id)}</source>\n            <translation>${xml(text)}</translation>\n        </message>\n`).join('');
-  contents = contents.replace('    </context>', added + '    </context>');
+  let contents = readFileSync(join(app, name), 'utf8');
+  if (!contents.includes('<xliff version="1.2">') || !contents.includes('    </body>')) throw new Error(`Expected Roku XLIFF: ${name}`);
+  contents = contents.replace(/        <trans-unit id="(?:accounts\.[^"]*|web\.signin\.welcomeHome)">[\s\S]*?<\/trans-unit>\n/g, '');
+  const added = Object.entries(messages).map(([id, text]) => `        <trans-unit id="${xml(id)}">\n            <source>${xml(id)}</source>\n            <target>${xml(text)}</target>\n        </trans-unit>\n`).join('');
+  contents = contents.replace('    </body>', added + '    </body>');
   emit(name, contents);
 }
 const route = (file, id) => {

@@ -10,6 +10,7 @@ import "pkg:/source/ThemeTables.bs"
 import "pkg:/source/ui/Style.bs"
 import "pkg:/source/ui/Nodes.bs"
 import "pkg:/source/ui/Layout.bs"
+import "pkg:/source/ui/AuthFrameMetrics.bs"
 import "pkg:/source/core/Messages.bs"
 
 sub init()
@@ -27,11 +28,13 @@ sub init()
     m.account = m.buttons.createChild("UiButton")
     m.account.variant = "primary"
     m.account.size = "lg"
+    m.account.authAppearance = true
     m.account.label = T("accounts.signIn.portico")
     m.account.observeField("pressed", "onActivationAccount")
     m.direct = m.buttons.createChild("UiButton")
     m.direct.variant = "secondary"
     m.direct.size = "lg"
+    m.direct.authAppearance = true
     m.direct.label = T("accounts.signIn.local")
     m.direct.observeField("pressed", "onActivationDirect")
     m.terms = MakeText(m.content, "caption", "tertiary")
@@ -72,7 +75,14 @@ sub leave()
 end sub
 
 function back() as boolean
-    return false
+    if not m.started then return false
+    leave()
+    m.started = false
+    m.state = { phase: "idle" }
+    m.failure = ""
+    onActivationLayout()
+    m.frame.callFunc("focusContent", m.account)
+    return true
 end function
 
 sub onActivationState()
@@ -122,6 +132,7 @@ sub onActivationLayout()
     if problem = "" and state.phase = "error" then problem = T("apple.activation.failed")
     if problem = "" and not m.session.hasRecovery then problem = m.session.error
     m.frame.error = problem
+    m.frame.frontDoor = not m.started and problem = "" and m.session.note = ""
 
     m.panel.panelWidth = width
     m.panel.host = host
@@ -142,11 +153,18 @@ sub onActivationLayout()
     m.account.visible = not m.started
     m.account.focusable = not m.started
     m.panel.visible = m.started
-    rowHeight = StackRow([m.account, m.direct], 0, Theme.space.md, width)
+    rowGap = Theme.space.md
+    rowAlign = "center"
+    if not m.started then
+        rowGap = AuthFrameMetrics.buttonGap
+        rowAlign = "start"
+    end if
+    rowHeight = StackRow([m.account, m.direct], 0, rowGap, width, 0, rowAlign)
     m.buttons.boxWidth = width
     m.buttons.boxHeight = rowHeight
     m.terms.maxWidth = width
     m.terms.value = T("activation.termsNote")
+    m.terms.visible = m.started
     nodes = [m.buttons]
     if m.started then nodes = [m.panel, m.buttons, m.terms]
     height = StackColumn(nodes, 0, Theme.space.lg, width)

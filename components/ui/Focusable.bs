@@ -27,6 +27,7 @@ sub onFocusableSize()
     height = m.top.controlHeight
     if width <= 0 or height <= 0 then return
     inset = Theme.metrics.ringInset
+    if m.top.ringInset > 0 then inset = m.top.ringInset
     Place(m.focusRingNode, -inset, -inset)
     StyleRing(m.focusRingNode, width + inset * 2, height + inset * 2, m.top.radius + inset, Theme.metrics.focusRing, Theme.colors.focus)
     m.top.scaleRotateCenter = [width / 2, height / 2]

@@ -111,7 +111,10 @@ function back() as boolean
         m.session.callFunc("cancelPending")
         return true
     end if
-    if m.step = "welcome" then return false
+    if m.step = "welcome" then
+        if m.screen <> invalid then return m.screen.callFunc("back")
+        return false
+    end if
     if m.step = "landing" then
         if m.screen <> invalid and m.shown = "ScreenDirectSignIn" then return m.screen.callFunc("back")
         return false
