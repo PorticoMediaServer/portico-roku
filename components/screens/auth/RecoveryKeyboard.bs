@@ -32,7 +32,7 @@ sub init()
         shadow.uri = "pkg:/images/shapes/auth-focus.9.png"
         shadow.width = node.controlWidth + AuthFrameMetrics.shadowMargin * 2
         shadow.height = node.controlHeight + AuthFrameMetrics.shadowMargin * 2
-        Place(shadow, -AuthFrameMetrics.shadowMargin, -AuthFrameMetrics.shadowMargin)
+        Place(shadow, -AuthFrameMetrics.shadowMargin, AuthFrameMetrics.shadowOffset - AuthFrameMetrics.shadowMargin)
         fill = node.createChild("Poster")
         text = MakeText(node, "title", "secondary")
         text.sizeOverride = TVSignInMetrics.keyboardSize

@@ -43,7 +43,7 @@ sub init()
         shadow.uri = "pkg:/images/shapes/auth-focus.9.png"
         shadow.width = TVSignInMetrics.padKeyWidth + AuthFrameMetrics.shadowMargin * 2
         shadow.height = TVSignInMetrics.padKeyHeight + AuthFrameMetrics.shadowMargin * 2
-        Place(shadow, -AuthFrameMetrics.shadowMargin, -AuthFrameMetrics.shadowMargin)
+        Place(shadow, -AuthFrameMetrics.shadowMargin, AuthFrameMetrics.shadowOffset - AuthFrameMetrics.shadowMargin)
         fill = node.createChild("Poster")
         label = MakeText(node, "title")
         label.sizeOverride = TVSignInMetrics.padSize
@@ -79,7 +79,9 @@ sub init()
     m.recovery.fillWidth = Max(width, m.recovery.controlWidth)
     m.recovery.observeField("pressed", "onFactorRecovery")
     rows = Int((keys.count() + TVSignInMetrics.padColumns - 1) / TVSignInMetrics.padColumns)
-    top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) - TVSignInMetrics.padGap + TVSignInMetrics.padLinkGap
+    ' The forgot/recovery action occupies the next CSS grid row: the grid gap and
+    ' its own margin-top both apply, after the four key rows.
+    top = rows * (TVSignInMetrics.padKeyHeight + TVSignInMetrics.padGap) + TVSignInMetrics.padLinkGap
     Place(m.recovery, 0, top)
     Place(m.keys, Theme.screen.width - TVSignInMetrics.padRight - width, (Theme.screen.height - top - m.recovery.controlHeight) / 2)
     hint = m.top.createChild("Group")
