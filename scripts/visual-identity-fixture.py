@@ -57,6 +57,7 @@ end sub
 <field id="busy" type="boolean" value="false"/><field id="error" type="string" value=""/>
 <field id="username" type="string" value=""/><field id="phase" type="string" value="signedOut"/>
 <field id="directStep" type="string" value=""/><field id="directFailure" type="assocarray"/>
+<field id="requiresTwoStepSetup" type="boolean" value="false"/>
 <field id="connection" type="assocarray"/><field id="accountCredentialState" type="assocarray"/>
 <function name="beginAccountCredentials"/><function name="submitAccountCredentials"/>
 <function name="cancelAccountCredentials"/><function name="cancelStep"/>

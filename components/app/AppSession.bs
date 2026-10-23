@@ -155,6 +155,7 @@ sub SessionRestored(result as object)
 end sub
 
 sub SessionReady(record as dynamic, session as object, connection as object)
+    m.top.requiresTwoStepSetup = false
     m.top.accountRequested = connection.signIn = "portico"
     viewer = { origin: connection.origin, token: session.accessToken, serverId: connection.pin.serverId, sessionFamilyId: session.sessionFamilyId, viewer: session.viewer, profileName: "", serverName: "", username: "", signIn: connection.signIn }
     if record <> invalid then
@@ -229,7 +230,7 @@ end sub
 
 ' {username, password}: a direct sign-in to the server at the typed address.
 sub signIn(credentials as object)
-    if m.top.busy then return
+    if m.top.busy or m.top.requiresTwoStepSetup then return
     if credentials.expectedConnection <> invalid then
         if not TVSignInLocalCurrent(credentials.expectedConnection, m.top.connection) then return
     end if
@@ -259,6 +260,7 @@ sub SessionOutcome(result as object)
         ' This restricted account is retained privately. Roku offers no owner enrollment
         ' page and cannot turn it into a profile/viewer or management grant.
         m.accountSession = result.accountSession
+        m.top.requiresTwoStepSetup = true
         m.top.directFailure = { code: "two_step_setup_required", status: 0, message: "" }
         m.top.error = SignInMessage(m.top.directFailure)
     else if kind = "profiles" then
@@ -275,7 +277,7 @@ sub SessionOutcome(result as object)
 end sub
 
 sub completeChallenge(code as string)
-    if m.top.busy then return
+    if m.top.busy or m.top.requiresTwoStepSetup then return
     m.top.error = ""
     m.top.directFailure = invalid
     username = ""
@@ -295,6 +297,7 @@ sub cancelStep()
     m.top.directStep = ""
     m.top.error = ""
     m.top.directFailure = invalid
+    m.top.requiresTwoStepSetup = false
     m.challengeToken = ""
     m.accountSession = invalid
     m.credentials = invalid

@@ -18,6 +18,7 @@
         <!-- A step a direct sign-in stopped at: challenge | password-change. -->
         <field id="directStep" type="string" value="" />
         <field id="directFailure" type="assocarray" />
+        <field id="requiresTwoStepSetup" type="boolean" value="false" />
         <!-- An account session waiting for a profile: {snapshot, accountSession}. -->
         <field id="pending" type="assocarray" />
         <field id="hasPending" type="boolean" value="false" />
