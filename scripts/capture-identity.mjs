@@ -36,9 +36,10 @@ const server=createServer((req,res)=>{
  res.setHeader('Cross-Origin-Opener-Policy','same-origin');
  res.setHeader('Cross-Origin-Embedder-Policy','require-corp');
  res.setHeader('Cache-Control','no-store');
- if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return;}
- const file=files.get(req.url);
- if(!file){res.writeHead(404);res.end();return;}
+ const path=new URL(req.url,'http://127.0.0.1').pathname;
+ if(path==='/'){res.setHeader('Content-Type','text/html');res.end(html);return;}
+ const file=files.get(path);
+ if(!file){diagnostics.push('HTTP404 '+req.url);res.writeHead(404);res.end();return;}
  res.setHeader('Content-Type',file[1]);res.end(readFileSync(file[0]));
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -49,7 +50,10 @@ try{
  const context=await browser.newContext({viewport:{width:1920,height:1080},deviceScaleFactor:1,locale:'en-US',colorScheme:'dark'});
  page=await context.newPage();
  page.on('pageerror',error=>diagnostics.push(String(error)));
+ page.on('console',message=>{if(message.type()==='error'||message.type()==='warning')diagnostics.push('console '+message.type()+': '+message.text());});
+ page.on('requestfailed',request=>diagnostics.push('requestfailed '+request.url()+': '+request.failure()?.errorText));
  await page.goto('http://127.0.0.1:'+server.address().port);
+ diagnostics.push(JSON.stringify(await page.evaluate(()=>({crossOriginIsolated,SharedArrayBuffer:typeof SharedArrayBuffer,OffscreenCanvas:typeof OffscreenCanvas}))));
  await page.waitForFunction(()=>window.engineEvents.some(e=>String(e.data?.content).includes('VISUAL_IDENTITY_READY')),{},{timeout:60000});
  // Read actual rendered pixels; this never paints or compensates the simulator's output.
  await page.waitForFunction(()=>{
@@ -84,7 +88,7 @@ try{
   for(const name of ['identity-3.jpg','identity-4.jpg','identity-return.jpg']){
    if(!existsSync(join(output,name)))await page.screenshot({path:join(output,name),type:'jpeg',quality:96}).catch(()=>{});
   }
-  diagnostics.push(JSON.stringify(await page.evaluate(()=>window.engineEvents).catch(()=>[])));
+  diagnostics.push(JSON.stringify(await page.evaluate(()=>window.engineEvents.filter(e=>e.event!=='icon')).catch(()=>[])));
  }
  throw error;
 }finally{
