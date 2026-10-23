@@ -14,6 +14,15 @@ function RouteFixture() as dynamic
             for each item in globals.routeFixture.verdicts
                 CryptoRegisterVerdict(item.publicKey, item.signature, item.digest, item.valid)
             end for
+            ' Independently computed Node crypto bridge for signature-before-clock ordering.
+            ' Historical fixture bytes/expected outcomes remain unchanged.
+            bridge = TestFixture("identity-main38.json")
+            for each item in bridge.digests
+                CryptoRegisterDigest(item.algorithm, item.input, item.digest)
+            end for
+            for each item in bridge.verdicts
+                CryptoRegisterVerdict(item.publicKey, item.signature, item.digest, item.valid)
+            end for
         end if
     end if
     return globals.routeFixture

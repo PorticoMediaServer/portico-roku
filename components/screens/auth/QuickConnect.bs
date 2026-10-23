@@ -106,7 +106,11 @@ sub onQuickLayout()
     link = ""
     if origin <> "" then link = ApprovalLink(origin, given, code)
     m.frame.title = T("quickConnect.title", { host: server })
-    m.frame.lead = T("accounts.consent.local")
+    m.frame.lead = ""
+    if IsString(state.verificationUri) then
+        address = CreateObject("roRegex", "^https?://", "i").replace(state.verificationUri, "")
+        m.frame.lead = T("accounts.consent.local", { server: server, address: address })
+    end if
     problem = m.failure
     failed = state.phase = "error"
     if problem = "" and failed then problem = T("quickConnect.failed")

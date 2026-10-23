@@ -290,7 +290,7 @@ end sub
 
 sub onSettingsShortcut(event as object)
     row = event.getRoSGNode()
-    if row.rowId = "shortcut:signOutAccount" then SettingsConfirm("signOutAccount", invalid)
+    if row.rowId = "shortcut:signOutAccount" then m.session.callFunc("signOutAccount")
     if row.rowId = "shortcut:profile" then m.session.callFunc("switchProfile")
     if row.rowId = "shortcut:server" then
         task = CreateObject("roSGNode", "SessionTask")
@@ -809,10 +809,6 @@ sub SettingsConfirm(kind as string, subject as dynamic)
         if m.system <> invalid and m.system.name <> invalid and m.system.name <> "" then server = m.system.name
         title = T("settings.signOutConfirm.title", { server: server, device: SettingsDeviceNoun() })
         words = T("settings.signOutConfirm.bodyTV")
-        action = T("action.signOut")
-    else if kind = "signOutAccount" then
-        title = T("accounts.signOut.portico")
-        words = T("accounts.signOut.porticoBody")
         action = T("action.signOut")
     else if kind = "deviceSignOut" or kind = "deviceRemove" then
         action = "signOut"
