@@ -57,6 +57,18 @@ end sub
         info = '{ kind: "' + kind + '", serverName: "Portico demo", username: "nana_r", origin: "http://192.168.1.20:32500", url: "http://192.168.1.20:32500/settings/profile", address: "192.168.1.20:32500/settings/profile", portico: false }'
         scene = scene.replace('screen = m.top.createChild("ScreenTVCredentials")', 'session.requiredSignIn = ' + info + '\n screen = m.top.createChild("ScreenTVRequiredSignIn")')
         scene = scene.replace('screen.kind = "portico"', '')
+        scene = scene.replace(' print "VISUAL_COMPONENT_READY', ' VisualLayout(screen, 0)\n print "VISUAL_COMPONENT_READY')
+        scene += '''
+sub VisualLayout(node as object, depth as integer)
+ print "VISUAL_LAYOUT "; depth; " "; node.subtype(); " "; FormatJson(node.translation); " "; FormatJson(node.boundingRect())
+ if node.hasField("width") then print "VISUAL_SIZE "; node.width; " "; node.height
+ if depth < 2 then
+  for each child in node.getChildren(-1, 0)
+   VisualLayout(child, depth + 1)
+  end for
+ end if
+end sub
+'''
     # The capture fixture owns these no-op callbacks. No product component or transport is edited.
     session_xml = '''<component name="VisualCredentialSession" extends="Node"><interface>
 <field id="busy" type="boolean" value="false"/><field id="error" type="string" value=""/>

@@ -16,7 +16,7 @@ sub init()
     mark = m.top.createChild("Poster")
     mark.uri = "pkg:/images/brand/wordmark.png"
     mark.height = TVSignInMetrics.wordmarkHeight
-    mark.width = mark.height * Theme.apple.wordmarkAspect
+    mark.width = TVSignInMetrics.wordmarkHeight * Theme.apple.wordmarkAspect
     Place(mark, TVSignInMetrics.left, TVSignInMetrics.wordmarkTop)
     m.column = m.top.createChild("Group")
     m.why = MakeText(m.column, "body")
