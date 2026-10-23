@@ -3,6 +3,10 @@
 namespace AccountRoutes
     const system = "/v1/system"
     const signInStatus = "/v1/admin/sign-in"
+    const movePassword = "/v1/auth/move/password"
+    const moveCodePreview = "/v1/auth/move/code"
+    const moveLocal = "/v1/auth/move/local"
+    const movePortico = "/v1/auth/move/portico"
     const localConsentReview = "/v1/quick-connect/review"
     const localConsentDecision = "/v1/quick-connect/decision"
     const porticoConsentReview = "/v1/device-authorizations/review"

@@ -73,6 +73,10 @@ const local = 'packages/contracts/src/routes.ts', hosted = 'packages/contracts/s
 const routes = {
   system: route(local, 'get_system'),
   signInStatus: route(local, 'get_sign_in_settings'),
+  movePassword: route(local, 'post_auth_move_password'),
+  moveCodePreview: route(local, 'post_auth_move_code'),
+  moveLocal: route(local, 'post_auth_move_local'),
+  movePortico: route(local, 'post_auth_move_portico'),
   localConsentReview: route(local, 'post_quick_connect_review'),
   localConsentDecision: route(local, 'post_quick_connect_decision'),
   porticoConsentReview: route(hosted, 'device_authorization_review'),

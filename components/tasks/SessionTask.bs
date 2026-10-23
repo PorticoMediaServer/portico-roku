@@ -4,6 +4,7 @@ import "pkg:/source/core/Session.bs"
 import "pkg:/source/core/Hosted.bs"
 import "pkg:/source/core/TVConsent.bs"
 import "pkg:/source/core/SignInStatus.bs"
+import "pkg:/source/core/MemberAccountMove.bs"
 
 sub init()
     m.top.functionName = "work"
@@ -15,9 +16,29 @@ sub work()
     result = { ok: false, failure: { code: "invalid_request", status: 0, message: "" } }
     kind = job.kind
     if kind = "signIn" or kind = "challenge" or kind = "changePassword" or kind = "chooseProfile" or kind = "openServer" then ctx.admissionRevision = SessionRevision(ctx)
-    if kind = "readSignInStatus" then
+    if kind = "movePassword" or kind = "moveCodePreview" or kind = "moveRedeemLocal" or kind = "moveRedeemPortico" then
         ctx.task = m.top
-        reader = ReadOnlySignInNew(ctx, job.viewerBinding)
+        mover = MemberAccountMoveNew(ctx, job.connection, MemberMoveTaskOptions(ctx, job.connection, job.expectedRevision))
+        if mover <> invalid then
+            if kind = "movePassword" then
+                result = mover.password(job.username, job.password)
+            else if kind = "moveCodePreview" then
+                result = mover.previewCode(job.code)
+            else if kind = "moveRedeemLocal" then
+                result = mover.redeemLocal(job.code, job.username, job.password)
+            else
+                result = mover.redeemPortico(job.proof, job.porticoIdentity)
+            end if
+            mover.dispose()
+        end if
+        m.top.job = { kind: kind }
+    else if kind = "readSignInStatus" then
+        ctx.task = m.top
+        reader = invalid
+        if IsNatural(job.expectedRevision) then
+            ctx.admissionRevision = job.expectedRevision
+            reader = ReadOnlySignInNew(ctx, job.viewerBinding)
+        end if
         if reader <> invalid then
             result = reader.read()
             reader.dispose()
