@@ -26,12 +26,14 @@ sub init()
     m.buttons = m.content.createChild("Group")
     m.buttons.addFields({ boxWidth: 0, boxHeight: 0 })
     m.account = m.buttons.createChild("UiButton")
+    m.account.id = "accounts.signIn.portico"
     m.account.variant = "primary"
     m.account.size = "lg"
     m.account.authAppearance = true
     m.account.label = T("accounts.signIn.portico")
     m.account.observeField("pressed", "onActivationAccount")
     m.direct = m.buttons.createChild("UiButton")
+    m.direct.id = "accounts.signIn.local"
     m.direct.variant = "secondary"
     m.direct.size = "lg"
     m.direct.authAppearance = true
