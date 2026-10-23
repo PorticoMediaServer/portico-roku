@@ -4,7 +4,9 @@ import sys
 import zipfile
 from pathlib import Path
 
-source, destination = map(Path, sys.argv[1:])
+source, destination = map(Path, sys.argv[1:3])
+state = sys.argv[3] if len(sys.argv) > 3 else "identity"
+assert state in ("identity", "frontdoor")
 main = '''sub main(args as dynamic)
  screen = CreateObject("roSGScreen")
  port = CreateObject("roMessagePort")
@@ -21,13 +23,15 @@ scene = '''sub init()
  m.top.backgroundUri = ""
  m.top.backgroundColor = "0x071018FF"
  session = CreateObject("roSGNode", "Node")
- session.addFields({ busy: false, recovery: { kind: "changed", serverName: "Basement server", origin: "http://192.168.1.20:32500", serverId: "fixture-only" } })
+ session.addFields({ busy: false, error: "", note: "", hasRecovery: false, hasAccount: false, recovery: { kind: "changed", serverName: "Basement server", origin: "http://192.168.1.20:32500", serverId: "fixture-only" } })
  m.global.addFields({ textScale: 1.0, reduceMotion: false, region: "", session: session })
  screen = m.top.createChild("ScreenServerIdentity")
  screen.callFunc("enter")
- print "VISUAL_IDENTITY_READY: actual compiled ScreenServerIdentity; synthetic state; no auth/transport"
+ print "VISUAL_COMPONENT_READY: actual compiled screen; synthetic state; no auth/transport"
 end sub
 '''
+if state == "frontdoor":
+    scene = scene.replace('"ScreenServerIdentity"', '"ScreenActivation"')
 with zipfile.ZipFile(source) as original, zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as fixture:
     for entry in original.infolist():
         if entry.filename != "source/Main.brs":

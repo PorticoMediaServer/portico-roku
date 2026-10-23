@@ -9,10 +9,13 @@ import {chromium} from 'playwright-core';
 const app=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const build=process.env.PORTICO_BUILD_DIR;
 const output=process.env.PORTICO_RUNNER_OUTPUT;
+const state=process.env.ROKU_VISUAL_STATE??'identity';
+if(!['identity','frontdoor'].includes(state))throw new Error('Unknown visual state');
+const captures=state==='identity'?['identity-3.jpg','identity-4.jpg','identity-return.jpg']:['frontdoor-primary.jpg','frontdoor-local.jpg','frontdoor-return.jpg'];
 if(!build||!output)throw new Error('Set owned PORTICO_BUILD_DIR and PORTICO_RUNNER_OUTPUT');
 mkdirSync(output,{recursive:true});
 const fixture=join(build,'visual-identity.zip');
-const fixtureLog=execFileSync('python3',[join(app,'scripts/visual-identity-fixture.py'),join(build,'portico-roku.zip'),fixture],{encoding:'utf8'});
+const fixtureLog=execFileSync('python3',[join(app,'scripts/visual-identity-fixture.py'),join(build,'portico-roku.zip'),fixture,state],{encoding:'utf8'});
 const files=new Map([
  ['/brs.api.js',[join(app,'node_modules/brs-engine/lib/brs.api.js'),'text/javascript']],
  ['/brs.worker.js',[join(app,'node_modules/brs-engine/lib/brs.worker.js'),'text/javascript']],
@@ -70,7 +73,7 @@ try{
  page.on('requestfailed',request=>diagnostics.push('requestfailed '+request.url()+': '+request.failure()?.errorText));
  await page.goto('http://127.0.0.1:'+server.address().port);
  diagnostics.push(JSON.stringify(await page.evaluate(()=>({crossOriginIsolated,SharedArrayBuffer:typeof SharedArrayBuffer,OffscreenCanvas:typeof OffscreenCanvas}))));
- await page.waitForFunction(()=>window.engineEvents.some(e=>String(e.data?.content).includes('VISUAL_IDENTITY_READY')),{},{timeout:60000});
+ await page.waitForFunction(()=>window.engineEvents.some(e=>String(e.data?.content).includes('VISUAL_COMPONENT_READY')),{},{timeout:60000});
  // Read actual rendered pixels; this never paints or compensates the simulator's output.
  await page.waitForFunction(()=>{
   const c=document.querySelector('#display'),ctx=c.getContext('2d');
@@ -79,35 +82,35 @@ try{
   for(let i=0;i<p.length;i+=4)if(p[i]>180&&p[i+1]>180&&p[i+2]>180)bright++;
   return bright>4000;
  },{},{timeout:60000});
- await captureCanvas(page,'identity-3.jpg');
- for(const key of ['ArrowRight','ArrowRight','Enter']){
+ await captureCanvas(page,captures[0]);
+ for(const key of (state==='identity'?['ArrowRight','ArrowRight','Enter']:['ArrowRight'])){
   await page.keyboard.press(key);
   await settledCanvas(page);
  }
- await page.waitForFunction(()=>{
+ if(state==='identity')await page.waitForFunction(()=>{
   const p=document.querySelector('#display').getContext('2d').getImageData(480,400,1,1).data;
   return p[1]>25&&p[2]>30;
  },{},{timeout:15000});
- await captureCanvas(page,'identity-4.jpg');
- await page.keyboard.press('Escape');
- await page.waitForFunction(()=>document.querySelector('#display').getContext('2d').getImageData(480,400,1,1).data[1]<25,{},{timeout:15000});
- await captureCanvas(page,'identity-return.jpg');
+ await captureCanvas(page,captures[1]);
+ await page.keyboard.press(state==='identity'?'Escape':'ArrowLeft');
+ if(state==='identity')await page.waitForFunction(()=>document.querySelector('#display').getContext('2d').getImageData(480,400,1,1).data[1]<25,{},{timeout:15000});
+ await captureCanvas(page,captures[2]);
  const events=await page.evaluate(()=>window.engineEvents);
  for(const e of events)if(e.event==='debug'||e.setupError)diagnostics.push(JSON.stringify(e));
- console.log(fixtureLog+'Captured identity3/4/Back at1920x1080 in VPS Chromium; COMPONENT-ONLY, comparison still required.');
+ console.log(fixtureLog+'Captured '+state+' at1920x1080 in VPS Chromium; COMPONENT-ONLY, comparison still required.');
  await context.close();
 }catch(error){
  failure=error;
  diagnostics.push(String(error.stack??error));
  if(page&&!page.isClosed()){
-  for(const name of ['identity-3.jpg','identity-4.jpg','identity-return.jpg']){
+  for(const name of captures){
    if(!existsSync(join(output,name)))await page.screenshot({path:join(output,name),type:'jpeg',quality:96}).catch(()=>{});
   }
   diagnostics.push(JSON.stringify(await page.evaluate(()=>window.engineEvents.filter(e=>e.event!=='icon')).catch(()=>[])));
  }
  throw error;
 }finally{
- writeFileSync(join(output,'identity-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled one second after each real input; animations/scales/pixels unchanged.\nRequested remote sequence: Right, Right, Enter, Back; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
+ writeFileSync(join(output,state+'-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled one second after each real input; animations/scales/pixels unchanged.\nRequested real remote sequence: '+(state==='identity'?'Right, Right, Enter, Back':'Right, Left')+'; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
  if(browser)await browser.close();
  await new Promise(resolve=>server.close(resolve));
 }
