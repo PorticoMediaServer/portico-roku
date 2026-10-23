@@ -157,14 +157,19 @@ end sub
 function SessionAdmissionCurrent(ctx as object) as boolean
     if ctx.admissionRevision <> invalid and ctx.admissionRevision <> SessionRevision(ctx) then return false
     if ctx.task <> invalid then
-        ' Task.state is readable; control is write-only. In-memory callers may supply command.
+        ' Some Tasks declare their own cooperative command (SetupCodeTask also projects an
+        ' assocarray state). Preserve that command AND the SDK string state; control is write-only.
         command = invalid
-        if IsObject(ctx.task) and ctx.task.doesExist("command") then
-            command = ctx.task.command
+        state = invalid
+        if IsObject(ctx.task) then
+            command = FieldOf(ctx.task, "command")
+            state = FieldOf(ctx.task, "state")
         else
-            command = ctx.task.state
+            if ctx.task.hasField("command") then command = ctx.task.command
+            state = ctx.task.state
         end if
         if IsString(command) and LCase(command) = "stop" then return false
+        if IsString(state) and LCase(state) = "stop" then return false
     end if
     return true
 end function

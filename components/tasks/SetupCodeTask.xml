@@ -7,7 +7,7 @@
         <!-- For "server": the verified connection {origin, pin}. -->
         <field id="connection" type="assocarray" />
         <!-- {phase, userCode, verificationUri, verificationUriComplete}: creating | waiting | approved | denied | error -->
-        <field id="state" type="assocarray" />
+        <field id="codeState" type="assocarray" />
         <!-- Set once, when approved: the account's grant summary, or the server sign-in outcome. -->
         <field id="outcome" type="assocarray" />
         <!-- "restart" asks for a new code (after a denial or an error); "stop" cancels the code and ends the task. -->
