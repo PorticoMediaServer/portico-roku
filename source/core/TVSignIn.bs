@@ -1,8 +1,24 @@
 ' Ruling 28 TV interaction state. No media-server request is ever used for Hosted credentials.
 import "pkg:/source/core/HostedCredentialOwner.bs"
+import "pkg:/source/core/Errors.bs"
 
 function TVSignInFactorDigits() as integer
     return 6
+end function
+
+function TVSignInFailure(failure as dynamic, kind as string, serverName = "" as string) as string
+    if not IsObject(failure) then return SignInMessage(failure)
+    if ArrayIncludes(["invalid_credentials", "invalid_grant", "ambiguous_credentials"], failure.code) then
+        if kind = "portico" then return T("services.signin.credentials")
+        return T("web.signIn.error.credentials", { server: serverName })
+    end if
+    if ArrayIncludes(["challenge_invalid", "invalid_code", "mfa_invalid"], failure.code) then return T("web.signIn.error.code")
+    if failure.status = 429 then
+        if kind = "portico" then return T("services.signin.tooMany")
+        return T("web.signIn.error.tooMany")
+    end if
+    if kind = "portico" and ArrayIncludes(["network", "timeout", "server_unavailable"], failure.code) then return T("services.signin.unavailable")
+    return SignInMessage(failure)
 end function
 
 function TVSignInDigit(value as string, key as string, count as integer) as object

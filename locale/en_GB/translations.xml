@@ -4340,6 +4340,30 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>roku.tvSignIn.clear</source>
             <target>Clear</target>
         </trans-unit>
+        <trans-unit id="services.signin.credentials">
+            <source>services.signin.credentials</source>
+            <target>That username or email and password didn’t match a Portico Account. Check them and try again.</target>
+        </trans-unit>
+        <trans-unit id="services.signin.unavailable">
+            <source>services.signin.unavailable</source>
+            <target>Portico Accounts aren’t answering right now. Your servers aren’t affected. Try again in a few minutes.</target>
+        </trans-unit>
+        <trans-unit id="services.signin.tooMany">
+            <source>services.signin.tooMany</source>
+            <target>Too many attempts on this Portico Account. Wait a minute, then try again.</target>
+        </trans-unit>
+        <trans-unit id="web.signIn.error.credentials">
+            <source>web.signIn.error.credentials</source>
+            <target>That username and password didn’t match an account on {server}. Check them and try again.</target>
+        </trans-unit>
+        <trans-unit id="web.signIn.error.code">
+            <source>web.signIn.error.code</source>
+            <target>That code didn’t work. Enter the current code from your authenticator app, or a recovery code.</target>
+        </trans-unit>
+        <trans-unit id="web.signIn.error.tooMany">
+            <source>web.signIn.error.tooMany</source>
+            <target>Too many sign-in attempts. Wait a minute, then try again.</target>
+        </trans-unit>
     </body>
   </file>
 </xliff>

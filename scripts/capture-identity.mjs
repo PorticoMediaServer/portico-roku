@@ -10,8 +10,9 @@ const app=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const build=process.env.PORTICO_BUILD_DIR;
 const output=process.env.PORTICO_RUNNER_OUTPUT;
 const state=process.env.ROKU_VISUAL_STATE??'identity';
-if(!['identity','frontdoor'].includes(state))throw new Error('Unknown visual state');
-const captures=state==='identity'?['identity-3.jpg','identity-4.jpg','identity-return.jpg']:['frontdoor-primary.jpg','frontdoor-local.jpg','frontdoor-return.jpg'];
+if(!['identity','frontdoor','hosted-form','local-form','factor','recovery'].includes(state))throw new Error('Unknown visual state');
+const credentials=!['identity','frontdoor'].includes(state);
+const captures=credentials?[state+'.jpg']:state==='identity'?['identity-3.jpg','identity-4.jpg','identity-return.jpg']:['frontdoor-primary.jpg','frontdoor-local.jpg','frontdoor-return.jpg'];
 if(!build||!output)throw new Error('Set owned PORTICO_BUILD_DIR and PORTICO_RUNNER_OUTPUT');
 mkdirSync(output,{recursive:true});
 const fixture=join(build,'visual-identity.zip');
@@ -75,14 +76,21 @@ try{
  diagnostics.push(JSON.stringify(await page.evaluate(()=>({crossOriginIsolated,SharedArrayBuffer:typeof SharedArrayBuffer,OffscreenCanvas:typeof OffscreenCanvas}))));
  await page.waitForFunction(()=>window.engineEvents.some(e=>String(e.data?.content).includes('VISUAL_COMPONENT_READY')),{},{timeout:60000});
  // Read actual rendered pixels; this never paints or compensates the simulator's output.
- await page.waitForFunction(()=>{
+ await page.waitForFunction(credentials=>{
   const c=document.querySelector('#display'),ctx=c.getContext('2d');
   if(!ctx)return false;
-  const p=ctx.getImageData(200,420,920,145).data;let bright=0;
+  const p=credentials?ctx.getImageData(200,150,1460,780).data:ctx.getImageData(200,420,920,145).data;let bright=0;
   for(let i=0;i<p.length;i+=4)if(p[i]>180&&p[i+1]>180&&p[i+2]>180)bright++;
   return bright>4000;
- },{},{timeout:60000});
+ },credentials,{timeout:60000});
+ if(state==='recovery'){
+  for(const key of ['ArrowDown','ArrowDown','ArrowDown','ArrowDown','Enter','Enter']){
+   await page.keyboard.press(key);
+   await settledCanvas(page);
+  }
+ }
  await captureCanvas(page,captures[0]);
+ if(!credentials){
  for(const key of (state==='identity'?['ArrowRight','ArrowRight','Enter']:['ArrowRight'])){
   await page.keyboard.press(key);
   await settledCanvas(page);
@@ -95,6 +103,7 @@ try{
  await page.keyboard.press(state==='identity'?'Escape':'ArrowLeft');
  if(state==='identity')await page.waitForFunction(()=>document.querySelector('#display').getContext('2d').getImageData(480,400,1,1).data[1]<25,{},{timeout:15000});
  await captureCanvas(page,captures[2]);
+ }
  const events=await page.evaluate(()=>window.engineEvents);
  for(const e of events)if(e.event==='debug'||e.setupError)diagnostics.push(JSON.stringify(e));
  console.log(fixtureLog+'Captured '+state+' at1920x1080 in VPS Chromium; COMPONENT-ONLY, comparison still required.');
@@ -110,7 +119,7 @@ try{
  }
  throw error;
 }finally{
- writeFileSync(join(output,state+'-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled one second after each real input; animations/scales/pixels unchanged.\nRequested real remote sequence: '+(state==='identity'?'Right, Right, Enter, Back':'Right, Left')+'; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
+ writeFileSync(join(output,state+'-capture.log'),fixtureLog+'Status: '+(failure?'ERROR; captured diagnostics only':'CAPTURED; visual comparison still required')+'\nChrome '+(browser?.version()??'not launched')+'; viewport1920x1080; deviceScaleFactor1\nActual framebuffer sampled one second after each real input; animations/scales/pixels unchanged.\nRequested real remote sequence: '+(credentials?(state==='recovery'?'Down ×4, Enter, Enter':'entry only'):state==='identity'?'Right, Right, Enter, Back':'Right, Left')+'; component-only synthetic state.\nNo full host, native Task, HTTP/TLS, physical Group.scale or hardware acceptance.\n'+diagnostics.join('\n')+'\n');
  if(browser)await browser.close();
  await new Promise(resolve=>server.close(resolve));
 }

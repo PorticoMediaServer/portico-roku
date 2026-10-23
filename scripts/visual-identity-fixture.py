@@ -6,7 +6,7 @@ from pathlib import Path
 
 source, destination = map(Path, sys.argv[1:3])
 state = sys.argv[3] if len(sys.argv) > 3 else "identity"
-assert state in ("identity", "frontdoor")
+assert state in ("identity", "frontdoor", "hosted-form", "local-form", "factor", "recovery")
 main = '''sub main(args as dynamic)
  screen = CreateObject("roSGScreen")
  port = CreateObject("roMessagePort")
@@ -32,6 +32,44 @@ end sub
 '''
 if state == "frontdoor":
     scene = scene.replace('"ScreenServerIdentity"', '"ScreenActivation"')
+credential = state in ("hosted-form", "local-form", "factor", "recovery")
+if credential:
+    scene = '''sub init()
+ m.top.backgroundUri = ""
+ m.top.backgroundColor = "0x071018FF"
+ session = CreateObject("roSGNode", "VisualCredentialSession")
+ session.connection = { signIn: "local", serverName: "Portico demo", origin: "http://192.168.1.20:32500", pin: { serverId: "fixture-only", publicKey: "fixture-only" } }
+ session.accountCredentialState = { phase: "idle" }
+ m.global.addFields({ textScale: 1.0, reduceMotion: false, region: "", session: session })
+ screen = m.top.createChild("ScreenTVCredentials")
+ screen.kind = "KIND"
+ screen.callFunc("enter")
+ EXTRA
+ print "VISUAL_COMPONENT_READY: actual compiled screen; synthetic state; no auth/transport"
+end sub
+'''.replace('KIND', 'local' if state == 'local-form' else 'portico')
+    extra = ''
+    if state in ('factor', 'recovery'):
+        extra = 'session.accountCredentialState = { phase: "challenge", expiresAt: "2099-01-01T00:00:00Z" }'
+    scene = scene.replace('EXTRA', extra)
+    # The capture fixture owns these no-op callbacks. No product component or transport is edited.
+    session_xml = '''<component name="VisualCredentialSession" extends="Node"><interface>
+<field id="busy" type="boolean" value="false"/><field id="error" type="string" value=""/>
+<field id="username" type="string" value=""/><field id="phase" type="string" value="signedOut"/>
+<field id="directStep" type="string" value=""/><field id="directFailure" type="assocarray"/>
+<field id="connection" type="assocarray"/><field id="accountCredentialState" type="assocarray"/>
+<function name="beginAccountCredentials"/><function name="submitAccountCredentials"/>
+<function name="cancelAccountCredentials"/><function name="cancelStep"/>
+</interface><script type="text/brightscript" uri="pkg:/components/VisualCredentialSession.brs"/></component>'''
+    session_brs = '''sub beginAccountCredentials()
+end sub
+sub submitAccountCredentials(input as object)
+end sub
+sub cancelAccountCredentials()
+end sub
+sub cancelStep()
+end sub
+'''
 with zipfile.ZipFile(source) as original, zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as fixture:
     for entry in original.infolist():
         if entry.filename != "source/Main.brs":
@@ -39,6 +77,9 @@ with zipfile.ZipFile(source) as original, zipfile.ZipFile(destination, "w", zipf
     fixture.writestr("source/Main.brs", main)
     fixture.writestr("components/VisualIdentityScene.xml", '<component name="VisualIdentityScene" extends="Scene"><script type="text/brightscript" uri="pkg:/components/VisualIdentityScene.brs"/></component>')
     fixture.writestr("components/VisualIdentityScene.brs", scene)
+    if credential:
+        fixture.writestr("components/VisualCredentialSession.xml", session_xml)
+        fixture.writestr("components/VisualCredentialSession.brs", session_brs)
 print("Component-only visual fixture; every product component byte is unchanged.")
 print("Product ZIP SHA256:", hashlib.sha256(source.read_bytes()).hexdigest())
 print("Fixture ZIP SHA256:", hashlib.sha256(destination.read_bytes()).hexdigest())

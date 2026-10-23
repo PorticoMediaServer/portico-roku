@@ -3,12 +3,26 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync, writeFileSync, renameSync, readdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, resolve, join} from 'node:path';
+import {stripTypeScriptTypes} from 'node:module';
 const app = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const root = process.env.PORTICO_INTERNAL_ROOT;
 if (!root) throw new Error('Set PORTICO_INTERNAL_ROOT to the immutable design Git repository');
 const commit = '69f2d45a972ff9ec1bd8743c760183026c92d555';
 const load = name => execFileSync('git', ['show', `${commit}:design/ui-v1/${name}`], {cwd: root, maxBuffer: 4 * 1024 * 1024}).toString();
 const auth = load('auth.html'), connect = load('connect.html');
+const serverRoot = process.env.PORTICO_SERVER_ROOT;
+if (!serverRoot) throw new Error('Set PORTICO_SERVER_ROOT for checked MAIN sign-in error copy');
+const serverCommit = JSON.parse(readFileSync(join(app, 'scripts/accounts-source-pins.json'))).commit;
+execFileSync('git', ['merge-base', '--is-ancestor', serverCommit, 'origin/main'], {cwd: serverRoot});
+const catalogue = async name => {
+  const bytes = execFileSync('git', ['show', `${serverCommit}:packages/i18n/src/catalog/en-US/${name}.ts`], {cwd: serverRoot});
+  return import('data:text/javascript;base64,' + Buffer.from(stripTypeScriptTypes(bytes.toString())).toString('base64'));
+};
+const {servicesMessages} = await catalogue('services');
+const {webMessages} = await catalogue('web');
+const sharedIds = ['services.signin.credentials', 'services.signin.unavailable', 'services.signin.tooMany', 'web.signIn.error.credentials', 'web.signIn.error.code', 'web.signIn.error.tooMany'];
+const shared = {...servicesMessages, ...webMessages};
+for (const id of sharedIds) if (typeof shared[id] !== 'string') throw new Error('Missing canonical sign-in error: ' + id);
 const messages = {
   'roku.tvSignIn.hostedLead': 'Sign in with your Portico Account to access servers shared with you.',
   'roku.tvSignIn.identity': 'Username or email',
@@ -66,8 +80,9 @@ const xml = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').repl
 for (const locale of readdirSync(join(app, 'locale'))) {
   const name = `locale/${locale}/translations.xml`;
   let text = readFileSync(join(app, name), 'utf8').replace(/        <trans-unit id="roku\.tvSignIn\.[^"]*">[\s\S]*?<\/trans-unit>\n/g, '');
+  for (const id of sharedIds) text = text.replace(new RegExp('        <trans-unit id="' + id.replaceAll('.', '\\.') + '">[\\s\\S]*?<\\/trans-unit>\\n', 'g'), '');
   if (!text.includes('    </body>')) throw new Error('Expected XLIFF');
-  const rows = Object.entries(messages).map(([id,value]) => `        <trans-unit id="${id}">\n            <source>${id}</source>\n            <target>${xml(value)}</target>\n        </trans-unit>\n`).join('');
+  const rows = Object.entries({...messages, ...Object.fromEntries(sharedIds.map(id => [id, shared[id]]))}).map(([id,value]) => `        <trans-unit id="${id}">\n            <source>${id}</source>\n            <target>${xml(value)}</target>\n        </trans-unit>\n`).join('');
   emit(name, text.replace('    </body>', rows + '    </body>'));
 }
 console.log('TV sign-in composition: auth8/9/17 + connect36; seven drawn strings, no shared source changes');

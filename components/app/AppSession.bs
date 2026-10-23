@@ -234,6 +234,7 @@ sub signIn(credentials as object)
         if not TVSignInLocalCurrent(credentials.expectedConnection, m.top.connection) then return
     end if
     m.top.error = ""
+    m.top.directFailure = invalid
     m.credentials = credentials
     m.details = invalid
     job = { kind: "signIn", connection: m.top.connection, username: credentials.username, password: credentials.password }
@@ -247,6 +248,7 @@ end sub
 
 sub SessionOutcome(result as object)
     if not result.ok then
+        m.top.directFailure = result.failure
         m.top.error = SignInMessage(result.failure)
         return
     end if
@@ -269,6 +271,7 @@ end sub
 sub completeChallenge(code as string)
     if m.top.busy then return
     m.top.error = ""
+    m.top.directFailure = invalid
     username = ""
     if m.credentials <> invalid then username = m.credentials.username
     SessionRun({ kind: "challenge", connection: m.top.connection, token: m.challengeToken, code: code, username: username })
@@ -285,6 +288,7 @@ sub cancelStep()
     SessionAdvance(SessionContextNew())
     m.top.directStep = ""
     m.top.error = ""
+    m.top.directFailure = invalid
     m.challengeToken = ""
     m.accountSession = invalid
     m.credentials = invalid
