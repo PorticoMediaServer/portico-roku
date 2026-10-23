@@ -128,19 +128,19 @@ sub Test_Home_rowPaging()
     HomeFixtureDone()
 end sub
 
-sub Test_Home_realSignInParses()
-    ' The development server's own sign-in answer (tokens stripped) goes through the parser.
+sub Test_Home_legacySignInDoesNotGrantCapabilities()
+    ' Preserve the actual older server response. It predates the four live management
+    ' capabilities, so its owner role must not manufacture the authority now required.
     raw = TestFixture("server/direct-sign-in.json")
     if raw = invalid then return
     issued = IsoToSeconds(raw.session.expiresAt)
-    AssertTrue(issued <> invalid, "the session's expiry is a strict UTC timestamp")
+    AssertTrue(issued <> invalid, "the preserved session has a strict UTC expiry")
+    AssertEqual(raw.capabilities, invalid, "the older response declares no live capabilities")
     parsed = ParseDirectSignIn(raw, issued - 60)
-    AssertTrue(parsed.ok, "the server's sign-in answer is accepted")
-    if parsed.ok then
-        AssertEqual(parsed.kind, "signed-in")
-        AssertEqual(parsed.accountScoped, false)
-        AssertTrue(parsed.session.serverIdentity <> invalid, "a direct sign-in carries the server's key")
-    end if
+    AssertEqual(parsed.ok, false, "an older owner response cannot grant undeclared capabilities")
+end sub
+
+sub Test_Home_librarySnapshotParses()
     libraries = ParseLibraries(TestFixture("server/libraries.json"))
     AssertTrue(libraries.count() > 0, "the server's libraries are read")
     AssertEqual(MediaFamilyIcon(libraries[0].kind) <> invalid, true)

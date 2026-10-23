@@ -16,7 +16,11 @@ namespace AuthFrameMetrics
     const buttonSize = 26
     const buttonLineHeight = 36
     const glassAlpha = 0.14
+    const glassBorderWidth = 1
+    const glassBorderAlpha = 0.1
     const ringInset = 8
     const shadowMargin = 128
     const shadowOffset = 26
+    const titleShadowText = "Welcome home."
+    const titleShadowPadding = 60
 end namespace

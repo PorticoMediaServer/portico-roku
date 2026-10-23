@@ -172,7 +172,13 @@ sub onButtonStyle()
     fill = fills[state]
     if m.top.authAppearance then
         fill = { background: "text", foreground: "ink" }
-        if ButtonVariant() <> "primary" then fill = { background: "text", backgroundAlpha: AuthFrameMetrics.glassAlpha, foreground: "text" }
+        if ButtonVariant() <> "primary" then
+            fill = { background: "text", backgroundAlpha: AuthFrameMetrics.glassAlpha, foreground: "text" }
+            if not m.top.isFocused then
+                fill.border = "text"
+                fill.borderAlpha = AuthFrameMetrics.glassBorderAlpha
+            end if
+        end if
     end if
     m.authShadow.visible = m.top.authAppearance and m.top.isFocused
     foreground = ThemeColor(fill.foreground)
@@ -180,7 +186,11 @@ sub onButtonStyle()
     StyleShape(m.fill, layout.width, layout.height, layout.radius, ThemeColor(fill.background, fill.backgroundAlpha))
     m.fill.visible = fill.background <> "transparent"
     m.border.visible = fill.border <> invalid
-    if fill.border <> invalid then StyleRing(m.border, layout.width, layout.height, layout.radius, Theme.spec.overlay.border.width, ThemeColor(fill.border, fill.borderAlpha))
+    if fill.border <> invalid then
+        borderWidth = Theme.spec.overlay.border.width
+        if m.top.authAppearance then borderWidth = AuthFrameMetrics.glassBorderWidth
+        StyleRing(m.border, layout.width, layout.height, layout.radius, borderWidth, ThemeColor(fill.border, fill.borderAlpha))
+    end if
     if m.top.icon <> "" then
         m.iconNode.uri = IconUri(m.top.icon, layout.iconSize, m.top.iconNumber >= 0)
         m.iconNode.width = layout.iconSize

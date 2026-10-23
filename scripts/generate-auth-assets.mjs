@@ -2,7 +2,7 @@
 // Frame 40's colour-only backdrop and checked MAIN's bundled Manrope ExtraBold face.
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {readFileSync, writeFileSync, renameSync} from 'node:fs';
+import {readFileSync, writeFileSync, renameSync, readdirSync} from 'node:fs';
 import {dirname, resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {Resvg} from '@resvg/resvg-js';
@@ -100,6 +100,9 @@ const ring = /0 0 0 (\d+)px var\(--focus\)/.exec(rule('.tv .ring'));
 const glowColor = /--glow:\s*rgba\((\d+),(\d+),(\d+),([.\d]+)\)/.exec(rule('.screen.tv'));
 const buttonRadius = pixels(rule('.tv .btn'), 'border-radius');
 if (!shadow || !glowColor || !ring) throw new Error('Missing TV focus shadow');
+const glassBorder = /inset 0 0 0 (\d+)px rgba\(237,245,250,([.\d]+)\)/.exec(rule('.glass'));
+if (!glassBorder) throw new Error('Missing glass inset edge');
+values.glassBorderWidth = Number(glassBorder[1]); values.glassBorderAlpha = Number(glassBorder[2]);
 values.ringInset = Number(ring[1]);
 values.shadowMargin = Number(shadow[2]) * 2;
 values.shadowOffset = Number(shadow[1]);
@@ -107,14 +110,28 @@ const spread = Number(shadow[3]);
 const sampleWidth = buttonHeight * 5;
 const patchWidth = sampleWidth + values.shadowMargin * 2;
 const patchHeight = buttonHeight + values.shadowMargin * 2;
-const shadowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${patchWidth + 2}" height="${patchHeight + 2}"><defs><filter id="b" x="-200%" y="-400%" width="500%" height="900%"><feGaussianBlur stdDeviation="${Number(shadow[2]) / 2}"/></filter></defs><rect x="${1 + values.shadowMargin - spread}" y="${1 + values.shadowMargin - spread}" width="${sampleWidth + spread * 2}" height="${buttonHeight + spread * 2}" rx="${Math.max(0, buttonRadius + spread)}" fill="rgb(${glowColor[1]},${glowColor[2]},${glowColor[3]})" fill-opacity="${glowColor[4]}" filter="url(#b)"/><rect x="${1 + patchWidth / 2}" y="0" width="1" height="1" fill="#000"/><rect x="0" y="${1 + patchHeight / 2}" width="1" height="1" fill="#000"/></svg>`;
+const shadowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${patchWidth + 2}" height="${patchHeight + 2}"><defs><filter id="b" x="-200%" y="-400%" width="500%" height="900%"><feGaussianBlur stdDeviation="${Number(shadow[2]) / 2}"/></filter><mask id="outside"><rect width="100%" height="100%" fill="white"/><rect x="${1 + values.shadowMargin}" y="${1 + values.shadowMargin - values.shadowOffset}" width="${sampleWidth}" height="${buttonHeight}" rx="${buttonRadius}" fill="black"/></mask></defs><rect x="${1 + values.shadowMargin - spread}" y="${1 + values.shadowMargin - spread}" width="${sampleWidth + spread * 2}" height="${buttonHeight + spread * 2}" rx="${Math.max(0, buttonRadius + spread)}" fill="rgb(${glowColor[1]},${glowColor[2]},${glowColor[3]})" fill-opacity="${glowColor[4]}" filter="url(#b)" mask="url(#outside)"/><rect x="${1 + patchWidth / 2}" y="0" width="1" height="1" fill="#000"/><rect x="0" y="${1 + patchHeight / 2}" width="1" height="1" fill="#000"/></svg>`;
 emit('images/shapes/auth-focus.9.png', new Resvg(shadowSvg).render().asPng());
-emit('source/ui/AuthFrameMetrics.bs', `' Generated from immutable connect.html frame40 at ${pins.inputs.find(x => x.root === 'internal').commit}.\n' No shared theme source or draft is mirrored.\nnamespace AuthFrameMetrics\n${Object.entries(values).map(([key, value]) => `    const ${key} = ${value}`).join('\n')}\nend namespace\n`);
+const textShadow = /text-shadow:\s*0 (\d+)px (\d+)px rgba\((\d+),(\d+),(\d+),([.\d]+)\)/.exec(rule('.tvl h1'));
+if (!textShadow) throw new Error('Missing title shadow rule');
+const titles = readdirSync(join(app, 'locale')).map(locale => {
+  const xml = readFileSync(join(app, 'locale', locale, 'translations.xml'), 'utf8');
+  return /<trans-unit id="web\.signin\.welcomeHome">[\s\S]*?<target>([^<]+)<\/target>/.exec(xml)?.[1];
+});
+if (new Set(titles).size !== 1 || !titles[0] || titles[0].includes('&')) throw new Error('Generate a separate title shadow for each differing locale');
+values.titleShadowText = titles[0];
+values.titleShadowPadding = Number(textShadow[2]) * 2;
+const baseline = values.titleHeight + values.titleTextOffset + (checkedFontMetrics(checked['apps/native/assets/manrope-800.ttf'], true) * size - size);
+const titleShadowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${values.width + values.titleShadowPadding * 2}" height="${values.titleHeight + values.titleShadowPadding * 2}"><defs><filter id="s" x="-100%" y="-300%" width="300%" height="700%"><feGaussianBlur stdDeviation="${Number(textShadow[2]) / 2}"/></filter></defs><text x="${values.titleShadowPadding}" y="${values.titleShadowPadding + baseline + Number(textShadow[1])}" font-family="Manrope ExtraBold" font-size="${size}" letter-spacing="${values.titleTracking}" fill="rgb(${textShadow[3]},${textShadow[4]},${textShadow[5]})" fill-opacity="${textShadow[6]}" filter="url(#s)">${titles[0]}</text></svg>`;
+emit('images/gradients/auth-title-shadow.png', new Resvg(titleShadowSvg, {font: {loadSystemFonts: false, fontFiles: [join(app, 'fonts/manrope-800.ttf')], defaultFontFamily: 'Manrope ExtraBold'}}).render().asPng());
+emit('source/ui/AuthFrameMetrics.bs', `' Generated from immutable connect.html frame40 at ${pins.inputs.find(x => x.root === 'internal').commit}.\n' No shared theme source or draft is mirrored.\nnamespace AuthFrameMetrics\n${Object.entries(values).map(([key, value]) => `    const ${key} = ${JSON.stringify(value)}`).join('\n')}\nend namespace\n`);
 console.log('auth assets verified from immutable design and checked Native MAIN Git objects');
 
-function checkedFontMetrics(bytes) {
+function checkedFontMetrics(bytes, ascentOnly = false) {
   const tables = {};
   for (let i = 0; i < bytes.readUInt16BE(4); i++) { const at = 12 + i * 16; tables[bytes.toString('ascii', at, at + 4)] = bytes.readUInt32BE(at + 8); }
   if (tables.head === undefined || tables.hhea === undefined) throw new Error('Missing bundled font metrics');
-  return (bytes.readInt16BE(tables.hhea + 4) - bytes.readInt16BE(tables.hhea + 6) + bytes.readInt16BE(tables.hhea + 8)) / bytes.readUInt16BE(tables.head + 18);
+  const units = bytes.readUInt16BE(tables.head + 18);
+  if (ascentOnly) return bytes.readInt16BE(tables.hhea + 4) / units;
+  return (bytes.readInt16BE(tables.hhea + 4) - bytes.readInt16BE(tables.hhea + 6) + bytes.readInt16BE(tables.hhea + 8)) / units;
 }
