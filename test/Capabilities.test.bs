@@ -1,0 +1,98 @@
+' Independent v2 contract vectors. The original v1 golden remains preserved, without regeneration.
+function CapabilityFacts() as object
+    return { model: "4850X", osVersion: "14.1", uhd: true, displayUhd: true, hevc: true, hevc10: true, vp9: false, av1: false, hdr10: false, hdr10plus: false, hlg: false, dolbyVision: false, audio: [{ codec: "aac", maxChannels: 2, evidence: "probed" }], passthrough: [], outputChannels: 2 }
+end function
+
+sub Test_Capabilities_versionTwoHasOneNativeEngine()
+    profile = RokuCapabilityProfile(CapabilityFacts())
+    print "CAPABILITY_VECTOR " + FormatJson(profile)
+    AssertEqual(profile.version, 2)
+    AssertEqual(profile.client.form, "tv")
+    AssertEqual(profile.client.model, "4850X")
+    AssertEqual(profile.engines.native.name, "roku-video")
+    AssertEqual(profile.video, invalid, "no retired top-level v1 codec list")
+    AssertEqual(profile.engines.mpv, invalid)
+    AssertSame(profile.display.dynamicRanges, ["sdr"], "4K alone does not establish HDR")
+    AssertEqual(profile.audioOutput.maxChannels, 2)
+    AssertSame(profile.engines.native.audioPassthrough, [], "no implicit Dolby or Atmos")
+    AssertSame(profile.engines.native.subtitleRendering, ["text"], "WebVTT is native; ASS and bitmap subtitles require burn-in")
+    AssertTrue(ArrayIncludes(profile.engines.native.transports[0].containers, "mkv"))
+    AssertEqual(PlaybackRoutes.capabilities, "/v1/me/devices/current/capabilities")
+end sub
+
+sub Test_Capabilities_hdrAndDolbyVisionStayWithinRealFormats()
+    facts = CapabilityFacts()
+    facts.dolbyVision = true
+    facts.hdr10 = true
+    facts.hdr10plus = true
+    facts.av1 = true
+    facts.passthrough = [{ codec: "dts", maxChannels: 6, evidence: "probed" }, { codec: "eac3", maxChannels: 8, evidence: "probed" }]
+    facts.outputChannels = 8
+    profile = RokuCapabilityProfile(facts)
+    print "CAPABILITY_VECTOR " + FormatJson(profile)
+    engine = profile.engines.native
+    AssertSame(engine.video[0].dolbyVisionProfiles, [9], "AVC Dolby Vision profile 9")
+    AssertSame(engine.video[1].dolbyVisionProfiles, [5], "HEVC Dolby Vision profile 5")
+    AssertTrue(not ArrayIncludes(engine.video[1].dynamicRanges, "hdr10plus"), "HDR10+ was documented for AV1, not inferred for HEVC")
+    AssertEqual(engine.video[2].codec, "av1")
+    AssertTrue(ArrayIncludes(engine.video[2].dynamicRanges, "hdr10plus"))
+    AssertEqual(profile.audioOutput.maxChannels, 8, "eight channels require an explicit probe")
+    AssertEqual(engine.audioPassthrough[1].objectAudio, invalid, "E-AC-3 is not proof of Atmos")
+    AssertTrue(ArrayIncludes(engine.transports[0].audio, "dts"), "probed DTS is admitted for MKV")
+    for each route in engine.transports
+        AssertTrue(not ArrayIncludes(route.video, "av1"), "no unsupported AV1 direct/HLS claim; the current server has no DASH transport")
+    end for
+    facts.hevc10 = false
+    engine = RokuCapabilityProfile(facts).engines.native
+    AssertSame(engine.video[1].bitDepths, [8])
+    AssertEqual(engine.video[1].dolbyVisionProfiles, invalid, "a display cannot supply a missing decoder")
+end sub
+
+sub Test_Capabilities_receiptIsTheActual204AndEtag()
+    AssertEqual(ParseCapabilityReceipt({ ok: true, status: 204, headers: { etag: Chr(34) + "12" + Chr(34) } }).revision, Chr(34) + "12" + Chr(34))
+    AssertEqual(ParseCapabilityReceipt({ ok: true, status: 200, headers: { etag: Chr(34) + "12" + Chr(34) } }), invalid)
+    AssertEqual(ParseCapabilityReceipt({ ok: true, status: 204, headers: {} }), invalid)
+    AssertEqual(ParseCapabilityReceipt({ ok: true, status: 204, headers: { etag: "12" } }), invalid)
+end sub
+
+sub Test_Capabilities_publicationPrecedesActualQueueTransport()
+    ctx = TestContext()
+    TestSignedIn(ctx)
+    GetGlobalAA().deviceFacts = CapabilityFacts()
+    TestAnswer(ctx, "PUT", ctx.base + "/v1/me/devices/current/capabilities", 204, invalid, { etag: Chr(34) + "1" + Chr(34) })
+    TestAnswer(ctx, "POST", ctx.base + "/v1/queues", 201, { id: "queue-receipt" })
+    reply = PlaybackViewerRequest(ctx, PlaybackRoutes.queue, "POST", { owner: "device", segments: [] }, { "Idempotency-Key": "exact-request" })
+    AssertTrue(reply.ok)
+    AssertEqual(ctx.transport.requests.count(), 2)
+    AssertEqual(ctx.transport.requests[0].method, "PUT")
+    AssertEqual(ctx.transport.requests[0].url, ctx.base + "/v1/me/devices/current/capabilities")
+    AssertEqual(ParseJson(ctx.transport.requests[0].body).version, 2)
+    AssertEqual(ctx.transport.requests[1].headers["Idempotency-Key"], "exact-request")
+    AssertEqual(ctx.transport.requests[1].headers["Authorization"], "Bearer access-viewer-prof_1")
+    ctx.transport.requests.clear()
+    ctx.transport.answers.clear()
+    TestAnswer(ctx, "PUT", ctx.base + "/v1/me/devices/current/capabilities", 400, { error: { code: "invalid_request" } })
+    failed = PlaybackViewerRequest(ctx, PlaybackRoutes.queue, "POST", {})
+    AssertTrue(not failed.ok)
+    AssertEqual(ctx.transport.requests.count(), 1, "an unaccepted capability document cannot plan a queue with stale facts")
+    GetGlobalAA().delete("deviceFacts")
+end sub
+
+sub Test_Capabilities_onlyPlaybackPlanningPublishes()
+    AssertTrue(PlaybackNeedsCapabilities("/v1/playback/sessions", "POST"))
+    AssertTrue(PlaybackNeedsCapabilities("/v1/queues/q1:advance", "POST"))
+    AssertTrue(PlaybackNeedsCapabilities("/v1/items/i1/playback-options", "GET"))
+    AssertTrue(not PlaybackNeedsCapabilities("/v1/playback/sessions/s1/timeline", "POST"), "completion acknowledgement keeps its own ordering")
+    AssertTrue(not PlaybackNeedsCapabilities("/v1/queues/q1/segments", "POST"))
+    AssertTrue(not PlaybackNeedsCapabilities("/v1/queues/q1/window?around=current&before=1&after=1", "GET"))
+end sub
+
+sub Test_Capabilities_queueSnapshotCanStillBeBuilding()
+    queue = ParseQueueHeader({ id: "q1", revision: "r1", total: 0, segments: [{ id: "s1", state: "building" }] })
+    AssertTrue(QueueStartPending(queue), "a large server-side snapshot is polled, never duplicated locally")
+    queue.current = { entryId: "e1" }
+    AssertTrue(not QueueStartPending(queue))
+    queue.delete("current")
+    queue.segments[0].state = "failed"
+    AssertTrue(not QueueStartPending(queue), "failed or ended queues do not poll forever")
+end sub

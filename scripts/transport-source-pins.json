@@ -1,0 +1,10 @@
+{
+  "commit": "677ed8df505a1e12c57c7d9e504e20522b6b7701",
+  "files": {
+    "packages/client-core/src/client-profile.ts": "68518ceded1d4985072731f300ea2c9ab5cf1c01a6da93661e439ab90e79c5e1",
+    "packages/client-core/src/playback-v1/queue.ts": "3d623b1d85833c2455a2367bde4d3114e651617cef3baacf65603b2b11baae7e",
+    "packages/contracts/src/routes.ts": "3872c663f353d9b37ede44f7b5449388bebe86385f80372a93945b88ac6702ab",
+    "server/internal/playback/capability_document.go": "581195129d4086df05ae58b0d5b97e00ca034155c8d4e90e8036f6885b1da281",
+    "server/internal/httpapi/playback_v1_routes.go": "f64c8a8adbd2577a44a099f7093fc1f29f30a231165d0c4971af68ff7eb70c71"
+  }
+}

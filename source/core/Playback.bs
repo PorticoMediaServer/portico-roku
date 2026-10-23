@@ -5,6 +5,7 @@
 ' Shuffle and Next are requests, never a list kept here.
 import "pkg:/source/core/Validate.bs"
 import "pkg:/source/core/ClientProfileTables.bs"
+import "pkg:/source/core/CapabilityTables.bs"
 
 function IsPlaybackId(value as dynamic) as boolean
     return MatchesPattern(value, "^[A-Za-z0-9_.-]{1,128}$")
@@ -184,6 +185,15 @@ end function
 function ParseQueueHeader(v as dynamic) as dynamic
     if not IsObject(v) or not IsNatural(v.total) or not IsPlaybackId(v.id) or not IsString(v.revision) or v.revision = "" or Len(v.revision) > 256 then return invalid
     queue = { id: v.id, revision: v.revision, total: v.total, repeat: PlaybackOneOf(v.repeat, ["off", "one", "all"], "off"), shuffled: IsObject(v.shuffle) }
+    if IsArray(v.segments) then
+        queue.segments = []
+        for each segment in v.segments
+            if IsObject(segment) then
+                if not IsPlaybackId(segment.id) then return invalid
+                queue.segments.push({ id: segment.id, state: PlaybackOneOf(segment.state, ["building", "ready", "failed"], "other") })
+            end if
+        end for
+    end if
     if IsObject(v.current) then
         if not IsPlaybackId(v.current.entryId) then return invalid
         queue.current = { entryId: v.current.entryId, position: PlaybackNumber(v.current.position) }
@@ -439,7 +449,19 @@ function QueueWindowPath(id as string, before as integer, after as integer) as s
     a = after
     if a < 0 then a = 0
     if a > limit - b then a = limit - b
-    return "/v1/queues/" + id.encodeUriComponent() + "/window?around=current&before=" + b.toStr() + "&after=" + a.toStr()
+    return PlaybackQueuePath(PlaybackRoutes.queueWindow, id) + "?around=current&before=" + b.toStr() + "&after=" + a.toStr()
+end function
+
+function PlaybackQueuePath(template as string, id as string) as string
+    return template.replace("{id}", id.encodeUriComponent())
+end function
+
+function QueueStartPending(queue as dynamic) as boolean
+    if not IsObject(queue) or queue.current <> invalid or not IsArray(queue.segments) then return false
+    for each segment in queue.segments
+        if segment.state = "building" then return true
+    end for
+    return false
 end function
 
 ' types.ts `parsePage` over `parseEntry`: {ok, window: [entries]}; one bad entry rejects the page.

@@ -59,18 +59,23 @@ sub enter()
     select("Home")
     m.tasks.push(ApiStart({ path: "/v1/libraries", reader: "libraries" }, "onShellLibraries"))
     m.tasks.push(ApiStart({ path: "/v1/system" }, "onShellSystem"))
-    ' apps/native/src/bridge/capability-publisher.ts: what this device decodes and shows, published
-    ' once per sign-in. The server decides every play against it; the channel never chooses a codec.
-    facts = DeviceFacts()
-    m.tasks.push(ApiStart({ path: "/v1/playback/client-profile", method: "PUT", body: RokuClientProfile(facts) }, "onShellProfile"))
-    m.tasks.push(ApiStart({ path: "/v1/me/devices/current/capabilities", method: "PUT", body: RokuCapabilityProfile(facts) }, "onShellProfile"))
+    ' One version-2 document. ApiTask refreshes the output facts again before playback and only
+    ' republishes changed documents. The server owns planning and the publication ETag.
+    m.tasks.push(ApiStart({ path: PlaybackRoutes.capabilities, method: "PUT" }, "onShellProfile"))
     ShellProbeChannels()
     m.global.observeField("receiveFromDevices", "onShellReceive")
     scene = m.top.getScene()
-    if scene <> invalid then scene.observeField("playerActive", "onShellPlayerActive")
+    if scene <> invalid then
+        scene.observeField("playerActive", "onShellPlayerActive")
+        scene.observeField("codecCapabilitiesChanged", "onShellCodecCapabilities")
+    end if
     onShellReceive()
     ' The profile's Language, hour cycle and time zone apply from the first page on.
     m.tasks.push(ApiStart({ path: "/v1/preferences?deviceClass=television", reader: "preferences" }, "onShellPreferences"))
+end sub
+
+sub onShellCodecCapabilities()
+    m.tasks.push(ApiStart({ path: PlaybackRoutes.capabilities, method: "PUT" }, "onShellProfile"))
 end sub
 
 sub onShellPreferences(event as object)
@@ -252,6 +257,8 @@ end sub
 
 sub leave()
     ReceiverStop()
+    scene = m.top.getScene()
+    if scene <> invalid then scene.unobserveField("codecCapabilitiesChanged")
     m.global.unobserveField("receiveFromDevices")
     ' The next profile's choices are its own.
     m.global.region = ""

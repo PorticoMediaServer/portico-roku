@@ -1,92 +1,158 @@
-' What this device can play, as the server is told it: packages/client-core/src/client-profile.ts
-' `rokuDeclaredProfile` (the client profile, `PUT /v1/playback/client-profile`) and
-' playback-v1/capability-profile.ts (the v1 device profile, `PUT
-' /v1/me/devices/current/capabilities`, spec §3). The tables are generated
-' (ClientProfileTables.bs); this picks the 4K or the HD one, names the model and OS, and widens
-' the table by what roDeviceInfo answers (AV1, Dolby Vision, the audio the HDMI sink decodes). The
-' server decides from it: the channel never chooses a format itself.
-import "pkg:/source/core/ClientProfileTables.bs"
+' One version-2 capability document, generated from the checked canonical table and narrowed by
+' the current device. Decoder/display/audio facts are read again before playback: HDMI and
+' private listening can change while the channel remains signed in.
+import "pkg:/source/core/CapabilityTables.bs"
+import "pkg:/source/core/Validate.bs"
 
-' What roDeviceInfo says about this device: {model, osVersion, uhd, av1, dolbyVision, hdr10,
-' hlg, surround}. On a test machine it is what the test registers.
 function DeviceFacts() as object
     known = GetGlobalAA().deviceFacts
-    if known <> invalid then return known
-    info = CreateObject("roDeviceInfo")
-    facts = { model: info.getModel(), osVersion: "", uhd: false, av1: false, dolbyVision: false, hdr10: false, hlg: false, surround: false }
+    if known <> invalid then return known ' Off-device test injection only; never populated here.
+    return ProbeDeviceFacts(CreateObject("roDeviceInfo"))
+end function
+
+function RokuDecodes(info as object, format as object, audio = false as boolean) as boolean
+    if audio then
+        answer = info.canDecodeAudio(format)
+    else
+        answer = info.canDecodeVideo(format)
+    end if
+    return IsObject(answer) and answer.result = true
+end function
+
+function CapabilityStrings(values as object) as object
+    copy = []
+    for each value in values
+        copy.push(value)
+    end for
+    return copy
+end function
+
+function CapabilityVersionPart(value as dynamic) as string
+    if IsString(value) then return value
+    if IsNatural(value) then return value.toStr()
+    return ""
+end function
+
+function ProbeDeviceFacts(info as object) as object
+    facts = { model: info.getModel(), osVersion: "", uhd: false, hevc: false, hevc10: false, vp9: false, av1: false, dolbyVision: false, hdr10: false, hdr10plus: false, hlg: false, audio: [], passthrough: [], outputChannels: 2 }
     version = info.getOSVersion()
-    if Type(version) = "roAssociativeArray" then facts.osVersion = version.major + "." + version.minor
-    hevc = info.canDecodeVideo({ codec: "hevc", profile: "main 10", level: "5.1" })
-    facts.uhd = Type(hevc) = "roAssociativeArray" and hevc.result = true
-    av1 = info.canDecodeVideo({ codec: "av1" })
-    facts.av1 = Type(av1) = "roAssociativeArray" and av1.result = true
+    if IsObject(version) then facts.osVersion = CapabilityVersionPart(version.major) + "." + CapabilityVersionPart(version.minor)
+    facts.hevc = RokuDecodes(info, { "codec": "hevc", "profile": "main", "level": "5.1" })
+    facts.hevc10 = RokuDecodes(info, { "codec": "hevc", "profile": "main 10", "level": "5.1" })
+    facts.uhd = facts.hevc
+    facts.vp9 = RokuDecodes(info, { "codec": "vp9" })
+    facts.av1 = RokuDecodes(info, { "codec": "av1", "profile": "main 10", "level": "5.1" })
     display = info.getDisplayProperties()
-    if Type(display) = "roAssociativeArray" then
+    if IsObject(display) then
         facts.dolbyVision = display.dolbyVision = true
         facts.hdr10 = display.hdr10 = true
+        facts.hdr10plus = display.hdr10plus = true
         facts.hlg = display.hlg = true
     end if
-    facts.surround = info.getAudioOutputChannel() <> "Stereo"
-    GetGlobalAA().deviceFacts = facts
+    mode = info.getVideoMode()
+    facts.displayUhd = IsString(mode) and Left(mode, 5) = "2160p"
+    ' ChCnt is an explicit format question, not an inference from "not Stereo". Missing or
+    ' closest-format replies are refused. Object-audio support is never inferred from E-AC-3.
+    for each codec in ["aac", "mp3", "flac", "pcm", "alac", "opus", "vorbis", "ac3", "eac3"]
+        for each channels in [8, 6, 2]
+            if RokuDecodes(info, { "codec": codec, "chcnt": channels }, true) then
+                facts.audio.push({ codec: codec, maxChannels: channels, evidence: "probed" })
+                exit for
+            end if
+        end for
+    end for
+    for each codec in ["ac3", "eac3", "dts"]
+        for each channels in [8, 6, 2]
+            if RokuDecodes(info, { "codec": codec, "chcnt": channels, "passthru": 1 }, true) then
+                facts.passthrough.push({ codec: codec, maxChannels: channels, evidence: "probed" })
+                if channels > facts.outputChannels then facts.outputChannels = channels
+                exit for
+            end if
+        end for
+    end for
     return facts
 end function
 
-' The client profile: the declared table for this model's class, with its model and OS version,
-' AV1 where the device decodes it and the dynamic ranges the display reports.
-function RokuClientProfile(facts as object) as object
-    profile = RokuClientProfileTable(facts.uhd)
-    if facts.osVersion <> "" then profile.client["osVersion"] = facts.osVersion
-    if facts.model <> "" then profile.client["model"] = facts.model
-    if facts.uhd then
-        ranges = ["sdr"]
-        if facts.hdr10 then ranges.push("hdr10")
-        if facts.hlg then ranges.push("hlg")
-        if facts.dolbyVision then ranges.push("dolby_vision")
-        ' A display that reports nothing keeps the declared table.
-        if ranges.count() > 1 then
-            profile.display["dynamicRanges"] = ranges
-            for each codec in profile.video
-                if codec.codec <> "h264" then codec["dynamicRanges"] = ranges
-            end for
-        end if
-        if facts.av1 then
-            av1 = { "codec": "av1", "bitDepths": [8, 10], "maxWidth": profile.display.width, "maxHeight": profile.display.height, "maxFrameRate": 60, "dynamicRanges": profile.display.dynamicRanges }
-            profile.video.push(av1)
-            for each transport in profile.transports
-                if transport.video <> invalid then transport.video.push("av1")
-            end for
-        end if
+function RokuCapabilityProfile(facts as object) as object
+    profile = RokuCapabilityTable(facts.uhd = true)
+    if IsText(facts.osVersion, 120) then profile.client["osVersion"] = facts.osVersion
+    if IsText(facts.model, 120) then profile.client["model"] = facts.model
+    ranges = ["sdr"]
+    if facts.hdr10 = true then ranges.push("hdr10")
+    if facts.hlg = true then ranges.push("hlg")
+    if facts.hdr10plus = true then ranges.push("hdr10plus")
+    if facts.dolbyVision = true then ranges.push("dolby_vision")
+    profile.display.dynamicRanges = ranges
+    if facts.displayUhd <> true then
+        profile.display.width = 1920
+        profile.display.height = 1080
     end if
-    if facts.surround then profile["audioOutput"] = { "maxChannels": 8 }
+    engine = profile.engines.native
+    engine.evidence = "mixed"
+    video = []
+    ' AVC stays within Roku's documented 1080p ceiling, even on a 4K HEVC player.
+    h264 = { codec: "h264", bitDepths: [8], maxWidth: 1920, maxHeight: 1080, maxFrameRate: 60, maxLevel: 42, dynamicRanges: ["sdr"], evidence: "declared" }
+    if facts.dolbyVision = true then
+        h264.dynamicRanges.push("dolby_vision")
+        h264.dolbyVisionProfiles = [9]
+        h264.codecTags = ["avc1", "avc3", "dvav"]
+    end if
+    video.push(h264)
+    if facts.hevc = true then
+        hevcRanges = ["sdr"]
+        depths = [8]
+        if facts.hevc10 = true then
+            depths.push(10)
+            if facts.hdr10 = true then hevcRanges.push("hdr10")
+            if facts.hlg = true then hevcRanges.push("hlg")
+        end if
+        hevc = { codec: "hevc", bitDepths: depths, maxWidth: 3840, maxHeight: 2160, maxFrameRate: 60, maxLevel: 153, dynamicRanges: hevcRanges, evidence: "probed" }
+        if facts.hevc10 = true and facts.dolbyVision = true then
+            hevc.dynamicRanges.push("dolby_vision")
+            hevc.dolbyVisionProfiles = [5]
+            hevc.codecTags = ["hvc1", "hev1", "dvhe"]
+        end if
+        video.push(hevc)
+    end if
+    if facts.vp9 = true then video.push({ codec: "vp9", bitDepths: [8], maxWidth: 1920, maxHeight: 1080, maxFrameRate: 60, dynamicRanges: ["sdr"], evidence: "probed" })
+    ' Roku documents AV1 HDR10+ in DASH. Preserve the probed decoder fact, but do not add AV1
+    ' to direct/HLS transports: this server contract currently has no DASH transport.
+    if facts.av1 = true then video.push({ codec: "av1", bitDepths: [8, 10], maxWidth: 3840, maxHeight: 2160, maxFrameRate: 60, dynamicRanges: CapabilityStrings(ranges), evidence: "probed" })
+    engine.video = video
+    engine.audio = []
+    engine.audioPassthrough = []
+    if IsArray(facts.audio) then engine.audio = facts.audio
+    if IsArray(facts.passthrough) then engine.audioPassthrough = facts.passthrough
+    profile.audioOutput.maxChannels = 2
+    if IsNatural(facts.outputChannels) and facts.outputChannels >= 2 and facts.outputChannels <= 8 then profile.audioOutput.maxChannels = facts.outputChannels
+    ' A transport is admitted only for codecs that were actually reported. MKV is available
+    ' directly on each model for its supported AVC/HEVC/audio, while ASS/PGS stay server burn-in.
+    videoNames = ["h264"]
+    if facts.hevc = true then videoNames.push("hevc")
+    audioNames = []
+    for each codec in engine.audio
+        audioNames.push(codec.codec)
+    end for
+    for each codec in engine.audioPassthrough
+        if not ArrayIncludes(audioNames, codec.codec) then audioNames.push(codec.codec)
+    end for
+    for each formatRoute in engine.transports
+        if formatRoute.video.count() > 0 then formatRoute.video = CapabilityStrings(videoNames)
+        admitted = []
+        for each codec in formatRoute.audio
+            if ArrayIncludes(audioNames, codec) then admitted.push(codec)
+        end for
+        if formatRoute.transport = "direct" and ArrayIncludes(formatRoute.containers, "mkv") and ArrayIncludes(audioNames, "dts") then admitted.push("dts")
+        formatRoute.audio = admitted
+    end for
+    engine.subtitleRendering = ["text"]
     return profile
 end function
 
-' The v1 device profile for the same facts (spec §3).
-function RokuCapabilityProfile(facts as object) as object
-    capability = RokuCapabilityTable(facts.uhd)
-    if facts.uhd then
-        hdr = []
-        if facts.hdr10 then hdr.push("hdr10")
-        if facts.hlg then hdr.push("hlg")
-        if facts.dolbyVision then hdr.push("dolbyvision:5")
-        if hdr.count() > 0 then
-            capability.display["hdr"] = hdr
-            for each codec in capability.video
-                if codec.codec <> "h264" then codec["hdr"] = hdr
-            end for
-        end if
-        if facts.av1 then capability.video.push({ "codec": "av1", "maxBitDepth": 10, "maxWidth": capability.display.maxWidth, "maxHeight": capability.display.maxHeight, "maxFps": 60, "hdr": capability.display.hdr })
-    end if
-    return capability
-end function
-
-' client-profile.ts `ClientProfilePublisher`: the receipt of a published profile, or invalid.
-function ParseProfileReceipt(raw as dynamic) as dynamic
-    if Type(raw) <> "roAssociativeArray" then return invalid
-    revision = raw.revision
-    if Type(revision) <> "String" and Type(revision) <> "roString" then return invalid
-    if Type(raw.summary) <> "roAssociativeArray" then return invalid
-    family = raw.summary.family
-    if Type(family) <> "String" and Type(family) <> "roString" then return invalid
-    return { revision: revision, family: family, published: raw.summary.published = true }
+' The registered PUT returns no JSON body; the server's ETag is its publication receipt.
+function ParseCapabilityReceipt(answer as dynamic) as dynamic
+    if not IsObject(answer) or answer.ok <> true or answer.status <> 204 or not IsObject(answer.headers) then return invalid
+    tag = answer.headers["etag"]
+    if not IsString(tag) or not MatchesPattern(tag, "^" + Chr(34) + "[1-9][0-9]{0,18}" + Chr(34) + "$") then return invalid
+    return { revision: tag }
 end function

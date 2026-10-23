@@ -110,6 +110,7 @@ sub PlayerReset()
     m.request = invalid
     m.session = invalid
     m.queue = invalid
+    m.queuePending = false
     m.advancePending = false
     m.options = invalid
     m.entry = invalid
@@ -272,7 +273,7 @@ sub play(request as object)
     end if
     if list or container then
         ' A list is the server's queue: Play, Shuffle or play-from-here is one request.
-        PlayerSend("queue", { path: "/v1/queues", method: "POST", body: QueueCreateBody(request, start <= 0), headers: { "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerQueue")
+        PlayerSend("queue", { path: PlaybackRoutes.queue, method: "POST", body: QueueCreateBody(request, start <= 0), headers: { "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerQueue")
     else
         m.startKey = NewRequestId()
         PlayerStart({ itemId: request.itemId })
@@ -457,13 +458,52 @@ sub onPlayerQueue(event as object)
     m.queue = result.value.queue
     m.window = result.value.window
     m.top.hasQueue = true
+    m.queuePending = false
     if result.value.session <> invalid then
         PlayerAdopt(result.value.session)
     else if m.queue.current <> invalid then
         ' A start position: the queue is made first, then its entry is started there.
         m.startKey = NewRequestId()
         PlayerStart({ queue: { queueId: m.queue.id, entryId: m.queue.current.entryId } })
+    else if QueueStartPending(m.queue) then
+        PlayerWaitForQueue()
     else
+        PlayerFail(invalid)
+    end if
+end sub
+
+' A server-side snapshot may still be building after create. Read its bounded header rather
+' than creating a second queue or materialising the selection on the television.
+sub PlayerWaitForQueue()
+    m.queuePending = true
+    m.waited = m.waited + SessionPrepareWaitMs(invalid)
+    if m.waited > SessionPrepareLimitMs() then
+        m.queuePending = false
+        PlayerFail(SessionPrepareTimeout())
+        return
+    end if
+    m.retry.duration = SessionPrepareWaitMs(invalid) / 1000
+    m.retry.control = "start"
+end sub
+
+sub onPlayerQueueHeader(event as object)
+    task = event.getRoSGNode()
+    if task.generation <> m.generation or not m.queuePending then return
+    result = event.getData()
+    if not result.ok or result.value.ok <> true then
+        m.queuePending = false
+        PlayerFail(result.error)
+        return
+    end if
+    m.queue = result.value.queue
+    if m.queue.current <> invalid then
+        m.queuePending = false
+        m.startKey = NewRequestId()
+        PlayerStart({ queue: { queueId: m.queue.id, entryId: m.queue.current.entryId } })
+    else if QueueStartPending(m.queue) then
+        PlayerWaitForQueue()
+    else
+        m.queuePending = false
         PlayerFail(invalid)
     end if
 end sub
@@ -491,6 +531,10 @@ sub onPlayerSession(event as object)
 end sub
 
 sub onPlayerRetryStart()
+    if m.phase = "starting" and m.queuePending and m.queue <> invalid then
+        PlayerSend("queueHeader", { path: PlaybackQueuePath(PlaybackRoutes.queueHeader, m.queue.id), reader: "playbackQueueHeader" }, "onPlayerQueueHeader")
+        return
+    end if
     if m.phase = "starting" and m.target <> invalid then PlayerStart(m.target)
 end sub
 
@@ -827,7 +871,7 @@ sub PlayerAdvance(reason as string)
     if m.session <> invalid and m.phase <> "ended" then PlayerSendReport("paused", invalid)
     oldSessionId = ""
     if m.session <> invalid then oldSessionId = m.session.id
-    advance = { sessionId: oldSessionId, method: "POST", path: "/v1/queues/" + m.queue.id + ":advance", body: QueueAdvanceBody(reason), headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue", urgent: true, terminal: true, action: "advance", playerGeneration: m.generation }
+    advance = { sessionId: oldSessionId, method: "POST", path: PlaybackQueuePath(PlaybackRoutes.queueAdvance, m.queue.id), body: QueueAdvanceBody(reason), headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue", urgent: true, terminal: true, action: "advance", playerGeneration: m.generation }
     ' The completion fact must be acknowledged before the queue replaces its session.
     if not PlayerQueueReport(advance) then return
     m.advancePending = true
@@ -922,7 +966,7 @@ sub enqueue(request as object)
     placement = "end"
     if request.next = true then placement = "next"
     body = { "placement": placement, "source": { "items": { "ids": [request.entry.playback.itemId] } } }
-    PlayerSend("enqueue", { path: "/v1/queues/" + m.queue.id + "/segments", method: "POST", body: body, headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerEnqueued")
+    PlayerSend("enqueue", { path: PlaybackQueuePath(PlaybackRoutes.queueSegment, m.queue.id), method: "POST", body: body, headers: { "If-Match": m.queue.revision, "Idempotency-Key": NewRequestId() }, reader: "playbackQueue" }, "onPlayerEnqueued")
     m.tasks["enqueue"].addFields({ placedNext: placement = "next" })
 end sub
 
