@@ -15,7 +15,9 @@ function SearchGenreBindingCopy(raw as dynamic) as dynamic
 end function
 
 function SearchGenreBindingSame(a as dynamic, b as dynamic) as boolean
-    if not IsObject(a) or not IsObject(b) then return false
+    a = SearchGenreBindingCopy(a)
+    b = SearchGenreBindingCopy(b)
+    if a = invalid or b = invalid then return false
     for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
         if a[key] <> b[key] then return false
     end for
@@ -78,6 +80,8 @@ end function
 
 function SearchGenreModelRetry(held as object, liveBinding as dynamic) as boolean
     if held.phase <> "error" or not SearchGenreBindingSame(held.binding, liveBinding) then return false
+    ' A library revision changed: only this explicit retry starts a fresh opaque window.
+    if held.error = "stale_continuation" then held.window = SearchGenreWindowNew()
     held.phase = "loading"
     held.error = invalid
     return true

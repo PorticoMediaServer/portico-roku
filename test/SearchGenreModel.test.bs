@@ -88,6 +88,16 @@ sub Test_SearchGenreModel_neverPublishesAfterAnyViewerIdentityChanges()
         AssertEqual(SearchGenreModelRequest(retired), invalid)
         AssertTrue(retired.generation > held.generation)
     end for
+    for each value in [1, false, [], {}]
+        live = TestGenreModelBinding()
+        held = SearchGenreModelBegin(SearchGenreModelNew(), live)
+        request = SearchGenreModelRequest(held)
+        AssertTrue(SearchGenreModelAsked(held, request))
+        live.profileId = value
+        retired = SearchGenreModelReceive(held, request, TestGenreModelPage(["Private genre"]), live)
+        AssertEqual(retired.phase, "idle")
+        AssertEqual(retired.window.tiles.count(), 0)
+    end for
 end sub
 
 sub Test_SearchGenreModel_ignoresOldTaskAfterReentryAndRequiresExplicitErrorRetry()
@@ -135,6 +145,9 @@ sub Test_SearchGenreModel_refusesRevisionChangesWithoutAutomaticReplay()
     AssertEqual(SearchGenreModelRequest(held), invalid)
     AssertEqual(held.window.tiles.count(), 1)
     AssertEqual(held.window.tiles[0].value, "Drama")
+    AssertTrue(SearchGenreModelRetry(held, live))
+    AssertEqual(held.window.tiles.count(), 0)
+    AssertEqual(SearchGenreModelRequest(held).askedCursor, "")
     held = SearchGenreModelRetire(held)
     AssertEqual(SearchGenreModelState(held).genres.count(), 0)
     AssertEqual(held.binding, invalid)
