@@ -7,7 +7,9 @@ end function
 function TestGenreModelPage(values as object, cursor = "" as string) as object
     raw = { revision: "authorized-revision", genres: [] }
     for each value in values
-        raw.genres.push(TestSearchGenre(value, 9))
+        row = TestSearchGenre(value, 9)
+        row.backdrop = TestGenreArt("model-title-" + raw.genres.count().toStr())
+        raw.genres.push(row)
     end for
     if cursor <> "" then raw.nextCursor = cursor
     return { ok: true, value: ParseSearchGenres(raw) }
