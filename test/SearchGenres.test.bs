@@ -278,3 +278,34 @@ sub Test_SearchGenreDestination_readsCapabilitiesBeforeExactPostAndFencesRevoked
     AssertEqual(result.error.code, "cancelled")
     AssertEqual(ctx.transport.requests.count(), 3, "cancellation between capability and page prevents POST")
 end sub
+
+sub Test_SearchGenreDestination_keepsRangeRevisionAndRejectsCursorRangeAmbiguity()
+    body = SearchGenreBrowseRequest("Drama", { limit: 60, range: { start: 120, revision: "opaque-revision" } })
+    AssertEqual(body.range.start, 120)
+    AssertEqual(body.range.revision, "opaque-revision")
+    AssertEqual(body.query.value, "Drama")
+    AssertEqual(SearchGenreBrowseRequest("Drama", { cursor: "opaque", range: { start: 120 } }), invalid)
+    AssertEqual(SearchGenreBrowseRequest("Drama", { range: { start: -1 } }), invalid)
+    AssertEqual(SearchGenreBrowseRequest("Drama", { range: { start: 0, revision: "" } }), invalid)
+end sub
+
+sub Test_SearchGenreDestination_lowerBoundIsNotAMembershipCeiling()
+    raw = TestSearchGenreTitles()
+    raw.pageInfo.start = 10000
+    raw.pageInfo.total = 10000
+    raw.pageInfo.totalIsLowerBound = true
+    page = ParseSearchGenreTitles(raw, "Sci-Fi & Fantasy", "genre-membership-revision")
+    AssertTrue(page.ok)
+    AssertEqual(page.start, 10000)
+    AssertEqual(page.total, 10002)
+    AssertEqual(page.hasMore, true)
+    AssertEqual(page.totalIsLowerBound, true)
+    AssertEqual(raw.pageInfo.total, 10000, "the original lower-bound response is preserved")
+    raw.pageInfo.hasMore = false
+    raw.pageInfo.nextCursor = ""
+    page = ParseSearchGenreTitles(raw, "Sci-Fi & Fantasy")
+    AssertTrue(page.ok)
+    AssertEqual(page.total, 10001)
+    AssertEqual(page.hasMore, false)
+    AssertEqual(page.totalIsLowerBound, false)
+end sub

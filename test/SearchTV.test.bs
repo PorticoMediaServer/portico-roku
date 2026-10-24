@@ -1,0 +1,29 @@
+import "pkg:/source/core/SearchTV.bs"
+
+sub Test_SearchTV_keepsTheDrawnKeyboardAndRightHandGridFocus()
+    AssertEqual(SearchTVKeys().count(), 32)
+    AssertEqual(SearchTVKeys()[30], "space")
+    AssertEqual(SearchTVKeys()[31], "delete")
+    AssertEqual(SearchTVEdit("casablanca", "delete"), "casablanc")
+    AssertEqual(SearchTVEdit("", "delete"), "")
+    AssertEqual(SearchTVEdit("crime", "space"), "crime ")
+    AssertEqual(SearchTVEdit("crime", "unsupported"), "crime")
+    AssertEqual(Len(SearchTVEdit(String(128, "a"), "b")), 128)
+    for each key in [5,11,17,23,29,31]
+        next = SearchTVMove("key", key, "right", 4, key)
+        AssertEqual(next.part, "tile")
+        AssertEqual(next.index, 0)
+        back = SearchTVMove("tile", 0, "left", 4, key)
+        AssertEqual(back.part, "key")
+        AssertEqual(back.index, key)
+    end for
+    AssertEqual(SearchTVMove("tile", 0, "up", 4, 11).index, 0)
+    AssertEqual(SearchTVMove("tile", 1, "down", 4, 11).index, 3)
+    AssertEqual(SearchTVMove("tile", 3, "up", 4, 11).index, 1)
+    AssertEqual(SearchTVMove("tile", 3, "left", 4, 11).index, 2)
+    AssertEqual(SearchTVMove("key", 24, "down", 4, 24).index, 30)
+    AssertEqual(SearchTVMove("key", 29, "down", 4, 29).index, 31)
+    AssertEqual(SearchTVMove("key", 31, "up", 4, 31).index, 27)
+    AssertEqual(SearchTVMove("key", 0, "left", 4, 0).part, "rail")
+    AssertEqual(SearchTVMove("key", 5, "right", 0, 5).part, "key")
+end sub

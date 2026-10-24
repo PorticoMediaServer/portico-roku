@@ -183,6 +183,15 @@ function SearchGenreBrowseRequest(value as dynamic, window = invalid as dynamic)
         if not IsText(window.cursor, 4096) then return invalid
         body.cursor = window.cursor
     end if
+    if window.doesExist("range") then
+        r = window.range
+        if body.cursor <> invalid or not IsObject(r) or not IsNatural(r.start) then return invalid
+        body.range = { start: r.start }
+        if r.revision <> invalid then
+            if not IsText(r.revision, 256) then return invalid
+            body.range.revision = r.revision
+        end if
+    end if
     return body
 end function
 
@@ -216,7 +225,7 @@ function ParseSearchGenreCapabilities(raw as dynamic) as object
     offered = false
     for each surface in raw.surfaces
         if IsObject(surface) and surface.id = "genre-titles" then
-            if surface.endpoint <> SearchGenreContract.browsePath or surface.membershipField <> SearchGenreContract.browseField then return bad
+            if surface.endpoint <> SearchGenreContract.browsePath or surface.membershipField <> SearchGenreContract.browseField or surface.paging <> "offset" then return bad
             if not IsArray(surface.filters) or not ArrayIncludes(surface.filters, SearchGenreContract.browseField) or not IsArray(surface.sorts) or not ArrayIncludes(surface.sorts, "title") then return bad
             offered = true
         end if
@@ -251,19 +260,40 @@ function ParseSearchGenreTitles(raw as dynamic, value as string, revision = "" a
     if not IsArray(raw.applied.sort) or raw.applied.sort.count() <> 1 then return bad
     sort = raw.applied.sort[0]
     if not IsObject(sort) or sort.field <> "title" or sort.direction <> "asc" then return bad
-    parsed = ParseBrowseResult(raw)
+    info = raw.pageInfo
+    if not IsObject(info) or not IsArray(raw.entries) or raw.entries.count() > 200 then return bad
+    if not IsNatural(info.start) or not IsNatural(info.total) or not IsBoolean(info.hasMore) or not IsBrowseString(info.nextCursor, 4096) then return bad
+    if info.totalIsLowerBound <> invalid and not IsBoolean(info.totalIsLowerBound) then return bad
+    lower = info.totalIsLowerBound = true
+    total = info.total
+    finish = 0
+    if raw.entries.count() > 0 then finish = info.start + raw.entries.count()
+    more = info.start + raw.entries.count() < info.total
+    if lower then
+        more = info.hasMore or info.nextCursor <> ""
+        if more then
+            total = Max(total, finish + Max(raw.entries.count(), 1))
+        else
+            total = Max(total, finish)
+        end if
+    else
+        total = Max(total, finish)
+        more = info.start + raw.entries.count() < total
+    end if
+    ' Existing strict entry/query guards see the canonical effective virtual bound;
+    ' the supplied lower-bound count is never mistaken for an end-of-membership cap.
+    normalized = { pivot: raw.pivot, applied: raw.applied, entries: raw.entries, positionIndex: raw.positionIndex, pageInfo: { start: info.start, total: total, revision: info.revision, hasMore: more, nextCursor: info.nextCursor } }
+    parsed = ParseBrowseResult(normalized)
     if not parsed.ok then return bad
     result = parsed.result
     if revision <> "" and result.revision <> revision then return { ok: false, code: "stale_continuation" }
     for each entry in result.entries
         if entry.kind <> "movie" and entry.kind <> "show" then return bad
     end for
-    info = raw.pageInfo
-    if info.hasMore and not IsText(info.nextCursor, 4096) then return bad
-    if info.totalIsLowerBound <> invalid and not IsBoolean(info.totalIsLowerBound) then return bad
+    if more and not IsText(info.nextCursor, 4096) then return bad
     result.nextCursor = info.nextCursor
-    result.hasMore = info.hasMore
-    result.totalIsLowerBound = info.totalIsLowerBound = true
+    result.hasMore = more
+    result.totalIsLowerBound = lower and (raw.entries.count() = 0 or more)
     result.ok = true
     return result
 end function
@@ -292,5 +322,10 @@ function ReadSearchGenreTitles(ctx as object, value as dynamic, window as dynami
     if not answer.ok then return answer
     page = ParseSearchGenreTitles(answer.data, value, revision)
     if not page.ok then return { ok: false, status: 0, error: { code: page.code, status: 0, message: "", retryable: false } }
+    if body.range <> invalid and page.start <> body.range.start then return { ok: false, status: 0, error: { code: "stale_continuation", status: 0, message: "", retryable: false } }
+    page.maximumLimit = caps.maximumLimit
+    page.shape = "poster"
+    page.titleLines = 1
+    page.shown = page.entries.count()
     return { ok: true, status: answer.status, value: page }
 end function
