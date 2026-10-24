@@ -115,6 +115,13 @@ end function
 ' Exactly one captured viewer read. No ambient transport, scan, local count or automatic replay.
 function ReadSearchGenres(ctx as object, window as dynamic, expected as dynamic) as object
     cancelled = { ok: false, status: 0, error: { code: "cancelled", status: 0, message: "", retryable: false } }
+    if not IsObject(expected) then return cancelled
+    ' Freeze the primitive request identity before I/O; a caller's mutable AA is not authority.
+    binding = {}
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        binding[key] = expected[key]
+    end for
+    expected = binding
     if not SearchGenresReadCurrent(ctx, expected) then return cancelled
     path = SearchGenresPath(window)
     if path = invalid then return { ok: false, status: 0, error: { code: "invalid_request", status: 0, message: "", retryable: false } }
