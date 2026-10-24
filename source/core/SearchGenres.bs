@@ -281,6 +281,13 @@ function ParseSearchGenreTitles(raw as dynamic, value as string, revision = "" a
     end if
     if bound > total then total = bound
     if not lower then more = info.start + raw.entries.count() < total
+    if lower and more and IsArray(raw.positionIndex) then
+        for each anchor in raw.positionIndex
+            if IsObject(anchor) and IsBrowseString(anchor.key, 8) and IsNatural(anchor.index) then
+                if anchor.index + 1 > total then total = anchor.index + 1
+            end if
+        end for
+    end if
     ' Existing strict entry/query guards see the canonical effective virtual bound;
     ' the supplied lower-bound count is never mistaken for an end-of-membership cap.
     normalized = { pivot: raw.pivot, applied: raw.applied, entries: raw.entries, positionIndex: raw.positionIndex, pageInfo: { start: info.start, total: total, revision: info.revision, hasMore: more, nextCursor: info.nextCursor } }
