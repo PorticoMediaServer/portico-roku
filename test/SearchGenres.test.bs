@@ -309,3 +309,30 @@ sub Test_SearchGenreDestination_lowerBoundIsNotAMembershipCeiling()
     AssertEqual(page.hasMore, false)
     AssertEqual(page.totalIsLowerBound, false)
 end sub
+
+sub Test_SearchGenreDestination_discardsALatePageWhenTheSignInFamilyChanges()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "viewer")
+    AssertTrue(SessionAccept(ctx, { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }, session).ok)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId })
+    ctx.transport.store = ctx.store
+    ctx.transport.section = SessionRecordSection(binding.serverId)
+    ctx.transport.mutableBinding = binding
+    ctx.send = function(request as object) as object
+        original = { transport: m.transport, send: TestSend }
+        answer = original.send(request)
+        if request.method = "POST" then
+            record = StoreReadJson(m.transport.store, m.transport.section, "record")
+            record["session"].sessionFamilyId = "different-family"
+            StoreWriteJson(m.transport.store, m.transport.section, "record", record)
+            m.transport.mutableBinding.sessionFamilyId = "different-family"
+        end if
+        return answer
+    end function
+    TestAnswer(ctx, "GET", ctx.base + "/v1/browse-capabilities?pivot=video-titles", 200, TestSearchGenreCapabilities())
+    TestAnswer(ctx, "POST", ctx.base + "/v1/browse", 200, TestSearchGenreTitles())
+    result = ReadSearchGenreTitles(ctx, "Sci-Fi & Fantasy", {}, binding)
+    AssertEqual(result.error.code, "cancelled")
+    AssertEqual(result.value, invalid)
+    AssertEqual(ctx.transport.requests.count(), 2)
+end sub
