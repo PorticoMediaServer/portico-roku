@@ -1,4 +1,4 @@
-' Exact Server MAIN 68a97bb91d9342870aedc5ae1dc85920e59edc10; drawn prefix states.html#f18 at 69f2d45a972ff9ec1bd8743c760183026c92d555.
+' Exact Server MAIN c29df98c247a60ed16da0ba7c389c2ba5019d56c; drawn prefix states.html#f18 at 69f2d45a972ff9ec1bd8743c760183026c92d555.
 namespace SearchGenreContract
     const path = "/v1/search/genres"
     const maximumPage = 50
@@ -7,4 +7,11 @@ namespace SearchGenreContract
     const maximumCount = 9007199254740991#
     const artKinds = ["item","show"]
     const tvPrefix = 4
+    const browsePivot = "video-titles"
+    const browseField = "genre"
+    const browseOperator = "equals"
+    const browseSort = [{"field":"title","direction":"asc"}]
+    const browsePath = "/v1/browse"
+    const capabilitiesPath = "/v1/browse-capabilities"
+    const facetsPath = "/v1/browse/facets"
 end namespace
