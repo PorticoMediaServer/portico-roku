@@ -1,0 +1,184 @@
+import "pkg:/source/core/SearchGenres.bs"
+
+function TestGenreArt(id as string, role = "backdrop" as string, kind = "item" as string) as object
+    width = "1920"
+    if role = "poster" then width = "400"
+    return { kind: kind, id: id, path: "/v1/metadata/" + kind + "/" + id + "/art/" + role + "?v=" + String(64, "a") + "&w=" + width }
+end function
+
+function TestSearchGenre(value as string, total as integer, art = true as boolean) as object
+    row = { value: value, label: value, "count": total, covers: [] }
+    if art then row.backdrop = TestGenreArt(value)
+    return row
+end function
+
+function TestSearchGenrePage() as object
+    first = TestSearchGenre("Drama", 31)
+    first.covers = [TestGenreArt("poster-a", "poster"), TestGenreArt("show-b", "poster", "show")]
+    return { revision: "opaque-authorized-revision", genres: [first, TestSearchGenre("Crime", 9, false), TestSearchGenre("Sci-Fi & Fantasy", 17, false)], nextCursor: "opaque/+=" }
+end function
+
+sub Test_SearchGenres_preservesServerOrderExactLabelsCountsAndArtlessRows()
+    raw = TestSearchGenrePage()
+    parsed = ParseSearchGenres(raw)
+    AssertTrue(parsed.ok)
+    AssertEqual(parsed.revision, "opaque-authorized-revision")
+    AssertEqual(parsed.nextCursor, "opaque/+=")
+    AssertEqual(parsed.genres.count(), 3)
+    AssertEqual(parsed.genres[0].label, "Drama")
+    AssertEqual(FieldOf(parsed.genres[0], "count"), 31)
+    AssertEqual(parsed.genres[1].backdrop, invalid)
+    AssertEqual(parsed.genres[1].covers.count(), 0)
+    AssertEqual(parsed.genres[2].value, "Sci-Fi & Fantasy")
+    raw.genres[0].label = "changed"
+    raw.genres[0].backdrop.path = "https://private.invalid"
+    AssertEqual(parsed.genres[0].label, "Drama")
+    AssertEqual(parsed.genres[0].backdrop.path, TestGenreArt("Drama").path)
+    AssertEqual(SearchGenreTVPrefix(parsed).count(), 1)
+    AssertEqual(parsed.genres.count(), 3, "the All genres page retains counted rows without art")
+end sub
+
+sub Test_SearchGenres_refusesNullSlotsInvalidCountsDuplicatesAndUnboundedPages()
+    for each key in ["revision", "nextCursor"]
+        raw = TestSearchGenrePage()
+        raw[key] = invalid
+        AssertEqual(ParseSearchGenres(raw).ok, false)
+        raw[key] = ""
+        AssertEqual(ParseSearchGenres(raw).ok, false)
+    end for
+    for each value in [0, -1, 1.2, "9", 9007199254740992#]
+        raw = TestSearchGenrePage()
+        raw.genres[0]["count"] = value
+        AssertEqual(ParseSearchGenres(raw).ok, false)
+    end for
+    raw = TestSearchGenrePage()
+    raw.genres[0].backdrop = invalid
+    AssertEqual(ParseSearchGenres(raw).ok, false)
+    raw = TestSearchGenrePage()
+    raw.genres[0].covers = invalid
+    AssertEqual(ParseSearchGenres(raw).ok, false)
+    raw = TestSearchGenrePage()
+    raw.genres[0].covers.push(TestGenreArt("third-cover", "poster"))
+    AssertEqual(ParseSearchGenres(raw).ok, false)
+    raw = TestSearchGenrePage()
+    raw.genres[0].covers[1] = raw.genres[0].covers[0]
+    AssertEqual(ParseSearchGenres(raw).ok, false)
+    raw = TestSearchGenrePage()
+    raw.genres[1].value = raw.genres[0].value
+    AssertEqual(ParseSearchGenres(raw).ok, false)
+    raw = { revision: "r", genres: [] }
+    for index = 0 to 50
+        raw.genres.push(TestSearchGenre("genre-" + index.toStr(), 1))
+    end for
+    AssertEqual(ParseSearchGenres(raw).ok, false)
+end sub
+
+sub Test_SearchGenres_acceptsOnlyTheExactSelectedSubjectKindRoleAndQuery()
+    raw = TestSearchGenrePage()
+    expected = TestGenreArt("Drama")
+    for each path in ["https://provider.invalid/art", "//provider.invalid/art", "/private/file.jpg", TestGenreArt("another-title").path, TestGenreArt("Drama", "poster").path, TestGenreArt("Drama", "backdrop", "show").path, expected.path + "&token=private", expected.path + "#fragment", expected.path.replace("w=1920", "w=400")]
+        raw.genres[0].backdrop.path = path
+        AssertEqual(ParseSearchGenres(raw).ok, false)
+    end for
+    raw.genres[0].backdrop = expected
+    raw.genres[0].backdrop.path = "/v1/metadata/item/Drama/art/backdrop?w=1920&v=" + String(64, "a")
+    AssertTrue(ParseSearchGenres(raw).ok, "query order is not a new art choice")
+    raw.genres[0].backdrop.path = "/v1/metadata/item/Drama/art/backdrop?w=%31%39%32%30&v=" + String(64, "a")
+    AssertTrue(ParseSearchGenres(raw).ok, "validate the decoded query, like URLSearchParams")
+    raw.secret = "private"
+    raw.genres[0].providerUrl = "private"
+    raw.genres[0].backdrop.token = "private"
+    parsed = ParseSearchGenres(raw)
+    AssertTrue(parsed.ok)
+    AssertEqual(parsed.secret, invalid)
+    AssertEqual(parsed.genres[0].providerUrl, invalid)
+    AssertEqual(parsed.genres[0].backdrop.token, invalid)
+end sub
+
+sub Test_SearchGenres_opaquePagesYieldOnlyTheDrawnPrefixWithoutRankingOrArtReplacement()
+    first = ParseSearchGenres(TestSearchGenrePage())
+    window = SearchGenreWindowAppend(SearchGenreWindowNew(), first, "")
+    AssertTrue(window.ok)
+    AssertEqual(window.window.tiles.count(), 1)
+    AssertEqual(window.window.done, false)
+    ' The producer's already selected fallback survives; no client reranking is permitted.
+    shared = TestSearchGenre("Adventure", 18)
+    shared.backdrop = TestGenreArt("producer-chosen-fallback")
+    second = ParseSearchGenres({ revision: first.revision, genres: [shared, TestSearchGenre("Animation", 14), TestSearchGenre("Comedy", 12), TestSearchGenre("Action", 10)] })
+    completed = SearchGenreWindowAppend(window.window, second, first.nextCursor)
+    AssertTrue(completed.ok)
+    AssertTrue(completed.window.done)
+    AssertEqual(completed.window.tiles.count(), 4)
+    AssertEqual(completed.window.tiles[0].value, "Drama")
+    AssertEqual(completed.window.tiles[1].value, "Adventure")
+    AssertEqual(completed.window.tiles[1].backdrop.id, "producer-chosen-fallback")
+    AssertEqual(completed.window.tiles[3].value, "Comedy")
+    AssertEqual(window.window.tiles.count(), 1, "append does not reorder the prior window")
+    second.revision = "changed-viewer-or-library-revision"
+    AssertEqual(SearchGenreWindowAppend(window.window, second, first.nextCursor).code, "stale_continuation")
+    AssertEqual(SearchGenreWindowAppend(window.window, first, "wrong-cursor").ok, false)
+    AssertEqual(SearchGenreWindowAppend(window.window, first, first.nextCursor).ok, false, "repeating the same cursor refuses replay")
+end sub
+
+sub Test_SearchGenres_oldFamilyCannotReadOrPublishUnderTheNewSignIn()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "viewer")
+    AssertTrue(SessionAccept(ctx, { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }, session).ok)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId })
+    AssertEqual(ReadSearchGenres(ctx, {}, invalid).error.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 0)
+    ctx.transport.store = ctx.store
+    ctx.transport.section = SessionRecordSection(binding.serverId)
+    ctx.transport.mutableBinding = binding
+    originalBinding = ParseJson(FormatJson(binding))
+    ctx.send = function(request as object) as object
+        original = { transport: m.transport, send: TestSend }
+        answer = original.send(request)
+        record = StoreReadJson(m.transport.store, m.transport.section, "record")
+        record["session"].sessionFamilyId = "fam_new_signin"
+        StoreWriteJson(m.transport.store, m.transport.section, "record", record)
+        m.transport.mutableBinding.sessionFamilyId = "fam_new_signin"
+        return answer
+    end function
+    TestAnswer(ctx, "GET", ctx.base + SearchGenresPath(), 200, TestSearchGenrePage())
+    late = ReadSearchGenres(ctx, {}, binding)
+    AssertEqual(late.error.code, "cancelled")
+    AssertEqual(late.value, invalid)
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, "fam_new_signin")
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ReadSearchGenres(ctx, {}, originalBinding).error.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 1, "an old continuation cannot use the new family's token")
+end sub
+
+sub Test_SearchGenres_readUsesCapturedViewerAndNeverPublishesAfterCancellation()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "viewer")
+    AssertTrue(SessionAccept(ctx, { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }, session).ok)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId })
+    path = "/v1/search/genres?limit=4&cursor=opaque%2F%2B%3D"
+    TestAnswer(ctx, "GET", ctx.base + path, 200, TestSearchGenrePage())
+    answer = ReadSearchGenres(ctx, { limit: 4, cursor: "opaque/+=" }, binding)
+    AssertTrue(answer.ok)
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ctx.transport.requests[0].headers.Authorization, "Bearer " + session.accessToken)
+    AssertEqual(SearchGenresPath(), "/v1/search/genres?limit=50")
+    for each limit in [0, -1, 51, 1.2]
+        AssertEqual(SearchGenresPath({ limit: limit }), invalid)
+    end for
+    ctx.searchGenreTask = { cancelled: true }
+    AssertEqual(ReadSearchGenres(ctx, {}, binding).error.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 1, "cancelled caller sends no second request")
+    ctx.searchGenreTask.cancelled = false
+    ctx.transport.genreTask = ctx.searchGenreTask
+    ctx.send = function(request as object) as object
+        original = { transport: m.transport, send: TestSend }
+        answer = original.send(request)
+        m.transport.genreTask.cancelled = true
+        return answer
+    end function
+    TestAnswer(ctx, "GET", ctx.base + SearchGenresPath(), 200, TestSearchGenrePage())
+    late = ReadSearchGenres(ctx, {}, binding)
+    AssertEqual(late.error.code, "cancelled")
+    AssertEqual(late.value, invalid)
+    AssertEqual(ctx.transport.requests.count(), 2, "one bounded read, never an automatic replay")
+end sub

@@ -4,6 +4,7 @@
 import "pkg:/source/core/Content.bs"
 import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Readers.bs"
+import "pkg:/source/core/SearchGenres.bs"
 
 sub init()
     m.top.functionName = "work"
@@ -16,7 +17,12 @@ sub work()
     ctx = SessionContextNew()
     method = "GET"
     if request.method <> invalid then method = request.method
-    answer = PlaybackViewerRequest(ctx, request.path, method, request.body, request.headers, request.expectedViewer)
+    if request.reader = "searchGenres" then
+        ctx.searchGenreTask = m.top
+        answer = ReadSearchGenres(ctx, request.window, request.expectedViewer)
+    else
+        answer = PlaybackViewerRequest(ctx, request.path, method, request.body, request.headers, request.expectedViewer)
+    end if
     ' A request may have renewed the session: the scene's image requests follow the new token.
     record = SessionRecord(ctx)
     session = m.global.session
@@ -24,6 +30,11 @@ sub work()
         if ViewerMatchesRequestBinding(record, request.expectedViewer) and ViewerMatchesRequestBinding(record, ViewerRequestBinding(session.viewer)) then
             if session.token <> record["session"].accessToken then session.token = record["session"].accessToken
         end if
+    end if
+    if request.reader = "searchGenres" then
+        answer.reader = request.reader
+        m.top.result = answer
+        return
     end if
     if not answer.ok then
         m.top.result = { ok: false, status: answer.status, error: answer.error, reader: request.reader }
