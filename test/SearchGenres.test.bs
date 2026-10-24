@@ -130,7 +130,8 @@ sub Test_SearchGenres_oldFamilyCannotReadOrPublishUnderTheNewSignIn()
     ctx.transport.store = ctx.store
     ctx.transport.section = SessionRecordSection(binding.serverId)
     ctx.send = function(request as object) as object
-        answer = TestSend(request)
+        original = { transport: m.transport, send: TestSend }
+        answer = original.send(request)
         record = StoreReadJson(m.transport.store, m.transport.section, "record")
         record["session"].sessionFamilyId = "fam_new_signin"
         StoreWriteJson(m.transport.store, m.transport.section, "record", record)
@@ -167,7 +168,8 @@ sub Test_SearchGenres_readUsesCapturedViewerAndNeverPublishesAfterCancellation()
     ctx.searchGenreTask.cancelled = false
     ctx.transport.genreTask = ctx.searchGenreTask
     ctx.send = function(request as object) as object
-        answer = TestSend(request)
+        original = { transport: m.transport, send: TestSend }
+        answer = original.send(request)
         m.transport.genreTask.cancelled = true
         return answer
     end function
