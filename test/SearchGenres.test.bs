@@ -192,7 +192,7 @@ function TestSearchGenreTitles() as object
     return { pivot: "video-titles", applied: { query: { field: "genre", operator: "equals", value: "Sci-Fi & Fantasy" }, sort: [{ field: "title", direction: "asc" }], seek: invalid }, entries: [{ id: "show-empty", kind: "show", title: "A show with no episodes" }], pageInfo: { start: 0, total: 2, totalIsLowerBound: false, hasMore: true, nextCursor: "opaque/+value=", revision: "genre-membership-revision" }, positionIndex: [] }
 end function
 
-sub Test_SearchGenreDestination_usesCanonicalVideoPivotQueryAndContext()
+sub Test_SearchGenres_destination_usesCanonicalVideoPivotQueryAndContext()
     body = SearchGenreBrowseRequest("Sci-Fi & Fantasy")
     AssertEqual(FormatJson(body), FormatJson({ pivot: "video-titles", query: { field: "genre", operator: "equals", value: "Sci-Fi & Fantasy" }, sort: [{ field: "title", direction: "asc" }] }))
     AssertEqual(SearchGenreCapabilitiesPath(), "/v1/browse-capabilities?pivot=video-titles")
@@ -208,7 +208,7 @@ sub Test_SearchGenreDestination_usesCanonicalVideoPivotQueryAndContext()
     AssertEqual(SearchGenreBrowseRequest("Crime", { limit: 201 }), invalid)
 end sub
 
-sub Test_SearchGenreDestination_refusesMixedPivotsAndUnpublishedSurface()
+sub Test_SearchGenres_destination_refusesMixedPivotsAndUnpublishedSurface()
     AssertTrue(ParseSearchGenreCapabilities(TestSearchGenreCapabilities()).ok)
     raw = TestSearchGenreCapabilities()
     raw.resolvedPivot.entityKinds.push("album")
@@ -233,7 +233,7 @@ sub Test_SearchGenreDestination_refusesMixedPivotsAndUnpublishedSurface()
     AssertEqual(ParseSearchGenreCapabilities(raw).ok, false)
 end sub
 
-sub Test_SearchGenreDestination_preservesEmptyShowsAndOpaqueContinuation()
+sub Test_SearchGenres_destination_preservesEmptyShowsAndOpaqueContinuation()
     page = ParseSearchGenreTitles(TestSearchGenreTitles(), "Sci-Fi & Fantasy")
     AssertTrue(page.ok)
     AssertEqual(page.entries[0].id, "show-empty")
@@ -251,7 +251,7 @@ sub Test_SearchGenreDestination_preservesEmptyShowsAndOpaqueContinuation()
     AssertEqual(ParseSearchGenreTitles(raw, "Sci-Fi & Fantasy").ok, false)
 end sub
 
-sub Test_SearchGenreDestination_readsCapabilitiesBeforeExactPostAndFencesRevokedCaller()
+sub Test_SearchGenres_destination_readsCapabilitiesBeforeExactPostAndFencesRevokedCaller()
     ctx = TestContext()
     session = TestSessionJson(ctx, "viewer")
     AssertTrue(SessionAccept(ctx, { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }, session).ok)
@@ -279,7 +279,7 @@ sub Test_SearchGenreDestination_readsCapabilitiesBeforeExactPostAndFencesRevoked
     AssertEqual(ctx.transport.requests.count(), 3, "cancellation between capability and page prevents POST")
 end sub
 
-sub Test_SearchGenreDestination_keepsRangeRevisionAndRejectsCursorRangeAmbiguity()
+sub Test_SearchGenres_destination_keepsRangeRevisionAndRejectsCursorRangeAmbiguity()
     body = SearchGenreBrowseRequest("Drama", { limit: 60, range: { start: 120, revision: "opaque-revision" } })
     AssertEqual(body.range.start, 120)
     AssertEqual(body.range.revision, "opaque-revision")
@@ -289,7 +289,7 @@ sub Test_SearchGenreDestination_keepsRangeRevisionAndRejectsCursorRangeAmbiguity
     AssertEqual(SearchGenreBrowseRequest("Drama", { range: { start: 0, revision: "" } }), invalid)
 end sub
 
-sub Test_SearchGenreDestination_lowerBoundIsNotAMembershipCeiling()
+sub Test_SearchGenres_destination_lowerBoundIsNotAMembershipCeiling()
     raw = TestSearchGenreTitles()
     raw.pageInfo.start = 10000
     raw.pageInfo.total = 10000
@@ -315,7 +315,7 @@ sub Test_SearchGenreDestination_lowerBoundIsNotAMembershipCeiling()
     AssertEqual(page.totalIsLowerBound, false)
 end sub
 
-sub Test_SearchGenreDestination_discardsALatePageWhenTheSignInFamilyChanges()
+sub Test_SearchGenres_destination_discardsALatePageWhenTheSignInFamilyChanges()
     ctx = TestContext()
     session = TestSessionJson(ctx, "viewer")
     AssertTrue(SessionAccept(ctx, { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }, session).ok)
