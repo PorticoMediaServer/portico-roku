@@ -196,7 +196,8 @@ function SearchGenreBrowseRequest(value as dynamic, window = invalid as dynamic)
 end function
 
 function SearchGenreCapabilitiesPath() as string
-    return SearchGenreContract.capabilitiesPath + "?pivot=" + SearchGenreContract.browsePivot.encodeUriComponent()
+    pivot = SearchGenreContract.browsePivot
+    return SearchGenreContract.capabilitiesPath + "?pivot=" + pivot.encodeUriComponent()
 end function
 
 ' Context facets keep this actual query, not every video title or an expanded local lineup.
@@ -269,17 +270,17 @@ function ParseSearchGenreTitles(raw as dynamic, value as string, revision = "" a
     finish = 0
     if raw.entries.count() > 0 then finish = info.start + raw.entries.count()
     more = info.start + raw.entries.count() < info.total
+    bound = finish
     if lower then
         more = info.hasMore or info.nextCursor <> ""
         if more then
-            total = Max(total, finish + Max(raw.entries.count(), 1))
-        else
-            total = Max(total, finish)
+            stepSize = raw.entries.count()
+            if stepSize < 1 then stepSize = 1
+            bound = finish + stepSize
         end if
-    else
-        total = Max(total, finish)
-        more = info.start + raw.entries.count() < total
     end if
+    if bound > total then total = bound
+    if not lower then more = info.start + raw.entries.count() < total
     ' Existing strict entry/query guards see the canonical effective virtual bound;
     ' the supplied lower-bound count is never mistaken for an end-of-membership cap.
     normalized = { pivot: raw.pivot, applied: raw.applied, entries: raw.entries, positionIndex: raw.positionIndex, pageInfo: { start: info.start, total: total, revision: info.revision, hasMore: more, nextCursor: info.nextCursor } }
