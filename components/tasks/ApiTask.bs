@@ -20,6 +20,11 @@ sub work()
     if request.reader = "searchGenres" then
         ctx.searchGenreTask = m.top
         answer = ReadSearchGenres(ctx, request.window, request.expectedViewer)
+    else if request.reader = "searchGenreTitles" then
+        ctx.searchGenreTask = m.top
+        revision = ""
+        if request.revision <> invalid then revision = request.revision
+        answer = ReadSearchGenreTitles(ctx, request.genre, request.window, request.expectedViewer, revision)
     else
         answer = PlaybackViewerRequest(ctx, request.path, method, request.body, request.headers, request.expectedViewer)
     end if
@@ -31,7 +36,10 @@ sub work()
             if session.token <> record["session"].accessToken then session.token = record["session"].accessToken
         end if
     end if
-    if request.reader = "searchGenres" then
+    if request.reader = "searchGenreTitles" and answer.ok then
+        m.top.content = CardsNode(answer.value.entries, { origin: request.expectedViewer.origin, shape: "poster" })
+    end if
+    if request.reader = "searchGenres" or request.reader = "searchGenreTitles" then
         answer.reader = request.reader
         m.top.result = answer
         return
