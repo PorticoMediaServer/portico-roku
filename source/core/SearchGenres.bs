@@ -1,6 +1,7 @@
 ' MAIN search-genres.ts read/validation. Server order, counts and art are authoritative.
 import "pkg:/source/core/SearchGenreContract.bs"
 import "pkg:/source/core/Content.bs"
+import "pkg:/source/core/Browse.bs"
 
 ' Query values here are ASCII names/digests/dimensions. Decode before validating them,
 ' matching URLSearchParams without accepting a provider URL or a different selected-art slot.
@@ -165,4 +166,174 @@ function SearchGenreWindowAppend(held as object, page as object, askedCursor as 
         end if
     end for
     return { ok: true, window: { revision: page.revision, cursor: nextCursor, tiles: tiles, started: true, done: tiles.count() = SearchGenreContract.tvPrefix or nextCursor = "" } }
+end function
+
+' Canonical MAIN helper: exact facet value; no mixed titles pivot or fabricated anchor.
+function SearchGenreBrowseRequest(value as dynamic, window = invalid as dynamic) as dynamic
+    if not IsText(value, 1024) then return invalid
+    query = { field: SearchGenreContract.browseField, operator: SearchGenreContract.browseOperator, value: value }
+    body = { pivot: SearchGenreContract.browsePivot, query: query, sort: [{ field: SearchGenreContract.browseSort[0].field, direction: SearchGenreContract.browseSort[0].direction }] }
+    if window = invalid then return body
+    if not IsObject(window) then return invalid
+    if window.doesExist("limit") then
+        if not IsNatural(window.limit) or window.limit < 1 or window.limit > 200 then return invalid
+        body.limit = window.limit
+    end if
+    if window.doesExist("cursor") then
+        if not IsText(window.cursor, 4096) then return invalid
+        body.cursor = window.cursor
+    end if
+    if window.doesExist("range") then
+        r = window.range
+        if body.cursor <> invalid or not IsObject(r) or not IsNatural(r.start) then return invalid
+        body.range = { start: r.start }
+        if r.revision <> invalid then
+            if not IsText(r.revision, 256) then return invalid
+            body.range.revision = r.revision
+        end if
+    end if
+    return body
+end function
+
+function SearchGenreCapabilitiesPath() as string
+    pivot = SearchGenreContract.browsePivot
+    return SearchGenreContract.capabilitiesPath + "?pivot=" + pivot.encodeUriComponent()
+end function
+
+' Context facets keep this actual query, not every video title or an expanded local lineup.
+function SearchGenreFacetsPath(field as dynamic, value as dynamic) as dynamic
+    body = SearchGenreBrowseRequest(value)
+    if body = invalid or not IsBrowseId(field) then return invalid
+    return SearchGenreContract.facetsPath + "?field=" + field.encodeUriComponent() + "&pivot=" + body.pivot.encodeUriComponent() + "&limit=200&query=" + FormatJson(body.query).encodeUriComponent()
+end function
+
+' Narrow capability admission for this exact surface. Other Library parsers are unchanged.
+function ParseSearchGenreCapabilities(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_browse" }
+    if not IsObject(raw) or not IsObject(raw.library) or not IsObject(raw.queryLimits) then return bad
+    library = raw.library
+    if library.id <> invalid and library.id <> "" then return bad
+    if library.kind <> invalid and library.kind <> "" then return bad
+    if not IsArray(raw.pivots) or raw.pivots.count() > 32 or not IsObject(raw.resolvedPivot) then return bad
+    resolved = raw.resolvedPivot
+    if resolved.id <> SearchGenreContract.browsePivot or resolved.browsable <> true or not IsArray(resolved.entityKinds) or resolved.entityKinds.count() <> 2 then return bad
+    if not ArrayIncludes(resolved.entityKinds, "movie") or not ArrayIncludes(resolved.entityKinds, "show") then return bad
+    offered = false
+    for each pivot in raw.pivots
+        if IsObject(pivot) and pivot.id = resolved.id and pivot.browsable = true then offered = true
+    end for
+    if not offered or not IsArray(raw.surfaces) or raw.surfaces.count() > 32 then return bad
+    offered = false
+    for each surface in raw.surfaces
+        if IsObject(surface) and surface.id = "genre-titles" then
+            if surface.endpoint <> SearchGenreContract.browsePath or surface.membershipField <> SearchGenreContract.browseField or surface.paging <> "offset" then return bad
+            if not IsArray(surface.filters) or not ArrayIncludes(surface.filters, SearchGenreContract.browseField) or not IsArray(surface.sorts) or not ArrayIncludes(surface.sorts, "title") then return bad
+            offered = true
+        end if
+    end for
+    if not offered or not IsArray(raw.fields) or raw.fields.count() > 128 or not IsArray(raw.sorts) or raw.sorts.count() > 64 then return bad
+    offered = false
+    for each field in raw.fields
+        if IsObject(field) and field.id = SearchGenreContract.browseField then
+            if not IsArray(field.operators) or not ArrayIncludes(field.operators, SearchGenreContract.browseOperator) then return bad
+            offered = true
+        end if
+    end for
+    if not offered then return bad
+    offered = false
+    for each sort in raw.sorts
+        if IsObject(sort) and sort.id = "title" then
+            if not IsArray(sort.directions) or not ArrayIncludes(sort.directions, "asc") then return bad
+            offered = true
+        end if
+    end for
+    limits = raw.queryLimits
+    if not offered or not IsNatural(limits.defaultLimit) or not IsNatural(limits.maximumLimit) or limits.defaultLimit < 1 or limits.maximumLimit < limits.defaultLimit or limits.maximumLimit > 200 then return bad
+    return { ok: true, maximumLimit: limits.maximumLimit, defaultLimit: limits.defaultLimit }
+end function
+
+function ParseSearchGenreTitles(raw as dynamic, value as string, revision = "" as string) as object
+    bad = { ok: false, code: "invalid_browse" }
+    if not IsObject(raw) or raw.pivot <> SearchGenreContract.browsePivot or not IsObject(raw.applied) then return bad
+    wanted = SearchGenreBrowseRequest(value)
+    query = raw.applied.query
+    if not IsObject(query) or query.count() <> 3 or query.field <> wanted.query.field or query.operator <> wanted.query.operator or query.value <> value then return bad
+    if not IsArray(raw.applied.sort) or raw.applied.sort.count() <> 1 then return bad
+    sort = raw.applied.sort[0]
+    if not IsObject(sort) or sort.field <> "title" or sort.direction <> "asc" then return bad
+    info = raw.pageInfo
+    if not IsObject(info) or not IsArray(raw.entries) or raw.entries.count() > 200 then return bad
+    if not IsNatural(info.start) or not IsNatural(info.total) or not IsBoolean(info.hasMore) or not IsBrowseString(info.nextCursor, 4096) then return bad
+    if info.totalIsLowerBound <> invalid and not IsBoolean(info.totalIsLowerBound) then return bad
+    lower = info.totalIsLowerBound = true
+    total = info.total
+    finish = 0
+    if raw.entries.count() > 0 then finish = info.start + raw.entries.count()
+    more = info.start + raw.entries.count() < info.total
+    bound = finish
+    if lower then
+        more = info.hasMore or info.nextCursor <> ""
+        if more then
+            stepSize = raw.entries.count()
+            if stepSize < 1 then stepSize = 1
+            bound = finish + stepSize
+        end if
+    end if
+    if bound > total then total = bound
+    if not lower then more = info.start + raw.entries.count() < total
+    if lower and more and IsArray(raw.positionIndex) then
+        for each anchor in raw.positionIndex
+            if IsObject(anchor) and IsBrowseString(anchor.key, 8) and IsNatural(anchor.index) then
+                if anchor.index + 1 > total then total = anchor.index + 1
+            end if
+        end for
+    end if
+    ' Existing strict entry/query guards see the canonical effective virtual bound;
+    ' the supplied lower-bound count is never mistaken for an end-of-membership cap.
+    normalized = { pivot: raw.pivot, applied: raw.applied, entries: raw.entries, positionIndex: raw.positionIndex, pageInfo: { start: info.start, total: total, revision: info.revision, hasMore: more, nextCursor: info.nextCursor } }
+    parsed = ParseBrowseResult(normalized)
+    if not parsed.ok then return bad
+    result = parsed.result
+    if revision <> "" and result.revision <> revision then return { ok: false, code: "stale_continuation" }
+    for each entry in result.entries
+        if entry.kind <> "movie" and entry.kind <> "show" then return bad
+    end for
+    if more and not IsText(info.nextCursor, 4096) then return bad
+    result.nextCursor = info.nextCursor
+    result.hasMore = more
+    result.totalIsLowerBound = lower and (raw.entries.count() = 0 or more)
+    result.ok = true
+    return result
+end function
+
+' Capabilities and the page both run through the same captured authority; no mutation/replay.
+function ReadSearchGenreTitles(ctx as object, value as dynamic, window as dynamic, expected as dynamic, revision = "" as string) as object
+    cancelled = { ok: false, status: 0, error: { code: "cancelled", status: 0, message: "", retryable: false } }
+    if not IsObject(expected) then return cancelled
+    binding = {}
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        binding[key] = expected[key]
+    end for
+    expected = binding
+    if not SearchGenresReadCurrent(ctx, expected) then return cancelled
+    body = SearchGenreBrowseRequest(value, window)
+    if body = invalid then return { ok: false, status: 0, error: { code: "invalid_request", status: 0, message: "", retryable: false } }
+    answer = ViewerRequest(ctx, SearchGenreCapabilitiesPath(), "GET", invalid, invalid, expected)
+    if not SearchGenresReadCurrent(ctx, expected) then return cancelled
+    if not answer.ok then return answer
+    caps = ParseSearchGenreCapabilities(answer.data)
+    if not caps.ok then return { ok: false, status: 0, error: { code: caps.code, status: 0, message: "", retryable: false } }
+    if body.limit = invalid then body.limit = caps.defaultLimit
+    if body.limit > caps.maximumLimit then return { ok: false, status: 0, error: { code: "invalid_request", status: 0, message: "", retryable: false } }
+    answer = ViewerRequest(ctx, SearchGenreContract.browsePath, "POST", body, invalid, expected)
+    if not SearchGenresReadCurrent(ctx, expected) then return cancelled
+    if not answer.ok then return answer
+    page = ParseSearchGenreTitles(answer.data, value, revision)
+    if not page.ok then return { ok: false, status: 0, error: { code: page.code, status: 0, message: "", retryable: false } }
+    if body.range <> invalid and page.start <> body.range.start then return { ok: false, status: 0, error: { code: "stale_continuation", status: 0, message: "", retryable: false } }
+    page.maximumLimit = caps.maximumLimit
+    page.shape = "poster"
+    page.titleLines = 1
+    page.shown = page.entries.count()
+    return { ok: true, status: answer.status, value: page }
 end function

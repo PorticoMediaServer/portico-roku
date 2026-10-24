@@ -22,13 +22,21 @@ const route=/"get_search_genres": "([^"]+)"/.exec(source['packages/contracts/src
 const core=source['packages/client-core/src/search-genres.ts'];
 if(!route||page.required.join(',')!=='revision,genres'||genre.required.join(',')!=='value,label,count,covers'||genre.properties.covers.maxItems!==2)throw new Error('Review genre DTO port');
 for(const fragment of ['input.genres.length > 50',"text(raw.revision, 1024)","text(raw.nextCursor, 4096)","text(genre.value, 1024)","text(value.path, 2048)","role === 'backdrop' ? '1920' : '400'"]){if(!core.includes(fragment))throw new Error('Review canonical genre validator: '+fragment);}
+// Evaluate the actual pure canonical request helper, rather than duplicating its wire policy.
+const moduleText=stripTypeScriptTypes(core.replace(/^import .*;\n/gm,''));
+const shared=await import('data:text/javascript;base64,'+Buffer.from(moduleText).toString('base64'));
+const template=shared.searchGenreBrowseRequest('GENRE_VALUE');
+if(template.pivot!==shared.searchGenreBrowsePivot||template.query.value!=='GENRE_VALUE')throw new Error('Review genre destination');
+const routeOf=id=>new RegExp('"'+id+'": "([^" ]+)"').exec(source['packages/contracts/src/routes.ts'])?.[1];
+const browsePath=routeOf('browse_across'),capabilitiesPath=routeOf('get_browse_capabilities'),facetsPath=routeOf('get_browse_facets');
+if(!browsePath||!capabilitiesPath||!facetsPath)throw new Error('Missing mounted across paths');
 const design='69f2d45a972ff9ec1bd8743c760183026c92d555';
 const states=execFileSync('git',['show',design+':design/ui-v1/states.html'],{cwd:internal}).toString();
 const start=states.indexOf('id="f18"'),end=states.indexOf('<!--',start);
 if(start<0||end<start)throw new Error('Missing TV empty-search frame');
 const prefix=(states.slice(start,end).match(/<button class="gtl\b/g)??[]).length;
 if(prefix!==4)throw new Error('Review drawn TV prefix');
-const values={path:route,maximumPage:50,maximumCovers:genre.properties.covers.maxItems,minimumCount:genre.properties.count.minimum,maximumCount:genre.properties.count.maximum,artKinds:genre.properties.backdrop.properties.kind.enum,tvPrefix:prefix};
+const values={path:route,maximumPage:50,maximumCovers:genre.properties.covers.maxItems,minimumCount:genre.properties.count.minimum,maximumCount:genre.properties.count.maximum,artKinds:genre.properties.backdrop.properties.kind.enum,tvPrefix:prefix,browsePivot:template.pivot,browseField:template.query.field,browseOperator:template.query.operator,browseSort:template.sort,browsePath,capabilitiesPath,facetsPath};
 const text=`' Exact Server MAIN ${pin.commit}; drawn prefix states.html#f18 at ${design}.\nnamespace SearchGenreContract\n${Object.entries(values).map(([k,v])=>'    const '+k+' = '+(k==='maximumCount'?String(v)+'#':JSON.stringify(v))).join('\n')}\nend namespace\n`;
 const target=join(app,'source/core/SearchGenreContract.bs');
 if(process.argv.includes('--check')){if(readFileSync(target,'utf8')!==text)throw new Error('Regenerate genre contract');}
