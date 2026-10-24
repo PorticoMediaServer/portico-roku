@@ -1,0 +1,96 @@
+' Owned scene lifetime for the canonical genre read. No transport or rendered geometry lives here.
+import "pkg:/source/core/SearchGenres.bs"
+
+function SearchGenreBindingCopy(raw as dynamic) as dynamic
+    if not IsObject(raw) then return invalid
+    out = {}
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        bound = 256
+        if key = "origin" then bound = 4096
+        if key = "sessionFamilyId" then bound = 128
+        if not IsText(raw[key], bound) then return invalid
+        out[key] = raw[key]
+    end for
+    return out
+end function
+
+function SearchGenreBindingSame(a as dynamic, b as dynamic) as boolean
+    if not IsObject(a) or not IsObject(b) then return false
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        if a[key] <> b[key] then return false
+    end for
+    return true
+end function
+
+function SearchGenreModelNew() as object
+    return { generation: 0, phase: "idle", binding: invalid, window: SearchGenreWindowNew(), pending: false, error: invalid }
+end function
+
+function SearchGenreModelRetire(held as object) as object
+    nextModel = SearchGenreModelNew()
+    nextModel.generation = held.generation + 1
+    return nextModel
+end function
+
+function SearchGenreModelBegin(held as object, binding as dynamic) as object
+    nextModel = SearchGenreModelRetire(held)
+    nextModel.binding = SearchGenreBindingCopy(binding)
+    if nextModel.binding <> invalid then nextModel.phase = "loading"
+    return nextModel
+end function
+
+' Request identity is a second copy: caller mutation cannot change model authority.
+function SearchGenreModelRequest(held as object) as dynamic
+    if held.pending or held.window.done or (held.phase <> "loading" and held.phase <> "ready") or held.binding = invalid then return invalid
+    window = { limit: SearchGenreContract.maximumPage }
+    if held.window.cursor <> "" then window.cursor = held.window.cursor
+    return { reader: "searchGenres", window: window, expectedViewer: SearchGenreBindingCopy(held.binding), generation: held.generation, askedCursor: held.window.cursor }
+end function
+
+function SearchGenreModelAsked(held as object, request as object) as boolean
+    if held.pending or request.generation <> held.generation or request.askedCursor <> held.window.cursor or not SearchGenreBindingSame(request.expectedViewer, held.binding) then return false
+    held.pending = true
+    return true
+end function
+
+' The node caller also checks actual Task identity. A retired generation never changes the new one.
+function SearchGenreModelReceive(held as object, request as object, result as dynamic, liveBinding as dynamic) as object
+    if not SearchGenreBindingSame(held.binding, liveBinding) then return SearchGenreModelRetire(held)
+    if not held.pending or request.generation <> held.generation or request.askedCursor <> held.window.cursor or not SearchGenreBindingSame(request.expectedViewer, held.binding) then return held
+    held.pending = false
+    if not IsObject(result) or result.ok <> true or not IsObject(result.value) or result.value.ok <> true then
+        held.phase = "error"
+        held.error = "invalid_response"
+        if IsObject(result) and IsObject(result.error) and IsText(result.error.code, 128) then held.error = result.error.code
+        return held
+    end if
+    append = SearchGenreWindowAppend(held.window, result.value, request.askedCursor)
+    if not append.ok then
+        held.phase = "error"
+        held.error = append.code
+        return held
+    end if
+    held.window = append.window
+    held.phase = "ready"
+    held.error = invalid
+    return held
+end function
+
+function SearchGenreModelRetry(held as object, liveBinding as dynamic) as boolean
+    if held.phase <> "error" or not SearchGenreBindingSame(held.binding, liveBinding) then return false
+    held.phase = "loading"
+    held.error = invalid
+    return true
+end function
+
+' A bounded view model only: no token, family, account/profile identifier or raw error message.
+function SearchGenreModelState(held as object) as object
+    rows = []
+    for each genre in held.window.tiles
+        art = genre.backdrop
+        rows.push({ value: genre.value, label: genre.label, "count": FieldOf(genre, "count"), backdrop: { kind: art.kind, id: art.id, path: art.path } })
+    end for
+    state = { phase: held.phase, genres: rows, done: held.window.done, loading: held.pending or held.phase = "loading" }
+    if held.error <> invalid then state.error = { code: held.error }
+    return state
+end function

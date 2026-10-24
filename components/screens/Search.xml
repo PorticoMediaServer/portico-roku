@@ -3,6 +3,9 @@
 <component name="ScreenSearch" extends="Group">
     <interface>
         <field id="route" type="assocarray" />
+        <!-- Bounded read-only genre data for the generated renderer; no auth identifiers. -->
+        <field id="genreState" type="assocarray" />
+        <function name="retryGenres" />
         <function name="enter" />
         <function name="resume" />
         <function name="leave" />

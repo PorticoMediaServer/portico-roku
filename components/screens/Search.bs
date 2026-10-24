@@ -18,6 +18,7 @@ import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Format.bs"
 import "pkg:/source/core/Search.bs"
+import "pkg:/source/core/SearchGenreModel.bs"
 import "pkg:/components/app/Nav.bs"
 
 sub init()
@@ -44,17 +45,28 @@ sub init()
     m.shelves = []
     m.cursor = ""
     m.generation = 0
+    m.genreModel = SearchGenreModelNew()
+    m.genreTask = invalid
+    m.genreRequest = invalid
+    m.genreWatching = false
+    SearchGenrePublish()
 end sub
 
 sub enter()
+    SearchGenreWatch()
     SearchLayout()
     NavClaimFocus()
 end sub
 
 sub resume()
+    SearchGenreWatch()
+    SearchGenreEnsure()
 end sub
 
 sub leave()
+    if m.genreWatching then m.global.session.unobserveField("viewer")
+    m.genreWatching = false
+    SearchGenreStop()
     m.task = invalid
     m.pageTask = invalid
 end sub
@@ -117,6 +129,7 @@ sub SearchRun()
         m.task = invalid
         m.phase = "idle"
         m.value = invalid
+        SearchGenreStop()
         SearchLayout()
         return
     end if
@@ -141,6 +154,7 @@ sub onSearchLoaded(event as object)
         m.phase = "error"
         m.failure = result.error
         m.value = invalid
+        SearchGenreStop()
         SearchLayout()
         return
     end if
@@ -149,6 +163,7 @@ sub onSearchLoaded(event as object)
     m.content = task.content
     m.query = task.q
     if result.value.groups.count() > 0 then SearchRemember(m.text)
+    SearchGenreEnsure()
     SearchLayout()
 end sub
 
@@ -554,4 +569,74 @@ sub onSearchPage(event as object)
             m.countNode.value = T("web.search.results", { count: total })
         end if
     end if
+end sub
+
+
+' Headless state for the measured Search renderer. No new controls, geometry or strings.
+sub SearchGenreWatch()
+    if m.genreWatching then return
+    m.global.session.observeField("viewer", "onSearchGenreViewerChanged")
+    m.genreWatching = true
+end sub
+
+sub onSearchGenreViewerChanged()
+    SearchGenreStop()
+    SearchGenreEnsure()
+end sub
+
+sub SearchGenrePublish()
+    m.top.genreState = SearchGenreModelState(m.genreModel)
+end sub
+
+sub SearchGenreStop()
+    if m.genreTask <> invalid then
+        m.genreTask.cancelled = true
+        m.genreTask.unobserveField("result")
+    end if
+    m.genreTask = invalid
+    m.genreRequest = invalid
+    m.genreModel = SearchGenreModelRetire(m.genreModel)
+    SearchGenrePublish()
+end sub
+
+sub SearchGenreEnsure()
+    if m.phase <> "ready" or m.value = invalid or m.chip <> "all" then
+        SearchGenreStop()
+        return
+    end if
+    if m.value.groups.count() <> 0 or m.value.failed.count() <> 0 then
+        SearchGenreStop()
+        return
+    end if
+    live = ViewerRequestBinding(m.global.session.viewer)
+    if not SearchGenreBindingSame(m.genreModel.binding, live) then
+        SearchGenreStop()
+        m.genreModel = SearchGenreModelBegin(m.genreModel, live)
+    end if
+    if m.genreTask <> invalid then return
+    request = SearchGenreModelRequest(m.genreModel)
+    if request = invalid then
+        SearchGenrePublish()
+        return
+    end if
+    if not SearchGenreModelAsked(m.genreModel, request) then return
+    m.genreRequest = request
+    m.genreTask = ApiStart(request, "onSearchGenreRead")
+    SearchGenrePublish()
+end sub
+
+sub onSearchGenreRead(event as object)
+    task = event.getRoSGNode()
+    if m.genreTask = invalid or not task.isSameNode(m.genreTask) then return
+    request = m.genreRequest
+    task.unobserveField("result")
+    m.genreTask = invalid
+    m.genreRequest = invalid
+    m.genreModel = SearchGenreModelReceive(m.genreModel, request, event.getData(), ViewerRequestBinding(m.global.session.viewer))
+    SearchGenrePublish()
+    if m.genreModel.phase = "ready" then SearchGenreEnsure()
+end sub
+
+sub retryGenres()
+    if SearchGenreModelRetry(m.genreModel, ViewerRequestBinding(m.global.session.viewer)) then SearchGenreEnsure()
 end sub

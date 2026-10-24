@@ -1,0 +1,139 @@
+import "pkg:/source/core/SearchGenreModel.bs"
+
+function TestGenreModelBinding() as object
+    return { origin: "https://media.example.com", serverId: "server-one", accountId: "account-one", profileId: "profile-one", authority: "local", sessionFamilyId: "family-one", accessToken: "never-public" }
+end function
+
+function TestGenreModelPage(values as object, cursor = "" as string) as object
+    raw = { revision: "authorized-revision", genres: [] }
+    for each value in values
+        raw.genres.push(TestSearchGenre(value, 9))
+    end for
+    if cursor <> "" then raw.nextCursor = cursor
+    return { ok: true, value: ParseSearchGenres(raw) }
+end function
+
+sub Test_SearchGenreModel_capturesOnlyAProfileBindingAndOnePendingRead()
+    live = TestGenreModelBinding()
+    held = SearchGenreModelBegin(SearchGenreModelNew(), live)
+    live.sessionFamilyId = "changed-at-caller"
+    AssertEqual(held.binding.sessionFamilyId, "family-one")
+    AssertEqual(held.binding.accessToken, invalid)
+    request = SearchGenreModelRequest(held)
+    AssertEqual(request.reader, "searchGenres")
+    AssertEqual(request.window.limit, 50)
+    AssertTrue(SearchGenreModelAsked(held, request))
+    AssertEqual(SearchGenreModelRequest(held), invalid)
+    AssertEqual(SearchGenreModelAsked(held, request), false)
+    state = SearchGenreModelState(held)
+    AssertTrue(state.loading)
+    AssertEqual(state.phase, "loading")
+    AssertEqual(state.genres.count(), 0)
+    AssertEqual(Instr(1, FormatJson(state), "family-one"), 0)
+    AssertEqual(Instr(1, FormatJson(state), "account-one"), 0)
+    AssertEqual(Instr(1, FormatJson(state), "never-public"), 0)
+    for each key in ["profileId", "accountId", "serverId", "authority", "sessionFamilyId", "origin"]
+        raw = TestGenreModelBinding()
+        raw.delete(key)
+        refused = SearchGenreModelBegin(held, raw)
+        AssertEqual(refused.phase, "idle")
+        AssertEqual(SearchGenreModelRequest(refused), invalid)
+    end for
+    raw = TestGenreModelBinding()
+    raw.sessionFamilyId = String(129, "a")
+    AssertEqual(SearchGenreModelRequest(SearchGenreModelBegin(held, raw)), invalid)
+end sub
+
+sub Test_SearchGenreModel_preservesBoundedServerPrefixAndOpaqueCursor()
+    live = TestGenreModelBinding()
+    held = SearchGenreModelBegin(SearchGenreModelNew(), live)
+    request = SearchGenreModelRequest(held)
+    AssertTrue(SearchGenreModelAsked(held, request))
+    first = TestGenreModelPage(["Drama"], "opaque/+=")
+    first.value.genres.push(TestSearchGenre("No backdrop", 8, false))
+    held = SearchGenreModelReceive(held, request, first, live)
+    AssertEqual(held.phase, "ready")
+    AssertEqual(held.window.tiles.count(), 1)
+    request = SearchGenreModelRequest(held)
+    AssertEqual(request.window.cursor, "opaque/+=")
+    AssertTrue(SearchGenreModelAsked(held, request))
+    held = SearchGenreModelReceive(held, request, TestGenreModelPage(["Crime", "Adventure", "Animation", "Comedy"]), live)
+    AssertTrue(held.window.done)
+    AssertEqual(SearchGenreModelRequest(held), invalid)
+    state = SearchGenreModelState(held)
+    AssertEqual(state.genres.count(), 4)
+    AssertEqual(state.genres[0].value, "Drama")
+    AssertEqual(state.genres[1].value, "Crime")
+    AssertEqual(state.genres[3].value, "Animation")
+    state.genres[0].label = "caller mutation"
+    state.genres[0].backdrop.path = "https://external.invalid"
+    again = SearchGenreModelState(held)
+    AssertEqual(again.genres[0].label, "Drama")
+    AssertEqual(Instr(1, again.genres[0].backdrop.path, "https://"), 0)
+    AssertEqual(first.value.genres.count(), 2, "artless rows are retained in the parsed page")
+end sub
+
+sub Test_SearchGenreModel_neverPublishesAfterAnyViewerIdentityChanges()
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        live = TestGenreModelBinding()
+        held = SearchGenreModelBegin(SearchGenreModelNew(), live)
+        request = SearchGenreModelRequest(held)
+        AssertTrue(SearchGenreModelAsked(held, request))
+        live[key] = "different"
+        retired = SearchGenreModelReceive(held, request, TestGenreModelPage(["Private genre"]), live)
+        AssertEqual(retired.phase, "idle")
+        AssertEqual(retired.window.tiles.count(), 0)
+        AssertEqual(SearchGenreModelRequest(retired), invalid)
+        AssertTrue(retired.generation > held.generation)
+    end for
+end sub
+
+sub Test_SearchGenreModel_ignoresOldTaskAfterReentryAndRequiresExplicitErrorRetry()
+    live = TestGenreModelBinding()
+    held = SearchGenreModelBegin(SearchGenreModelNew(), live)
+    oldRequest = SearchGenreModelRequest(held)
+    AssertTrue(SearchGenreModelAsked(held, oldRequest))
+    held = SearchGenreModelBegin(held, live)
+    request = SearchGenreModelRequest(held)
+    AssertTrue(SearchGenreModelAsked(held, request))
+    held = SearchGenreModelReceive(held, oldRequest, TestGenreModelPage(["Stale row"]), live)
+    AssertTrue(held.pending)
+    AssertEqual(held.window.tiles.count(), 0)
+    held = SearchGenreModelReceive(held, request, { ok: false, error: { code: "portico_services_unavailable", message: "raw private error", token: "private" } }, live)
+    AssertEqual(held.phase, "error")
+    AssertEqual(SearchGenreModelRequest(held), invalid)
+    state = SearchGenreModelState(held)
+    AssertEqual(state.error.code, "portico_services_unavailable")
+    AssertEqual(Instr(1, FormatJson(state), "private"), 0)
+    wrong = TestGenreModelBinding()
+    wrong.profileId = "other"
+    AssertEqual(SearchGenreModelRetry(held, wrong), false)
+    AssertTrue(SearchGenreModelRetry(held, live))
+    request = SearchGenreModelRequest(held)
+    AssertTrue(SearchGenreModelAsked(held, request))
+    held = SearchGenreModelReceive(held, request, TestGenreModelPage([]), live)
+    AssertTrue(held.window.done)
+    AssertEqual(held.phase, "ready")
+    AssertEqual(SearchGenreModelRequest(held), invalid)
+end sub
+
+sub Test_SearchGenreModel_refusesRevisionChangesWithoutAutomaticReplay()
+    live = TestGenreModelBinding()
+    held = SearchGenreModelBegin(SearchGenreModelNew(), live)
+    request = SearchGenreModelRequest(held)
+    AssertTrue(SearchGenreModelAsked(held, request))
+    held = SearchGenreModelReceive(held, request, TestGenreModelPage(["Drama"], "next"), live)
+    request = SearchGenreModelRequest(held)
+    AssertTrue(SearchGenreModelAsked(held, request))
+    changed = TestGenreModelPage(["Crime"])
+    changed.value.revision = "new-library-revision"
+    held = SearchGenreModelReceive(held, request, changed, live)
+    AssertEqual(held.phase, "error")
+    AssertEqual(held.error, "stale_continuation")
+    AssertEqual(SearchGenreModelRequest(held), invalid)
+    AssertEqual(held.window.tiles.count(), 1)
+    AssertEqual(held.window.tiles[0].value, "Drama")
+    held = SearchGenreModelRetire(held)
+    AssertEqual(SearchGenreModelState(held).genres.count(), 0)
+    AssertEqual(held.binding, invalid)
+end sub
