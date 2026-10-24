@@ -101,7 +101,7 @@ sub Test_SearchGenres_opaquePagesYieldOnlyTheDrawnPrefixWithoutRankingOrArtRepla
     AssertTrue(window.ok)
     AssertEqual(window.window.tiles.count(), 1)
     AssertEqual(window.window.done, false)
-    ' Two genres share the same best title. The producer's already selected fallback survives.
+    ' The producer's already selected fallback survives; no client reranking is permitted.
     shared = TestSearchGenre("Adventure", 18)
     shared.backdrop = TestGenreArt("producer-chosen-fallback")
     second = ParseSearchGenres({ revision: first.revision, genres: [shared, TestSearchGenre("Animation", 14), TestSearchGenre("Comedy", 12), TestSearchGenre("Action", 10)] })
@@ -118,6 +118,32 @@ sub Test_SearchGenres_opaquePagesYieldOnlyTheDrawnPrefixWithoutRankingOrArtRepla
     AssertEqual(SearchGenreWindowAppend(window.window, second, first.nextCursor).code, "stale_continuation")
     AssertEqual(SearchGenreWindowAppend(window.window, first, "wrong-cursor").ok, false)
     AssertEqual(SearchGenreWindowAppend(window.window, first, first.nextCursor).ok, false, "repeating the same cursor refuses replay")
+end sub
+
+sub Test_SearchGenres_oldFamilyCannotReadOrPublishUnderTheNewSignIn()
+    ctx = TestContext()
+    session = TestSessionJson(ctx, "viewer")
+    AssertTrue(SessionAccept(ctx, { origin: ctx.base, signIn: "local", pin: TestPin(ctx) }, session).ok)
+    binding = ViewerRequestBinding({ origin: ctx.base, viewer: session.viewer, sessionFamilyId: session.sessionFamilyId })
+    AssertEqual(ReadSearchGenres(ctx, {}, invalid).error.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 0)
+    ctx.transport.store = ctx.store
+    ctx.transport.section = SessionRecordSection(binding.serverId)
+    ctx.send = function(request as object) as object
+        answer = TestSend(request)
+        record = StoreReadJson(m.transport.store, m.transport.section, "record")
+        record["session"].sessionFamilyId = "fam_new_signin"
+        StoreWriteJson(m.transport.store, m.transport.section, "record", record)
+        return answer
+    end function
+    TestAnswer(ctx, "GET", ctx.base + SearchGenresPath(), 200, TestSearchGenrePage())
+    late = ReadSearchGenres(ctx, {}, binding)
+    AssertEqual(late.error.code, "cancelled")
+    AssertEqual(late.value, invalid)
+    AssertEqual(SessionRecord(ctx)["session"].sessionFamilyId, "fam_new_signin")
+    AssertEqual(ctx.transport.requests.count(), 1)
+    AssertEqual(ReadSearchGenres(ctx, {}, binding).error.code, "cancelled")
+    AssertEqual(ctx.transport.requests.count(), 1, "an old continuation cannot use the new family's token")
 end sub
 
 sub Test_SearchGenres_readUsesCapturedViewerAndNeverPublishesAfterCancellation()

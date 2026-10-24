@@ -3,6 +3,7 @@
 <component name="ApiTask" extends="Task">
     <interface>
         <!-- {path, method, body, headers, reader, context}: `reader` names the parser the answer goes through. -->
+        <!-- searchGenres uses window:{limit?,cursor?} and the exact expectedViewer captured by ApiStart. -->
         <field id="request" type="assocarray" />
         <!-- Cooperative cancellation for bounded reads; never shadows native Task state/control. -->
         <field id="cancelled" type="boolean" value="false" />
