@@ -4,6 +4,7 @@
     "packages/client-core/src/search-genres.ts": "e2ebcbcaa9c4bb062acf37eae039dfd421cc9bc4352bf4f28806104a28739f69",
     "packages/contracts/src/routes.ts": "66599da95a011134e687c3323a8a5a8bed4ff452598f9c9d544cf94cfc9065f9",
     "packages/contracts/src/schemas.ts": "95c846f5247d07d333bc471d72fa7d77a298c937e06ee9d4726f0b7369b8044d",
-    "packages/client-core/src/browse.ts": "30d1fcad94474b5b452ae8ac9fb65b319d0ff5e611d8a495a892be144f718534"
+    "packages/client-core/src/browse.ts": "30d1fcad94474b5b452ae8ac9fb65b319d0ff5e611d8a495a892be144f718534",
+    "packages/i18n/src/catalog/en-US/next/search.ts": "054b53f5122106bb762d7933c4030a24127fe24f6b28d4e67ec6e8f0b087fd93"
   }
 }

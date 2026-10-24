@@ -1,0 +1,189 @@
+import "pkg:/source/Theme.bs"
+import "pkg:/source/ThemeTables.bs"
+import "pkg:/source/ui/Nodes.bs"
+import "pkg:/source/ui/Style.bs"
+import "pkg:/source/ui/Focus.bs"
+import "pkg:/source/ui/SearchFrameMetrics.bs"
+import "pkg:/source/core/SearchTV.bs"
+import "pkg:/source/core/Messages.bs"
+import "pkg:/source/core/Format.bs"
+import "pkg:/components/app/Nav.bs"
+
+sub init()
+    m.lastKey = 0
+    m.keys = []
+    m.tiles = []
+    m.field = MakeShape(m.top, SearchFrameMetrics.fieldWidth, SearchFrameMetrics.fieldHeight, SearchFrameMetrics.fieldRadius, SearchFrameMetrics.fieldFill)
+    x = SearchFrameMetrics.left - Theme.metrics.railWidth
+    Place(m.field, x, SearchFrameMetrics.top)
+    icon = MakeIcon(m.top, "search", SearchFrameMetrics.fieldIcon, Theme.colors.textTertiary)
+    Place(icon, x + SearchFrameMetrics.fieldPadding, SearchFrameMetrics.top + (SearchFrameMetrics.fieldHeight - SearchFrameMetrics.fieldIcon) / 2)
+    m.words = MakeText(m.top, "title")
+    m.words.sizeOverride = SearchFrameMetrics.fieldSize
+    m.words.lineHeightOverride = SearchFrameMetrics.fieldHeight
+    m.words.maxWidth = SearchFrameMetrics.fieldWidth - SearchFrameMetrics.fieldPadding * 2 - SearchFrameMetrics.fieldIcon - SearchFrameMetrics.fieldGap
+    Place(m.words, x + SearchFrameMetrics.fieldPadding + SearchFrameMetrics.fieldIcon + SearchFrameMetrics.fieldGap, SearchFrameMetrics.top)
+    unit = (SearchFrameMetrics.fieldWidth - (SearchFrameMetrics.columns - 1) * SearchFrameMetrics.keyGap) / SearchFrameMetrics.columns
+    for each key in SearchTVKeys()
+        index = m.keys.count()
+        row = Int(index / SearchFrameMetrics.columns)
+        col = index mod SearchFrameMetrics.columns
+        span = 1
+        if key = "space" or key = "delete" then
+            span = SearchFrameMetrics.wideSpan
+            row = Int((SearchTVKeys().count() - 2) / SearchFrameMetrics.columns)
+            col = (index - (SearchTVKeys().count() - 2)) * span
+        end if
+        node = m.top.createChild("UiFocusable")
+        node.addFields({ searchKey: key, keyIndex: index })
+        node.controlWidth = unit * span + SearchFrameMetrics.keyGap * (span - 1)
+        node.controlHeight = SearchFrameMetrics.keyHeight
+        node.radius = SearchFrameMetrics.keyRadius
+        node.focusScale = SearchFrameMetrics.focusScale
+        node.ringInset = SearchFrameMetrics.ringInset
+        fill = MakeShape(node, node.controlWidth, node.controlHeight, SearchFrameMetrics.keyRadius, SearchFrameMetrics.keyFill)
+        label = MakeText(node, "title", "secondary", key)
+        label.sizeOverride = SearchFrameMetrics.keySize
+        if span > 1 then label.sizeOverride = SearchFrameMetrics.keyWideSize
+        label.lineHeightOverride = SearchFrameMetrics.keyHeight
+        label.align = "center"
+        label.maxWidth = node.controlWidth
+        if key = "space" then label.value = T("roku.tvSignIn.space")
+        if key = "delete" then
+            label.visible = false
+            deleteIcon = node.createChild("Poster")
+            deleteIcon.uri = "pkg:/images/icons/tv-auth-backspace-32.png"
+            deleteIcon.width = SearchFrameMetrics.backspace
+            deleteIcon.height = SearchFrameMetrics.backspace
+            deleteIcon.blendColor = Theme.colors.textSecondary
+            Place(deleteIcon, (node.controlWidth - SearchFrameMetrics.backspace) / 2, (SearchFrameMetrics.keyHeight - SearchFrameMetrics.backspace) / 2)
+        end if
+        Place(node, x + col * (unit + SearchFrameMetrics.keyGap), SearchFrameMetrics.keyboardTop + row * (SearchFrameMetrics.keyHeight + SearchFrameMetrics.keyGap))
+        node.observeField("pressed", "onMissKey")
+        node.observeField("isFocused", "onMissKeyStyle")
+        m.keys.push({ node: node, fill: fill, label: label })
+    end for
+    m.heading = m.top.createChild("IdentityHeading")
+    m.heading.textSize = SearchFrameMetrics.titleSize
+    m.heading.lineHeight = SearchFrameMetrics.titleLine
+    m.heading.tracking = SearchFrameMetrics.titleTracking
+    m.heading.maxWidth = Theme.screen.width - SearchFrameMetrics.resultLeft - SearchFrameMetrics.right
+    Place(m.heading, SearchFrameMetrics.resultLeft - Theme.metrics.railWidth, SearchFrameMetrics.top)
+    m.lead = MakeText(m.top, "body", "secondary", T("web.search.noMatchesBody"))
+    m.lead.sizeOverride = SearchFrameMetrics.leadSize
+    m.lead.lineHeightOverride = SearchFrameMetrics.leadLine
+    m.lead.maxWidth = m.heading.maxWidth
+    m.section = MakeText(m.top, "title", "primary", T("next.search.browseInstead"))
+    m.section.sizeOverride = SearchFrameMetrics.sectionSize
+    m.section.lineHeightOverride = SearchFrameMetrics.sectionLine
+    m.genreGroup = m.top.createChild("Group")
+    m.section.visible = false
+    onMissQuery()
+    onMissKeyStyle()
+end sub
+
+sub onMissQuery()
+    if m.words = invalid then return
+    m.words.value = m.top.query
+    m.heading.value = T("web.search.noMatches", { query: m.top.query })
+    y = SearchFrameMetrics.top + m.heading.contentHeight + SearchFrameMetrics.titleGap
+    Place(m.lead, SearchFrameMetrics.resultLeft - Theme.metrics.railWidth, y)
+    y = y + SearchFrameMetrics.leadLine + SearchFrameMetrics.leadGap
+    Place(m.section, SearchFrameMetrics.resultLeft - Theme.metrics.railWidth, y)
+    Place(m.genreGroup, SearchFrameMetrics.resultLeft - Theme.metrics.railWidth, y + SearchFrameMetrics.sectionLine + SearchFrameMetrics.sectionGap)
+end sub
+
+sub onMissKeyStyle()
+    for each key in m.keys
+        fill = SearchFrameMetrics.keyFill
+        if key.node.isFocused then
+            m.lastKey = key.node.keyIndex
+            fill = SearchFrameMetrics.keyFocusFill
+        end if
+        StyleShape(key.fill, key.node.controlWidth, key.node.controlHeight, SearchFrameMetrics.keyRadius, fill)
+        key.label.tone = "secondary"
+        if MatchesPattern(key.node.searchKey, "^[0-9]$") then key.label.tone = "tertiary"
+        if key.node.isFocused then key.label.tone = "primary"
+    end for
+end sub
+
+sub onMissKey(event as object)
+    m.top.edited = SearchTVEdit(m.top.query, event.getRoSGNode().searchKey)
+end sub
+
+sub onMissGenres()
+    if m.genreGroup = invalid then return
+    held = FocusCurrent(m.genreGroup)
+    index = -1
+    if held <> invalid then index = held.tileIndex
+    m.genreGroup.removeChildrenIndex(m.genreGroup.getChildCount(), 0)
+    m.tiles = []
+    rows = m.top.genres
+    if rows = invalid then rows = []
+    width = (Theme.screen.width - SearchFrameMetrics.resultLeft - SearchFrameMetrics.right - SearchFrameMetrics.tileGap) / 2
+    for each genre in rows
+        node = m.genreGroup.createChild("UiFocusable")
+        node.addFields({ genre: genre, tileIndex: m.tiles.count() })
+        node.controlWidth = width
+        node.controlHeight = SearchFrameMetrics.tileHeight
+        node.radius = SearchFrameMetrics.tileRadius
+        node.ringInset = SearchFrameMetrics.ringInset
+        node.focusScale = SearchFrameMetrics.focusScale
+        art = node.createChild("UiArtwork")
+        art.shape = "landscape"
+        art.artWidth = width
+        art.artHeight = SearchFrameMetrics.tileHeight
+        art.radius = SearchFrameMetrics.tileRadius
+        art.uri = MediaUrl(ViewerOrigin(), genre.backdrop.path)
+        shade = node.createChild("Poster")
+        shade.uri = "pkg:/images/gradients/hero-left.png"
+        shade.width = width
+        shade.height = SearchFrameMetrics.tileHeight
+        title = MakeText(node, "title", "primary", genre.label)
+        title.sizeOverride = SearchFrameMetrics.tileTitleSize
+        title.lineHeightOverride = SearchFrameMetrics.tileTitleLine
+        title.maxWidth = width - SearchFrameMetrics.tileTextLeft * 2
+        count = MakeText(node, "caption", "secondary", T("count.titles", { count: FieldOf(genre, "count") }))
+        count.sizeOverride = SearchFrameMetrics.tileCountSize
+        count.lineHeightOverride = SearchFrameMetrics.tileCountLine
+        count.maxWidth = title.maxWidth
+        y = SearchFrameMetrics.tileHeight - SearchFrameMetrics.tileTextBottom - SearchFrameMetrics.tileCountLine
+        Place(count, SearchFrameMetrics.tileTextLeft, y)
+        Place(title, SearchFrameMetrics.tileTextLeft, y - SearchFrameMetrics.tileTextGap - SearchFrameMetrics.tileTitleLine)
+        Place(node, (m.tiles.count() mod 2) * (width + SearchFrameMetrics.tileGap), Int(m.tiles.count() / 2) * (SearchFrameMetrics.tileHeight + SearchFrameMetrics.tileGap))
+        node.observeField("pressed", "onMissGenre")
+        m.tiles.push(node)
+    end for
+    m.section.visible = m.tiles.count() > 0
+    if index >= 0 and m.tiles.count() > 0 then FocusOn(m.tiles[Min(index, m.tiles.count() - 1)])
+end sub
+
+sub onMissGenre(event as object)
+    m.top.chosen = event.getRoSGNode().genre
+end sub
+
+sub focusEntry()
+    current = FocusCurrent(m.top)
+    if current = invalid then FocusOn(m.keys[m.lastKey].node)
+end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+    if not press then return false
+    if not ArrayIncludes(["left", "right", "up", "down"], key) then return false
+    current = FocusCurrent(m.top)
+    if current = invalid then return false
+    part = "key"
+    at = m.lastKey
+    if current.hasField("tileIndex") then
+        part = "tile"
+        at = current.tileIndex
+    end if
+    next = SearchTVMove(part, at, key, m.tiles.count(), m.lastKey)
+    if next.part = "rail" then return false
+    if next.part = "tile" then
+        FocusOn(m.tiles[next.index])
+    else
+        FocusOn(m.keys[next.index].node)
+    end if
+    return true
+end function

@@ -20,6 +20,7 @@ import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Content.bs"
 import "pkg:/source/core/Home.bs"
+import "pkg:/source/core/SearchGenres.bs"
 import "pkg:/source/core/LibraryTabs.bs"
 import "pkg:/source/core/BrowseToolbar.bs"
 import "pkg:/source/core/BrowseWindow.bs"
@@ -49,6 +50,8 @@ sub init()
     m.retry.duration = RetryPlan(0).seconds
     m.retry.observeField("fire", "onLibraryRetry")
 
+    m.acrossGenre = invalid
+    m.genreBinding = invalid
     m.libraryId = ""
     m.library = invalid
     m.tabId = "discover"
@@ -93,6 +96,17 @@ end sub
 
 sub enter()
     route = m.top.route
+    if IsText(route.acrossGenre, 1024) and IsText(route.genreLabel, 1024) then
+        m.acrossGenre = route.acrossGenre
+        m.genreBinding = ViewerRequestBinding(m.global.session.viewer)
+        m.libraryId = "*"
+        m.library = { id: "*", kind: "movie", name: route.genreLabel }
+        m.tabId = "browse"
+        m.category = ""
+        m.chosen = []
+        LibraryShow()
+        return
+    end if
     m.libraryId = route.libraryId
     m.library = LibraryFind(m.libraryId)
     m.tabId = "discover"
@@ -115,6 +129,7 @@ sub resume()
 end sub
 
 sub leave()
+    LibraryCancelGenreTasks()
     m.retry.control = "stop"
     m.pageTask = invalid
     m.capabilityTask = invalid
@@ -125,6 +140,7 @@ end sub
 
 sub focusEntry()
     if m.engine.visible then
+        if m.acrossGenre <> invalid and FocusFirst(m.gridHolder) then return
         if m.grid <> invalid and m.grid.visible then
             m.grid.callFunc("focusGrid")
         else if not FocusFirst(m.tabs) then
@@ -166,6 +182,7 @@ function LibraryServerId() as string
 end function
 
 function LibraryActive() as object
+    if m.acrossGenre <> invalid then return { id: "browse", pivot: SearchGenreContract.browsePivot, shows: "titles", fixedSort: { field: "title", direction: "asc" } }
     return LibraryTab(LibraryKind(), m.tabId, LibraryOwner(), true)
 end function
 
@@ -181,6 +198,7 @@ end function
 
 ' The published See all in force: a row's own query, on the tab that browses its pivot.
 function LibraryPublished() as dynamic
+    if m.acrossGenre <> invalid then return SearchGenreBrowseRequest(m.acrossGenre)
     if m.published <> invalid and m.published.pivot = LibraryPivot() then return m.published
     return invalid
 end function
@@ -215,6 +233,7 @@ sub LibraryShow()
     for each candidate in LibraryTabs(LibraryKind(), LibraryOwner(), true)
         items.push({ id: candidate.id, label: T(candidate.label) })
     end for
+    if m.acrossGenre <> invalid then items = []
     m.tabItems = items
     engine = LibraryIsEngine()
     m.capabilities = invalid
@@ -266,6 +285,7 @@ sub LibraryHead()
         pivot = LibraryPivot()
         if m.capabilities <> invalid and m.capabilities.resolvedPivot <> invalid then pivot = m.capabilities.resolvedPivot.id
         counted = T("lib.count", { count: m.total, pivot: pivot })
+        if m.acrossGenre <> invalid then counted = T("count.titles", { count: m.total })
         if server <> "" then
             eyebrow = server + " · " + counted
         else
@@ -285,7 +305,7 @@ sub LibraryHead()
     ' same ones are wanted, so the one that opened a sheet is still there to take focus back.
     wanted = []
     active = LibraryActive()
-    if LibraryIsEngine() then
+    if LibraryIsEngine() and m.acrossGenre = invalid then
         if LibraryPublished() <> invalid then
             wanted.push({ id: "clear", label: T("library.clearFilters"), icon: "", selected: false })
         else if m.capabilities <> invalid and active.shows <> "genres" then
@@ -517,6 +537,10 @@ end sub
 ' ---- The engine: capabilities, then a window over the server's order ---------------------------
 
 sub LibraryCapabilitiesLoad()
+    if m.acrossGenre <> invalid then
+        LibraryQuery(0)
+        return
+    end if
     pivot = LibraryPivot()
     path = "/v1/libraries/" + m.libraryId.encodeUriComponent() + "/browse-capabilities?pivot=" + pivot.encodeUriComponent()
     m.capabilityTask = ApiStart({ path: path, reader: "capabilities" }, "onLibraryCapabilities")
@@ -585,6 +609,7 @@ end function
 ' order's revision and the position anchors. The grid on screen stays until it arrives, so a
 ' change never flashes to empty. `resumeAt` is the position to return to (a new revision).
 sub LibraryQuery(resumeAt as integer)
+    LibraryCancelGenreTasks()
     m.retry.control = "stop"
     m.generation = m.generation + 1
     m.tasks = {}
@@ -592,7 +617,11 @@ sub LibraryQuery(resumeAt as integer)
     m.resumeAt = resumeAt
     m.window = invalid
     body = BrowseRequestBody(LibraryPivot(), LibraryPredicates(), LibraryEngineSort(), 0, BrowseWindowPageSize(), "", LibraryPublished())
-    m.firstTask = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "browse", context: LibraryContext() }, "onLibraryFirst")
+    if m.acrossGenre <> invalid then
+        m.firstTask = ApiStart({ reader: "searchGenreTitles", genre: m.acrossGenre, window: { limit: BrowseWindowPageSize() }, expectedViewer: m.genreBinding }, "onLibraryFirst")
+    else
+        m.firstTask = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "browse", context: LibraryContext() }, "onLibraryFirst")
+    end if
     m.firstTask.addFields({ generation: m.generation })
     if m.grid = invalid and m.state = invalid and m.notice = invalid and m.gridHolder.getChildCount() = 0 then LibrarySkeleton(m.gridHolder, Theme.apple.pageTopInset - Theme.space.lg + m.headHeight)
 end sub
@@ -613,6 +642,7 @@ sub onLibraryFirst(event as object)
         return
     end if
     value = result.value
+    if m.acrossGenre <> invalid then m.capabilities = { maximumLimit: value.maximumLimit }
     m.total = value.total
     m.revision = value.revision
     m.anchors = value.positionIndex
@@ -782,7 +812,11 @@ sub LibraryFetch()
     for each chunk in BrowseWindowWanted(m.window, m.focusAt, room)
         range = BrowseWindowRange(m.window, chunk)
         body = BrowseRequestBody(LibraryPivot(), LibraryPredicates(), LibraryEngineSort(), range.start, range.limit, m.revision, LibraryPublished())
-        task = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "browse", context: LibraryContext() }, "onLibraryChunk")
+        if m.acrossGenre <> invalid then
+            task = ApiStart({ reader: "searchGenreTitles", genre: m.acrossGenre, window: { limit: range.limit, range: { start: range.start, revision: m.revision } }, revision: m.revision, expectedViewer: m.genreBinding }, "onLibraryChunk")
+        else
+            task = ApiStart({ path: LibraryBrowsePath(), method: "POST", body: body, reader: "browse", context: LibraryContext() }, "onLibraryChunk")
+        end if
         task.addFields({ generation: m.generation, chunk: chunk })
         m.tasks[chunk.toStr()] = task
         BrowseWindowAsked(m.window, chunk)
@@ -1300,3 +1334,17 @@ function onKeyEvent(key as string, press as boolean) as boolean
     end if
     return FocusMove(m.engine, direction)
 end function
+
+
+sub LibraryCancelGenreTasks()
+    if m.acrossGenre = invalid then return
+    if m.firstTask <> invalid then
+        m.firstTask.cancelled = true
+        m.firstTask.unobserveField("result")
+    end if
+    for each key in m.tasks
+        task = m.tasks[key]
+        task.cancelled = true
+        task.unobserveField("result")
+    end for
+end sub

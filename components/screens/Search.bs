@@ -18,9 +18,21 @@ import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Format.bs"
 import "pkg:/source/core/Search.bs"
+import "pkg:/source/core/SearchGenres.bs"
+import "pkg:/source/ui/SearchFrameMetrics.bs"
 import "pkg:/components/app/Nav.bs"
 
 sub init()
+    m.genreTask = invalid
+    m.genreWindow = SearchGenreWindowNew()
+    m.genreBinding = invalid
+    m.miss = m.top.createChild("SearchMiss")
+    m.miss.visible = false
+    m.miss.observeField("edited", "onSearchTVEdit")
+    m.miss.observeField("chosen", "onSearchGenreChosen")
+    m.typing = m.top.createChild("Timer")
+    m.typing.duration = SearchFrameMetrics.debounceSeconds
+    m.typing.observeField("fire", "onSearchTVSubmit")
     m.width = Theme.screen.width - Theme.metrics.railWidth
     m.page = m.top.createChild("UiPage")
     m.page.pageWidth = m.width
@@ -55,11 +67,21 @@ sub resume()
 end sub
 
 sub leave()
+    m.typing.control = "stop"
+    if m.genreTask <> invalid then
+        m.genreTask.cancelled = true
+        m.genreTask.unobserveField("result")
+        m.genreTask = invalid
+    end if
     m.task = invalid
     m.pageTask = invalid
 end sub
 
 sub focusEntry()
+    if m.miss.visible then
+        m.miss.callFunc("focusEntry")
+        return
+    end if
     FocusOn(m.field)
 end sub
 
@@ -193,6 +215,19 @@ sub onSearchChip(event as object)
 end sub
 
 sub SearchLayout()
+    miss = m.value <> invalid and m.chip = "all" and m.value.groups.count() = 0 and m.value.failed.count() = 0
+    if miss then
+        arriving = m.page.isInFocusChain()
+        m.page.visible = false
+        m.miss.visible = true
+        m.miss.query = m.text
+        SearchGenresEnsure()
+        if arriving then m.miss.callFunc("focusEntry")
+        return
+    end if
+    wasMiss = m.miss.visible and m.miss.isInFocusChain()
+    m.miss.visible = false
+    m.page.visible = true
     page = Theme.space.page
     y = Theme.apple.pageTopInset - Theme.space.lg + Theme.space.lg
     Place(m.field, page, y)
@@ -235,7 +270,7 @@ sub SearchLayout()
     m.page.contentHeight = y + height + Theme.space.xxxl
     m.page.callFunc("refresh")
     ' Results that held focus were replaced: focus goes to the first of the new ones, else the field.
-    if inResults then
+    if inResults or wasMiss then
         if m.grid <> invalid then
             m.grid.callFunc("focusGrid")
         else if not FocusFirst(m.results) then
@@ -554,4 +589,55 @@ sub onSearchPage(event as object)
             m.countNode.value = T("web.search.results", { count: total })
         end if
     end if
+end sub
+
+
+' Only the ready no-matches surface asks for genre representatives; results never steal key focus.
+sub SearchGenresEnsure()
+    if m.genreTask <> invalid then return
+    binding = ViewerRequestBinding(m.global.session.viewer)
+    if binding = invalid then return
+    if m.genreBinding = invalid or FormatJson(binding) <> FormatJson(m.genreBinding) then
+        m.genreBinding = binding
+        m.genreWindow = SearchGenreWindowNew()
+        m.miss.genres = []
+    end if
+    if m.genreWindow.done then return
+    cursor = m.genreWindow.cursor
+    window = { limit: SearchGenreContract.maximumPage }
+    if cursor <> "" then window.cursor = cursor
+    m.genreTask = ApiStart({ reader: "searchGenres", window: window, expectedViewer: m.genreBinding }, "onSearchGenresLoaded")
+    m.genreTask.addFields({ askedCursor: cursor })
+end sub
+
+sub onSearchGenresLoaded(event as object)
+    task = event.getRoSGNode()
+    if m.genreTask = invalid or not task.isSameNode(m.genreTask) then return
+    m.genreTask = invalid
+    if FormatJson(ViewerRequestBinding(m.global.session.viewer)) <> FormatJson(m.genreBinding) then return
+    result = event.getData()
+    if not result.ok then return
+    append = SearchGenreWindowAppend(m.genreWindow, result.value, task.askedCursor)
+    if not append.ok then return
+    m.genreWindow = append.window
+    m.miss.genres = m.genreWindow.tiles
+    if m.miss.visible then SearchGenresEnsure()
+end sub
+
+sub onSearchTVEdit(event as object)
+    m.text = event.getData()
+    m.field.value = m.text
+    m.miss.query = m.text
+    m.typing.control = "stop"
+    m.typing.control = "start"
+end sub
+
+sub onSearchTVSubmit()
+    SearchRun()
+end sub
+
+sub onSearchGenreChosen(event as object)
+    if FormatJson(ViewerRequestBinding(m.global.session.viewer)) <> FormatJson(m.genreBinding) then return
+    genre = event.getData()
+    NavPush("ScreenLibrary", { acrossGenre: genre.value, genreLabel: genre.label })
 end sub

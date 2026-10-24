@@ -1,7 +1,7 @@
 // Narrow exact MAIN contract intake; other route/catalogue/source pins are unchanged.
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {readFileSync,writeFileSync,renameSync} from 'node:fs';
+import {readFileSync,writeFileSync,renameSync,readdirSync} from 'node:fs';
 import {stripTypeScriptTypes} from 'node:module';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -42,3 +42,19 @@ const target=join(app,'source/core/SearchGenreContract.bs');
 if(process.argv.includes('--check')){if(readFileSync(target,'utf8')!==text)throw new Error('Regenerate genre contract');}
 else{writeFileSync(target+'.tmp',text);renameSync(target+'.tmp',target);}
 console.log('Search genre MAIN contract: mounted read, strict art slots, TV prefix4; other pins preserved');
+
+const emit=(name,text)=>{const path=join(app,name);if(process.argv.includes('--check')){if(readFileSync(path,'utf8')!==text)throw new Error('Regenerate '+name);}else{writeFileSync(path+'.tmp',text);renameSync(path+'.tmp',path);}};
+// The composition is states18, including its frame-local CSS, not the legacy Apple layout.
+const metrics={left:200,top:64,fieldWidth:500,fieldHeight:80,fieldRadius:16,fieldPadding:24,fieldSize:34,fieldIcon:34,fieldGap:16,fieldFill:'0xEDF5FA14',keyboardTop:176,columns:6,keyGap:10,keyHeight:72,keyRadius:14,keySize:28,keyWideSize:22,keyFill:'0xEDF5FA0D',keyFocusFill:'0xEDF5FA2E',wideSpan:3,backspace:30,resultLeft:780,right:96,titleSize:52,titleLine:54.6,titleTracking:-2.08,titleGap:14,leadSize:26,leadLine:37.7,leadGap:54,sectionSize:32,sectionLine:46.4,sectionGap:22,tileGap:26,tileHeight:200,tileRadius:16,tileTextLeft:30,tileTextBottom:26,tileTitleSize:36,tileTitleLine:52.2,tileCountSize:20,tileCountLine:29,tileTextGap:4,ringInset:8,focusScale:1.05,debounceSeconds:.3,gridTop:240};
+for(const fragment of ['width: 500px','height: 80px','top: 176px','font-size: 52px','height: 200px','gap: 26px'])if(!states.includes(fragment))throw new Error('Review Search frame metric '+fragment);
+emit('source/ui/SearchFrameMetrics.bs',"' states.html#f18, immutable "+design+"; composed by ruling36.\nnamespace SearchFrameMetrics\n"+Object.entries(metrics).map(([k,v])=>'    const '+k+' = '+JSON.stringify(v)).join('\n')+'\nend namespace\n');
+const {searchMessages}=await import('data:text/javascript;base64,'+Buffer.from(stripTypeScriptTypes(source['packages/i18n/src/catalog/en-US/next/search.ts'])).toString('base64'));
+const id='next.search.browseInstead',label=searchMessages[id];
+if(typeof label!=='string'||!states.slice(start,end).includes('>'+label+'<'))throw new Error('Missing canonical drawn genre heading');
+const xml=x=>x.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+for(const locale of readdirSync(join(app,'locale'))){
+ const name='locale/'+locale+'/translations.xml';let text=readFileSync(join(app,name),'utf8');
+ const row='        <trans-unit id="'+id+'">\n            <source>'+id+'</source>\n            <target>'+xml(label)+'</target>\n        </trans-unit>\n';
+ const found=new RegExp('        <trans-unit id="next\\.search\\.browseInstead">[\\s\\S]*?<\\/trans-unit>\\n');
+ if(found.test(text))text=text.replace(found,row);else text=text.replace('    </body>',row+'    </body>');emit(name,text);
+}

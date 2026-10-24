@@ -183,6 +183,15 @@ function SearchGenreBrowseRequest(value as dynamic, window = invalid as dynamic)
         if not IsText(window.cursor, 4096) then return invalid
         body.cursor = window.cursor
     end if
+    if window.doesExist("range") then
+        r = window.range
+        if body.cursor <> invalid or not IsObject(r) or not IsNatural(r.start) then return invalid
+        body.range = { start: r.start }
+        if r.revision <> invalid then
+            if not IsText(r.revision, 256) then return invalid
+            body.range.revision = r.revision
+        end if
+    end if
     return body
 end function
 
@@ -292,5 +301,10 @@ function ReadSearchGenreTitles(ctx as object, value as dynamic, window as dynami
     if not answer.ok then return answer
     page = ParseSearchGenreTitles(answer.data, value, revision)
     if not page.ok then return { ok: false, status: 0, error: { code: page.code, status: 0, message: "", retryable: false } }
+    if body.range <> invalid and page.start <> body.range.start then return { ok: false, status: 0, error: { code: "stale_continuation", status: 0, message: "", retryable: false } }
+    page.maximumLimit = caps.maximumLimit
+    page.shape = "poster"
+    page.titleLines = 1
+    page.shown = page.entries.count()
     return { ok: true, status: answer.status, value: page }
 end function

@@ -4580,6 +4580,10 @@ Terms: getportico.tv/terms  •  Privacy: getportico.tv/privacy</target>
             <source>next.auth.tv.deleteDigit</source>
             <target>Delete a digit</target>
         </trans-unit>
+        <trans-unit id="next.search.browseInstead">
+            <source>next.search.browseInstead</source>
+            <target>Browse instead</target>
+        </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- states18 + ruling36. The shell owns the rail; this is its real Search content. -->
+<component name="SearchMiss" extends="Group">
+    <interface>
+        <field id="query" type="string" value="" onChange="onMissQuery" />
+        <field id="genres" type="array" onChange="onMissGenres" />
+        <field id="edited" type="string" alwaysNotify="true" />
+        <field id="chosen" type="assocarray" alwaysNotify="true" />
+        <function name="focusEntry" />
+    </interface>
+</component>

@@ -1,0 +1,45 @@
+' states18 and TV focus48: drawn search keys, four-tile grid, return to last key.
+import "pkg:/source/core/Search.bs"
+
+function SearchTVKeys() as object
+    return ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","1","2","3","4","space","delete"]
+end function
+
+function SearchTVEdit(value as string, key as string) as string
+    if key = "delete" then return Left(value, Max(0, Len(value) - 1))
+    if key = "space" then key = " "
+    if not ArrayIncludes(SearchTVKeys(), key) and key <> " " then return value
+    return Left(value + key, SearchMaxQuery())
+end function
+
+function SearchTVMove(part as string, at as integer, direction as string, tileCount as integer, lastKey as integer) as object
+    if part = "tile" then
+        if direction = "left" then
+            if at mod 2 = 1 then return { part: "tile", index: at - 1 }
+            return { part: "key", index: lastKey }
+        end if
+        if direction = "up" and at >= 2 then return { part: "tile", index: at - 2 }
+        if direction = "down" and at + 2 < tileCount then return { part: "tile", index: at + 2 }
+        if direction = "right" and at mod 2 = 0 and at + 1 < tileCount then return { part: "tile", index: at + 1 }
+        return { part: "tile", index: at }
+    end if
+    col = at mod 6
+    if at >= 30 then col = (at - 30) * 3
+    if direction = "right" then
+        if at = 31 or (at < 30 and col = 5) then
+            if tileCount > 0 then return { part: "tile", index: 0 }
+        else
+            return { part: "key", index: at + 1 }
+        end if
+    else if direction = "left" then
+        if col > 0 then return { part: "key", index: at - 1 }
+        return { part: "rail", index: 0 }
+    else if direction = "up" then
+        if at >= 30 then return { part: "key", index: 24 + col }
+        if at >= 6 then return { part: "key", index: at - 6 }
+    else if direction = "down" then
+        if at < 24 then return { part: "key", index: at + 6 }
+        if at < 30 then return { part: "key", index: 30 + Int(col / 3) }
+    end if
+    return { part: "key", index: at }
+end function
