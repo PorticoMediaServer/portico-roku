@@ -11,16 +11,17 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   package:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
@@ -30,29 +31,7 @@ jobs:
       # Regeneration is an explicit authoring step, never a read of floating sibling branches.
       - name: Static checks
         run: npm run check
-      - name: Compiled BrightScript logic tests
-        run: npm test
-      - name: Compile unsigned sideload ZIP
-        run: npm run package
-      - name: Verify ZIP and record build provenance
-        run: |
-          python3 scripts/verify-package.py
-          git diff --exit-code
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: portico-roku-sideload
-          path: |
-            build/portico-roku.zip
-            build/portico-roku.zip.sha256
-            build/metadata.json
-          if-no-files-found: error
-          retention-days: 30
-      - name: Build summary
-        run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
-          ## Roku unsigned sideload ZIP
-          BrighterScript static checks, compiled logic tests, compilation and ZIP integrity checks passed.
-          Download **portico-roku-sideload** for the channel ZIP, SHA-256 checksum and source/tool metadata.
-          This is an unsigned development ZIP, not a device-signed `.pkg` or a Streaming Store release.
-          No device deployment, hardware acceptance or store certification is performed by this workflow.
-          SUMMARY
+      - name: Affected compiled logic plus mandatory identity/session/privacy/transport cases
+        env:
+          CI_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python3 scripts/ci-affected.py
