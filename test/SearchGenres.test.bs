@@ -185,7 +185,7 @@ end sub
 
 function TestSearchGenreCapabilities() as object
     pivot = { id: "video-titles", browsable: true, entityKinds: ["movie", "show"] }
-    return { library: { id: "", kind: "" }, pivots: [pivot], resolvedPivot: pivot, fields: [{ id: "genre", operators: ["equals"] }], sorts: [{ id: "title", directions: ["asc", "desc"] }], surfaces: [{ id: "genre-titles", endpoint: "/v1/browse", membershipField: "genre", filters: ["genre"], sorts: ["title"], paging: "offset" }], queryLimits: { defaultLimit: 50, maximumLimit: 200 } }
+    return { library: { id: "", kind: "" }, pivots: [pivot], resolvedPivot: { id: "video-titles", browsable: true, entityKinds: ["movie", "show"] }, fields: [{ id: "genre", operators: ["equals"] }], sorts: [{ id: "title", directions: ["asc", "desc"] }], surfaces: [{ id: "genre-titles", endpoint: "/v1/browse", membershipField: "genre", filters: ["genre"], sorts: ["title"], paging: "offset" }], queryLimits: { defaultLimit: 50, maximumLimit: 200 } }
 end function
 
 function TestSearchGenreTitles() as object
