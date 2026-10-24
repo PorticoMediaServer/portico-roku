@@ -1,0 +1,10 @@
+' Exact Server MAIN 68a97bb91d9342870aedc5ae1dc85920e59edc10; drawn prefix states.html#f18 at 69f2d45a972ff9ec1bd8743c760183026c92d555.
+namespace SearchGenreContract
+    const path = "/v1/search/genres"
+    const maximumPage = 50
+    const maximumCovers = 2
+    const minimumCount = 1
+    const maximumCount = 9007199254740991#
+    const artKinds = ["item","show"]
+    const tvPrefix = 4
+end namespace

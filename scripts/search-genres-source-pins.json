@@ -1,0 +1,8 @@
+{
+  "commit": "68a97bb91d9342870aedc5ae1dc85920e59edc10",
+  "files": {
+    "packages/client-core/src/search-genres.ts": "2a71b72aac35fa2563a7f2c66cda77e439dbcb08ded23b2cf0d6848f23be77f3",
+    "packages/contracts/src/routes.ts": "c6820a3525d873685d9c162cdebbfad3f80c449e74c02b8afcedff7735cc8149",
+    "packages/contracts/src/schemas.ts": "688de8ca482103d252853e0bfd6566626c95552db30c75af8aca6d249f588d27"
+  }
+}

@@ -4,6 +4,8 @@
     <interface>
         <!-- {path, method, body, headers, reader, context}: `reader` names the parser the answer goes through. -->
         <field id="request" type="assocarray" />
+        <!-- Cooperative cancellation for bounded reads; never shadows native Task state/control. -->
+        <field id="cancelled" type="boolean" value="false" />
         <!-- {ok, status, value, error}: `value` is what the reader made of the answer. -->
         <field id="result" type="assocarray" />
         <!-- For readers that build a tree for a list: the content the screen hands straight to its list. -->

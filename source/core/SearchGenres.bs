@@ -1,0 +1,161 @@
+' MAIN search-genres.ts read/validation. Server order, counts and art are authoritative.
+import "pkg:/source/core/SearchGenreContract.bs"
+import "pkg:/source/core/Content.bs"
+
+' Query values here are ASCII names/digests/dimensions. Decode before validating them,
+' matching URLSearchParams without accepting a provider URL or a different selected-art slot.
+function SearchGenreQueryValue(value as string) as dynamic
+    out = ""
+    index = 1
+    while index <= Len(value)
+        char = Mid(value, index, 1)
+        if char = "+" then char = " "
+        if char = "%" then
+            hex = Mid(value, index + 1, 2)
+            if Len(hex) <> 2 or not MatchesPattern(hex, "^[a-fA-F0-9]{2}$") then return invalid
+            code = Val(hex, 16)
+            if code > 127 or code = 0 then return invalid
+            char = Chr(code)
+            index = index + 2
+        end if
+        out = out + char
+        index = index + 1
+    end while
+    return out
+end function
+
+function ParseSearchGenreArt(raw as dynamic, role as string) as dynamic
+    if not IsObject(raw) then return invalid
+    if not ArrayIncludes(SearchGenreContract.artKinds, raw.kind) or not MatchesPattern(raw.id, "^[a-zA-Z0-9_-]{1,256}$") or not IsText(raw.path, 2048) then return invalid
+    expected = "/v1/metadata/" + raw.kind + "/" + raw.id + "/art/" + role
+    parts = raw.path.split("?")
+    if parts.count() <> 2 or parts[0] <> expected or Instr(1, raw.path, "#") > 0 then return invalid
+    params = {}
+    params.setModeCaseSensitive()
+    count = 0
+    for each pair in parts[1].split("&")
+        if pair <> "" then
+            bits = pair.split("=")
+            if bits.count() <> 2 then return invalid
+            key = SearchGenreQueryValue(bits[0])
+            value = SearchGenreQueryValue(bits[1])
+            if key = invalid or value = invalid then return invalid
+            if params.doesExist(key) then return invalid
+            params[key] = value
+            count = count + 1
+        end if
+    end for
+    width = "400"
+    if role = "backdrop" then width = "1920"
+    if count <> 2 or not MatchesPattern(params.v, "^[a-f0-9]{64}$") or params.w <> width then return invalid
+    return { kind: raw.kind, id: raw.id, path: raw.path }
+end function
+
+function ParseSearchGenres(raw as dynamic) as object
+    bad = { ok: false, code: "invalid_response" }
+    if not IsObject(raw) or not IsText(raw.revision, 1024) or not IsArray(raw.genres) or raw.genres.count() > SearchGenreContract.maximumPage then return bad
+    if raw.doesExist("nextCursor") and not IsText(raw.nextCursor, 4096) then return bad
+    genres = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each row in raw.genres
+        if not IsObject(row) or not IsText(row.value, 1024) or not IsText(row.label, 1024) then return bad
+        count = FieldOf(row, "count")
+        if not IsNatural(count) or count < SearchGenreContract.minimumCount or count > SearchGenreContract.maximumCount or seen.doesExist(row.value) then return bad
+        if not IsArray(row.covers) or row.covers.count() > SearchGenreContract.maximumCovers then return bad
+        seen[row.value] = true
+        genre = { value: row.value, label: row.label, "count": count, covers: [] }
+        if row.doesExist("backdrop") then
+            art = ParseSearchGenreArt(row.backdrop, "backdrop")
+            if art = invalid then return bad
+            genre.backdrop = art
+        end if
+        coverIds = {}
+        coverIds.setModeCaseSensitive()
+        for each value in row.covers
+            art = ParseSearchGenreArt(value, "poster")
+            if art = invalid then return bad
+            key = art.kind + ":" + art.id
+            if coverIds.doesExist(key) then return bad
+            coverIds[key] = true
+            genre.covers.push(art)
+        end for
+        genres.push(genre)
+    end for
+    page = { ok: true, revision: raw.revision, genres: genres }
+    if raw.doesExist("nextCursor") then page.nextCursor = raw.nextCursor
+    return page
+end function
+
+function SearchGenresPath(window = invalid as dynamic) as dynamic
+    if window = invalid then window = {}
+    if not IsObject(window) then return invalid
+    limit = SearchGenreContract.maximumPage
+    if window.doesExist("limit") then limit = window.limit
+    if not IsNatural(limit) or limit < 1 or limit > SearchGenreContract.maximumPage then return invalid
+    path = SearchGenreContract.path + "?limit=" + limit.toStr()
+    if window.doesExist("cursor") then
+        if not IsString(window.cursor) then return invalid
+        if window.cursor <> "" then
+            if not IsText(window.cursor, 4096) then return invalid
+            path = path + "&cursor=" + window.cursor.encodeUriComponent()
+        end if
+    end if
+    return path
+end function
+
+function SearchGenresReadCurrent(ctx as object, expected as dynamic) as boolean
+    if not IsObject(expected) or not IsText(expected.sessionFamilyId, 128) then return false
+    if ctx.searchGenreTask <> invalid then
+        if ctx.searchGenreTask.cancelled = true then return false
+    end if
+    return ViewerMatchesRequestBinding(SessionRecord(ctx), expected)
+end function
+
+' Exactly one captured viewer read. No ambient transport, scan, local count or automatic replay.
+function ReadSearchGenres(ctx as object, window as dynamic, expected as dynamic) as object
+    cancelled = { ok: false, status: 0, error: { code: "cancelled", status: 0, message: "", retryable: false } }
+    if not SearchGenresReadCurrent(ctx, expected) then return cancelled
+    path = SearchGenresPath(window)
+    if path = invalid then return { ok: false, status: 0, error: { code: "invalid_request", status: 0, message: "", retryable: false } }
+    answer = ViewerRequest(ctx, path, "GET", invalid, invalid, expected)
+    if not SearchGenresReadCurrent(ctx, expected) then return cancelled
+    if not answer.ok then return answer
+    page = ParseSearchGenres(answer.data)
+    if not page.ok then return { ok: false, status: 0, error: { code: page.code, status: 0, message: "", retryable: false } }
+    return { ok: true, status: answer.status, value: page }
+end function
+
+' Counted artless rows remain on page.genres for All genres. Only this drawn surface skips them.
+function SearchGenreTVPrefix(page as object) as object
+    out = []
+    for each genre in page.genres
+        if genre.backdrop <> invalid and out.count() < SearchGenreContract.tvPrefix then out.push(genre)
+    end for
+    return out
+end function
+
+' Bounded prefix across opaque pages; never reconstructs a lineup or changes a representative.
+function SearchGenreWindowNew() as object
+    return { revision: "", cursor: "", tiles: [], started: false, done: false }
+end function
+
+function SearchGenreWindowAppend(held as object, page as object, askedCursor as string) as object
+    if page.ok <> true then return { ok: false, code: "invalid_response" }
+    if held.done or askedCursor <> held.cursor then return { ok: false, code: "stale_continuation" }
+    if held.started and held.revision <> page.revision then return { ok: false, code: "stale_continuation" }
+    nextCursor = ""
+    if page.nextCursor <> invalid then nextCursor = page.nextCursor
+    if nextCursor <> "" and nextCursor = askedCursor then return { ok: false, code: "invalid_response" }
+    tiles = []
+    tiles.append(held.tiles)
+    for each genre in page.genres
+        if genre.backdrop <> invalid and tiles.count() < SearchGenreContract.tvPrefix then
+            for each previous in tiles
+                if previous.value = genre.value then return { ok: false, code: "invalid_response" }
+            end for
+            tiles.push(genre)
+        end if
+    end for
+    return { ok: true, window: { revision: page.revision, cursor: nextCursor, tiles: tiles, started: true, done: tiles.count() = SearchGenreContract.tvPrefix or nextCursor = "" } }
+end function
