@@ -1,0 +1,176 @@
+' Home's live projection has millisecond boundaries and a distinct, tolerant guide decoder.
+' This implements the declared RFC3339 wire grammar, not every Date.parse extension.
+import "pkg:/source/core/Time.bs"
+import "pkg:/source/core/Guide.bs"
+import "pkg:/source/core/WireUnits.bs"
+
+function HomeInstantMs(raw as dynamic) as dynamic
+    if not IsString(raw) or not MatchesPattern(raw, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$") then return invalid
+    seconds = IsoToSeconds(Left(raw, 19) + "Z")
+    if seconds = invalid then return invalid
+    fraction& = 0&
+    if Mid(raw, 20, 1) = "." then fraction& = Val(Left(Mid(raw, 21) + "000", 3), 10)
+    offset& = 0&
+    if Right(raw, 1) <> "Z" then
+        zone = Right(raw, 6)
+        hours& = Val(Mid(zone, 2, 2), 10)
+        minutes& = Val(Right(zone, 2), 10)
+        if hours& > 23& or minutes& > 59& then return invalid
+        offset& = (hours& * 60& + minutes&) * 60000&
+        if Left(zone, 1) = "-" then offset& = -offset&
+    end if
+    whole& = seconds
+    result& = whole& * 1000& + fraction& - offset&
+    if result& < -9007199254740991& or result& > 9007199254740991& then return invalid
+    return result&
+end function
+
+' Guide source and programme instants have their own narrower UTC wire grammar.
+function HomeGuideInstant(raw as dynamic) as dynamic
+    if not IsString(raw) or not MatchesPattern(raw, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$") then return invalid
+    return HomeInstantMs(raw)
+end function
+
+function HomeLiveWhole(value as dynamic) as boolean
+    if not WireIsNumber(value) or value <> value or value < 0 or value > 9007199254740991# then return false
+    return WireSafeFloor(value) = value
+end function
+
+function HomeLiveSource(raw as dynamic) as dynamic
+    if not IsObject(raw) or not IsGuideId(raw.id) or not IsGuideText(raw.name, 120) or not IsGuideId(raw.generation) or HomeGuideInstant(raw.publishedAt) = invalid then return invalid
+    if not ArrayIncludes(["live-source", "library-channel"], raw.provenance) or not IsGuideText(raw.refreshState, 64) then return invalid
+    if raw.availableStart <> "" or raw.availableEnd <> "" then
+        first = HomeGuideInstant(raw.availableStart)
+        last = HomeGuideInstant(raw.availableEnd)
+        if first = invalid or last = invalid or last <= first then return invalid
+    end if
+    return { id: raw.id, name: raw.name, generation: raw.generation, provenance: raw.provenance, publishedAt: raw.publishedAt, availableStart: raw.availableStart, availableEnd: raw.availableEnd, refreshState: raw.refreshState }
+end function
+
+function HomeLiveProgramme(raw as dynamic, channelId as string, observed& as longinteger) as dynamic
+    if not IsObject(raw) or not IsGuideId(raw.id) or raw.channelId <> channelId or not IsGuideText(raw.title, 512) then return invalid
+    start = HomeGuideInstant(raw.start)
+    finish = HomeGuideInstant(raw["end"])
+    if start = invalid or finish = invalid or finish <= start or start < 0& or finish <= observed& or start > observed& then return invalid
+    series = raw.seriesId
+    episodeId = raw.episodeId
+    if series = invalid then series = ""
+    if episodeId = invalid then episodeId = ""
+    if not IsGuideText(series, 256) or not IsGuideText(episodeId, 256) then return invalid
+    recordingId = raw.recordingId
+    recordingState = raw.recordingState
+    if recordingId = invalid then recordingId = ""
+    if recordingState = invalid then recordingState = ""
+    if not IsString(recordingId) or (recordingId <> "" and not MatchesPattern(recordingId, "^[a-f0-9]{64}$")) or not IsGuideText(recordingState, 64) then return invalid
+    lineage = raw.lineage
+    if not ArrayIncludes(["provider-id", "interval-only", "generated"], lineage) then lineage = "interval-only"
+    evidence = raw.newEvidence
+    if not ArrayIncludes(["new", "repeat", "unknown"], evidence) then evidence = "unknown"
+    description = raw.description
+    if not IsString(description) or Len(description) > 4096 or MatchesPattern(description, "[\\x00-\\x08\\x0b-\\x1f\\x7f]") then description = ""
+    out = { id: raw.id, channelId: channelId, title: raw.title, start: raw.start, "end": raw["end"], startMs: start, endMs: finish, lineage: lineage, seriesId: series, episodeId: episodeId, newEvidence: evidence, description: description, recordingId: recordingId, recordingState: recordingState }
+    if IsGuideText(raw.subtitle, 512) and raw.subtitle <> "" then out.subtitle = raw.subtitle
+    if IsObject(raw.flags) then out.flags = { live: raw.flags.live = true, premiere: raw.flags.premiere = true, "new": raw.flags["new"] = true, repeat: raw.flags.repeat = true }
+    if IsObject(raw.episode) then
+        ep = {}
+        for each field in ["season", "number"]
+            if HomeLiveWhole(raw.episode[field]) and raw.episode[field] >= 1 and raw.episode[field] <= 9999 then ep[field] = raw.episode[field]
+        end for
+        if IsGuideText(raw.episode.display, 64) and raw.episode.display <> "" then ep.display = raw.episode.display
+        if ep.count() > 0 then out.episode = ep
+    end if
+    if raw.doesExist("categories") then
+        categories = []
+        seen = {}
+        seen.setModeCaseSensitive()
+        if IsArray(raw.categories) then
+            for each item in raw.categories
+                if IsGuideText(item, 128) and item.trim() <> "" then
+                    key = LCase(item)
+                    if not seen.doesExist(key) and categories.count() < 16 then
+                        seen[key] = true
+                        categories.push(item)
+                    end if
+                end if
+            end for
+        end if
+        out.categories = categories
+    end if
+    if IsObject(raw.rating) and IsGuideText(raw.rating.value, 32) and raw.rating.value.trim() <> "" then
+        system = raw.rating.system
+        if system = invalid then system = ""
+        if IsGuideText(system, 64) then out.rating = { system: system, value: raw.rating.value }
+    end if
+    if HomeLiveWhole(raw.year) and raw.year >= 1000 and raw.year <= 9999 then out.year = raw.year
+    if IsGuideText(raw.starRating, 16) and raw.starRating <> "" then out.starRating = raw.starRating
+    if IsString(raw.image) and Len(raw.image) <= 512 and MatchesPattern(raw.image, "^/v1/(items/[A-Za-z0-9_-]{1,128}/art/poster|guide/programme-images/[a-f0-9]{48}/[a-f0-9]{64})$") then out.image = raw.image
+    return out
+end function
+
+function HomeLiveReason(available as boolean, reason as dynamic) as string
+    if available then return ""
+    if not IsString(reason) or reason = "" or not ArrayIncludes(GuideReasons(), reason) then return "delivery-unavailable"
+    return reason
+end function
+
+' Mirrors home.ts parseHomeLive's per-source/per-channel call, not the guide envelope.
+function ParseHomeLiveProjection(raw as dynamic) as dynamic
+    if not IsObject(raw) or not IsGuideId(raw.revision) or raw.sort <> "favorites" or not IsGuideText(raw.group, 120) then return invalid
+    observed = HomeInstantMs(raw.observedAt)
+    expires = HomeInstantMs(raw.expiresAt)
+    if observed = invalid or expires = invalid or expires <= observed then return invalid
+    if not IsArray(raw.groups) or raw.groups.count() > 2000 or not IsArray(raw.channels) or raw.channels.count() > 50 then return invalid
+    groups = []
+    for each group in raw.groups
+        if not IsObject(group) or not IsGuideId(group.name) or not HomeLiveWhole(group.count) then return invalid
+        groups.push({ name: group.name, count: group.count })
+    end for
+    channels = []
+    keys = {}
+    keys.setModeCaseSensitive()
+    observed& = observed
+    for each offer in raw.channels
+        if not IsObject(offer) or not IsObject(offer.channel) or not IsObject(offer.channel.mark) then return invalid
+        v = offer.channel
+        if not IsGuideId(v.mark.text) or not IsGuideId(v.mark.seed) or not IsArray(v.programmes) or v.programmes.count() > 1 then return invalid
+        source = HomeLiveSource(offer.source)
+        if source = invalid or not IsGuideId(v.id) or not IsGuideId(v.sourceId) or v.sourceId <> source.id or v.provenance <> source.provenance then return invalid
+        if not IsGuideText(v.name, 256) or not IsGuideId(v.generation) or v.generation <> source.generation or not HomeLiveWhole(v.preferenceRevision) then return invalid
+        number = v.number
+        group = v.group
+        if number = invalid then number = ""
+        if group = invalid then group = ""
+        if not IsGuideText(number, 32) or not IsGuideText(group, 120) or v.hidden = true then return invalid
+        key = v.provenance + Chr(0) + v.sourceId + Chr(0) + v.id
+        if keys.doesExist(key) then return invalid
+        keys[key] = true
+        tuneReason = v.tuneUnavailableReason
+        if tuneReason = invalid then tuneReason = ""
+        recordReason = v.recordUnavailableReason
+        if recordReason = invalid then recordReason = ""
+        tune = v.tuneAvailable = true and tuneReason = ""
+        record = v.recordAvailable = true and recordReason = "" and v.provenance <> "library-channel"
+        logo = v.logoPath
+        if not IsString(logo) or (logo <> "" and not MatchesPattern(logo, "^/v1/items/[A-Za-z0-9_-]{1,128}/art/poster$")) then logo = ""
+        programmes = []
+        for each item in v.programmes
+            programme = HomeLiveProgramme(item, v.id, observed&)
+            ' Home requires the filtered list to retain every authored current programme.
+            if programme = invalid then return invalid
+            programmes.push(programme)
+        end for
+        channel = { id: v.id, sourceId: v.sourceId, provenance: v.provenance, name: v.name, number: number, group: group, generation: v.generation, logoPath: logo, mark: { text: v.mark.text, seed: v.mark.seed }, programmes: programmes, tuneAvailable: tune, recordAvailable: record, tuneUnavailableReason: HomeLiveReason(tune, tuneReason), recordUnavailableReason: HomeLiveReason(record, recordReason), favorite: v.favorite = true, hidden: false, preferenceRevision: v.preferenceRevision }
+        play = false
+        favorite = false
+        if IsObject(offer.actions) then
+            play = offer.actions.play = true and tune
+            favorite = offer.actions.favorite = true
+        end if
+        channels.push({ source: source, channel: channel, actions: { play: play, favorite: favorite } })
+    end for
+    return { revision: raw.revision, observedAt: raw.observedAt, expiresAt: raw.expiresAt, observedAtMs: observed, expiresAtMs: expires, sort: "favorites", group: raw.group, groups: groups, channels: channels }
+end function
+
+function HomeLiveCurrent(projection as object, nowMs as longinteger) as boolean
+    return nowMs < projection.expiresAtMs
+end function

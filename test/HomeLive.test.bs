@@ -1,0 +1,44 @@
+import "pkg:/source/core/HomeLive.bs"
+
+sub Test_HomeInstantMs_wire()
+    AssertEqual(HomeInstantMs("1970-01-01T01:00:00.123+01:00"), 123&)
+    AssertEqual(HomeInstantMs("1969-12-31T23:00:00.123-01:00"), 123&)
+    AssertEqual(HomeInstantMs("1969-12-31T23:59:59.999Z"), -1&)
+    AssertEqual(HomeInstantMs("1970-01-01T00:00:00.123456789Z"), 123&)
+    AssertEqual(HomeInstantMs("2000-02-29T00:00:00Z") <> invalid, true)
+    AssertEqual(HomeInstantMs("1900-02-29T00:00:00Z"), invalid)
+    AssertEqual(HomeInstantMs("2026-04-31T00:00:00Z"), invalid)
+    AssertEqual(HomeInstantMs("2026-01-01T24:00:00Z"), invalid)
+    AssertEqual(HomeInstantMs("2026-01-01T00:00:00+24:00"), invalid)
+end sub
+
+function TestHomeLiveOffer() as object
+    return { revision: "r", observedAt: "2026-01-01T01:00:00.123+01:00", expiresAt: "2026-01-01T00:00:00.500Z", sort: "favorites", group: "", groups: [{ name: "news", count: 1 }], channels: [{ source: { id: "s", name: "Source", generation: "g", publishedAt: "2026-01-01T00:00:00Z", availableStart: "", availableEnd: "", provenance: "live-source", refreshState: "ready" }, channel: { id: "c", sourceId: "s", provenance: "live-source", name: "Channel", generation: "g", preferenceRevision: 0, mark: { text: "C", seed: "s" }, programmes: [{ id: "p", channelId: "c", title: "News", start: "2026-01-01T00:00:00.100Z", "end": "2026-01-01T00:00:00.124Z", lineage: "future", flags: { live: "bad", premiere: true } }], tuneAvailable: true, tuneUnavailableReason: "", favorite: "bad" }, actions: { play: true, favorite: true } }] }
+end function
+
+sub Test_HomeLive_projection()
+    raw = TestHomeLiveOffer()
+    projection = ParseHomeLiveProjection(raw)
+    AssertTrue(projection <> invalid)
+    if projection = invalid then return
+    AssertTrue(HomeLiveCurrent(projection, projection.expiresAtMs - 1&))
+    AssertTrue(not HomeLiveCurrent(projection, projection.expiresAtMs))
+    channel = projection.channels[0].channel
+    AssertTrue(projection.channels[0].actions.play)
+    AssertTrue(not channel.favorite)
+    AssertEqual(channel.programmes[0].lineage, "interval-only")
+    AssertTrue(not channel.programmes[0].flags.live)
+    AssertTrue(channel.programmes[0].flags.premiere)
+    raw.channels[0].channel.programmes[0]["end"] = "2026-01-01T00:00:00.123Z"
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "programme ending at observation is filtered")
+    raw = TestHomeLiveOffer()
+    raw.channels[0].channel.sourceId = "other"
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "source tuple must match")
+    raw = TestHomeLiveOffer()
+    raw.channels[0].channel.tuneUnavailableReason = "future-reason"
+    projection = ParseHomeLiveProjection(raw)
+    AssertEqual(projection.channels[0].channel.tuneUnavailableReason, "delivery-unavailable")
+    AssertTrue(not projection.channels[0].actions.play)
+    raw.channels.push(raw.channels[0])
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "duplicate source/channel tuple")
+end sub
