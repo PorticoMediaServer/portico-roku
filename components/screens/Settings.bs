@@ -52,6 +52,8 @@ sub init()
     m.tasks = {}
     m.settingsActive = false
     m.telemetryBinding = invalid
+    m.telemetryEpoch = invalid
+    m.top.observeField("telemetryPresented", "onTelemetryPresentation")
     m.admin = {}
     m.unread = 0
     m.devices = invalid
@@ -64,6 +66,17 @@ sub init()
     m.refresh.duration = Theme.apple.dashboardRefreshMs / 1000
     m.refresh.repeat = true
     m.refresh.observeField("fire", "onSettingsRefresh")
+end sub
+
+sub retireTelemetry()
+    m.tasks.delete("admin:telemetry")
+    m.telemetryBinding = invalid
+    m.telemetryEpoch = invalid
+end sub
+
+sub onTelemetryPresentation()
+    ' Observer delivery can lag a close/reopen; never retire the new opening's task.
+    if not m.top.telemetryPresented or (m.telemetryEpoch <> invalid and m.telemetryEpoch <> m.top.telemetryOpening) then retireTelemetry()
 end sub
 
 sub enter()
@@ -108,7 +121,7 @@ end sub
 
 sub leave()
     m.settingsActive = false
-    m.telemetryBinding = invalid
+    retireTelemetry()
     m.refresh.control = "stop"
     m.tasks = {}
 end sub
@@ -340,8 +353,7 @@ sub onSettingsSavedServerChosen(event as object)
 end sub
 
 sub SettingsOpen(address as string)
-    m.tasks.delete("admin:telemetry")
-    m.telemetryBinding = invalid
+    retireTelemetry()
     m.address = address
     for each key in m.columnRows.keys()
         m.columnRows[key].selected = m.columnRows[key].rowId = address
@@ -922,11 +934,10 @@ sub SettingsDashboardLoad()
     telemetryBinding = ViewerRequestBinding(m.session.viewer)
     if not AdminTelemetryViewerCurrent(telemetryBinding, telemetryBinding) then telemetryPath = invalid
     for each item in [["sessions", "/v1/admin/sessions?limit=50", "adminSessions"], ["alerts", "/v1/admin/console/alerts", "adminAlerts"], ["health", "/v1/admin/console/panels/health", "adminHealth"], ["storage", "/v1/admin/console/panels/storage", "adminStorage"], ["telemetry", telemetryPath, "adminTelemetry"], ["jobs", "/v1/admin/console/jobs?cursor=", "adminJobs"]]
-        if item[1] = invalid then
-            if item[0] = "telemetry" then
-                m.tasks.delete("admin:telemetry")
-                m.telemetryBinding = invalid
-            end if
+        if item[0] = "telemetry" and not m.top.telemetryPresented then
+            retireTelemetry()
+        else if item[1] = invalid then
+            if item[0] = "telemetry" then retireTelemetry()
             m.admin[item[0]] = { ok: false, failure: { code: "invalid_response", status: 0 } }
         else
             request = { path: item[1], reader: item[2] }
@@ -934,10 +945,13 @@ sub SettingsDashboardLoad()
             task = ApiStart(request, "onSettingsAdmin")
             task.addFields({ adminKey: item[0] })
             m.tasks["admin:" + item[0]] = task
-            if item[0] = "telemetry" then m.telemetryBinding = telemetryBinding
+            if item[0] = "telemetry" then
+                m.telemetryBinding = telemetryBinding
+                m.telemetryEpoch = m.top.telemetryOpening
+            end if
         end if
     end for
-    if telemetryPath = invalid and m.settingsActive and SettingsOnDashboard() then SettingsDraw()
+    if telemetryPath = invalid and m.settingsActive and m.top.telemetryPresented and SettingsOnDashboard() then SettingsDraw()
 end sub
 
 sub onSettingsRefresh()
@@ -948,10 +962,9 @@ sub onSettingsAdmin(event as object)
     task = event.getRoSGNode()
     if task.adminKey = "telemetry" then
         held = m.tasks["admin:telemetry"]
-        if not m.settingsActive or not SettingsOnDashboard() or held = invalid or not held.isSameNode(task) then return
+        if not m.settingsActive or not m.top.telemetryPresented or m.telemetryEpoch <> m.top.telemetryOpening or not SettingsOnDashboard() or held = invalid or not held.isSameNode(task) then return
         if not AdminTelemetryViewerCurrent(m.telemetryBinding, ViewerRequestBinding(m.session.viewer)) then return
-        m.tasks.delete("admin:telemetry")
-        m.telemetryBinding = invalid
+        retireTelemetry()
     end if
     result = event.getData()
     entry = { ok: false, failure: result.error }

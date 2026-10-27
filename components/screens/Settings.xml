@@ -3,6 +3,9 @@
 <component name="ScreenSettings" extends="Group">
     <interface>
         <field id="route" type="assocarray" />
+        <field id="telemetryPresented" type="boolean" value="false" />
+        <field id="telemetryOpening" type="integer" value="0" />
+        <function name="retireTelemetry" />
         <function name="enter" />
         <function name="resume" />
         <function name="leave" />
