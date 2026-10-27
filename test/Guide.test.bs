@@ -94,3 +94,40 @@ sub Test_Guide_rows()
     AssertEqual(GuideSourceEntries(invalid).count(), 0, "no sources")
     GetGlobalAA().messageCatalogue = invalid
 end sub
+
+sub Test_Guide_continuation_keeps_original_window()
+    for each kind in ["live-source", "library-channel"]
+        entry = { kind: kind, sourceId: "source" }
+        before = 1793005199
+        first = GuideRequestRoute(invalid, entry, "", before)
+        more = GuideRequestRoute(first, entry, "cursor", before + 1)
+        AssertSame(more, first, "continuation retains the first page route")
+        AssertTrue(Instr(1, GuidePath(more, "cursor"), "cursor=cursor") > 0)
+        refresh = GuideRequestRoute(first, entry, "", before + 1)
+        AssertTrue(refresh.start <> first.start, "refresh captures a new window")
+        AssertTrue(Instr(1, GuidePath(refresh, ""), "cursor=cursor") = 0)
+    end for
+    AssertEqual(GuideRequestRoute(invalid, {kind: "live-source", sourceId: "s"}, "cursor", 0), invalid)
+end sub
+
+sub Test_Guide_viewerBinding()
+    original = { origin: "https://server", serverId: "s", accountId: "a", profileId: "p", authority: "local", sessionFamilyId: "f" }
+    replacement = ParseJson(FormatJson(original))
+    AssertTrue(GuideViewerCurrent(original, replacement))
+    AssertTrue(GuideResponseCurrent(1, 1, original, replacement))
+    AssertTrue(not GuideResponseCurrent(1, 2, original, replacement), "refresh, source change or leave retires the earlier task")
+    replacement.sessionFamilyId = "new-family"
+    AssertTrue(not GuideViewerCurrent(original, replacement), "replaced viewer cannot adopt a continuation")
+    AssertTrue(not GuideViewerCurrent(original, invalid))
+end sub
+
+sub Test_Guide_responseStaysBoundAcrossHour()
+    fixture = TestFixture("golden/guide.json")
+    if fixture = invalid then return
+    seed = fixture.cases[0]
+    original = seed.route
+    continued = GuideRequestRoute(original, { kind: original.kind, sourceId: original.sourceId }, "cursor", GuideInstant(original.start) + 3600)
+    AssertTrue(ParseChannelGuide(seed.document, seed.serverId, continued).ok, "continuation validates against original window")
+    refresh = GuideRequestRoute(original, { kind: original.kind, sourceId: original.sourceId }, "", GuideInstant(original.start) + 3600)
+    AssertTrue(not ParseChannelGuide(seed.document, seed.serverId, refresh).ok, "old response cannot satisfy a refreshed window")
+end sub

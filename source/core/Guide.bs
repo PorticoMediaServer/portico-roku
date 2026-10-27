@@ -29,6 +29,30 @@ function GuideRouteNow(kind as string, clock as dynamic) as object
     return { kind: kind, start: window.start, "end": window["end"], timezone: "UTC", search: "", sourceId: "" }
 end function
 
+function GuideRequestRoute(current as dynamic, entry as object, cursor as string, clock as dynamic) as dynamic
+    if cursor = "" then
+        route = GuideRouteNow(entry.kind, clock)
+        route.sourceId = entry.sourceId
+        return route
+    end if
+    if current = invalid then return invalid
+    route = {}
+    route.append(current)
+    return route
+end function
+
+function GuideViewerCurrent(expected as dynamic, current as dynamic) as boolean
+    if expected = invalid or current = invalid then return false
+    for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        if expected[key] <> current[key] then return false
+    end for
+    return true
+end function
+
+function GuideResponseCurrent(taskGeneration as integer, currentGeneration as integer, expected as dynamic, current as dynamic) as boolean
+    return taskGeneration = currentGeneration and GuideViewerCurrent(expected, current)
+end function
+
 ' `path`: GET /v1/guide for a route, from a cursor.
 function GuidePath(route as object, cursor as string, limit = 30 as integer) as string
     query = "kind=" + route.kind.encodeUriComponent() + "&start=" + route.start.encodeUriComponent() + "&end=" + route["end"].encodeUriComponent()

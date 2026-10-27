@@ -48,6 +48,7 @@ sub init()
 end sub
 
 sub enter()
+    m.channelsActive = true
     ' The sources: one request of each kind says which exist and what they are called.
     m.probes = {}
     for each kind in ["live-source", "library-channel"]
@@ -65,8 +66,11 @@ sub resume()
 end sub
 
 sub leave()
+    m.channelsActive = false
     m.tick.control = "stop"
+    m.generation = m.generation + 1
     m.tasks = {}
+    m.requested = invalid
 end sub
 
 sub focusEntry()
@@ -91,6 +95,10 @@ end function
 
 sub onChannelsProbe(event as object)
     task = event.getRoSGNode()
+    if not m.channelsActive then return
+    held = m.tasks[task.guideKind]
+    if held = invalid or not held.isSameNode(task) then return
+    if not GuideViewerCurrent(task.request.expectedViewer, ViewerRequestBinding(m.global.session.viewer)) then return
     result = event.getData()
     sources = []
     if result.ok and IsObject(result.value) and IsObject(result.value.guide) then
@@ -143,21 +151,23 @@ sub ChannelsLoad(cursor as string)
         m.channels = []
         m.cursor = ""
         m.state = ""
+        m.requested = GuideRequestRoute(invalid, entry, "", NowSeconds())
+    else if m.requested = invalid then
+        return
     end if
     m.failure = invalid
     m.loading = true
     m.generation = m.generation + 1
-    m.requested = GuideRouteNow(entry.kind, NowSeconds())
-    m.requested.sourceId = entry.sourceId
-    task = ApiStart({ path: GuidePath(m.requested, cursor) }, "onChannelsGuide")
-    task.addFields({ generation: m.generation })
+    route = GuideRequestRoute(m.requested, entry, cursor, NowSeconds())
+    task = ApiStart({ path: GuidePath(route, cursor) }, "onChannelsGuide")
+    task.addFields({ generation: m.generation, guideRoute: route })
     m.tasks.guide = task
     if cursor = "" then ChannelsLayout()
 end sub
 
 sub onChannelsGuide(event as object)
     task = event.getRoSGNode()
-    if task.generation <> m.generation then return
+    if not m.channelsActive or not GuideResponseCurrent(task.generation, m.generation, task.request.expectedViewer, ViewerRequestBinding(m.global.session.viewer)) then return
     result = event.getData()
     m.loading = false
     first = m.channels.count() = 0
@@ -165,7 +175,7 @@ sub onChannelsGuide(event as object)
         m.failure = result.error
         if m.failure = invalid then m.failure = { code: "invalid_response", status: 0 }
     else
-        guide = ParseChannelGuide(result.value, ChannelsServerId(), m.requested)
+        guide = ParseChannelGuide(result.value, ChannelsServerId(), task.guideRoute)
         if guide.ok then
             m.state = guide.state
             for each channel in guide.channels
