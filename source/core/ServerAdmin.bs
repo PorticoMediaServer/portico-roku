@@ -9,6 +9,21 @@ import "pkg:/source/core/Format.bs"
 import "pkg:/source/core/Time.bs"
 import "pkg:/source/core/SettingsTables.bs"
 
+' Report requests use one UTC quarter boundary captured for the refresh.
+function AdminTelemetryPath(clock as dynamic, timeZone = "UTC" as string) as dynamic
+    if not IsNumber(clock) or clock <> clock or clock < 0 or clock > 253402300799# or not IsContentId(timeZone) then return invalid
+    whole& = WireSafeFloor(clock)
+    quarter& = whole& \ 900&
+    seconds& = quarter& * 900&
+    date = CreateObject("roDateTime")
+    date.fromSeconds(seconds&)
+    stamp = date.toISOString()
+    if not IsString(stamp) or Len(stamp) < 19 then return invalid
+    until = Left(stamp, 19) + "Z"
+    if IsoToSeconds(until) <> seconds& then return invalid
+    return "/v1/admin/telemetry?window=1h&timeZone=" + timeZone.encodeUriComponent() + "&until=" + until.encodeUriComponent()
+end function
+
 ' console-words.ts `duration`: "2d 4h", "3h 12m", "40m", "12s".
 function AdminDuration(seconds as dynamic) as string
     total& = Int(seconds + 0.5)

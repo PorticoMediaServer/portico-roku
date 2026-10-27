@@ -299,3 +299,17 @@ sub Test_Settings_region()
     globals.messageCatalogue = invalid
     AssertEqual(LocaleWords("fr-FR"), invalid, "a locale the catalogue does not have")
 end sub
+
+sub Test_AdminTelemetry_reportContext()
+    boundary = 1793005200#
+    previous = AdminTelemetryPath(boundary - 0.5#, "UTC")
+    at = AdminTelemetryPath(boundary, "UTC")
+    after = AdminTelemetryPath(boundary + 0.5#, "UTC")
+    zone = AdminTelemetryPath(boundary, "America/Halifax")
+    AssertTrue(Instr(1, zone, "timeZone=America%2FHalifax") > 0, "zone is encoded")
+    AssertEqual(previous, "/v1/admin/telemetry?window=1h&timeZone=UTC&until=2026-10-26T08%3A45%3A00Z")
+    AssertEqual(at, "/v1/admin/telemetry?window=1h&timeZone=UTC&until=2026-10-26T09%3A00%3A00Z")
+    AssertEqual(at, after, "later fractional instant uses same quarter")
+    AssertEqual(AdminTelemetryPath(-1), invalid)
+    AssertEqual(AdminTelemetryPath("bad"), invalid)
+end sub

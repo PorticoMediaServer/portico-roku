@@ -910,10 +910,15 @@ end sub
 ' ---- The Dashboard (owners) ------------------------------------------------------------------------
 
 sub SettingsDashboardLoad()
-    for each item in [["sessions", "/v1/admin/sessions?limit=50", "adminSessions"], ["alerts", "/v1/admin/console/alerts", "adminAlerts"], ["health", "/v1/admin/console/panels/health", "adminHealth"], ["storage", "/v1/admin/console/panels/storage", "adminStorage"], ["telemetry", "/v1/admin/telemetry?window=1h", "adminTelemetry"], ["jobs", "/v1/admin/console/jobs?cursor=", "adminJobs"]]
-        task = ApiStart({ path: item[1], reader: item[2] }, "onSettingsAdmin")
-        task.addFields({ adminKey: item[0] })
-        m.tasks["admin:" + item[0]] = task
+    telemetryPath = AdminTelemetryPath(NowSeconds(), "UTC")
+    for each item in [["sessions", "/v1/admin/sessions?limit=50", "adminSessions"], ["alerts", "/v1/admin/console/alerts", "adminAlerts"], ["health", "/v1/admin/console/panels/health", "adminHealth"], ["storage", "/v1/admin/console/panels/storage", "adminStorage"], ["telemetry", telemetryPath, "adminTelemetry"], ["jobs", "/v1/admin/console/jobs?cursor=", "adminJobs"]]
+        if item[1] = invalid then
+            m.admin[item[0]] = { ok: false, failure: { code: "invalid_response", status: 0 } }
+        else
+            task = ApiStart({ path: item[1], reader: item[2] }, "onSettingsAdmin")
+            task.addFields({ adminKey: item[0] })
+            m.tasks["admin:" + item[0]] = task
+        end if
     end for
 end sub
 
