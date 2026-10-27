@@ -3,6 +3,7 @@
 ' server card: only that entry is left out. Optional facts that are malformed are dropped, never
 ' fatal; a required field that is malformed refuses the document.
 import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/WireUnits.bs"
 
 function ContentEntryKinds() as object
     return ["movie", "show", "season", "episode", "artist", "album", "song", "book", "audiobook_file", "chapter", "collection", "category", "author", "book_series", "disc", "extra"]
@@ -46,6 +47,12 @@ end function
 
 ' Returns the entry, or invalid when it must be refused.
 function ParseContentEntry(v as dynamic) as dynamic
+    decoded = WireDurationFields(v, { duration: "durationMs", progressSeconds: "progressMs" })
+    if not decoded.ok then return invalid
+    v = decoded.value
+    for each field in ["duration", "progressSeconds"]
+        if v.doesExist(field) and v[field] = invalid then v.delete(field)
+    end for
     if not IsObject(v) or not IsContentId(v.id) or not IsString(v.kind) or not ArrayIncludes(ContentEntryKinds(), v.kind) or not IsContentString(v.title, 2048) then return invalid
     row = { id: v.id, kind: v.kind, title: v.title }
     if v.doesExist("libraryId") then
@@ -109,6 +116,8 @@ function ParseContentEntry(v as dynamic) as dynamic
         if not IsBoolean(v.watchlisted) then return invalid
         row.watchlisted = v.watchlisted
     end if
+    if IsObject(v.show) and IsContentId(v.show.id) and IsContentString(v.show.name, 2048) then row.show = { id: v.show.id, name: v.show.name }
+    if IsBoolean(v.missing) then row.missing = v.missing
     for each field in ["artist", "album"]
         a = v[field]
         if IsObject(a) and IsContentId(a.id) and IsContentString(a.name, 2048) and Len(a.name) > 0 then row[field] = { id: a.id, name: a.name }
@@ -157,7 +166,9 @@ function ParseContentEntry(v as dynamic) as dynamic
         row.navigation = navigation
     end if
     if v.doesExist("playback") then
-        p = v.playback
+        decodedPlayback = WireDurationFields(v.playback, { startSeconds: "startMs" })
+        if not decodedPlayback.ok then return invalid
+        p = decodedPlayback.value
         if not IsObject(p) or not IsContentId(p.itemId) then return invalid
         if p.doesExist("startSeconds") and (not IsNumber(p.startSeconds) or p.startSeconds < 0) then return invalid
         playback = { itemId: p.itemId }

@@ -1,0 +1,23 @@
+import "pkg:/source/core/ContentEntry.bs"
+
+' Source vectors for explicit entry wire units and Home episode identity; unrun until the final batch.
+sub Test_ContentWire_entryProjection()
+    raw = { id: "episode", kind: "episode", title: "Episode", libraryId: "library", durationMs: 200000, progressMs: 123456, playback: { itemId: "episode", startMs: 123456 }, show: { id: "show", name: "Series" }, missing: false }
+    entry = ParseContentEntry(raw)
+    AssertTrue(entry <> invalid)
+    if entry = invalid then return
+    AssertEqual(entry.duration, 200#)
+    AssertEqual(entry.progressSeconds, 123.456#)
+    AssertEqual(entry.playback.startSeconds, 123.456#)
+    AssertEqual(entry.show.id, "show")
+    AssertEqual(entry.missing, false)
+    raw.playback.startMs = -1
+    AssertEqual(ParseContentEntry(raw), invalid)
+    raw.playback.startMs = 123.5#
+    AssertEqual(ParseContentEntry(raw), invalid)
+    raw.playback.startMs = 123456
+    raw.durationMs = invalid
+    entry = ParseContentEntry(raw)
+    AssertTrue(entry <> invalid)
+    if entry <> invalid then AssertEqual(entry.duration, invalid, "optional null stays absent")
+end sub
