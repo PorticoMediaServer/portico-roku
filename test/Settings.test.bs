@@ -299,3 +299,32 @@ sub Test_Settings_region()
     globals.messageCatalogue = invalid
     AssertEqual(LocaleWords("fr-FR"), invalid, "a locale the catalogue does not have")
 end sub
+
+sub Test_AdminTelemetry_reportContext()
+    boundary = 1793005200#
+    previous = AdminTelemetryPath(boundary - 0.5#, "UTC")
+    at = AdminTelemetryPath(boundary, "UTC")
+    after = AdminTelemetryPath(boundary + 0.5#, "UTC")
+    zone = AdminTelemetryPath(boundary, "America/Halifax")
+    AssertTrue(Instr(1, zone, "timeZone=America%2FHalifax") > 0, "zone is encoded")
+    AssertEqual(previous, "/v1/admin/telemetry?window=1h&timeZone=UTC&until=2026-10-26T08%3A45%3A00Z")
+    AssertEqual(at, "/v1/admin/telemetry?window=1h&timeZone=UTC&until=2026-10-26T09%3A00%3A00Z")
+    AssertEqual(at, after, "later fractional instant uses same quarter")
+    AssertEqual(AdminTelemetryPath(0&), "/v1/admin/telemetry?window=1h&timeZone=UTC&until=1970-01-01T00%3A00%3A00Z")
+    AssertEqual(AdminTelemetryPath(2147483700&), "/v1/admin/telemetry?window=1h&timeZone=UTC&until=2038-01-19T03%3A15%3A00Z", "post-2038 LongInteger")
+    AssertEqual(AdminTelemetryPath(-1), invalid)
+    AssertEqual(AdminTelemetryPath("bad"), invalid)
+end sub
+
+' Viewer comparison source coverage; SceneGraph task admission remains final-batch coverage.
+sub Test_AdminTelemetry_viewerBinding()
+    original = { origin: "https://server", serverId: "s", accountId: "a", profileId: "p", authority: "local", sessionFamilyId: "family" }
+    current = ParseJson(FormatJson(original))
+    AssertTrue(AdminTelemetryViewerCurrent(original, current))
+    current.sessionFamilyId = "replacement"
+    AssertTrue(not AdminTelemetryViewerCurrent(original, current))
+    current.sessionFamilyId = invalid
+    original.sessionFamilyId = invalid
+    AssertTrue(not AdminTelemetryViewerCurrent(original, current), "missing identities never match")
+    AssertTrue(not AdminTelemetryViewerCurrent(original, original), "missing family refuses telemetry dispatch")
+end sub

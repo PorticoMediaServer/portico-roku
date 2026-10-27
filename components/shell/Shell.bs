@@ -265,6 +265,7 @@ sub leave()
     for each name in m.roots.keys()
         root = m.roots[name]
         for each screen in root.stack
+            ShellTelemetryPresentation(screen, false)
             screen.callFunc("leave")
         end for
     end for
@@ -312,12 +313,22 @@ function ShellTop(root as object) as dynamic
     return root.stack[root.stack.count() - 1]
 end function
 
+' Settings alone exposes this presentation receipt; it changes synchronously with the shell.
+sub ShellTelemetryPresentation(screen as dynamic, shown as boolean)
+    if screen = invalid or not screen.hasField("telemetryPresented") or not screen.hasField("telemetryOpening") then return
+    if screen.telemetryPresented = shown then return
+    screen.telemetryOpening = screen.telemetryOpening + 1
+    screen.telemetryPresented = shown
+    if not shown then screen.callFunc("retireTelemetry")
+end sub
+
 function ShellMount(root as object, screenName as string, params as dynamic) as dynamic
     screen = root.container.createChild(screenName)
     if screen = invalid then return invalid
     if params = invalid then params = {}
     screen.route = params
     root.stack.push(screen)
+    ShellTelemetryPresentation(screen, true)
     screen.callFunc("enter")
     return screen
 end function
@@ -341,6 +352,7 @@ sub select(key as string)
     if root <> invalid and libraryId <> invalid and root.libraryId <> libraryId then
         ' Another library: the Library root starts again at that library.
         for each screen in root.stack
+            ShellTelemetryPresentation(screen, false)
             screen.callFunc("leave")
         end for
         m.content.removeChild(root.container)
@@ -354,12 +366,19 @@ sub select(key as string)
             ShellDrop(root)
         end while
         top = ShellTop(root)
-        if top <> invalid then top.visible = true
+        if top <> invalid then
+            reopenTelemetry = false
+            if top.hasField("telemetryPresented") then reopenTelemetry = not top.telemetryPresented
+            ShellTelemetryPresentation(top, true)
+            top.visible = true
+            if reopenTelemetry then top.callFunc("resume")
+        end if
         m.rail.selected = key
         return
     end if
     if m.shown <> "" and m.roots[m.shown] <> invalid then
         showing = m.roots[m.shown]
+        ShellTelemetryPresentation(ShellTop(showing), false)
         showing.container.visible = false
     end if
     if root = invalid then
@@ -368,7 +387,10 @@ sub select(key as string)
         ShellMount(root, target.screen, target.params)
     else
         top = ShellTop(root)
-        if top <> invalid then top.callFunc("resume")
+        if top <> invalid then
+            ShellTelemetryPresentation(top, true)
+            top.callFunc("resume")
+        end if
     end if
     root.key = key
     root.container.visible = true
@@ -385,6 +407,7 @@ end sub
 sub ShellDrop(root as object)
     screen = root.stack.pop()
     if screen = invalid then return
+    ShellTelemetryPresentation(screen, false)
     screen.callFunc("leave")
     root.container.removeChild(screen)
 end sub
@@ -399,8 +422,17 @@ sub push(request as object)
         below.addFields({ shellFocus: invalid })
         below.shellFocus = focus
     end if
+    reopenTelemetry = false
+    if below <> invalid then
+        if below.hasField("telemetryPresented") then reopenTelemetry = below.telemetryPresented
+    end if
+    ShellTelemetryPresentation(below, false)
     screen = ShellMount(root, request.screen, request.params)
-    if screen = invalid then return
+    if screen = invalid then
+        ShellTelemetryPresentation(below, true)
+        if reopenTelemetry then below.callFunc("resume")
+        return
+    end if
     if below <> invalid then below.visible = false
     ShellFadeIn(screen)
     ' A pushed page holds focus until its own content claims it.
@@ -437,6 +469,7 @@ sub pop()
     ShellDrop(root)
     top = ShellTop(root)
     if top = invalid then return
+    ShellTelemetryPresentation(top, true)
     top.visible = true
     top.callFunc("resume")
     ShellFocusScreen(top)

@@ -1,0 +1,59 @@
+import "pkg:/source/core/WireUnits.bs"
+
+sub Test_WireUnits_boundary()
+    AssertEqual(WireDuration(1234).value, 1.234#)
+    AssertTrue(not WireDuration(-1).ok)
+    AssertTrue(not WireDuration(1.5).ok)
+    AssertTrue(not WireDuration(9007199254740992#).ok)
+    AssertEqual(WireDuration(invalid).value, invalid)
+    AssertEqual(WireDurationIntent(1.234#).value, 1234&)
+    AssertTrue(not WireDurationIntent(-1).ok)
+    AssertEqual(WireDurationIntent(3000000.125#).value, 3000000125&)
+    AssertTrue(not WireDurationIntent(9007199254741#).ok)
+    AssertEqual(WireInstant("").value, 0&)
+    AssertEqual(WireInstant(invalid).value, invalid)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.1Z").value, 100&)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.12Z").value, 120&)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.123Z").value, 123&)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.123456789Z").value, 123&)
+    AssertTrue(not WireInstant("2026-02-30T00:00:00Z").ok)
+    AssertTrue(not WireInstant("2026-01-01T00:00:00+01:00").ok)
+    AssertTrue(not WireInstant(0).ok)
+end sub
+
+sub Test_WireUnits_namedDurations()
+    mapped = WireDurationFields({ durationMs: 123400, progressMs: 5678 }, { duration: "durationMs", progressSeconds: "progressMs" })
+    AssertTrue(mapped.ok)
+    AssertEqual(mapped.value.duration, 123.4#)
+    AssertEqual(mapped.value.progressSeconds, 5.678#)
+    AssertTrue(not WireDurationFields({ duration: 1, durationMs: 1000 }, { duration: "durationMs" }).ok)
+    AssertTrue(not WireDurationFields({ durationMs: 1.5 }, { duration: "durationMs" }).ok)
+end sub
+
+sub Test_WireUnits_safeDoublePrecision()
+    AssertTrue(WireDuration(16777217#).ok, "integral Double above Float precision")
+    AssertEqual(WireDuration(16777217#).value, 16777.217#)
+    AssertTrue(WireDuration(2147483649#).ok, "integral Double above Integer range")
+    AssertTrue(WireDuration(2147483649&).ok, "LongInteger above Integer range")
+    AssertTrue(WireDuration(9007199254740991#).ok, "largest safe Double")
+    AssertTrue(WireDuration(9007199254740991&).ok, "largest safe LongInteger")
+    maxSeconds = WireDuration(9007199254740991&).value
+    AssertEqual(WireDurationIntent(maxSeconds).value, 9007199254740990&, "Double seconds carry canonical representational loss")
+    AssertEqual(WireDurationIntent(0#).value, 0&)
+    AssertTrue(not WireDuration(16777217.5#).ok, "large fractional Double rejected")
+    AssertTrue(not WireDuration(9007199254740992#).ok, "unsafe Double rejected")
+    AssertEqual(WireDurationIntent(1.0005#).value, 1001&)
+    AssertEqual(WireDurationIntent(1.2345#).value, 1235&)
+    AssertEqual(WireDurationIntent(1.0004999999999997#).value, 1000&)
+    AssertEqual(WireDurationIntent(1.0005000000000002#).value, 1001&)
+    AssertTrue(not WireDurationIntent(-0.01#).ok)
+    AssertTrue(not WireDurationIntent(9007199254741#).ok)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.1Z").value, 100&)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.123Z").value, 123&)
+    AssertEqual(WireInstant("1970-01-01T00:00:00.123456789Z").value, 123&)
+    AssertTrue(WireInstant("2024-02-29T23:59:59Z").ok)
+    AssertTrue(not WireInstant("2023-02-29T23:59:59Z").ok)
+end sub
+
+' NaN and Infinity have no identified safe constructor in this harness. Their guards are source
+' checks only; direct nonfinite runtime vectors remain unrepresented and unrun.
