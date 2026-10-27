@@ -34,6 +34,9 @@ sub Test_WireUnits_safeDoublePrecision()
     AssertTrue(WireDuration(2147483649&).ok, "LongInteger above Integer range")
     AssertTrue(WireDuration(9007199254740991#).ok, "largest safe Double")
     AssertTrue(WireDuration(9007199254740991&).ok, "largest safe LongInteger")
+    maxSeconds = WireDuration(9007199254740991&).value
+    AssertEqual(WireDurationIntent(maxSeconds).value, 9007199254740990&, "Double seconds carry canonical representational loss")
+    AssertEqual(WireDurationIntent(0#).value, 0&)
     AssertTrue(not WireDuration(16777217.5#).ok, "large fractional Double rejected")
     AssertTrue(not WireDuration(9007199254740992#).ok, "unsafe Double rejected")
     AssertEqual(WireDurationIntent(1.0005#).value, 1001&)
@@ -48,3 +51,6 @@ sub Test_WireUnits_safeDoublePrecision()
     AssertTrue(WireInstant("2024-02-29T23:59:59Z").ok)
     AssertTrue(not WireInstant("2023-02-29T23:59:59Z").ok)
 end sub
+
+' NaN and Infinity have no identified safe constructor in this harness. Their guards are source
+' checks only; direct nonfinite runtime vectors remain unrepresented and unrun.
