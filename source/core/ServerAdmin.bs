@@ -2,6 +2,7 @@
 ' (`parseAdminSession`), server-admin/now-playing.ts, server-admin/dashboard.ts,
 ' server-admin/console-words.ts and console.ts (alerts, measurements, telemetry, jobs). The words
 ' the shared code keeps as English tables are generated into SettingsTables.bs.
+import "pkg:/source/core/WireUnits.bs"
 import "pkg:/source/core/Validate.bs"
 import "pkg:/source/core/ContentEntry.bs"
 import "pkg:/source/core/Messages.bs"
