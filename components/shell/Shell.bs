@@ -265,6 +265,7 @@ sub leave()
     for each name in m.roots.keys()
         root = m.roots[name]
         for each screen in root.stack
+            ShellTelemetryPresentation(screen, false)
             screen.callFunc("leave")
         end for
     end for
@@ -282,7 +283,6 @@ sub onShellLibraries(event as object)
     result = event.getData()
     if not result.ok then return
     m.rail.libraries = result.value
-            ShellTelemetryPresentation(screen, false)
     ' A library's screen names itself and picks its tabs from this list.
     if m.global.hasField("libraries") then
         m.global.libraries = result.value
@@ -313,12 +313,22 @@ function ShellTop(root as object) as dynamic
     return root.stack[root.stack.count() - 1]
 end function
 
+' Settings alone exposes this presentation receipt; it changes synchronously with the shell.
+sub ShellTelemetryPresentation(screen as dynamic, shown as boolean)
+    if screen = invalid or not screen.hasField("telemetryPresented") or not screen.hasField("telemetryOpening") then return
+    if screen.telemetryPresented = shown then return
+    screen.telemetryOpening = screen.telemetryOpening + 1
+    screen.telemetryPresented = shown
+    if not shown then screen.callFunc("retireTelemetry")
+end sub
+
 function ShellMount(root as object, screenName as string, params as dynamic) as dynamic
     screen = root.container.createChild(screenName)
     if screen = invalid then return invalid
     if params = invalid then params = {}
     screen.route = params
     root.stack.push(screen)
+    ShellTelemetryPresentation(screen, true)
     screen.callFunc("enter")
     return screen
 end function
@@ -342,6 +352,7 @@ sub select(key as string)
     if root <> invalid and libraryId <> invalid and root.libraryId <> libraryId then
         ' Another library: the Library root starts again at that library.
         for each screen in root.stack
+            ShellTelemetryPresentation(screen, false)
             screen.callFunc("leave")
         end for
         m.content.removeChild(root.container)
@@ -353,15 +364,6 @@ sub select(key as string)
         ' The destination already showing goes back to its top.
         while root.stack.count() > 1
             ShellDrop(root)
-' Settings alone exposes this presentation receipt; it changes synchronously with the shell.
-sub ShellTelemetryPresentation(screen as dynamic, shown as boolean)
-    if screen = invalid or not screen.hasField("telemetryPresented") or not screen.hasField("telemetryOpening") then return
-    if screen.telemetryPresented = shown then return
-    screen.telemetryOpening = screen.telemetryOpening + 1
-    screen.telemetryPresented = shown
-    if not shown then screen.callFunc("retireTelemetry")
-end sub
-
         end while
         top = ShellTop(root)
         if top <> invalid then
@@ -374,9 +376,9 @@ end sub
         m.rail.selected = key
         return
     end if
-    ShellTelemetryPresentation(screen, true)
     if m.shown <> "" and m.roots[m.shown] <> invalid then
         showing = m.roots[m.shown]
+        ShellTelemetryPresentation(ShellTop(showing), false)
         showing.container.visible = false
     end if
     if root = invalid then
@@ -401,11 +403,11 @@ end sub
 sub onShellChosen()
     select(m.rail.chosen)
 end sub
-            ShellTelemetryPresentation(screen, false)
 
 sub ShellDrop(root as object)
     screen = root.stack.pop()
     if screen = invalid then return
+    ShellTelemetryPresentation(screen, false)
     screen.callFunc("leave")
     root.container.removeChild(screen)
 end sub
@@ -420,9 +422,17 @@ sub push(request as object)
         below.addFields({ shellFocus: invalid })
         below.shellFocus = focus
     end if
+    reopenTelemetry = false
+    if below <> invalid then
+        if below.hasField("telemetryPresented") then reopenTelemetry = below.telemetryPresented
+    end if
+    ShellTelemetryPresentation(below, false)
     screen = ShellMount(root, request.screen, request.params)
-        ShellTelemetryPresentation(ShellTop(showing), false)
-    if screen = invalid then return
+    if screen = invalid then
+        ShellTelemetryPresentation(below, true)
+        if reopenTelemetry then below.callFunc("resume")
+        return
+    end if
     if below <> invalid then below.visible = false
     ShellFadeIn(screen)
     ' A pushed page holds focus until its own content claims it.
@@ -440,18 +450,13 @@ sub replace(request as object)
     end if
     ShellDrop(root)
     screen = ShellMount(root, request.screen, request.params)
-    if screen = invalid then
-        ShellTelemetryPresentation(below, true)
-        if reopenTelemetry then below.callFunc("resume")
-        return
-    end if
+    if screen = invalid then return
     ShellFadeIn(screen)
     screen.setFocus(true)
 end sub
 
 ' The page on show reads its content again (something of the viewer's own changed).
 sub refreshTop()
-    ShellTelemetryPresentation(screen, false)
     root = m.roots[m.shown]
     if root = invalid then return
     top = ShellTop(root)
@@ -464,13 +469,9 @@ sub pop()
     ShellDrop(root)
     top = ShellTop(root)
     if top = invalid then return
+    ShellTelemetryPresentation(top, true)
     top.visible = true
     top.callFunc("resume")
-    reopenTelemetry = false
-    if below <> invalid then
-        if below.hasField("telemetryPresented") then reopenTelemetry = below.telemetryPresented
-    end if
-    ShellTelemetryPresentation(below, false)
     ShellFocusScreen(top)
 end sub
 
@@ -509,7 +510,6 @@ end sub
 
 ' Focus returns to the page on show (the player closed and what held focus is gone).
 sub focusContent()
-    ShellTelemetryPresentation(top, true)
     ShellToContent()
 end sub
 
