@@ -42,15 +42,25 @@ function WireDurationIntent(value as dynamic) as object
     return { ok: true, value: millis& }
 end function
 
+' The caller validates the timestamp grammar before extracting decimal digits.
+function WireFractionMillis(value as string) as longinteger
+    if Mid(value, 20, 1) <> "." then return 0&
+    digits = ""
+    for index = 21 to Len(value)
+        char = Mid(value, index, 1)
+        if Instr(1, "0123456789", char) = 0 then exit for
+        digits = digits + char
+    end for
+    return Val(Left(digits + "000", 3), 10)
+end function
+
 function WireInstant(value as dynamic) as object
     if value = invalid then return { ok: true, value: invalid }
     if IsString(value) and value = "" then return { ok: true, value: 0& }
     if not IsString(value) or not MatchesPattern(value, "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$") then return { ok: false }
     seconds = IsoToSeconds(value)
     if seconds = invalid or seconds < 0 then return { ok: false }
-    fraction = "000"
-    if Mid(value, 20, 1) = "." then fraction = Left(Mid(value, 21) + "000", 3)
-    millis& = seconds * 1000& + Val(fraction, 10)
+    millis& = seconds * 1000& + WireFractionMillis(value)
     if millis& > 9007199254740991& then return { ok: false }
     return { ok: true, value: millis& }
 end function

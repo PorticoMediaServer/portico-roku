@@ -1,6 +1,16 @@
 import "pkg:/source/core/HomeLive.bs"
 
 sub Test_HomeInstantMs_wire()
+    for each zone in ["Z", "+00:00", "-00:00"]
+        AssertEqual(HomeInstantMs("1970-01-01T00:00:00.1" + zone), 100&)
+        AssertEqual(HomeInstantMs("1970-01-01T00:00:00.12" + zone), 120&)
+        AssertEqual(HomeInstantMs("1970-01-01T00:00:00.123" + zone), 123&)
+        AssertEqual(HomeInstantMs("1970-01-01T00:00:00.123456789" + zone), 123&)
+    end for
+    AssertEqual(HomeInstantMs("1970-01-01T01:00:00.1+01:00"), 100&)
+    AssertEqual(HomeInstantMs("1970-01-01T01:00:00.12+01:00"), 120&)
+    AssertEqual(HomeInstantMs("1969-12-31T23:00:00.1-01:00"), 100&)
+    AssertEqual(HomeInstantMs("1969-12-31T23:00:00.12-01:00"), 120&)
     AssertEqual(HomeInstantMs("1970-01-01T01:00:00.123+01:00"), 123&)
     AssertEqual(HomeInstantMs("1969-12-31T23:00:00.123-01:00"), 123&)
     AssertEqual(HomeInstantMs("1969-12-31T23:59:59.999Z"), -1&)
@@ -24,6 +34,12 @@ sub Test_HomeLive_projection()
     AssertTrue(HomeLiveCurrent(projection, projection.expiresAtMs - 1&))
     AssertTrue(not HomeLiveCurrent(projection, projection.expiresAtMs))
     channel = projection.channels[0].channel
+    raw.channels[0].channel.programmes[0].rating = { value: "PG", system: invalid }
+    nullRating = ParseHomeLiveProjection(raw)
+    AssertEqual(nullRating.channels[0].channel.programmes[0].rating, invalid, "explicit null rating system is dropped")
+    raw.channels[0].channel.programmes[0].rating = { value: "PG" }
+    absentRating = ParseHomeLiveProjection(raw)
+    AssertEqual(absentRating.channels[0].channel.programmes[0].rating.system, "", "absent rating system defaults")
     AssertTrue(projection.channels[0].actions.play)
     AssertTrue(not channel.favorite)
     AssertEqual(channel.programmes[0].lineage, "interval-only")
@@ -31,6 +47,20 @@ sub Test_HomeLive_projection()
     AssertTrue(channel.programmes[0].flags.premiere)
     raw.channels[0].channel.programmes[0]["end"] = "2026-01-01T00:00:00.123Z"
     AssertEqual(ParseHomeLiveProjection(raw), invalid, "programme ending at observation is filtered")
+    raw = TestHomeLiveOffer()
+    raw.observedAt = "2026-01-01T00:00:00.1Z"
+    raw.expiresAt = "2026-01-01T00:00:00.12Z"
+    raw.channels[0].channel.programmes[0].start = "2026-01-01T00:00:00.1Z"
+    raw.channels[0].channel.programmes[0]["end"] = "2026-01-01T00:00:00.12Z"
+    short = ParseHomeLiveProjection(raw)
+    AssertTrue(short <> invalid, "programme starts at observed fractional instant")
+    if short <> invalid then
+        AssertTrue(HomeLiveCurrent(short, short.observedAtMs))
+        AssertTrue(not HomeLiveCurrent(short, short.expiresAtMs))
+    end if
+    raw.observedAt = "2026-01-01T00:00:00.12Z"
+    raw.expiresAt = "2026-01-01T00:00:00.123Z"
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "programme end equal to observed instant")
     raw = TestHomeLiveOffer()
     raw.channels[0].channel.sourceId = "other"
     AssertEqual(ParseHomeLiveProjection(raw), invalid, "source tuple must match")

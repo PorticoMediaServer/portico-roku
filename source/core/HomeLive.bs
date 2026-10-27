@@ -5,11 +5,10 @@ import "pkg:/source/core/Guide.bs"
 import "pkg:/source/core/WireUnits.bs"
 
 function HomeInstantMs(raw as dynamic) as dynamic
-    if not IsString(raw) or not MatchesPattern(raw, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?(Z|[+-]\\d{2}:\\d{2})$") then return invalid
+    if not IsString(raw) or not MatchesPattern(raw, "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?(Z|[+-]\d{2}:\d{2})$") then return invalid
     seconds = IsoToSeconds(Left(raw, 19) + "Z")
     if seconds = invalid then return invalid
-    fraction& = 0&
-    if Mid(raw, 20, 1) = "." then fraction& = Val(Left(Mid(raw, 21) + "000", 3), 10)
+    fraction& = WireFractionMillis(raw)
     offset& = 0&
     if Right(raw, 1) <> "Z" then
         zone = Right(raw, 6)
@@ -27,7 +26,7 @@ end function
 
 ' Guide source and programme instants have their own narrower UTC wire grammar.
 function HomeGuideInstant(raw as dynamic) as dynamic
-    if not IsString(raw) or not MatchesPattern(raw, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$") then return invalid
+    if not IsString(raw) or not MatchesPattern(raw, "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$") then return invalid
     return HomeInstantMs(raw)
 end function
 
@@ -67,7 +66,7 @@ function HomeLiveProgramme(raw as dynamic, channelId as string, observed& as lon
     evidence = raw.newEvidence
     if not ArrayIncludes(["new", "repeat", "unknown"], evidence) then evidence = "unknown"
     description = raw.description
-    if not IsString(description) or Len(description) > 4096 or MatchesPattern(description, "[\\x00-\\x08\\x0b-\\x1f\\x7f]") then description = ""
+    if not IsString(description) or Len(description) > 4096 or MatchesPattern(description, "[\x00-\x08\x0b-\x1f\x7f]") then description = ""
     out = { id: raw.id, channelId: channelId, title: raw.title, start: raw.start, "end": raw["end"], startMs: start, endMs: finish, lineage: lineage, seriesId: series, episodeId: episodeId, newEvidence: evidence, description: description, recordingId: recordingId, recordingState: recordingState }
     if IsGuideText(raw.subtitle, 512) and raw.subtitle <> "" then out.subtitle = raw.subtitle
     if IsObject(raw.flags) then out.flags = { live: raw.flags.live = true, premiere: raw.flags.premiere = true, "new": raw.flags["new"] = true, repeat: raw.flags.repeat = true }
@@ -98,7 +97,7 @@ function HomeLiveProgramme(raw as dynamic, channelId as string, observed& as lon
     end if
     if IsObject(raw.rating) and IsGuideText(raw.rating.value, 32) and raw.rating.value.trim() <> "" then
         system = raw.rating.system
-        if system = invalid then system = ""
+        if not raw.rating.doesExist("system") then system = ""
         if IsGuideText(system, 64) then out.rating = { system: system, value: raw.rating.value }
     end if
     if HomeLiveWhole(raw.year) and raw.year >= 1000 and raw.year <= 9999 then out.year = raw.year
