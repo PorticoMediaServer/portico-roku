@@ -7,16 +7,8 @@ function WireIsNumber(value as dynamic) as boolean
     return kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" or kind = "LongInteger" or kind = "roLongInteger"
 end function
 
-function WireDuration(value as dynamic) as object
-    if value = invalid then return { ok: true, value: invalid }
-    if not IsNatural(value) or value > 9007199254740991# then return { ok: false }
-    return { ok: true, value: value / 1000# }
-end function
-
-function WireDurationIntent(value as dynamic) as object
-    if value = invalid then return { ok: true, value: invalid }
-    if not WireIsNumber(value) or value <> value or value < 0 or value > 9007199254740.991# then return { ok: false }
-    ' Keep each Fix input small, then correct boundaries using the double value.
+' Floor a nonnegative safe number without passing a large value to Fix(Float).
+function WireSafeFloor(value as dynamic) as longinteger
     billion& = Fix(value / 1000000000#)
     if billion& * 1000000000# > value then billion& = billion& - 1
     if (billion& + 1) * 1000000000# <= value then billion& = billion& + 1
@@ -25,14 +17,27 @@ function WireDurationIntent(value as dynamic) as object
     if thousand& * 1000# > rest then thousand& = thousand& - 1
     if (thousand& + 1) * 1000# <= rest then thousand& = thousand& + 1
     small = rest - thousand& * 1000#
-    seconds& = Fix(small)
-    if seconds& > small then seconds& = seconds& - 1
-    if seconds& + 1 <= small then seconds& = seconds& + 1
-    rounded = (small - seconds&) * 1000# + 0.5#
-    fraction& = Fix(rounded)
-    if fraction& > rounded then fraction& = fraction& - 1
-    if fraction& + 1 <= rounded then fraction& = fraction& + 1
-    millis& = billion& * 1000000000000& + thousand& * 1000000& + seconds& * 1000& + fraction&
+    units& = Fix(small)
+    if units& > small then units& = units& - 1
+    if units& + 1 <= small then units& = units& + 1
+    return billion& * 1000000000& + thousand& * 1000& + units&
+end function
+
+function WireDuration(value as dynamic) as object
+    if value = invalid then return { ok: true, value: invalid }
+    if not WireIsNumber(value) or value <> value or value < 0 or value > 9007199254740991# then return { ok: false }
+    whole& = WireSafeFloor(value)
+    if whole& <> value then return { ok: false }
+    return { ok: true, value: value / 1000# }
+end function
+
+function WireDurationIntent(value as dynamic) as object
+    if value = invalid then return { ok: true, value: invalid }
+    if not WireIsNumber(value) or value <> value or value < 0 then return { ok: false }
+    scaled = value * 1000#
+    if scaled <> scaled or scaled > 9007199254740991# then return { ok: false }
+    millis& = WireSafeFloor(scaled)
+    if scaled - millis& >= 0.5# then millis& = millis& + 1
     if millis& > 9007199254740991& then return { ok: false }
     return { ok: true, value: millis& }
 end function
