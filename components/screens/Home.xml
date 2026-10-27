@@ -3,6 +3,9 @@
 <component name="ScreenHome" extends="Group">
     <interface>
         <field id="route" type="assocarray" />
+        <field id="homePresented" type="boolean" value="false" />
+        <field id="homeOpening" type="integer" value="0" />
+        <function name="retireHome" />
         <function name="enter" />
         <function name="resume" />
         <function name="leave" />

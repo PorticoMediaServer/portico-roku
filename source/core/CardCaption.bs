@@ -204,20 +204,14 @@ end function
 
 ' `durationFloor`: lengths shorter than this many seconds are left out (0 says every length).
 function HomeHero(document as dynamic, hidden = invalid as dynamic, durationFloor = 0 as integer) as dynamic
-    if document = invalid or document.hero = invalid then return invalid
-    ref = document.hero
-    if hidden <> invalid and hidden[ref.entryId] <> invalid then return invalid
-    found = invalid
-    entry = invalid
-    for each row in document.rows
-        if row.id = ref.rowId then
-            found = row
-            for each candidate in row.entries
-                if candidate.id = ref.entryId then entry = candidate
-            end for
-        end if
-    end for
-    if found = invalid or entry = invalid then return invalid
+    if document = invalid or not IsArray(document.spotlight) or document.spotlight.count() = 0 then return invalid
+    spotlight = document.spotlight[0]
+    entry = spotlight.entry
+    if hidden <> invalid and hidden[entry.id] <> invalid then return invalid
+    found = { titleText: spotlight.reason.text, title: spotlight.reason.text.fallback }
+    playEntry = entry
+    if spotlight.resumeTarget <> invalid then playEntry = spotlight.resumeTarget
+    if spotlight.playGranted <> true or playEntry.playback = invalid then playEntry = invalid
     video = entry.kind = "movie" or entry.kind = "episode"
     year = invalid
     if entry.year <> invalid then year = entry.year.toStr()
@@ -239,10 +233,12 @@ function HomeHero(document as dynamic, hidden = invalid as dynamic, durationFloo
     end if
     progress = 0
     left = 0
-    if entry.duration <> invalid and entry.progressSeconds <> invalid and entry.duration > 0 and entry.progressSeconds > 0 then
-        progress = entry.progressSeconds / entry.duration
+    timing = entry
+    if playEntry <> invalid then timing = playEntry
+    if timing.duration <> invalid and timing.progressSeconds <> invalid and timing.duration > 0 and timing.progressSeconds > 0 then
+        progress = timing.progressSeconds / timing.duration
         if progress > 1 then progress = 1
-        left = entry.duration - entry.progressSeconds
+        left = timing.duration - timing.progressSeconds
         if left < 0 then left = 0
     end if
     playLabel = T("action.play")
@@ -264,5 +260,5 @@ function HomeHero(document as dynamic, hidden = invalid as dynamic, durationFloo
     if entry.backdropUrl <> invalid and entry.backdropUrl <> "" then art = "backdrop"
     coverShape = "poster"
     if entry.kind = "song" or entry.kind = "album" or entry.kind = "artist" or entry.kind = "book" or entry.kind = "audiobook_file" or entry.kind = "chapter" or entry.kind = "disc" then coverShape = "square"
-    return { row: found, entry: entry, title: ContinueTitle(entry), line: line, meta: CaptionJoin(meta), progress: progress, playLabel: playLabel, art: art, coverShape: coverShape }
+    return { row: found, entry: entry, playEntry: playEntry, title: ContinueTitle(entry), line: line, meta: CaptionJoin(meta), progress: progress, playLabel: playLabel, art: art, coverShape: coverShape }
 end function

@@ -138,20 +138,33 @@ end function
 function HomeRowSummary(row as object) as object
     shape = SectionShape(row.entries)
     summary = { id: row.id, title: SectionTitle(HomeRowHeading(row)), shape: shape, resume: IsContinueRow(row.id), nextCursor: row.nextCursor, total: row.total, shown: row.entries.count(), titleLines: 1, seeAll: false, seeAllLabel: "", seeAllRoute: invalid }
+    summary.viewerFence = row.viewerFence
+    summary.revision = row.revision
     if row.libraryId <> invalid then summary.libraryId = row.libraryId
     for each entry in row.entries
         if entry.kind = "book" then summary.titleLines = 2
     end for
-    ' A recommendation row with no library of its own opens as its own paged page; a saved view's
-    ' row opens the view's page (screens/Home.tsx `seeAllFor`).
-    view = HomeViewResourceId(row.id)
+    ' Only a destination actually offered by this row grants a See all action.
     route = invalid
-    if view <> "" then
-        route = { screen: "ScreenSavedResource", params: { resourceId: view, title: row.title } }
-    else if row.libraryId = invalid and IsRecommendationRow(row) then
-        route = { screen: "ScreenHomeRow", params: { rowId: row.id, title: summary.title } }
+    offer = row.seeAll
+    if offer <> invalid then
+        if offer.type = "row" then
+            route = { screen: "ScreenHomeRow", params: { rowId: offer.rowId, title: summary.title } }
+        else if offer.type = "saved_view" then
+            route = { screen: "ScreenSavedResource", params: { resourceId: offer.resourceId, title: row.title } }
+        else if offer.type = "collection" then
+            route = { screen: "ScreenEntity", params: { libraryId: offer.libraryId, view: "collection", entityId: offer.resourceId, title: row.title } }
+        else if offer.type = "library" then
+            route = { screen: "ScreenLibrary", params: { libraryId: offer.libraryId, homeOffer: offer } }
+        else if offer.type = "guide" then
+            if offer.group <> invalid or offer.sourceId <> invalid then
+                route = { unavailable: true }
+            else
+                route = { screen: "ScreenChannels", params: {} }
+            end if
+        end if
     end if
-    if route <> invalid and (row.total > row.entries.count() or view <> "") then
+    if route <> invalid then
         summary.seeAll = true
         summary.seeAllRoute = route
         summary.seeAllLabel = T("shelf.seeAll")

@@ -315,6 +315,7 @@ end function
 
 ' Settings alone exposes this presentation receipt; it changes synchronously with the shell.
 sub ShellTelemetryPresentation(screen as dynamic, shown as boolean)
+    ShellHomePresentation(screen, shown)
     if screen = invalid or not screen.hasField("telemetryPresented") or not screen.hasField("telemetryOpening") then return
     if screen.telemetryPresented = shown then return
     screen.telemetryOpening = screen.telemetryOpening + 1
@@ -537,3 +538,13 @@ function onKeyEvent(key as string, press as boolean) as boolean
     end if
     return false
 end function
+
+
+' Home shares the actual visible stack transitions, independently of Settings telemetry.
+sub ShellHomePresentation(screen as dynamic, shown as boolean)
+    if screen = invalid or not screen.hasField("homePresented") or not screen.hasField("homeOpening") then return
+    if screen.homePresented = shown then return
+    screen.homeOpening = screen.homeOpening + 1
+    screen.homePresented = shown
+    if not shown then screen.callFunc("retireHome")
+end sub

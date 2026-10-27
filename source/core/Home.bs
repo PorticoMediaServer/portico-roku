@@ -1,6 +1,8 @@
 ' packages/client-core/src/home.ts: server-composed Home rows. The channel renders membership,
 ' order and policy as published; it never ranks, hides or pages a row itself.
 import "pkg:/source/core/ContentEntry.bs"
+import "pkg:/source/core/Browse.bs"
+import "pkg:/source/core/HomeLive.bs"
 
 function HomeUnreadable() as object
     return { ok: false, code: "invalid_home", message: "The server sent an answer Portico couldn't read." }
@@ -10,64 +12,251 @@ end function
 function ParseServerText(value as dynamic) as object
     if value = invalid then return { ok: true, text: invalid }
     if not IsObject(value) or not IsContentString(value.code, 128) or not IsContentString(value.fallback, 1024) then return { ok: false }
-    if not value.doesExist("params") then return { ok: true, text: { code: value.code, fallback: value.fallback } }
-    if not IsObject(value.params) or value.params.count() > 16 then return { ok: false }
+    label = { code: value.code, fallback: value.fallback }
+    if not IsObject(value.params) or value.params.count() > 16 then return { ok: true, text: label }
     params = {}
     params.setModeCaseSensitive()
     for each name in value.params.keys()
-        if not IsContentId(name) or not IsContentString(value.params[name], 1024) then return { ok: false }
-        params[name] = value.params[name]
+        if IsContentId(name) and IsContentString(value.params[name], 1024) then params[name] = value.params[name]
     end for
-    return { ok: true, text: { code: value.code, fallback: value.fallback, params: params } }
+    label.params = params
+    return { ok: true, text: label }
+end function
+
+function HomeSafeWhole(value as dynamic) as boolean
+    if not WireIsNumber(value) or value <> value or value < 0 or value > 9007199254740991& then return false
+    whole& = WireSafeFloor(value)
+    return whole& = value
 end function
 
 function ParseHomeRevision(value as dynamic) as dynamic
-    if not IsObject(value) or not IsNatural(value.catalog) or not IsNatural(value.viewer) then return invalid
+    if not IsObject(value) or not HomeSafeWhole(value.catalog) or not HomeSafeWhole(value.viewer) then return invalid
     return { catalog: value.catalog, viewer: value.viewer }
 end function
 
-' home.ts `validateHomeRow`: {ok, row}.
-function ParseHomeRow(value as dynamic) as object
-    bad = HomeUnreadable()
-    if not IsObject(value) or not IsContentId(value.id) or not IsContentString(value.title, 1024) or not IsContentId(value.kind) then return bad
-    if not IsString(value.artworkShape) or not ArrayIncludes(["poster", "square", "landscape"], value.artworkShape) then return bad
-    if not IsContentId(value.endpoint) or not IsContentId(value.privacySensitivity) or not IsContentId(value.policyState) then return bad
-    for each field in ["priority", "cacheTtlSeconds", "total", "start", "limit"]
-        if not IsNatural(value[field]) then return bad
+function ParseHomeSeeAll(value as dynamic) as dynamic
+    if not IsObject(value) or not IsString(value.type) then return invalid
+    if value.type = "row" and IsContentId(value.rowId) then return { type: value.type, rowId: value.rowId }
+    if value.type = "saved_view" and IsContentId(value.resourceId) then return { type: value.type, resourceId: value.resourceId }
+    if value.type = "collection" and IsContentId(value.resourceId) and IsContentId(value.libraryId) then return { type: value.type, resourceId: value.resourceId, libraryId: value.libraryId }
+    if value.type = "guide" then
+        result = { type: value.type }
+        for each field in ["group", "sourceId"]
+            if value.doesExist(field) then
+                if not IsContentId(value[field]) then return invalid
+                result[field] = value[field]
+            end if
+        end for
+        return result
+    end if
+    if value.type <> "library" or not IsContentId(value.libraryId) or not IsContentId(value.pivot) or not IsArray(value.sort) or value.sort.count() < 1 or value.sort.count() > 3 then return invalid
+    sorts = []
+    for each sort in value.sort
+        parsed = ParseBrowseSort(sort)
+        if parsed = invalid then return invalid
+        sorts.push(parsed)
     end for
-    for each flag in ["required", "hideable", "reorderable", "critical", "cursorCapable", "hasMore"]
-        if not IsBoolean(value[flag]) then return bad
+    result = { type: value.type, libraryId: value.libraryId, pivot: value.pivot, sort: sorts }
+    if value.doesExist("query") then
+        result.query = ParseBrowseNode(value.query)
+        if result.query = invalid then return invalid
+    end if
+    return result
+end function
+
+' A Home play grant is usable only with the server's valid action state and target.
+function HomeSpotlightPlayGranted(rawEntry as dynamic, rawTarget as dynamic, entry as object, target as dynamic) as boolean
+    if not IsObject(rawEntry) or not IsObject(rawEntry.homeActions) or not IsObject(rawEntry.homeActions.state) then return false
+    actions = rawEntry.homeActions
+    state = actions.state
+    if actions.play <> true or not IsBoolean(state.watchlisted) or not IsBoolean(state.favorite) or not IsBoolean(state.watched) then return false
+    if not HomeSafeWhole(state.personalRevision) or not HomeSafeWhole(state.containerRevision) then return false
+    if not state.doesExist("rating") then return false
+    if state.rating <> invalid and (not IsNumber(state.rating) or state.rating <> state.rating or state.rating < 0 or state.rating > 10) then return false
+    if not IsContentId(entry.libraryId) or target = invalid or target.playback = invalid or not IsObject(rawTarget) then return false
+    if rawTarget.doesExist("available") and not IsBoolean(rawTarget.available) then return false
+    if rawTarget.doesExist("missing") and not IsBoolean(rawTarget.missing) then return false
+    if rawTarget.available = false or rawTarget.missing = true then return false
+    return true
+end function
+
+function ParseHomeSpotlight(value as dynamic) as dynamic
+    if not IsObject(value) or not IsObject(value.reason) or not IsContentId(value.reason.kind) then return invalid
+    entry = ParseContentEntry(value.entry)
+    if entry = invalid or not ArrayIncludes(["movie", "show"], entry.kind) then return invalid
+    if entry.overview <> invalid and Len(entry.overview) > 300 then return invalid
+    label = ParseServerText(value.reason.text)
+    if not label.ok or label.text = invalid then return invalid
+    reason = { kind: value.reason.kind, text: label.text }
+    if value.reason.doesExist("source") then
+        source = value.reason.source
+        if not IsObject(source) or not IsContentId(source.id) or not IsContentString(source.name, 2048) then return invalid
+        reason.source = { id: source.id, name: source.name }
+    end if
+    if reason.kind = "because_you_watched" and reason.source = invalid then return invalid
+    if value.reason.doesExist("libraryId") then
+        if not IsContentId(value.reason.libraryId) then return invalid
+        reason.libraryId = value.reason.libraryId
+    end if
+    result = { entry: entry, reason: reason }
+    rawTarget = value.entry
+    target = entry
+    if value.doesExist("resumeTarget") then
+        target = ParseContentEntry(value.resumeTarget)
+        if target = invalid or entry.kind <> "show" or target.kind <> "episode" or target.show = invalid or target.show.id <> entry.id or target.playback = invalid then return invalid
+        result.resumeTarget = target
+        rawTarget = value.resumeTarget
+    end if
+    result.playGranted = HomeSpotlightPlayGranted(value.entry, rawTarget, entry, target)
+    return result
+end function
+
+' A dedicated catalogue collection projection; member cards are artwork, not extra actions.
+' Collection actions are intentionally omitted until an accepting action port is available.
+function ParseHomeCollection(value as dynamic) as dynamic
+    if not IsObject(value) or not IsObject(value.collection) or value.mediaKind <> "movie" or not IsArray(value.members) or value.members.count() > 4 then return invalid
+    c = value.collection
+    if not IsContentId(c.id) or not IsContentId(c.libraryId) or not IsContentString(c.name, 1024) or not HomeSafeWhole(c.itemCount) or not HomeSafeWhole(c.revision) or c.itemCount < value.members.count() then return invalid
+    members = []
+    for each raw in value.members
+        entry = ParseContentEntry(raw)
+        if entry = invalid or entry.kind <> "movie" or entry.libraryId <> c.libraryId then return invalid
+        members.push(entry)
     end for
-    if value.required and value.hideable then return bad
-    if not IsArray(value.entries) or value.entries.count() > 200 or not IsContentString(value.nextCursor, 4096) then return bad
-    entries = ParseContentEntries(value.entries, 200)
-    if entries = invalid or entries.count() > value.total then return bad
-    revision = ParseHomeRevision(value.revision)
-    if revision = invalid then return bad
-    row = {
-        id: value.id, title: value.title, kind: value.kind, artworkShape: value.artworkShape, endpoint: value.endpoint
-        privacySensitivity: value.privacySensitivity, policyState: value.policyState, priority: value.priority
-        cacheTtlSeconds: value.cacheTtlSeconds, required: value.required, hideable: value.hideable
-        reorderable: value.reorderable, critical: value.critical, cursorCapable: value.cursorCapable
-        entries: entries, total: value.total, start: value.start, limit: value.limit
-        hasMore: value.hasMore, nextCursor: value.nextCursor, revision: revision
-        rawEntryCount: value.entries.count()
-    }
-    titleText = ParseServerText(value.titleText)
-    if not titleText.ok then return bad
-    if titleText.text <> invalid then row.titleText = titleText.text
-    for each field in ["explanation", "libraryId", "relation", "provider", "evidenceId", "anchorId", "family"]
+    result = { collection: { id: c.id, libraryId: c.libraryId, name: c.name, itemCount: c.itemCount, revision: c.revision }, mediaKind: "movie", members: members }
+    if value.doesExist("firstYear") then
+        if not HomeSafeWhole(value.firstYear) or value.firstYear < 1 then return invalid
+        result.firstYear = value.firstYear
+    end if
+    for each field in ["backdropUrl", "lastTitle"]
         if value.doesExist(field) then
-            if not IsContentString(value[field], 1024) then return bad
-            row[field] = value[field]
+            limit = 4096
+            if field = "lastTitle" then limit = 2048
+            if not IsContentString(value[field], limit) then return invalid
+            result[field] = value[field]
         end if
     end for
+    return result
+end function
+
+' home.ts `validateHomeRow`: {ok, row}.
+function ParseHomeRow(value as dynamic, allowChildren = true as boolean) as object
+    bad = HomeUnreadable()
+    if not IsObject(value) or not IsContentId(value.id) or not IsContentId(value.viewerFence) then return bad
+    if not IsArray(value.entries) or value.entries.count() > 200 then return bad
+    nextCursor = HomeWords(value.nextCursor, 4096)
+    if nextCursor = invalid then return bad
+    revision = ParseHomeRevision(value.revision)
+    if revision = invalid then return bad
+    row = { id: value.id, viewerFence: value.viewerFence, revision: revision, nextCursor: nextCursor, entries: [], rawEntryCount: value.entries.count() }
+    for each name in ["title", "kind", "endpoint", "privacySensitivity", "policyState"]
+        limit = 256
+        if name = "title" then limit = 1024
+        row[name] = HomeWords(value[name], limit)
+        if row[name] = invalid then return bad
+    end for
+    row.artworkShape = "poster"
+    if ArrayIncludes(["poster", "square", "landscape"], value.artworkShape) then row.artworkShape = value.artworkShape
+    for each name in ["required", "hideable", "reorderable", "critical", "cursorCapable", "hasMore", "deferred"]
+        row[name] = value[name] = true
+    end for
+    if row.required then row.hideable = false
+    for each name in ["priority", "total", "start", "limit"]
+        row[name] = 0
+        if HomeSafeWhole(value[name]) then row[name] = value[name]
+    end for
+    if HomeSafeWhole(value.cacheTtlMs) then row.cacheTtlMs = value.cacheTtlMs
+    seen = {}
+    seen.setModeCaseSensitive()
+    for each raw in value.entries
+        entry = ParseContentEntry(raw)
+        if entry <> invalid and not seen.doesExist(entry.id) then
+            seen[entry.id] = true
+            row.entries.push(entry)
+        end if
+    end for
+    if row.total < row.entries.count() then row.total = row.entries.count()
+    for each name in ["titleText", "subtitleText", "why"]
+        label = ParseServerText(value[name])
+        if label.ok and label.text <> invalid then row[name] = label.text
+    end for
+    for each name in ["explanation", "libraryId", "relation", "provider", "evidenceId", "anchorId", "family"]
+        if IsContentString(value[name], 1024) then row[name] = value[name]
+    end for
+    if value.doesExist("seeAll") and value.seeAll <> invalid then
+        offer = ParseHomeSeeAll(value.seeAll)
+        if offer <> invalid then row.seeAll = offer
+    end if
+    if value.doesExist("reason") then
+        row.reason = ParseHomeReason(value.reason)
+        if row.reason = invalid then return bad
+    end if
+    if value.doesExist("collection") then
+        row.collection = ParseHomeCollection(value.collection)
+        if row.collection = invalid then return bad
+    end if
+    if value.doesExist("live") then
+        row.live = ParseHomeLiveProjection(value.live)
+        if row.live = invalid then return bad
+    end if
+    if value.doesExist("period") then
+        v = value.period
+        if not IsObject(v) or not HomeSafeWhole(v.days) or v.days < 1 or not IsContentId(v.metric) then return bad
+        first = HomeInstantMs(v.start)
+        last = HomeInstantMs(v["end"])
+        label = ParseServerText(v.text)
+        if first = invalid or last = invalid or first >= last or not label.ok or label.text = invalid then return bad
+        row.period = { days: v.days, start: v.start, "end": v["end"], metric: v.metric, text: label.text }
+    end if
+    if value.doesExist("platforms") then
+        if not IsArray(value.platforms) or value.platforms.count() > 3 then return bad
+        row.platforms = []
+        for each platform in value.platforms
+            if not ArrayIncludes(["web", "phone", "tv"], platform) then return bad
+            row.platforms.push(platform)
+        end for
+    end if
+    if value.doesExist("resumes") then
+        if not IsArray(value.resumes) or value.resumes.count() > 100 then return bad
+        row.resumes = []
+        for each resume in value.resumes
+            if not IsObject(resume) or not IsContentId(resume.entryId) or not seen.doesExist(resume.entryId) then return bad
+            target = ParseContentEntry(resume.target)
+            if target = invalid or target.playback = invalid then return bad
+            row.resumes.push({ entryId: resume.entryId, target: target })
+        end for
+    end if
+    if value.doesExist("displayTargets") then
+        if not IsArray(value.displayTargets) or value.displayTargets.count() > 60 then return bad
+        row.displayTargets = []
+        for each target in value.displayTargets
+            if not IsObject(target) or not IsContentId(target.membershipId) or not IsContentId(target.entryId) or not seen.doesExist(target.entryId) then return bad
+            row.displayTargets.push({ membershipId: target.membershipId, entryId: target.entryId })
+        end for
+    end if
+    if value.doesExist("whyTitles") then
+        if not IsArray(value.whyTitles) or value.whyTitles.count() > 3 then return bad
+        row.whyTitles = []
+        for each title in value.whyTitles
+            if not IsObject(title) or not IsContentId(title.id) or not IsContentString(title.name, 2048) then return bad
+            row.whyTitles.push({ id: title.id, name: title.name })
+        end for
+    end if
+    if value.doesExist("children") then
+        if not allowChildren or value.id <> "for_you" or not IsArray(value.children) or value.children.count() > 5 then return bad
+        row.children = []
+        for each child in value.children
+            parsed = ParseHomeRow(child, false)
+            if not parsed.ok or parsed.row.family <> "for_you" or Left(parsed.row.id, 8) <> "for_you:" or parsed.row.deferred then return bad
+            row.children.push(parsed.row)
+        end for
+    end if
     return { ok: true, row: row }
 end function
 
 ' home.ts `validateHomeLayout`: {revision, rowOrder, hiddenRowIds}, or invalid.
 function ParseHomeLayout(value as dynamic) as dynamic
-    if not IsObject(value) or not IsNatural(value.revision) or not IsArray(value.rowOrder) or not IsArray(value.hiddenRowIds) then return invalid
+    if not IsObject(value) or not HomeSafeWhole(value.revision) or not IsArray(value.rowOrder) or not IsArray(value.hiddenRowIds) then return invalid
     if value.rowOrder.count() > 64 or value.hiddenRowIds.count() > 64 then return invalid
     for each list in [value.rowOrder, value.hiddenRowIds]
         seen = {}
@@ -84,38 +273,36 @@ end function
 function ParseHomeDocument(value as dynamic) as object
     bad = HomeUnreadable()
     if not IsObject(value) or not IsContentId(value.serverId) or not IsContentId(value.viewerFence) or not IsArray(value.rows) or value.rows.count() > 64 then return bad
-    if not IsContentString(value.generatedAt, 128) or value.generatedAt = "" then return bad
-    rows = []
-    seen = {}
-    seen.setModeCaseSensitive()
-    for each raw in value.rows
-        parsed = ParseHomeRow(raw)
-        if not parsed.ok or seen.doesExist(parsed.row.id) then return bad
-        seen[parsed.row.id] = true
-        rows.push(parsed.row)
+    if not IsContentString(value.generatedAt, 128) or value.generatedAt = "" or not IsArray(value.spotlight) or value.spotlight.count() > 5 then return bad
+    spotlight = []
+    for each raw in value.spotlight
+        parsedSpotlight = ParseHomeSpotlight(raw)
+        if parsedSpotlight = invalid then return bad
+        spotlight.push(parsedSpotlight)
     end for
     layout = ParseHomeLayout(value.layout)
     if layout = invalid then return bad
-    ' The server never publishes a row the viewer hid, nor an empty row that is not critical.
-    for each row in rows
-        if ArrayIncludes(layout.hiddenRowIds, row.id) then return bad
-        if row.entries.count() = 0 and row.rawEntryCount = 0 and not row.critical then return bad
+    rows = []
+    seen = {}
+    seen.setModeCaseSensitive()
+    readable = 0
+    for each raw in value.rows
+        parsed = ParseHomeRow(raw)
+        if parsed.ok then
+            row = parsed.row
+            if row.viewerFence = value.viewerFence then
+                readable++
+                if not seen.doesExist(row.id) and not ArrayIncludes(layout.hiddenRowIds, row.id) and (row.rawEntryCount > 0 or HomeHasContent(row) or row.critical or row.deferred) then
+                    seen[row.id] = true
+                    rows.push(row)
+                end if
+            end if
+        end if
     end for
+    if value.rows.count() > 0 and readable = 0 then return bad
     revision = ParseHomeRevision(value.revision)
     if revision = invalid then return bad
-    document = { serverId: value.serverId, viewerFence: value.viewerFence, rows: rows, layout: layout, revision: revision, generatedAt: value.generatedAt }
-    if value.doesExist("hero") then
-        hero = value.hero
-        if not IsObject(hero) or not IsContentId(hero.rowId) or not IsContentId(hero.entryId) then return bad
-        ' A hero whose entry this client cannot draw (a kind it does not know) is simply absent.
-        for each row in rows
-            if row.id = hero.rowId then
-                for each entry in row.entries
-                    if entry.id = hero.entryId then document.hero = { rowId: hero.rowId, entryId: hero.entryId }
-                end for
-            end if
-        end for
-    end if
+    document = { serverId: value.serverId, viewerFence: value.viewerFence, rows: rows, spotlight: spotlight, layout: layout, revision: revision, generatedAt: value.generatedAt }
     return { ok: true, document: document }
 end function
 
@@ -179,4 +366,85 @@ end function
 ' card-caption.ts `isContinueRow`: the rows of what the viewer is in the middle of.
 function IsContinueRow(rowId as string) as boolean
     return rowId = "continue" or rowId = "continue_listening" or rowId = "continue_watching"
+end function
+
+' Replace only the offered descriptor, preserving the server's row order and family boundary.
+function HomeHydratedRows(rows as object, descriptor as object, row as object, fence as string) as dynamic
+    if row.id <> descriptor.id or row.family <> descriptor.family or row.viewerFence <> fence or row.deferred then return invalid
+    if row.revision.catalog <> descriptor.revision.catalog or row.revision.viewer <> descriptor.revision.viewer then return invalid
+    replacements = [row]
+    if row.children <> invalid then replacements = row.children
+    ids = {}
+    ids.setModeCaseSensitive()
+    for each existing in rows
+        if existing.id <> descriptor.id then ids[existing.id] = true
+    end for
+    for each replacement in replacements
+        if replacement.viewerFence <> fence or ids.doesExist(replacement.id) then return invalid
+        ids[replacement.id] = true
+    end for
+    found = false
+    out = []
+    for each existing in rows
+        if existing.id = descriptor.id then
+            if found then return invalid
+            found = true
+            for each replacement in replacements
+                if HomeHasContent(replacement) or replacement.critical then out.push(replacement)
+            end for
+        else
+            out.push(existing)
+        end if
+    end for
+    if not found then return invalid
+    return out
+end function
+
+function HomeHydrationRoom(active as integer) as integer
+    if active >= 2 then return 0
+    if active <= 0 then return 2
+    return 1
+end function
+
+
+function HomeWords(value as dynamic, limit as integer) as dynamic
+    if value = invalid then return ""
+    if not IsContentString(value, limit) then return invalid
+    return value
+end function
+
+
+function HomeHasContent(row as object) as boolean
+    if row.entries.count() > 0 then return true
+    if row.collection <> invalid and row.collection.members.count() > 0 then return true
+    if row.live <> invalid and row.live.channels.count() > 0 then return true
+    return false
+end function
+
+
+function ParseHomeReason(value as dynamic) as dynamic
+    if not IsObject(value) or not IsContentId(value.kind) then return invalid
+    label = ParseServerText(value.text)
+    if not label.ok or label.text = invalid then return invalid
+    reason = { kind: value.kind, text: label.text }
+    if value.doesExist("source") then
+        source = value.source
+        if not IsObject(source) or not IsContentId(source.id) or not IsContentString(source.name, 2048) then return invalid
+        reason.source = { id: source.id, name: source.name }
+    end if
+    if reason.kind = "because_you_watched" and reason.source = invalid then return invalid
+    if value.doesExist("libraryId") then
+        if not IsContentId(value.libraryId) then return invalid
+        reason.libraryId = value.libraryId
+    end if
+    return reason
+end function
+
+
+function HomeViewerCurrent(expected as dynamic, current as dynamic) as boolean
+    if not IsObject(expected) or not IsObject(current) then return false
+    for each field in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        if not IsText(expected[field], 2048) or not IsText(current[field], 2048) or expected[field] <> current[field] then return false
+    end for
+    return true
 end function

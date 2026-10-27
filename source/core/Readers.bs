@@ -75,30 +75,7 @@ end function
 function ReadHome(data as dynamic, context as object) as object
     parsed = ParseHomeDocument(data)
     if not parsed.ok then return { value: { ok: false, code: parsed.code } }
-    document = parsed.document
-    content = CreateObject("roSGNode", "ContentNode")
-    rows = []
-    children = []
-    for each row in document.rows
-        if row.entries.count() > 0 then
-            summary = HomeRowSummary(row)
-            rows.push(summary)
-            children.push(CardsNode(row.entries, { origin: context.origin, shape: summary.shape, resume: summary.resume }))
-        end if
-    end for
-    content.appendChildren(children)
-    value = { ok: true, rows: rows, hero: invalid }
-    ' "1m" is never said for a short clip (screens/Home.tsx `heroDuration`).
-    hero = HomeHero(document, invalid, HomeHeroDurationFloor())
-    if hero <> invalid then
-        value.hero = {
-            eyebrow: ServerTextLabel(hero.row.titleText, hero.row.title)
-            title: hero.title, line: hero.line, meta: hero.meta, progress: hero.progress, playLabel: hero.playLabel
-            art: hero.art, coverShape: hero.coverShape, overview: hero.entry.overview, entry: hero.entry
-            backdropUri: MediaUrl(context.origin, hero.entry.backdropUrl), coverUri: MediaUrl(context.origin, hero.entry.posterUrl)
-        }
-    end if
-    return { value: value, content: content }
+    return ReadHomeDocument(parsed.document, context)
 end function
 
 ' GET /v1/home/rows/{id}: one page of a row. The value is {ok, id, nextCursor, total, hasMore,
@@ -107,12 +84,15 @@ function ReadHomeRow(data as dynamic, context as object) as object
     parsed = ParseHomeRow(data)
     if not parsed.ok or (context.rowId <> invalid and parsed.row.id <> context.rowId) then return { value: { ok: false, code: "invalid_home" } }
     row = parsed.row
+    if context.viewerFence <> invalid and row.viewerFence <> context.viewerFence then return { value: { ok: false, code: "stale_continuation" } }
+    if context.revision <> invalid and (row.revision.catalog <> context.revision.catalog or row.revision.viewer <> context.revision.viewer) then return { value: { ok: false, code: "stale_continuation" } }
     shape = context.shape
     if shape = invalid then shape = SectionShape(row.entries)
     summary = HomeRowSummary(row)
     summary.ok = true
     summary.hasMore = row.hasMore
     summary.shape = shape
+    summary.row = row
     return { value: summary, content: CardsNode(row.entries, { origin: context.origin, shape: shape, resume: IsContinueRow(row.id) }) }
 end function
 
@@ -245,4 +225,32 @@ function ReadGroupQueue(data as dynamic) as object
     if IsObject(data) and IsObject(data.queue) then raw = data.queue
     queue = ParseGroupQueue(raw)
     return { value: { ok: queue <> invalid, queue: queue } }
+end function
+
+function ReadHomeDocument(document as object, context as object) as object
+    content = CreateObject("roSGNode", "ContentNode")
+    rows = []
+    children = []
+    for each row in document.rows
+        if row.entries.count() > 0 or row.deferred then
+            summary = HomeRowSummary(row)
+            summary.pending = row.deferred
+            if row.deferred then summary.shape = row.artworkShape
+            rows.push(summary)
+            children.push(CardsNode(row.entries, { origin: context.origin, shape: summary.shape, resume: summary.resume }))
+        end if
+    end for
+    content.appendChildren(children)
+    value = { ok: true, rows: rows, hero: invalid, document: document }
+    ' "1m" is never said for a short clip (screens/Home.tsx `heroDuration`).
+    hero = HomeHero(document, invalid, HomeHeroDurationFloor())
+    if hero <> invalid then
+        value.hero = {
+            eyebrow: ServerTextLabel(hero.row.titleText, hero.row.title)
+            title: hero.title, line: hero.line, meta: hero.meta, progress: hero.progress, playLabel: hero.playLabel
+            art: hero.art, coverShape: hero.coverShape, overview: hero.entry.overview, entry: hero.entry, playEntry: hero.playEntry
+            backdropUri: MediaUrl(context.origin, hero.entry.backdropUrl), coverUri: MediaUrl(context.origin, hero.entry.posterUrl)
+        }
+    end if
+    return { value: value, content: content }
 end function

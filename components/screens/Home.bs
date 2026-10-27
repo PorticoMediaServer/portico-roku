@@ -20,6 +20,7 @@ import "pkg:/source/ui/Layout.bs"
 import "pkg:/source/core/Messages.bs"
 import "pkg:/source/core/Errors.bs"
 import "pkg:/source/core/Home.bs"
+import "pkg:/source/core/Readers.bs"
 import "pkg:/source/core/Open.bs"
 import "pkg:/source/core/Retry.bs"
 import "pkg:/source/core/Time.bs"
@@ -37,40 +38,58 @@ sub init()
     m.page.observeField("scrollY", "onHomeScroll")
     m.body = m.page.body
     m.task = invalid
+    m.homeGeneration = 0
+    m.homeActive = false
+    m.homeOpening = -1
+    m.document = invalid
+    m.hydrationTasks = {}
+    m.hydrationQueue = []
+    m.hydrationErrors = {}
+    m.hydrationErrorNodes = {}
     m.paging = {}
     m.rows = []
     m.shelves = []
     m.hero = invalid
     m.play = invalid
+    m.details = invalid
     m.loadedAt = 0
     m.attempt = 0
     m.claimed = false
     m.changes = 0
     m.retry = m.top.createChild("Timer")
     m.retry.observeField("fire", "onHomeRetry")
+    m.liveExpiry = m.top.createChild("Timer")
+    m.liveExpiry.observeField("fire", "onHomeLiveExpiry")
 end sub
 
 sub enter()
-    HomeSkeleton()
-    HomeLoad(0)
+    m.global.session.observeField("viewer", "onHomeViewerChanged")
+    HomeOpen()
 end sub
 
 ' Returning to Home: Continue Watching and what was just added are expected to be current.
 sub resume()
+    if not HomeCurrent() then
+        HomeOpen()
+        return
+    end if
     changed = PersonalChanges() <> m.changes
     m.changes = PersonalChanges()
     if m.task = invalid and (changed or NowSeconds() - m.loadedAt > HomeStaleSeconds()) then HomeLoad(0)
 end sub
 
 sub leave()
-    m.retry.control = "stop"
-    m.task = invalid
-    m.paging = {}
+    retireHome()
+    m.global.session.unobserveField("viewer")
 end sub
 
 sub focusEntry()
+    if not HomeCurrent() then return
     if m.play <> invalid then
         FocusOn(m.play)
+        m.page.callFunc("follow")
+    else if m.details <> invalid then
+        FocusOn(m.details)
         m.page.callFunc("follow")
     else if not m.page.callFunc("focusEntry") then
         m.top.setFocus(true)
@@ -78,9 +97,13 @@ sub focusEntry()
 end sub
 
 sub HomeLoad(attempt as integer)
+    if not HomeCurrent() then return
+    HomeRetireHydrations()
+    if m.task <> invalid then m.task.control = "STOP"
     m.retry.control = "stop"
     m.attempt = attempt
-    m.task = ApiStart({ path: "/v1/home", reader: "home", context: { origin: ViewerOrigin() } }, "onHomeLoaded")
+    m.task = ApiStart({ path: "/v1/home", reader: "home", expectedViewer: m.homeBinding, context: { origin: m.homeBinding.origin } }, "onHomeLoaded")
+    m.task.addFields({ homeGeneration: m.homeGeneration, homeOpening: m.homeOpening })
 end sub
 
 sub onHomeRetry()
@@ -89,6 +112,7 @@ end sub
 
 sub onHomeLoaded(event as object)
     task = event.getRoSGNode()
+    if not HomeCurrent() or task.homeOpening <> m.homeOpening or task.homeGeneration <> m.homeGeneration then return
     if m.task = invalid or not task.isSameNode(m.task) then return
     m.task = invalid
     result = event.getData()
@@ -108,13 +132,113 @@ sub onHomeLoaded(event as object)
         return
     end if
     m.loadedAt = NowSeconds()
+    m.document = result.value.document
+    if not HomeViewerCurrent(m.homeBinding, ViewerRequestBinding(m.global.session.viewer)) or m.document.serverId <> m.homeBinding.serverId then return
     HomeBuild(result.value, task.content)
+    for each row in m.document.rows
+        if row.deferred then m.hydrationQueue.push(row)
+    end for
+    HomeHydrate()
+    if m.hydrationErrors.count() > 0 then HomeRenderHydration()
+end sub
+
+sub onHomeViewerChanged()
+    if not m.top.homePresented then return
+    if HomeCurrent() then return
+    retireHome()
+    HomeOpen()
+end sub
+
+sub HomeRetireHydrations()
+    m.homeGeneration = m.homeGeneration + 1
+    m.liveExpiry.control = "stop"
+    for each key in m.paging.keys()
+        m.paging[key].control = "STOP"
+    end for
+    for each key in m.hydrationTasks.keys()
+        m.hydrationTasks[key].control = "STOP"
+    end for
+    m.hydrationTasks = {}
+    m.hydrationQueue = []
+    m.hydrationErrors = {}
+    m.paging = {}
+end sub
+
+function HomePending() as boolean
+    if m.document = invalid then return false
+    if m.document.spotlight.count() > 0 and m.hero = invalid then return true
+    for each row in m.document.rows
+        if row.deferred then return true
+    end for
+    return false
+end function
+
+sub HomeHydrate()
+    if not HomeCurrent() or m.document = invalid then return
+    while HomeHydrationRoom(m.hydrationTasks.count()) > 0 and m.hydrationQueue.count() > 0
+        row = m.hydrationQueue.shift()
+        if row.endpoint <> "/v1/home/rows/" + row.id or row.viewerFence <> m.document.viewerFence then
+            m.hydrationErrors[row.id] = row
+        else
+            path = HomeRowPagePath(row.id, "", row.limit)
+            task = ApiStart({ path: path, reader: "homeRow", expectedViewer: m.homeBinding, context: { origin: m.homeBinding.origin, rowId: row.id, viewerFence: m.document.viewerFence, revision: row.revision } }, "onHomeHydrated")
+            task.addFields({ homeGeneration: m.homeGeneration, homeOpening: m.homeOpening, descriptor: row })
+            m.hydrationTasks[row.id] = task
+        end if
+    end while
+end sub
+
+sub onHomeHydrated(event as object)
+    task = event.getRoSGNode()
+    descriptor = task.descriptor
+    if not HomeCurrent() or task.homeOpening <> m.homeOpening or task.homeGeneration <> m.homeGeneration or m.document = invalid then return
+    if not HomeViewerCurrent(m.homeBinding, ViewerRequestBinding(m.global.session.viewer)) then return
+    held = m.hydrationTasks[descriptor.id]
+    if held = invalid or not held.isSameNode(task) then return
+    m.hydrationTasks.delete(descriptor.id)
+    result = event.getData()
+    if not result.ok or result.value.ok <> true or result.value.row.viewerFence <> m.document.viewerFence then
+        m.hydrationErrors[descriptor.id] = descriptor
+    else
+        row = result.value.row
+        rows = HomeHydratedRows(m.document.rows, descriptor, row, m.document.viewerFence)
+        if rows = invalid then
+            m.hydrationErrors[descriptor.id] = descriptor
+        else
+            m.document.rows = rows
+            m.hydrationErrors.delete(descriptor.id)
+        end if
+    end if
+    HomeRenderHydration()
+    HomeHydrate()
+end sub
+
+sub HomeRenderHydration()
+    if not HomeCurrent() or m.document = invalid then return
+    rendered = ReadHomeDocument(m.document, { origin: m.homeBinding.origin })
+    HomeBuild(rendered.value, rendered.content)
+end sub
+
+sub onHomeHydrationRetry(event as object)
+    node = event.getRoSGNode()
+    id = node.rowId
+    held = m.hydrationErrorNodes[id]
+    if not HomeCurrent() or held = invalid or not node.isSameNode(held) then return
+    if not HomeViewerCurrent(m.homeBinding, ViewerRequestBinding(m.global.session.viewer)) then return
+    row = m.hydrationErrors[id]
+    if row = invalid then return
+    m.hydrationErrors.delete(id)
+    m.hydrationQueue.push(row)
+    HomeRenderHydration()
+    HomeHydrate()
 end sub
 
 sub HomeClear()
     m.body.removeChildrenIndex(m.body.getChildCount(), 0)
     m.shelves = []
+    m.hydrationErrorNodes = {}
     m.play = invalid
+    m.details = invalid
 end sub
 
 function HomeTop() as float
@@ -170,11 +294,13 @@ sub HomeFailure(failure as object, retrying as boolean)
 end sub
 
 sub onHomeRefresh()
+    if not HomeCurrent() then return
     HomeSkeleton()
     HomeLoad(0)
 end sub
 
 sub HomeBuild(value as object, content as object)
+    if not HomeCurrent() then return
     had = FocusedShelfState()
     HomeClear()
     m.rows = value.rows
@@ -196,25 +322,50 @@ sub HomeBuild(value as object, content as object)
     end if
     for index = 0 to m.rows.count() - 1
         row = m.rows[index]
-        shelf = m.body.createChild("UiShelf")
-        shelf.addFields({ rowIndex: index })
-        shelf.shelfWidth = m.width
-        shelf.shape = row.shape
-        shelf.titleLines = row.titleLines
-        shelf.title = row.title
-        shelf.seeAllLabel = row.seeAllLabel
-        shelf.seeAll = row.seeAll
-        shelf.active = false
-        shelf.items = content.getChild(index)
-        shelf.observeField("itemSelected", "onHomeSelected")
-        shelf.observeField("itemMenu", "onHomeMenu")
-        shelf.observeField("endReached", "onHomeEnd")
-        shelf.observeField("seeAllPressed", "onHomeSeeAll")
-        Place(shelf, 0, y)
-        y = y + shelf.shelfHeight
-        m.shelves.push(shelf)
+        if row.pending then
+            if m.hydrationErrors.doesExist(row.id) then
+                words = PresentError({ code: "request_failed", status: 0 }, "home")
+                state = m.body.createChild("UiStateView")
+                state.addFields({ rowId: row.id })
+                m.hydrationErrorNodes[row.id] = state
+                state.icon = "warning"
+                state.title = row.title
+                state.message = words.body
+                state.action = T("action.tryAgain")
+                state.stateWidth = m.width
+                state.observeField("actionPressed", "onHomeHydrationRetry")
+                Place(state, 0, y)
+                y = y + state.boundingRect().height
+            else
+                HomeBlock(Theme.space.page, y, Theme.apple.homeSkeletonHeadingWidth, Theme.metrics.icon, Theme.metrics.radius.small)
+                y = y + Theme.metrics.icon + Theme.space.md
+                cardHeight = Int(Theme.metrics.posterWidth / ArtworkRatio(row.shape))
+                for card = 0 to Theme.apple.homeSkeletonCards - 1
+                    HomeBlock(Theme.space.page + card * (Theme.metrics.posterWidth + Theme.space.gutter), y, Theme.metrics.posterWidth, cardHeight, -1)
+                end for
+                y = y + cardHeight + Theme.space.xl
+            end if
+        else
+            shelf = m.body.createChild("UiShelf")
+            shelf.addFields({ rowIndex: index })
+            shelf.shelfWidth = m.width
+            shelf.shape = row.shape
+            shelf.titleLines = row.titleLines
+            shelf.title = row.title
+            shelf.seeAllLabel = row.seeAllLabel
+            shelf.seeAll = row.seeAll
+            shelf.active = false
+            shelf.items = content.getChild(index)
+            shelf.observeField("itemSelected", "onHomeSelected")
+            shelf.observeField("itemMenu", "onHomeMenu")
+            shelf.observeField("endReached", "onHomeEnd")
+            shelf.observeField("seeAllPressed", "onHomeSeeAll")
+            Place(shelf, 0, y)
+            y = y + shelf.shelfHeight
+            m.shelves.push(shelf)
+        end if
     end for
-    if m.rows.count() = 0 and m.hero = invalid then
+    if m.rows.count() = 0 and m.hero = invalid and not HomePending() then
         ' Home with nothing on it (screens/HomeEmpty.tsx).
         owner = false
         viewer = m.global.session.viewer
@@ -307,19 +458,23 @@ function HomeHeroBuild(hero as object, top as dynamic) as float
         bar.value = hero.progress
         barHeight = Theme.space.md + Theme.apple.progressBarHeight
     end if
-    m.play = m.body.createChild("UiButton")
-    m.play.variant = "primary"
-    m.play.size = "lg"
-    m.play.icon = "play"
-    m.play.label = hero.playLabel
-    m.play.observeField("pressed", "onHomePlay")
+    m.play = invalid
+    if hero.playEntry <> invalid then
+        m.play = m.body.createChild("UiButton")
+        m.play.variant = "primary"
+        m.play.size = "lg"
+        m.play.icon = "play"
+        m.play.label = hero.playLabel
+        m.play.observeField("pressed", "onHomePlay")
+    end if
     details = m.body.createChild("UiButton")
+    m.details = details
     details.variant = "secondary"
     details.size = "lg"
     details.icon = "info"
     details.label = T("action.details")
     details.observeField("pressed", "onHomeDetails")
-    buttonsHeight = Theme.space.lg + m.play.controlHeight
+    buttonsHeight = Theme.space.lg + details.controlHeight
 
     content = rowHeight + overviewHeight + barHeight + buttonsHeight
     height = Max(Theme.metrics.heroHeight, Theme.space.xxl + content + Theme.space.xl)
@@ -342,8 +497,12 @@ function HomeHeroBuild(hero as object, top as dynamic) as float
         y = y + barHeight
     end if
     y = y + Theme.space.lg
-    Place(m.play, page, y)
-    Place(details, page + m.play.controlWidth + Theme.space.sm, y)
+    if m.play <> invalid then
+        Place(m.play, page, y)
+        Place(details, page + m.play.controlWidth + Theme.space.sm, y)
+    else
+        Place(details, page, y)
+    end if
     return height
 end function
 
@@ -379,6 +538,14 @@ function RestoreShelfState(state as object) as boolean
     return false
 end function
 
+function HomeShelfCurrent(shelf as object) as boolean
+    if not HomeCurrent() then return false
+    for each current in m.shelves
+        if current.isSameNode(shelf) then return true
+    end for
+    return false
+end function
+
 function HomeEntry(shelf as object, index as integer) as dynamic
     items = shelf.items
     if items = invalid or index < 0 or index >= items.getChildCount() then return invalid
@@ -387,6 +554,7 @@ end function
 
 sub onHomeSelected(event as object)
     shelf = event.getRoSGNode()
+    if not HomeShelfCurrent(shelf) then return
     entry = HomeEntry(shelf, event.getData())
     if entry = invalid then return
     row = m.rows[shelf.rowIndex]
@@ -397,6 +565,7 @@ end sub
 
 sub onHomeMenu(event as object)
     shelf = event.getRoSGNode()
+    if not HomeShelfCurrent(shelf) then return
     entry = HomeEntry(shelf, event.getData())
     if entry = invalid then return
     row = m.rows[shelf.rowIndex]
@@ -407,30 +576,49 @@ end sub
 
 sub onHomeSeeAll(event as object)
     shelf = event.getRoSGNode()
+    if not HomeShelfCurrent(shelf) then return
     row = m.rows[shelf.rowIndex]
-    if row.seeAllRoute <> invalid then NavPush(row.seeAllRoute.screen, row.seeAllRoute.params)
+    if row.seeAllRoute = invalid then return
+    if row.seeAllRoute.unavailable = true then
+        Toast(PresentError({ code: "unavailable", status: 0 }, "home").body, "warning")
+    else
+        NavPush(row.seeAllRoute.screen, row.seeAllRoute.params)
+    end if
 end sub
 
-sub onHomePlay()
-    if m.hero <> invalid then OpenEntry(m.hero.entry, "play")
+sub onHomePlay(event as object)
+    if not HomeCurrent() or m.play = invalid or not event.getRoSGNode().isSameNode(m.play) then return
+    if not HomeViewerCurrent(m.homeBinding, ViewerRequestBinding(m.global.session.viewer)) or m.document = invalid or m.document.spotlight.count() = 0 then return
+    spot = m.document.spotlight[0]
+    if spot.playGranted <> true or m.hero = invalid or m.hero.entry.id <> spot.entry.id then return
+    target = spot.entry
+    if spot.resumeTarget <> invalid then target = spot.resumeTarget
+    if target.playback <> invalid then OpenEntry(target, "play")
 end sub
 
-sub onHomeDetails()
-    if m.hero <> invalid then OpenEntry(m.hero.entry)
+sub onHomeDetails(event as object)
+    if not HomeCurrent() or m.details = invalid or not event.getRoSGNode().isSameNode(m.details) then return
+    if not HomeViewerCurrent(m.homeBinding, ViewerRequestBinding(m.global.session.viewer)) or m.document = invalid or m.document.spotlight.count() = 0 then return
+    spot = m.document.spotlight[0]
+    if m.hero <> invalid and m.hero.entry.id = spot.entry.id then OpenEntry(spot.entry)
 end sub
 
 ' The row's next page, by its own cursor, once per cursor.
 sub onHomeEnd(event as object)
     shelf = event.getRoSGNode()
+    if not HomeShelfCurrent(shelf) then return
     row = m.rows[shelf.rowIndex]
     if row.nextCursor = "" or m.paging[row.id] <> invalid then return
-    task = ApiStart({ path: HomeRowPagePath(row.id, row.nextCursor), reader: "homeRow", context: { origin: ViewerOrigin(), rowId: row.id, shape: row.shape } }, "onHomePage")
-    task.addFields({ rowIndex: shelf.rowIndex, cursor: row.nextCursor })
+    if row.live <> invalid or row.collection <> invalid then return
+    task = ApiStart({ path: HomeRowPagePath(row.id, row.nextCursor), reader: "homeRow", expectedViewer: m.homeBinding, context: { origin: m.homeBinding.origin, rowId: row.id, shape: row.shape, viewerFence: row.viewerFence, revision: row.revision } }, "onHomePage")
+    task.addFields({ rowIndex: shelf.rowIndex, cursor: row.nextCursor, homeGeneration: m.homeGeneration, homeOpening: m.homeOpening, shelf: shelf })
     m.paging[row.id] = task
 end sub
 
 sub onHomePage(event as object)
     task = event.getRoSGNode()
+    if not HomeCurrent() or task.homeGeneration <> m.homeGeneration or task.homeOpening <> m.homeOpening then return
+    if not HomeShelfCurrent(task.shelf) then return
     result = event.getData()
     index = task.rowIndex
     if index >= m.rows.count() then return
@@ -443,8 +631,12 @@ sub onHomePage(event as object)
         if result.error <> invalid and result.error.code = "stale_continuation" then HomeLoad(0)
         return
     end if
-    if result.value.ok <> true or row.nextCursor <> task.cursor then return
-    shelf = m.shelves[index]
+    if result.value.ok <> true then
+        if result.value.code = "stale_continuation" then HomeLoad(0)
+        return
+    end if
+    if row.nextCursor <> task.cursor then return
+    shelf = task.shelf
     items = shelf.items
     seen = {}
     seen.setModeCaseSensitive()
@@ -454,11 +646,47 @@ sub onHomePage(event as object)
     fresh = []
     limit = HomeRowMaxEntries()
     for each card in task.content.getChildren(-1, 0)
-        if not seen.doesExist(card.entryId) and items.getChildCount() + fresh.count() < limit then fresh.push(card)
+        if not seen.doesExist(card.entryId) and items.getChildCount() + fresh.count() < limit then
+            seen[card.entryId] = true
+            fresh.push(card)
+        end if
     end for
     items.appendChildren(fresh)
     row.nextCursor = result.value.nextCursor
     if items.getChildCount() >= limit then row.nextCursor = ""
     row.total = result.value.total
     m.rows[index] = row
+    for i = 0 to m.document.rows.count() - 1
+        if m.document.rows[i].id = row.id then m.document.rows[i] = AppendHomeRowPage(m.document.rows[i], result.value.row)
+    end for
+end sub
+
+
+' Shell calls retirement synchronously before hide/cover/drop/leave.
+sub retireHome()
+    m.homeActive = false
+    HomeRetireHydrations()
+    m.retry.control = "stop"
+    if m.task <> invalid then m.task.control = "STOP"
+    m.task = invalid
+    m.document = invalid
+end sub
+
+sub HomeOpen()
+    if not m.top.homePresented then return
+    m.homeBinding = ViewerRequestBinding(m.global.session.viewer)
+    if not HomeViewerCurrent(m.homeBinding, m.homeBinding) then return
+    m.homeOpening = m.top.homeOpening
+    m.homeActive = true
+    HomeSkeleton()
+    HomeLoad(0)
+end sub
+
+function HomeCurrent() as boolean
+    if not m.homeActive or not m.top.homePresented or m.homeOpening <> m.top.homeOpening then return false
+    return HomeViewerCurrent(m.homeBinding, ViewerRequestBinding(m.global.session.viewer))
+end function
+
+sub onHomeLiveExpiry()
+    if HomeCurrent() and m.task = invalid then HomeLoad(0)
 end sub
