@@ -72,3 +72,57 @@ sub Test_HomeLive_projection()
     raw.channels.push(raw.channels[0])
     AssertEqual(ParseHomeLiveProjection(raw), invalid, "duplicate source/channel tuple")
 end sub
+
+' Source vectors for the owner review; execution is deferred to the final batch.
+sub Test_HomeLive_reviewVectors()
+    AssertEqual(HomeInstantMs("1970-01-01T00:00:00Z"), 0&)
+    AssertEqual(HomeInstantMs("1969-12-31T23:59:59.1Z"), -900&)
+    AssertEqual(HomeInstantMs("1969-12-31T23:59:59.12Z"), -880&)
+    for each fraction in ["1", "12", "123", "123456789"]
+        utc = HomeInstantMs("1970-01-01T00:00:00." + fraction + "Z")
+        AssertEqual(HomeInstantMs("1970-01-01T01:00:00." + fraction + "+01:00"), utc)
+        AssertEqual(HomeInstantMs("1969-12-31T23:00:00." + fraction + "-01:00"), utc)
+    end for
+    raw = TestHomeLiveOffer()
+    raw.observedAt = "2026-01-01T00:00:00.1Z"
+    raw.expiresAt = "2026-01-01T00:00:00.050Z"
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "reversed normalized expiry")
+    raw.expiresAt = "2026-01-01T01:00:00.1+01:00"
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "equal offset-normalized expiry")
+    raw = TestHomeLiveOffer()
+    p = raw.channels[0].channel.programmes[0]
+    p.description = "News 123" + Chr(10) + "continued"
+    p.rating = { value: "PG", system: "" }
+    p.categories = ["News", "news", "Sports", ""]
+    p.image = "/not-server-art"
+    raw.channels[0].channel.logoPath = "/not-server-art"
+    value = ParseHomeLiveProjection(raw)
+    if value = invalid then
+        AssertTrue(false, "optional facts preserve channel")
+        return
+    end if
+    programme = value.channels[0].channel.programmes[0]
+    AssertEqual(programme.description, p.description, "normal prose and LF preserved")
+    AssertEqual(programme.rating.system, "", "explicit empty rating system")
+    AssertEqual(programme.categories, ["News", "Sports"], "category deduplication")
+    AssertEqual(programme.image, invalid)
+    AssertEqual(value.channels[0].channel.logoPath, "")
+    for each control in [0, 13, 127]
+        p.description = "bad" + Chr(control) + "text"
+        parsed = ParseHomeLiveProjection(raw)
+        AssertEqual(parsed.channels[0].channel.programmes[0].description, "", "forbidden control drops description only")
+    end for
+    p.rating.system = 123
+    parsed = ParseHomeLiveProjection(raw)
+    AssertEqual(parsed.channels[0].channel.programmes[0].rating, invalid, "nonstring rating system dropped")
+    raw.channels[0].source.generation = "other"
+    AssertEqual(ParseHomeLiveProjection(raw), invalid, "generation identity")
+    raw = TestHomeLiveOffer()
+    raw.channels[0].source.provenance = "library-channel"
+    raw.channels[0].channel.provenance = "library-channel"
+    raw.channels[0].channel.recordAvailable = true
+    raw.channels[0].actions.play = "true"
+    parsed = ParseHomeLiveProjection(raw)
+    AssertTrue(not parsed.channels[0].channel.recordAvailable)
+    AssertTrue(not parsed.channels[0].actions.play)
+end sub
