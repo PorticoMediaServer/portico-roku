@@ -326,4 +326,5 @@ sub Test_AdminTelemetry_viewerBinding()
     current.sessionFamilyId = invalid
     original.sessionFamilyId = invalid
     AssertTrue(not AdminTelemetryViewerCurrent(original, current), "missing identities never match")
+    AssertTrue(not AdminTelemetryViewerCurrent(original, original), "missing family refuses telemetry dispatch")
 end sub

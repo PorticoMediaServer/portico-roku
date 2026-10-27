@@ -920,7 +920,7 @@ sub SettingsDashboardLoad()
     if not m.settingsActive or not SettingsOnDashboard() then return
     telemetryPath = AdminTelemetryPath(NowSeconds(), "UTC")
     telemetryBinding = ViewerRequestBinding(m.session.viewer)
-    if telemetryBinding = invalid then telemetryPath = invalid
+    if not AdminTelemetryViewerCurrent(telemetryBinding, telemetryBinding) then telemetryPath = invalid
     for each item in [["sessions", "/v1/admin/sessions?limit=50", "adminSessions"], ["alerts", "/v1/admin/console/alerts", "adminAlerts"], ["health", "/v1/admin/console/panels/health", "adminHealth"], ["storage", "/v1/admin/console/panels/storage", "adminStorage"], ["telemetry", telemetryPath, "adminTelemetry"], ["jobs", "/v1/admin/console/jobs?cursor=", "adminJobs"]]
         if item[1] = invalid then
             if item[0] = "telemetry" then
