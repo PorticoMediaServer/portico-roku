@@ -40,7 +40,7 @@ end function
 function WireInstant(value as dynamic) as object
     if value = invalid then return { ok: true, value: invalid }
     if IsString(value) and value = "" then return { ok: true, value: 0& }
-    if not IsString(value) or not MatchesPattern(value, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$") then return { ok: false }
+    if not IsString(value) or not MatchesPattern(value, "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$") then return { ok: false }
     seconds = IsoToSeconds(value)
     if seconds = invalid or seconds < 0 then return { ok: false }
     fraction = "000"
