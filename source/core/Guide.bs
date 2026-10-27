@@ -44,7 +44,7 @@ end function
 function GuideViewerCurrent(expected as dynamic, current as dynamic) as boolean
     if expected = invalid or current = invalid then return false
     for each key in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
-        if expected[key] <> current[key] then return false
+        if not IsText(expected[key], 2048) or not IsText(current[key], 2048) or expected[key] <> current[key] then return false
     end for
     return true
 end function

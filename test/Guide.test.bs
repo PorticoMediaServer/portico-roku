@@ -119,6 +119,9 @@ sub Test_Guide_viewerBinding()
     replacement.sessionFamilyId = "new-family"
     AssertTrue(not GuideViewerCurrent(original, replacement), "replaced viewer cannot adopt a continuation")
     AssertTrue(not GuideViewerCurrent(original, invalid))
+    original.delete("sessionFamilyId")
+    replacement.delete("sessionFamilyId")
+    AssertTrue(not GuideViewerCurrent(original, replacement), "missing family never matches")
 end sub
 
 sub Test_Guide_responseStaysBoundAcrossHour()
