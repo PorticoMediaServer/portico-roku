@@ -1,0 +1,82 @@
+' Explicit server wire units: integer milliseconds and UTC RFC 3339 instants.
+import "pkg:/source/core/Validate.bs"
+import "pkg:/source/core/Time.bs"
+
+function WireIsNumber(value as dynamic) as boolean
+    kind = Type(value)
+    return kind = "Integer" or kind = "roInt" or kind = "roInteger" or kind = "Float" or kind = "roFloat" or kind = "Double" or kind = "roDouble" or kind = "LongInteger" or kind = "roLongInteger"
+end function
+
+function WireDuration(value as dynamic) as object
+    if value = invalid then return { ok: true, value: invalid }
+    if not IsNatural(value) or value > 9007199254740991# then return { ok: false }
+    return { ok: true, value: value / 1000# }
+end function
+
+function WireDurationIntent(value as dynamic) as object
+    if value = invalid then return { ok: true, value: invalid }
+    if not WireIsNumber(value) or value <> value or value < 0 or value > 9007199254740.991# then return { ok: false }
+    ' Keep each Fix input small, then correct boundaries using the double value.
+    billion& = Fix(value / 1000000000#)
+    if billion& * 1000000000# > value then billion& = billion& - 1
+    if (billion& + 1) * 1000000000# <= value then billion& = billion& + 1
+    rest = value - billion& * 1000000000#
+    thousand& = Fix(rest / 1000#)
+    if thousand& * 1000# > rest then thousand& = thousand& - 1
+    if (thousand& + 1) * 1000# <= rest then thousand& = thousand& + 1
+    small = rest - thousand& * 1000#
+    seconds& = Fix(small)
+    if seconds& > small then seconds& = seconds& - 1
+    if seconds& + 1 <= small then seconds& = seconds& + 1
+    rounded = (small - seconds&) * 1000# + 0.5#
+    fraction& = Fix(rounded)
+    if fraction& > rounded then fraction& = fraction& - 1
+    if fraction& + 1 <= rounded then fraction& = fraction& + 1
+    millis& = billion& * 1000000000000& + thousand& * 1000000& + seconds& * 1000& + fraction&
+    if millis& > 9007199254740991& then return { ok: false }
+    return { ok: true, value: millis& }
+end function
+
+function WireInstant(value as dynamic) as object
+    if value = invalid then return { ok: true, value: invalid }
+    if IsString(value) and value = "" then return { ok: true, value: 0& }
+    if not IsString(value) or not MatchesPattern(value, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$") then return { ok: false }
+    seconds = IsoToSeconds(value)
+    if seconds = invalid or seconds < 0 then return { ok: false }
+    fraction = "000"
+    if Mid(value, 20, 1) = "." then fraction = Left(Mid(value, 21) + "000", 3)
+    millis& = seconds * 1000& + Val(fraction, 10)
+    if millis& > 9007199254740991& then return { ok: false }
+    return { ok: true, value: millis& }
+end function
+
+function WireInstantFields(value as dynamic, fields as object) as object
+    if not IsObject(value) then return { ok: false }
+    out = {}
+    out.append(value)
+    for each field in fields
+        if out.doesExist(field) then
+            decoded = WireInstant(out[field])
+            if not decoded.ok then return { ok: false }
+            out[field] = decoded.value
+        end if
+    end for
+    return { ok: true, value: out }
+end function
+
+function WireDurationFields(value as dynamic, fields as object) as object
+    if not IsObject(value) then return { ok: false }
+    out = {}
+    out.append(value)
+    for each internal in fields.keys()
+        wire = fields[internal]
+        if out.doesExist(internal) then return { ok: false }
+        if out.doesExist(wire) then
+            decoded = WireDuration(out[wire])
+            if not decoded.ok then return { ok: false }
+            out.delete(wire)
+            out[internal] = decoded.value
+        end if
+    end for
+    return { ok: true, value: out }
+end function
