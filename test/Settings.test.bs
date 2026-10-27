@@ -315,3 +315,15 @@ sub Test_AdminTelemetry_reportContext()
     AssertEqual(AdminTelemetryPath(-1), invalid)
     AssertEqual(AdminTelemetryPath("bad"), invalid)
 end sub
+
+' Viewer comparison source coverage; SceneGraph task admission remains final-batch coverage.
+sub Test_AdminTelemetry_viewerBinding()
+    original = { origin: "https://server", serverId: "s", accountId: "a", profileId: "p", authority: "local", sessionFamilyId: "family" }
+    current = ParseJson(FormatJson(original))
+    AssertTrue(AdminTelemetryViewerCurrent(original, current))
+    current.sessionFamilyId = "replacement"
+    AssertTrue(not AdminTelemetryViewerCurrent(original, current))
+    current.sessionFamilyId = invalid
+    original.sessionFamilyId = invalid
+    AssertTrue(not AdminTelemetryViewerCurrent(original, current), "missing identities never match")
+end sub

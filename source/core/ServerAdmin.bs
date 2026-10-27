@@ -10,6 +10,15 @@ import "pkg:/source/core/Format.bs"
 import "pkg:/source/core/Time.bs"
 import "pkg:/source/core/SettingsTables.bs"
 
+' Telemetry remains bound to the original viewer and session family.
+function AdminTelemetryViewerCurrent(expected as dynamic, current as dynamic) as boolean
+    if not IsObject(expected) or not IsObject(current) then return false
+    for each field in ["origin", "serverId", "accountId", "profileId", "authority", "sessionFamilyId"]
+        if not IsText(expected[field], 2048) or not IsText(current[field], 2048) or expected[field] <> current[field] then return false
+    end for
+    return true
+end function
+
 ' Report requests use one UTC quarter boundary captured for the refresh.
 function AdminTelemetryPath(clock as dynamic, timeZone = "UTC" as string) as dynamic
     if not IsNumber(clock) or clock <> clock or clock < 0 or clock > 253402300799# or not IsContentId(timeZone) then return invalid
