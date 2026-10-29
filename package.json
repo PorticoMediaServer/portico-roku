@@ -23,7 +23,7 @@
     "@rokucommunity/brs": "0.47.6",
     "brighterscript": "0.73.5",
     "brs-engine": "2.6.1",
-    "brs-scenegraph": "0.6.1",
+    "brs-scenegraph": "0.6.2",
     "playwright-core": "1.56.1",
     "qrcode": "1.5.4",
     "roku-deploy": "3.18.4"
